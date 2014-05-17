@@ -1,3 +1,3 @@
-Running as <strong><?php exec("whoami");?></strong>.
+Running as <strong><?=exec("whoami");?></strong>.
 
 Everything works!!!
