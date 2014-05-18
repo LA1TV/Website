@@ -20,6 +20,9 @@ class CreateVideoToSeriesTable extends Migration {
 			$table->smallInteger("position")->unsigned();
 			$table->timestamps();
 			
+			$table->index("video_id");
+			$table->index("series_id");
+			
 			$table->foreign("video_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
 			$table->foreign("series_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('cascade');
 
