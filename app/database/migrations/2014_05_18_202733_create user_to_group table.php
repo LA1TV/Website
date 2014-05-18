@@ -14,8 +14,8 @@ class CreateUserToGroupTable extends Migration {
 	{
 		Schema::create('user_to_group', function(Blueprint $table)
 		{
-			$table->integer("user_id")->references('id')->on('users')->onUpdate->("restrict")->onDelete('cascade');
-			$table->integer("group_id")->references('id')->on('permission_groups')->onUpdate->("restrict")->onDelete('restrict');
+			$table->integer("user_id")->references('id')->on('users')->onUpdate("restrict")->onDelete('cascade');
+			$table->integer("group_id")->references('id')->on('permission_groups')->onUpdate("restrict")->onDelete('restrict');
 			$table->primary(array("user_id", "group_id"));
 			$table->timestamps();
 		});
