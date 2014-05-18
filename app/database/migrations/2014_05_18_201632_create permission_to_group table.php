@@ -14,11 +14,14 @@ class CreatePermissionToGroupTable extends Migration {
 	{
 		Schema::create('permission_to_group', function(Blueprint $table)
 		{
-			$table->integer("group_id")->unsigned()->references('id')->on('permission_groups')->onUpdate("restrict")->onDelete('cascade');
-			$table->integer("permission_id")->unsigned()->references('id')->on('permissions')->onUpdate("restrict")->onDelete('restrict');
+			$table->integer("group_id")->unsigned();
+			$table->integer("permission_id")->unsigned();
 			$table->integer("permission_flag")->unsigned();
 			$table->primary(array("group_id", "permission_id"));
 			$table->timestamps();
+			
+			$table->foreign("group_id")->references('id')->on('permission_groups')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("permission_id")->references('id')->on('permissions')->onUpdate("restrict")->onDelete('restrict');
 		});
 	}
 
