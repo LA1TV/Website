@@ -30,8 +30,8 @@ class CreateVideosTable extends Migration {
 			$table->index("cover_file_id");
 			$table->index("side_banner_file_id");
 			
-			$table->foreign("cover_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
-			$table->foreign("side_banner_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
+			$table->foreign("cover_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('restrict');
+			$table->foreign("side_banner_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('restrict');
 
 		});
 	}
