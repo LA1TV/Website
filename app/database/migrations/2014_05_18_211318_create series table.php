@@ -17,8 +17,8 @@ class CreateSeriesTable extends Migration {
 			$table->increments('id');
 			$table->string('name', 50);
 			$table->string('description')->nullable();
-			$table->boolean('cover_file_id')->nullable();
-			$table->boolean('side_banner_file_id')->nullable();
+			$table->boolean('cover_file_id')->nullable()->index();
+			$table->boolean('side_banner_file_id')->nullable()->index();
 			$table->boolean('enabled');
 			$table->timestamp('scheduled_publish_time')->nullable();
 			$table->timestamps();

@@ -17,9 +17,8 @@ class CreateVideosTable extends Migration {
 			$table->increments('id');
 			$table->string('name', 50);
 			$table->string('description')->nullable();
-			$table->boolean('cover_file_id')->nullable();
-			$table->boolean('side_banner_file_id')->nullable();
-			$table->boolean('side_banner_file_id')->nullable();
+			$table->boolean('cover_file_id')->nullable()->index();
+			$table->boolean('side_banner_file_id')->nullable()->index();
 			$table->boolean('enabled');
 			$table->tinyInteger('encode_stage')->unsigned();
 			$table->integer('view_count')->unsigned()->default(0);
