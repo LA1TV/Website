@@ -16,7 +16,7 @@ class CreatePermissionGroupsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->string('name', 50);
-			$table->text('description');
+			$table->text('description')->nullable();
 			$table->timestamps();
 		});
 	}
