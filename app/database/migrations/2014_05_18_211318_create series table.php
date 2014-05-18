@@ -17,8 +17,8 @@ class CreateSeriesTable extends Migration {
 			$table->increments('id');
 			$table->string('name', 50);
 			$table->string('description')->nullable();
-			$table->boolean('cover_file_id')->nullable();
-			$table->boolean('side_banner_file_id')->nullable();
+			$table->integer('cover_file_id')->unsigned()->nullable();
+			$table->integer('side_banner_file_id')->unsigned()->nullable();
 			$table->boolean('enabled');
 			$table->timestamp('scheduled_publish_time')->nullable();
 			$table->timestamps();
@@ -26,8 +26,8 @@ class CreateSeriesTable extends Migration {
 			$table->index("cover_file_id");
 			$table->index("side_banner_file_id");
 			
-			$table->foreign("cover_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('restrict');
-			$table->foreign("side_banner_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('restrict');
+			$table->foreign("cover_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
+			$table->foreign("side_banner_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
 		});
 	}
 
