@@ -17,7 +17,7 @@ class CreateLiveStreamsQualities extends Migration {
 			$table->integer("live_stream_id")->unsigned();
 			$table->string("quality_id", 20);
 			$table->primary(array("live_stream_id", "quality_id"));
-			$table->tinyInteger("position")->unsigned();
+			$table->tinyInteger("position")->unsigned()->unique();
 			$table->timestamps();
 			
 			$table->index("live_stream_id");
