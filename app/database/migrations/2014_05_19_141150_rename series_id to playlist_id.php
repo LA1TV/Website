@@ -20,7 +20,7 @@ class RenameSeriesIdToPlaylistId extends Migration {
 			$table->renameColumn('series_id', 'playlist_id');
 			
 			$table->foreign("video_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
-			$table->foreign("series_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("playlist_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
