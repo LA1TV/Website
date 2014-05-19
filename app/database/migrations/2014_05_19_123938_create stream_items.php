@@ -16,14 +16,14 @@ class CreateStreamItems extends Migration {
 		{
 			$table->increments('id');
 			$table->boolean("enabled");
-			$table->integer('video_id')->unsigned()->nullable();
+			$table->integer('media_item_id')->unsigned()->nullable();
 			$table->integer('live_stream_id')->unsigned()->nullable();
 			$table->timestamps();
 			
-			$table->index("video_id");
+			$table->index("media_item_id");
 			$table->index("live_stream_id");
 			
-			$table->foreign("video_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("media_item_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
 			$table->foreign("live_stream_id")->references('id')->on('live_streams')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
