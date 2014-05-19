@@ -14,16 +14,7 @@ class RenameSeriesIdToPlaylistId extends Migration {
 	{
 		Schema::table('video_to_playlist', function(Blueprint $table)
 		{
-			$table->dropForeign('video_to_series_video_id_foreign');
-			$table->dropForeign('video_to_series_series_id_foreign');
-		});
-		
-		Schema::table('video_to_playlist', function(Blueprint $table)
-		{			
 			$table->renameColumn('series_id', 'playlist_id');
-			
-			$table->foreign("video_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
-			$table->foreign("playlist_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
@@ -36,16 +27,7 @@ class RenameSeriesIdToPlaylistId extends Migration {
 	{
 		Schema::table('video_to_playlist', function(Blueprint $table)
 		{
-			$table->dropForeign('video_to_playlist_video_id_foreign');
-			$table->dropForeign('video_to_playlist_series_id_foreign');
-		});
-		
-		Schema::table('video_to_playlist', function(Blueprint $table)
-		{
 			$table->renameColumn('playlist_id', 'series_id');
-			
-			$table->foreign("video_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
-			$table->foreign("series_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
