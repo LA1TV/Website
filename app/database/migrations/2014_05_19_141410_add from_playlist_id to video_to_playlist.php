@@ -32,6 +32,7 @@ class AddFromPlaylistIdToVideoToPlaylist extends Migration {
 	{
 		Schema::table('video_to_playlist', function(Blueprint $table)
 		{
+			$table->dropForeign('video_to_playlist_from_playlist_id_foreign');
 			$table->dropColumn("from_playlist_id");
 		});
 	}
