@@ -30,4 +30,8 @@ class MediaItem extends Eloquent {
 	public function coverFile() {
 		return $this->hasOne('file', 'cover_file_id');
 	}
+	
+	public function playlists() {
+		return $this->belongsToMany('Playlist', 'media_item_to_playlist', 'playlist_id', 'media_item_id');
+	}
 }

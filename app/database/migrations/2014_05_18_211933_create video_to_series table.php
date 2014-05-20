@@ -14,16 +14,16 @@ class CreateVideoToSeriesTable extends Migration {
 	{
 		Schema::create('video_to_series', function(Blueprint $table)
 		{
-			$table->integer("video_id")->unsigned();
+			$table->integer("media_item_id")->unsigned();
 			$table->integer("playlist_id")->unsigned();
-			$table->primary(array("video_id", "playlist_id"));
+			$table->primary(array("media_item_id", "playlist_id"));
 			$table->smallInteger("position")->unsigned();
 			$table->timestamps();
 			
-			$table->index("video_id");
+			$table->index("media_item_id");
 			$table->index("playlist_id");
 			
-			$table->foreign("video_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("media_item_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
 			$table->foreign("playlist_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('cascade');
 
 		});
