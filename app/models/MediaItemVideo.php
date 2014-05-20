@@ -10,4 +10,8 @@ class MediaItemVideo extends Eloquent {
 	public function mediaItem() {
 		return $this->belongsTo('MediaItem', 'media_item_id');
 	}
+	
+	public function videoFile() {
+		return $this->hasOne('VideoFile', 'media_items_video_id');
+	}
 }
