@@ -8,6 +8,6 @@ class Permission extends Eloquent {
 	protected $fillable = array('description');
 
 	public function groups() {
-		return $this->belongsToMany('PermissionGroup', 'permission_to_group', 'permission_id', 'group_id');
+		return $this->belongsToMany('PermissionGroup', 'permission_to_group', 'permission_id', 'group_id')->withPivot('permission_flag');
 	}
 }

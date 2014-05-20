@@ -12,6 +12,6 @@ class PermissionGroup extends Eloquent {
 	}
 	
 	public function permissions() {
-		return $this->belongsToMany('PermissionGroup', 'permission_to_group', 'group_id', 'permission_id');
+		return $this->belongsToMany('PermissionGroup', 'permission_to_group', 'group_id', 'permission_id')->withPivot('permission_flag');
 	}
 }

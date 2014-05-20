@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class RemovePermissionFlag extends Migration {
+class ReCreatePermissionFlag extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -14,7 +14,7 @@ class RemovePermissionFlag extends Migration {
 	{
 		Schema::table('permission_to_group', function(Blueprint $table)
 		{
-			$table->dropColumn('permission_flag');
+			$table->tinyInteger('permission_flag')->unsigned();
 		});
 	}
 
@@ -27,7 +27,7 @@ class RemovePermissionFlag extends Migration {
 	{
 		Schema::table('permission_to_group', function(Blueprint $table)
 		{
-			$table->tinyInteger('permission_flag')->unsigned();
+			$table->dropColumn('permission_flag');
 		});
 	}
 
