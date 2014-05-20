@@ -5,7 +5,7 @@ use Eloquent;
 class LiveStreamQuality extends Eloquent {
 	
 	protected $table = 'live_streams_qualities';
-	protected $fillable = array('quality_id', 'description', 'position');
+	protected $fillable = array('quality_id', 'name', 'position');
 
 	public function liveStream() {
 		return $this->belongsTo('LiveStream');
