@@ -2,10 +2,10 @@
 
 use Eloquent;
 
-class MediaItemComment extends Eloquent {
+class MediaItemLike extends Eloquent {
 
-	protected $table = 'media_items_comments';
-	protected $fillable = array('msg');
+	protected $table = 'media_items_likes';
+	protected $fillable = array('is_like');
 	
 	public function mediaItem() {
 		return $this->belongsTo('MediaItem', 'media_item_id');
