@@ -15,5 +15,7 @@ class Playlist extends Eloquent {
 		return $this->hasOne('File', 'side_banner_file_id');
 	}
 
-	
+	public function mediaItems() {
+		return $this->belongsToMany('MediaItem', 'media_item_to_playlist', 'media_item_id', 'playlist_id');
+	}
 }
