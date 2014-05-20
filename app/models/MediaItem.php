@@ -8,18 +8,18 @@ class MediaItem extends Eloquent {
 	protected $fillable = array('name', 'description', 'cover_file_id', 'side_banner_file_id', 'enabled');
 	
 	public function comments() {
-		return $this->hasMany('MediaItemComment');
+		return $this->hasMany('MediaItemComment', 'media_item_id');
 	}
 
 	public function likes() {
-		return $this->hasMany('MediaItemLike');
+		return $this->hasMany('MediaItemLike', 'media_item_id');
 	}
 	
-	public function liveStream() {
-		return $this->hasOne('MediaItemLiveStream');
+	public function liveStreamItem() {
+		return $this->hasOne('MediaItemLiveStream', 'media_item_id');
 	}
 	
-	public function video() {
-		return $this->hasOne('MediaItemVideo');
+	public function videoItem() {
+		return $this->hasOne('MediaItemVideo', 'media_item_id');
 	}
 }

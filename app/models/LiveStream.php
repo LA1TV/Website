@@ -8,10 +8,14 @@ class LiveStream extends Eloquent {
 	protected $fillable = array('name', 'description', 'load_balancer_server_address', 'server_address', 'dvr_enabled');
 	
 	public function qualities() {
-		return $this->hasMany('LiveStreamQuality');
+		return $this->hasMany('LiveStreamQuality', 'live_stream_id');
 	}
 
 	public function scopeUsingLoadBalancer($q, $yes) {
 		return $q->where('load_balancer_server_address', $yes ? 'IS NOT' : 'IS', DB::raw('NULL'))
-	}	
+	}
+	
+	public function liveStreamItems() {
+		return $this->hasMany('MediaItemVideoStream', 'live_stream_id');
+	}
 }
