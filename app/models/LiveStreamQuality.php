@@ -1,38 +1,13 @@
 <?php namespace uk\co\la1tv\website\models;
 
-class LiveStreamQuality {
+use Eloquent;
 
-	private $qualityId;
-	private $description;
-	private $position;
-	private $created;
-	private $updated;
+class LiveStreamQuality extends Eloquent {
 	
-	public function Stream($qualityId, $description, $position, $created, $updated) {
-		$this->qualityId = $qualityId;
-		$this->description = $description;
-		$this->position = $position;
-		$this->created = $created;
-		$this->updated = $updated;
-	}
-	
-	public function getQualityId() {
-		return $this->qualityId;
-	}
-	
-	public function getDescription() {
-		return $this->description;
-	}
-	
-	public function getPosition() {
-		return $this->position;
-	}
-	
-	public function getCreated() {
-		return $this->created;
-	}
-	
-	public function getUpdated() {
-		return $this->updated;
+	protected $table = 'live_streams_qualities';
+	protected $fillable = array('quality_id', 'description', 'position');
+
+	public function liveStream() {
+		return $this->belongsTo('LiveStream');
 	}
 }	
