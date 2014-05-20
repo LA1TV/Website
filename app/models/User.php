@@ -8,6 +8,6 @@ class User extends Eloquent {
 	protected $fillable = array('cosign_user', 'admin');
 	
 	public function permissionGroups() {
-		return $this->belongsToMany('Permission', 'user_to_group', 'user_id', 'group_id');
+		return $this->belongsToMany('PermissionGroup', 'user_to_group', 'user_id', 'group_id');
 	}
 }

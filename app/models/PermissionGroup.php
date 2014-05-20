@@ -10,4 +10,8 @@ class PermissionGroup extends Eloquent {
 	public function users() {
 		return $this->belongsToMany('User', 'user_to_group', 'group_id', 'user_id');
 	}
+	
+	public function permissions() {
+		return $this->belongsToMany('PermissionGroup', 'permission_to_group', 'group_id', 'permission_id');
+	}
 }
