@@ -12,9 +12,6 @@ class LiveStream extends Eloquent {
 	}
 
 	public function scopeUsingLoadBalancer($q, $yes) {
-		// TODO: where address IS NULL
-		invalid
-		return $q->where('load_balancer_server_address', '>', 100);
-	}
-	
+		return $q->where('load_balancer_server_address', $yes ? 'IS NOT' : 'IS', DB::raw('NULL'))
+	}	
 }
