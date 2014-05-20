@@ -11,8 +11,4 @@ class VideoFile extends Eloquent {
 		return $this->belongsTo('MediaItemVideo', 'media_items_video_id');
 	}
 	
-	public function mediaItems() {
-		return $this->belongsToMany('MediaItem', 'media_item_to_playlist', 'media_item_id', 'playlist_id');
-	}
-	
 }
