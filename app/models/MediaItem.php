@@ -22,4 +22,12 @@ class MediaItem extends Eloquent {
 	public function videoItem() {
 		return $this->hasOne('MediaItemVideo', 'media_item_id');
 	}
+	
+	public function sideBannerFile() {
+		return $this->hasOne('file', 'side_banner_file_id');
+	}
+	
+	public function coverFile() {
+		return $this->hasOne('file', 'cover_file_id');
+	}
 }
