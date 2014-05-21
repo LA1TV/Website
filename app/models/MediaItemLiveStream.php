@@ -5,7 +5,7 @@ use Eloquent;
 class MediaItemLiveStream extends Eloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('enabled');
+	protected $fillable = array('enabled', 'scheduled_live_time');
 	
 	public function mediaItem() {
 		return $this->belongsTo('MediaItem', 'media_item_id');
