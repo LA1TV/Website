@@ -15,7 +15,7 @@ class CreateVideoFiles extends Migration {
 		Schema::create('video_files', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->integer('media_item_id')->unsigned()->nullable();
+			$table->integer('media_item_id')->unsigned();
 			$table->integer('width')->unsigned();
 			$table->integer('height')->unsigned();
 			$table->tinyInteger('encode_stage')->unsigned()->default(0);
@@ -23,7 +23,7 @@ class CreateVideoFiles extends Migration {
 			
 			$table->index("media_item_id");
 			
-			$table->foreign("media_item_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('set null');
+			$table->foreign("media_item_id")->references('id')->on('videos')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 

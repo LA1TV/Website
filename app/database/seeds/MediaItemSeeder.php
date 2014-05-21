@@ -12,12 +12,12 @@ class MediaItemSeeder extends Seeder {
 	 */
 	public function run() {
 		
-		$mediaItemLiveStream = new MediaItemLiveStream();
-		$mediaItemLiveStream->enabled = true;
-		$mediaItemLiveStream->save();
-		MediaItem::find(1)->liveStreamItem()->save($mediaItemLiveStream);
+//		$mediaItemLiveStream = new MediaItemLiveStream();
+//		$mediaItemLiveStream->enabled = true;
+//		$mediaItemLiveStream->save();
+//		MediaItem::find(1)->liveStreamItem()->save($mediaItemLiveStream);
 //		$mediaItem->save();
-		return;
+//		return;
 		
 		$mediaItemLiveStream = new MediaItemLiveStream();
 		$mediaItemLiveStream->enabled = true;
@@ -26,7 +26,7 @@ class MediaItemSeeder extends Seeder {
 		$mediaItem->name = "Lunchtime Show!";
 		$mediaItem->description = "This is the lunchtime show description.";
 		$mediaItem->enabled = true;
-	//	$mediaItem->liveStreamItem = $mediaItemLiveStream;
+		$mediaItem->liveStreamItem()->save($mediaItemLiveStream);
 		
 		$mediaItem->push();
 		

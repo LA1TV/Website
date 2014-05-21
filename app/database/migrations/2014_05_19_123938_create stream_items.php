@@ -16,7 +16,7 @@ class CreateStreamItems extends Migration {
 		{
 			$table->increments('id');
 			$table->boolean("enabled");
-			$table->integer('media_item_id')->unsigned()->nullable();
+			$table->integer('media_item_id')->unsigned();
 			$table->integer('live_stream_id')->unsigned()->nullable();
 			$table->timestamps();
 			
