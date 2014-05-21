@@ -3,7 +3,7 @@
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('enabled', 'scheduled_live_time');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time');
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
