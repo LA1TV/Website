@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class MediaItemLike extends Eloquent {
+class MediaItemLike extends MyEloquent {
 
 	protected $table = 'media_items_likes';
 	protected $fillable = array('is_like');

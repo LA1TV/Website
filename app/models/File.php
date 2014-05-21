@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class File extends Eloquent {
+class File extends MyEloquent {
 
 	protected $table = 'files';
 	protected $fillable = array('in_use');

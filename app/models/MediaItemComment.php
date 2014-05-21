@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class MediaItemComment extends Eloquent {
+class MediaItemComment extends MyEloquent {
 
 	protected $table = 'media_items_comments';
 	protected $fillable = array('msg');

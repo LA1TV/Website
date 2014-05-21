@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class MediaItemLiveStream extends Eloquent {
+class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
 	protected $fillable = array('enabled', 'scheduled_live_time');

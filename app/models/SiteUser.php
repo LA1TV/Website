@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class SiteUser extends Eloquent {
+class SiteUser extends MyEloquent {
 
 	protected $table = 'site_users';
 	protected $fillable = array('fb_uid', 'first_name', 'last_name', 'name', 'email');

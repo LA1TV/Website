@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class LiveStream extends Eloquent {
+class LiveStream extends MyEloquent {
 
 	protected $table = 'live_streams';
 	protected $fillable = array('name', 'description', 'load_balancer_server_address', 'server_address', 'dvr_enabled');

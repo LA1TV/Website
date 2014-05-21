@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class LiveStreamQuality extends Eloquent {
+class LiveStreamQuality extends MyEloquent {
 	
 	protected $table = 'live_streams_qualities';
 	protected $fillable = array('quality_id', 'name', 'position');

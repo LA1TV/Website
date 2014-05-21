@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class MediaItem extends Eloquent {
+class MediaItem extends MyEloquent {
 
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'cover_file_id', 'side_banner_file_id', 'enabled');

@@ -1,8 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Eloquent;
-
-class VideoFile extends Eloquent {
+class VideoFile extends MyEloquent {
 
 	protected $table = 'video_files';
 	protected $fillable = array('width', 'height');
