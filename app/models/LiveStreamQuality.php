@@ -6,6 +6,6 @@ class LiveStreamQuality extends MyEloquent {
 	protected $fillable = array('quality_id', 'name', 'position');
 
 	public function liveStream() {
-		return $this->belongsTo('LiveStream', 'live_stream_id');
+		return $this->belongsTo(self::$p.'LiveStream', 'live_stream_id');
 	}
 }	

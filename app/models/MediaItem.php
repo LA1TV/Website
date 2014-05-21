@@ -1,35 +1,35 @@
 <?php namespace uk\co\la1tv\website\models;
 
 class MediaItem extends MyEloquent {
-
+	
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'cover_file_id', 'side_banner_file_id', 'enabled');
 	
 	public function comments() {
-		return $this->hasMany('MediaItemComment', 'media_item_id');
+		return $this->hasMany(self::$p.'MediaItemComment', 'media_item_id');
 	}
 
 	public function likes() {
-		return $this->hasMany('MediaItemLike', 'media_item_id');
+		return $this->hasMany(self::$p.'MediaItemLike', 'media_item_id');
 	}
 	
 	public function liveStreamItem() {
-		return $this->hasOne('MediaItemLiveStream', 'media_item_id');
+		return $this->hasOne(self::$p.'MediaItemLiveStream', 'media_item_id');
 	}
 	
 	public function videoItem() {
-		return $this->hasOne('MediaItemVideo', 'media_item_id');
+		return $this->hasOne(self::$p.'MediaItemVideo', 'media_item_id');
 	}
 	
 	public function sideBannerFile() {
-		return $this->hasOne('file', 'side_banner_file_id');
+		return $this->hasOne(self::$p.'file', 'side_banner_file_id');
 	}
 	
 	public function coverFile() {
-		return $this->hasOne('file', 'cover_file_id');
+		return $this->hasOne(self::$p.'file', 'cover_file_id');
 	}
 	
 	public function playlists() {
-		return $this->belongsToMany('Playlist', 'media_item_to_playlist', 'playlist_id', 'media_item_id')->withPivot('position', 'from_playlist_id');
+		return $this->belongsToMany(self::$p.'Playlist', 'media_item_to_playlist', 'playlist_id', 'media_item_id')->withPivot('position', 'from_playlist_id');
 	}
 }

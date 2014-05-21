@@ -6,10 +6,10 @@ class MediaItemVideo extends MyEloquent {
 	protected $fillable = array('is_live_recording', 'time_recorded', 'scheduled_publish_time', 'enabled', 'name', 'description');
 	
 	public function mediaItem() {
-		return $this->belongsTo('MediaItem', 'media_item_id');
+		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
 	}
 	
 	public function videoFiles() {
-		return $this->hasMany('VideoFile', 'media_items_video_id');
+		return $this->hasMany(self::$p.'VideoFile', 'media_items_video_id');
 	}
 }

@@ -6,11 +6,11 @@ class SiteUser extends MyEloquent {
 	protected $fillable = array('fb_uid', 'first_name', 'last_name', 'name', 'email');
 	
 	public function comments() {
-		return $this->hasMany('MediaItemComment', 'site_user_id');
+		return $this->hasMany(self::$p.'MediaItemComment', 'site_user_id');
 	}
 
 	public function likes() {
-		return $this->hasMany('MediaItemLike', 'site_user_id');
+		return $this->hasMany(self::$p.'MediaItemLike', 'site_user_id');
 	}
 
 }

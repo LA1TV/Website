@@ -6,10 +6,10 @@ class MediaItemLike extends MyEloquent {
 	protected $fillable = array('is_like');
 	
 	public function mediaItem() {
-		return $this->belongsTo('MediaItem', 'media_item_id');
+		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
 	}
 	
 	public function siteUser() {
-		return $this->belongsTo('SiteUser', 'site_user_id');
+		return $this->belongsTo(self::$p.'SiteUser', 'site_user_id');
 	}
 }

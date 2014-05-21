@@ -6,7 +6,7 @@ class VideoFile extends MyEloquent {
 	protected $fillable = array('width', 'height');
 	
 	public function mediaItemVideo() {
-		return $this->belongsTo('MediaItemVideo', 'media_items_video_id');
+		return $this->belongsTo(self::$p.'MediaItemVideo', 'media_items_video_id');
 	}
 	
 }
