@@ -12,4 +12,8 @@ class MediaItemLiveStream extends MyEloquent {
 	public function liveStream() {
 		return $this->belongsTo(self::$p.'LiveStream', 'live_stream_id');
 	}
+	
+	public function getDates() {
+		return array_merge(parent::getDates(), array('scheduled_live_time'));
+	}
 }

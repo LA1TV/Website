@@ -12,4 +12,8 @@ class MediaItemVideo extends MyEloquent {
 	public function videoFiles() {
 		return $this->hasMany(self::$p.'VideoFile', 'media_items_video_id');
 	}
+	
+	public function getDates() {
+		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
+	}
 }
