@@ -10,16 +10,22 @@ class MyEloquent extends Eloquent {
 	
 	public function push() {
 		$returnVal = NULL;
-		DB::transaction(function() use (&$returnVal) {
-			$returnVal = parent::push();
+		$fn = function() {
+			parent::push();
+		};
+		DB::transaction(function() use (&$returnVal, &$fn) {
+			$returnVal = $fn();
 		});
 		return $returnVal;
 	}
 	
 	public function save(array $options = array()) {
 		$returnVal = NULL;
-		DB::transaction(function() use (&$options, &$returnVal) {
-			$returnVal = parent::save($options);
+		$fn = function($options) {
+			parent::save($options);
+		};
+		DB::transaction(function() use (&$options, &$returnVal, &$fn) {
+			$returnVal = $fn($options);
 		});
 		return $returnVal;
 	}
