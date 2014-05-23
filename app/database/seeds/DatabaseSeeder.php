@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder {
 		
 		if (App::environment() == "production") {
 			$this->command->error("WARNING: You are running in production. Data will be permanently deleted if you continue.");
-			if (!$this->command->confirm('Are you sure you want to continue? [y|n]: ', false))
+			if (!$this->command->confirm('Are you sure you want to continue? [y|n]:', false))
 			{
 				$this->command->comment("Aborting.");
 				return;
