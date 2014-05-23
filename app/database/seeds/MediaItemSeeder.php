@@ -67,16 +67,22 @@ class MediaItemSeeder extends Seeder {
 			$this->command->info("Can't add likes. No users!");
 			return;
 		}
-	
-		for ($i=0; $i<rand(0, 10); $i++) {
-			$like = new MediaItemLike(array(
-				"is_like"	=> rand(0, 1)
-			));
-			$user = SiteUser::find(rand(0, $noUsers));
+		
+		$noToCreate = rand(0, 10);
+		
+		if ($noToCreate > 0) {
+			$users = SiteUser::take($noToCreate)->get();
 			
-			$like->siteUser()->associate($user);
-			$like->mediaItem()->associate($mediaItem);
-			$like->save();
+			for ($i=0; $i<$noToCreate; $i++) {
+				$like = new MediaItemLike(array(
+					"is_like"	=> rand(0, 1)
+				));
+				$user = $users[rand(0, count($users)-1)];
+				
+				$like->siteUser()->associate($user);
+				$like->mediaItem()->associate($mediaItem);
+				$like->save();
+			}
 		}
 	}
 	
@@ -95,16 +101,22 @@ class MediaItemSeeder extends Seeder {
 			"<script>alert('xss');</script> some <strong>xss</strong>"
 		);
 		
-	
-		for ($i=0; $i<rand(0, 20); $i++) {
-			$comment = new MediaItemComment(array(
-				"msg"	=> $comments[rand(0, count($comments))]
-			));
-			$user = SiteUser::find(rand(0, $noUsers));
+		$noToCreate = rand(0, 20);
+		
+		if ($noToCreate > 0) {
+			$users = SiteUser::take($noToCreate)->get();
 			
-			$comment->siteUser()->associate($user);
-			$comment->mediaItem()->associate($mediaItem);
-			$comment->save();
+	
+			for ($i=0; $i<$noToCreate; $i++) {
+				$comment = new MediaItemComment(array(
+					"msg"	=> $comments[rand(0, count($comments)-1)]
+				));
+				$user = $users[rand(0, count($users)-1)];
+				
+				$comment->siteUser()->associate($user);
+				$comment->mediaItem()->associate($mediaItem);
+				$comment->save();
+			}
 		}
 	}
 

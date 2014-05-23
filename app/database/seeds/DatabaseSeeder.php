@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder {
 			}
 		}
 		
+		$this->call('TruncateTablesSeeder');
+		$this->call('SiteUsersSeeder');
 		$this->call('MediaItemSeeder');
 	}
 

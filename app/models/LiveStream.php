@@ -23,7 +23,7 @@ class LiveStream extends MyEloquent {
 	}
 
 	public function scopeUsingLoadBalancer($q, $yes) {
-		return $q->where(self::$p.'load_balancer_server_address', $yes ? 'IS NOT' : 'IS', DB::raw('NULL'))
+		return $q->where(self::$p.'load_balancer_server_address', $yes ? 'IS NOT' : 'IS', DB::raw('NULL'));
 	}
 	
 	public function liveStreamItems() {

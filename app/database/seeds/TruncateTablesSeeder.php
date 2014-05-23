@@ -1,0 +1,45 @@
+<?php
+
+use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\LiveStreamQuality;
+use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\MediaItemComment;
+use uk\co\la1tv\website\models\MediaItemLike;
+use uk\co\la1tv\website\models\MediaItemLiveStream;
+use uk\co\la1tv\website\models\MediaItemVideo;
+use uk\co\la1tv\website\models\Permission;
+use uk\co\la1tv\website\models\PermissionGroup;
+use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\SiteUser;
+use uk\co\la1tv\website\models\User;
+use uk\co\la1tv\website\models\VideoFile;
+
+class TruncateTablesSeeder extends Seeder {
+
+	/**
+	 * Run the database seeds.
+	 *
+	 * @return void
+	 */
+	public function run() {
+			
+		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+		File::truncate();
+		LiveStream::truncate();
+		LiveStreamQuality::truncate();
+		MediaItem::truncate();
+		MediaItemComment::truncate();
+		MediaItemLike::truncate();
+		MediaItemLiveStream::truncate();
+		MediaItemVideo::truncate();
+		Permission::truncate();
+		PermissionGroup::truncate();
+		Playlist::truncate();
+		SiteUser::truncate();
+		User::truncate();
+		VideoFile::truncate();
+		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+	
+	}
+}
