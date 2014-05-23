@@ -8,7 +8,7 @@ class MyEloquent extends Eloquent {
 	
 	protected static $p = "uk\\co\\la1tv\\website\\models\\";
 	
-	// can't use $transaction because cause php error on server for some reason when trying to access parent:: from closure
+	// can't use DB::transaction() because cause php error on server for some reason when trying to access parent:: from closure
 	// Cannot access parent:: when no class scope is active
 	
 	public function push() {
