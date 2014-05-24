@@ -3,7 +3,7 @@
 class Permission extends MyEloquent {
 
 	protected $table = 'permissions';
-	protected $fillable = array('description');
+	protected $fillable = array('id', 'name', 'description');
 
 	public function groups() {
 		return $this->belongsToMany(self::$p.'PermissionGroup', 'permission_to_group', 'permission_id', 'group_id')->withPivot('permission_flag');

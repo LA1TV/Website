@@ -1,6 +1,7 @@
 <?php
 
 use uk\co\la1tv\website\models\SiteUser;
+
 class SiteUsersSeeder extends Seeder {
 
 	/**
@@ -18,7 +19,7 @@ class SiteUsersSeeder extends Seeder {
 		);
 		
 		foreach($users as $b=>$a) {
-			with(new SiteUser(array_merge($a, array("fb_uid"=>$b))))->save();
+			SiteUser::create(array_merge($a, array("fb_uid"=>$b)));
 		}
 		$this->command->info('Site users created!');
 	}

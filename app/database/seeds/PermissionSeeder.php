@@ -1,7 +1,8 @@
 <?php
 
-use uk\co\la1tv\website\models\SiteUser;
-class SiteUsersSeeder extends Seeder {
+use uk\co\la1tv\website\models\Permission;
+
+class PermissionSeeder extends Seeder {
 
 	/**
 	 * Run the database seeds.
@@ -9,18 +10,25 @@ class SiteUsersSeeder extends Seeder {
 	 * @return void
 	 */
 	public function run() {
-		$users = array(
-			array("first_name"=>"Joe","last_name"=>"Bloggs","name"=>"Joe Bloggs","email"=>"j.bloggs@outlook.com"),
-			array("first_name"=>"Tom","last_name"=>"Jenkinson","name"=>"Tom Jenkison","email"=>"t.jenkinson@lancaster.ac.uk"),
-			array("first_name"=>"Chrisopher","last_name"=>"Osborn","name"=>"Chris Osborn","email"=>"c.osborn@la1tv.co.uk"),
-			array("first_name"=>"Luke","last_name"=>"Moscrop","name"=>"Luke Moscrop","email"=>"l.moscrop@la1tv.co.uk"),
-			array("first_name"=>"Ben","last_name"=>"Freke","name"=>"Ben Freke","email"=>"b.freke@la1tv.co.uk")		
+		$permissions = array(
+			array("id"=>1, "name"=>"Log In", "description"=>"Allows log in to the CMS."),
+			array("id"=>2, "name"=>"Permissions", "description"=>"Allows managing user permissions."),
+			array("id"=>3, "name"=>"Live Streams", "description"=>"Allows configuration of live streams."),
+			array("id"=>4, "name"=>"Site Users", "description"=>"Allows managing of registered site users."),
+			array("id"=>5, "name"=>"Site Comments", "description"=>"Allows managing site comments and commenting as station.")
 		);
 		
-		foreach($users as $b=>$a) {
-			with(new SiteUser(array_merge($a, array("fb_uid"=>$b))))->save();
+		foreach($permissions as $a) {
+			$p = Permission::find($a['id']);
+			if ($p !== NULL) {
+				unset($a['id']);
+				$p->update($a);
+			}
+			else {
+				Permission::create($a);
+			}
 		}
-		$this->command->info('Site users created!');
+		$this->command->info('Permissions created/updated!');
 	}
 
 
