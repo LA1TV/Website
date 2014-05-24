@@ -4,6 +4,6 @@
  *
  * https://github.com/CodeSleeve/asset-pipeline
  *
- *= require_tree ./custom
  *= require bootstrap/css/bootstrap.css
+ *= require_tree ./custom
  */
