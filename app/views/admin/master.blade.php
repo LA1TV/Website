@@ -1,6 +1,6 @@
 <?php
 $nav = array(
-	array("Home", "home", false),
+	array("Home", "", false),
 	array("Uploads", "uploads", false),
 	array("Comments", "comments", false),
 	array("Live Streams", "livestreams", false),
