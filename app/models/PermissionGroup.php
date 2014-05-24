@@ -10,6 +10,6 @@ class PermissionGroup extends MyEloquent {
 	}
 	
 	public function permissions() {
-		return $this->belongsToMany(self::$p.'PermissionGroup', 'permission_to_group', 'group_id', 'permission_id')->withPivot('permission_flag');
+		return $this->belongsToMany(self::$p.'Permission', 'permission_to_group', 'group_id', 'permission_id')->withPivot('permission_flag');
 	}
 }

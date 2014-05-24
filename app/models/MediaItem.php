@@ -30,6 +30,6 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function playlists() {
-		return $this->belongsToMany(self::$p.'Playlist', 'media_item_to_playlist', 'playlist_id', 'media_item_id')->withPivot('position', 'from_playlist_id');
+		return $this->belongsToMany(self::$p.'Playlist', 'media_item_to_playlist', 'media_item_id', 'playlist_id')->withPivot('position', 'from_playlist_id');
 	}
 }

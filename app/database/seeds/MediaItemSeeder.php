@@ -15,15 +15,7 @@ class MediaItemSeeder extends Seeder {
 	 * @return void
 	 */
 	public function run() {
-			
-		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-		MediaItem::truncate();
-		MediaItemLiveStream::truncate();
-		MediaItemVideo::truncate();
-		MediaItemComment::truncate();
-		MediaItemLike::truncate();
-		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-		
+
 		$mediaItemVideo = new MediaItemVideo(array(
 			"is_live_recording"	=>	true,
 			"time_recorded"	=>	 Carbon::now()->subHour(),

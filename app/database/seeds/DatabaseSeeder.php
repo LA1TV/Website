@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder {
 		$this->call('UserSeeder');
 		$this->call('SiteUsersSeeder');
 		$this->call('MediaItemSeeder');
+		$this->call('PlaylistsSeeder');
 	}
 
 }
