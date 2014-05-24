@@ -5,7 +5,8 @@
 	"license": "MIT",
 	"require": {
 		"laravel/framework": "4.1.*",
-		"doctrine/dbal": "*"
+		"doctrine/dbal": "*",
+		"codesleeve/asset-pipeline": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
