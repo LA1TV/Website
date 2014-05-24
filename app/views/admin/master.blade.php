@@ -44,7 +44,7 @@ $nav = array(
 		</div>
 		<div id="footer">
 			<div class="container">
-				<p class="text-muted footer-txt">Developed by Tom Jenkinson, Ben Freeke and Jack Croft for LA1:TV.</p>
+				<p class="text-muted footer-txt">Developed by Tom Jenkinson, Ben Freake and Jack Croft for LA1:TV.</p>
 			</div>
 		</div>
 	</body>
