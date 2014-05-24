@@ -39,6 +39,9 @@ class TruncateTablesSeeder extends Seeder {
 		SiteUser::truncate();
 		User::truncate();
 		VideoFile::truncate();
+		DB::table("media_item_to_playlist")->truncate();
+		DB::table("permission_to_group")->truncate();
+		DB::table("user_to_group")->truncate();
 		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 	
 	}

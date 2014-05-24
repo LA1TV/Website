@@ -41,11 +41,13 @@ class PermissionGroupSeeder extends Seeder {
 			$permissions = Permission::whereIn("id", $permissionIds)->get();
 			
 			$group = new PermissionGroup($a);
-			foreach ($permissions as $c=>$b) {
-				$flag = $permissionFlags[$c];
+			db::transaction(function() use(&$group, &$permissions, &$permissionFlags) {
 				$group->save();
-				$group->permissions()->attach($b, array("permission_flag"=>$flag));
-			}
+				foreach ($permissions as $c=>$b) {
+					$flag = $permissionFlags[$c];
+					$group->permissions()->attach($b, array("permission_flag"=>$flag));
+				}
+			});
 		}
 		$this->command->info('Permissions groups created and permissions assigned to groups!');
 	}
