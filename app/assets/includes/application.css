@@ -2,6 +2,8 @@
  * This is a manifest file that'll be compiled into application.css, which will include all the files
  * listed below.
  *
+ * https://github.com/CodeSleeve/asset-pipeline
+ *
  *= require bootstrap/css/bootstrap.css
- *= require_tree custom
+ *= require_tree ./custom
  */

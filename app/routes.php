@@ -11,12 +11,7 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+$p = "uk\\co\\la1tv\\website\\controllers\\";
 
-Route::get('/test', function()
-{
-	return View::make('hello');
-});
+Route::controller('/admin', $p.'home\admin\AdminController');
+Route::controller('/', $p.'home\HomeController');
