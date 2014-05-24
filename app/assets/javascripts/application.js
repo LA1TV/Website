@@ -11,4 +11,3 @@
 // The available directives right now are require, require_directory, and require_tree
 //
 //= require jquery-1.11.1
-//= require_tree .

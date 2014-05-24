@@ -50,8 +50,8 @@ return array(
 		'provider/assets/stylesheets',
 		'provider/assets/images',
 		
-		'vendor/twitter/bootstrap/less/',
-		'vendor/twitter/bootstrap/js/'
+		'vendor/twbs/bootstrap/less/',
+		'vendor/twbs/bootstrap/js/'
 	),
 
 	/*
