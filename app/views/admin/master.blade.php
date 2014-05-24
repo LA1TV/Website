@@ -1,12 +1,12 @@
 <?php
 $nav = array(
-	array("Home", "", false),
-	array("Uploads", "uploads", false),
-	array("Comments", "comments", false),
-	array("Live Streams", "livestreams", false),
-	array("Playlists/Series", "playlists", false),
-	array("Permissions", "permissions", false),
-	array("Monitoring", "monitoring", false)
+	array("Home", "admin", false),
+	array("Uploads", "admin/uploads", false),
+	array("Comments", "admin/comments", false),
+	array("Live Streams", "admin/livestreams", false),
+	array("Playlists/Series", "admin/playlists", false),
+	array("Permissions", "admin/permissions", false),
+	array("Monitoring", "admin/monitoring", false)
 );
 ?>
 <!DOCTYPE html>
