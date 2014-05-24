@@ -6,8 +6,7 @@
 	"require": {
 		"laravel/framework": "4.1.*",
 		"doctrine/dbal": "*",
-		"codesleeve/asset-pipeline": "dev-master",
-		"twbs/bootstrap": "dev-master"
+		"codesleeve/asset-pipeline": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
