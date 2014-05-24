@@ -6,18 +6,18 @@ class File extends MyEloquent {
 	protected $fillable = array('in_use');
 	
 	public function mediaItemWithCover() {
-		return $this->belongsTo(self::$p.'MediaItem', 'cover_file_id');
+		return $this->hasOne(self::$p.'MediaItem', 'cover_file_id');
 	}
 	
 	public function mediaItemWithBanner() {
-		return $this->belongsTo(self::$p.'MediaItem', 'side_banner_file_id');
+		return $this->hasOne(self::$p.'MediaItem', 'side_banner_file_id');
 	}
 	
 	public function playlistWithCover() {
-		return $this->belongsTo(self::$p.'Playist', 'cover_file_id');
+		return $this->hasOne(self::$p.'Playist', 'cover_file_id');
 	}
 	
 	public function playlistWithBanner() {
-		return $this->belongsTo(self::$p.'MediaItem', 'side_banner_file_id');
+		return $this->hasOne(self::$p.'Playist', 'side_banner_file_id');
 	}
 }

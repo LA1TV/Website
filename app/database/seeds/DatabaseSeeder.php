@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder {
 		$this->call('PermissionGroupSeeder');
 		$this->call('UserSeeder');
 		$this->call('SiteUsersSeeder');
+		$this->call('FilesSeeder');
 		$this->call('MediaItemSeeder');
 		$this->call('PlaylistsSeeder');
 	}

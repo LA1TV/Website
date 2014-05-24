@@ -6,6 +6,7 @@ use uk\co\la1tv\website\models\MediaItemLiveStream;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemComment;
 use uk\co\la1tv\website\models\MediaItemLike;
+use uk\co\la1tv\website\models\File;
 
 class MediaItemSeeder extends Seeder {
 
@@ -27,6 +28,8 @@ class MediaItemSeeder extends Seeder {
 			"description"	=>	"This is the breakfast show description.",
 			"enabled"	=>	true
 		));
+		$mediaItem->coverFile()->associate(File::find(1));
+		$mediaItem->sideBannerFile()->associate(File::find(2));
 		DB::transaction(function() use (&$mediaItem, &$mediaItemVideo) {
 			$mediaItem->save();
 			$mediaItem->videoItem()->save($mediaItemVideo);
@@ -42,6 +45,7 @@ class MediaItemSeeder extends Seeder {
 			"description"	=>	"This is the lunchtime show description.",
 			"enabled"	=>	true
 		));
+		$mediaItem->coverFile()->associate(File::find(3));
 		DB::transaction(function() use (&$mediaItem, &$mediaItemLiveStream) {
 			$mediaItem->save();
 			$mediaItem->liveStreamItem()->save($mediaItemLiveStream);
