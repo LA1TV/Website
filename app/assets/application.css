@@ -3,4 +3,5 @@
  * listed below.
  *
  *= require bootstrap/css/bootstrap.css
+ *= require_tree custom
  */

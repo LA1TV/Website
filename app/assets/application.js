@@ -3,3 +3,4 @@
 //
 //= require_tree jquery
 //= require bootstrap/js/bootstrap.js
+//= require_tree custom
