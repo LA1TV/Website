@@ -28,14 +28,20 @@ class VideoFilesSeeder extends Seeder {
 		$mediaItemVideo->videoFiles()->save($file);
 		
 		$file = new VideoFile(array(
-			"width"		=>	1024,
-			"height"	=>	576
+			"width"		=>	640,
+			"height"	=>	480
 		));
 		$mediaItemVideo->videoFiles()->save($file);
 		
 		$file = new VideoFile(array(
 			"width"		=>	640,
 			"height"	=>	360
+		));
+		$mediaItemVideo->videoFiles()->save($file);
+		
+		$file = new VideoFile(array(
+			"width"		=>	426,
+			"height"	=>	240
 		));
 		$mediaItemVideo->videoFiles()->save($file);
 		
