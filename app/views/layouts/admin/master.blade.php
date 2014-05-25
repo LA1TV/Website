@@ -1,13 +1,19 @@
 <?php
 $nav = array(
-	array("Home", "admin", false),
-	array("Uploads", "admin/uploads", false),
-	array("Comments", "admin/comments", false),
-	array("Live Streams", "admin/livestreams", false),
-	array("Playlists/Series", "admin/playlists", false),
-	array("Permissions", "admin/permissions", false),
-	array("Monitoring", "admin/monitoring", false)
+	"index"			=> array("Home", "admin", false),
+	"uploads"		=> array("Uploads", "admin/uploads", false),
+	"comments"		=> array("Comments", "admin/comments", false),
+	"livestreams"	=> array("Live Streams", "admin/livestreams", false),
+	"playlists"		=> array("Playlists/Series", "admin/playlists", false),
+	"permissions"	=> array("Permissions", "admin/permissions", false),
+	"monitoring"	=> array("Monitoring", "admin/monitoring", false)
 );
+
+// make the current page active in the nav bar
+if (isset($nav[$currentNavPage])) {
+	$nav[$currentNavPage][2] = true;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +37,7 @@ $nav = array(
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">LA1:TV CMS</a>
+					<a class="navbar-brand" href="<?=URL::to("admin")?>">LA1:TV CMS</a>
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
@@ -41,6 +47,9 @@ $nav = array(
 					</ul>
 				</div>
 			</div>
+		</div>
+		<div id="main-content" class="container page-<?=$cssPageId?>">
+			<?=$content?>
 		</div>
 		<div id="footer">
 			<div class="container">

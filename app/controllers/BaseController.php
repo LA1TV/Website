@@ -1,6 +1,7 @@
 <?php namespace uk\co\la1tv\website\controllers;
 
 use Controller;
+use View;
 
 class BaseController extends Controller {
 

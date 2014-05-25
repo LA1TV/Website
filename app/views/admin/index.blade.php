@@ -1,4 +1,6 @@
 <?php
-	$title = "LA1:TV CMS";
+//	$title = "LA1:TV CMS";
+//	$currentNavPage = "index";
+//	$cssPageId = "index";
 ?>
-@include('admin.master');
+<h1>Home Page</h1>
