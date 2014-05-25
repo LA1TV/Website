@@ -13,7 +13,15 @@
 
 $p = "uk\\co\\la1tv\\website\\controllers\\";
 
-Route::controller('/admin/media', $p.'home\admin\media\MediaController');
 Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
+Route::controller('/admin/media', $p.'home\admin\media\MediaController');
+Route::controller('/admin/playlists', $p.'home\admin\playlists\PlaylistsController');
+Route::controller('/admin/livestreams', $p.'home\admin\livestreams\LiveStreamsController');
+Route::controller('/admin/comments', $p.'home\admin\comments\CommentsController');
+Route::controller('/admin/siteusers', $p.'home\admin\siteusers\SiteUsersController');
+Route::controller('/admin/users', $p.'home\admin\users\UsersController');
+Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');
+Route::controller('/admin/monitoring', $p.'home\admin\monitoring\MonitoringController');
+
 Route::controller('/admin', $p.'home\admin\AdminController');
 Route::controller('/', $p.'home\HomeController');
