@@ -2,9 +2,11 @@
 $nav = array(
 	"dashboard"			=> array("Dashboard", "admin/dashboard", false),
 	"media"			=> array("Media", "admin/media", false),
-	"comments"		=> array("Comments", "admin/comments", false),
-	"livestreams"	=> array("Live Streams", "admin/livestreams", false),
 	"playlists"		=> array("Playlists/Series", "admin/playlists", false),
+	"livestreams"	=> array("Live Streams", "admin/livestreams", false),
+	"comments"		=> array("Comments", "admin/comments", false),
+	"siteusers"		=> array("Site Users", "admin/siteusers", false),
+	"users"			=> array("CMS Users", "admin/users", false),
 	"permissions"	=> array("Permissions", "admin/permissions", false),
 	"monitoring"	=> array("Monitoring", "admin/monitoring", false)
 );
@@ -41,9 +43,21 @@ if (isset($nav[$currentNavPage])) {
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<?php foreach($nav as $a): ?>
+						<?php foreach(array("dashboard", "media", "playlists", "livestreams", "comments") as $b):
+							$a = $nav[$b];
+						?>
 						<li class="<?=$a[2]?"active":""?>"><a href="<?=URL::to($a[1])?>"><?=e($a[0])?></a></li>
 						<?php endforeach; ?>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
+							<ul class="dropdown-menu">
+								<?php foreach(array("siteusers", "users", "permissions", "monitoring") as $b):
+									$a = $nav[$b];
+								?>
+								<li><a href="<?=URL::to($a[1])?>"><?=e($a[0])?></a></li>
+								<?php endforeach; ?>
+							</ul>
+						</li>
 					</ul>
 				</div>
 			</div>
