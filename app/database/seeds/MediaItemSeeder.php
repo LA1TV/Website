@@ -7,6 +7,7 @@ use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemComment;
 use uk\co\la1tv\website\models\MediaItemLike;
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\LiveStream;
 
 class MediaItemSeeder extends Seeder {
 
@@ -40,6 +41,7 @@ class MediaItemSeeder extends Seeder {
 		$mediaItemLiveStream = new MediaItemLiveStream(array(
 			"enabled"	=>	true
 		));
+		$mediaItemLiveStream->liveStream()->associate(LiveStream::find(1));
 		$mediaItem = new MediaItem(array(
 			"name"	=>	"Lunchtime Show!",
 			"description"	=>	"This is the lunchtime show description.",
