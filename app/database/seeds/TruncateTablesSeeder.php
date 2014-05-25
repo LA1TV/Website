@@ -14,6 +14,7 @@ use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\SiteUser;
 use uk\co\la1tv\website\models\User;
 use uk\co\la1tv\website\models\VideoFile;
+use uk\co\la1tv\website\models\QualityDefinition;
 
 class TruncateTablesSeeder extends Seeder {
 
@@ -35,6 +36,7 @@ class TruncateTablesSeeder extends Seeder {
 		MediaItemVideo::truncate();
 		Permission::truncate();
 		PermissionGroup::truncate();
+		QualityDefinition::truncate();
 		Playlist::truncate();
 		SiteUser::truncate();
 		User::truncate();

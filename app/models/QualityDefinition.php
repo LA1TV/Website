@@ -1,8 +1,8 @@
 <?php namespace uk\co\la1tv\website\models;
 
-class File extends MyEloquent {
+class QualityDefinition extends MyEloquent {
 
 	protected $table = 'quality_definitions';
-	protected $fillable = array('name');
+	protected $fillable = array('id', 'name');
 	
 }
