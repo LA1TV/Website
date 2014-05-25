@@ -1,6 +1,6 @@
 <?php
 $nav = array(
-	"index"			=> array("Home", "admin", false),
+	"dashboard"			=> array("Dashboard", "admin/dashboard", false),
 	"media"			=> array("Media", "admin/media", false),
 	"comments"		=> array("Comments", "admin/comments", false),
 	"livestreams"	=> array("Live Streams", "admin/livestreams", false),

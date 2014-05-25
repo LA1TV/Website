@@ -1,10 +1,11 @@
 <?php namespace uk\co\la1tv\website\controllers\home\admin;
 
-use View;
+use uk\co\la1tv\website\controllers\BaseController;
+use Redirect;
 
-class AdminController extends AdminBaseController {
+class AdminController extends BaseController {
 	
 	public function getIndex() {
-		$this->setContent(View::make('home.admin.index'), "index", "index");
+		return Redirect::to('admin/dashboard');
 	}
 }
