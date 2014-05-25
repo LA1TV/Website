@@ -6,6 +6,6 @@ use View;
 class HomeController extends BaseController {
 
 	public function getIndex() {
-		return View::make('index');
+		return View::make('home.index');
 	}
 }

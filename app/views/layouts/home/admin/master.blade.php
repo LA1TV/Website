@@ -1,7 +1,7 @@
 <?php
 $nav = array(
 	"index"			=> array("Home", "admin", false),
-	"uploads"		=> array("Uploads", "admin/uploads", false),
+	"media"			=> array("Media", "admin/media", false),
 	"comments"		=> array("Comments", "admin/comments", false),
 	"livestreams"	=> array("Live Streams", "admin/livestreams", false),
 	"playlists"		=> array("Playlists/Series", "admin/playlists", false),

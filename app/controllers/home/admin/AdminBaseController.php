@@ -5,7 +5,7 @@ use View;
 
 class AdminBaseController extends BaseController {
 
-	protected $layout = "layouts.admin.master";
+	protected $layout = "layouts.home.admin.master";
 	
 	protected function setContent($content, $navPage, $cssPageId, $title=NULL) {
 		$this->layout->currentNavPage = $navPage;
