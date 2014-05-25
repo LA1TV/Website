@@ -8,4 +8,8 @@ class LiveStreamQuality extends MyEloquent {
 	public function liveStream() {
 		return $this->belongsTo(self::$p.'LiveStream', 'live_stream_id');
 	}
+	
+	public function qualityDefinition() {
+		return $this->hasOne(self::$p.'LiveStreamQuality', 'quality_definition_id');
+	}
 }	
