@@ -14,9 +14,9 @@ class CreateLiveStreamsQualities extends Migration {
 	{
 		Schema::create('live_streams_qualities', function(Blueprint $table)
 		{
+			$table->increments('id');
 			$table->integer("live_stream_id")->unsigned();
 			$table->string("quality_id", 20);
-			$table->primary(array("live_stream_id", "quality_id"));
 			$table->tinyInteger("position")->unsigned()->unique();
 			$table->timestamps();
 			

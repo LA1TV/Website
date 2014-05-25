@@ -10,7 +10,7 @@ class VideoFile extends MyEloquent {
 	}
 	
 	public function qualityDefinition() {
-		return $this->hasOne(self::$p.'QualityDefinition', 'quality_definition_id');
+		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
 	
 }

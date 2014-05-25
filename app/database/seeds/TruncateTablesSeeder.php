@@ -45,6 +45,7 @@ class TruncateTablesSeeder extends Seeder {
 		DB::table("permission_to_group")->truncate();
 		DB::table("user_to_group")->truncate();
 		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-	
+		
+		$this->command->info('Tables truncated!');
 	}
 }

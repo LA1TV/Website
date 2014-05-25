@@ -6,11 +6,11 @@ class QualityDefinition extends MyEloquent {
 	protected $fillable = array('id', 'name');
 	
 	public function videoFile() {
-		return $this->belongsTo(self::$p.'VideoFile', 'quality_definition_id');
+		return $this->hasOne(self::$p.'VideoFile', 'quality_definition_id');
 	}
 	
 	public function liveStreamQuality() {
-		return $this->belongsTo(self::$p.'LiveStreamQuality', 'quality_definition_id');
+		return $this->hasOne(self::$p.'LiveStreamQuality', 'quality_definition_id');
 	}
 	
 }
