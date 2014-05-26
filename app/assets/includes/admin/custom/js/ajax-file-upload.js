@@ -14,7 +14,7 @@ $(document).ready(function() {
 		var $fileInput = $('<input />').prop("type", "file").addClass("hidden");
 		
 		// the upload button
-		var $uploadBtn = $('<button />').prop("type", "button").addClass("btn").addClass("btn-default").text("Upload");
+		var $uploadBtn = $('<button />').prop("type", "button").addClass("btn").addClass("btn-xs").addClass("btn-info").text("Upload");
 		
 		$(this).append($fileInput);
 		$(this).append($uploadBtn);
