@@ -43,7 +43,7 @@ $(document).ready(function() {
 		$btnContainer.append($txt);
 		
 		var $progressBarContainer = $("<div />").addClass("progress progress-striped").hide();
-		var $progressBar = $("<div />").addClass("progress-bar").attr("role", "progressbar").attr("aria-valuemin", 0).attr("aria-valuemax", 100).width("0%");
+		var $progressBar = $("<div />").addClass("progress-bar").attr("role", "progressbar").attr("aria-valuemin", 0).attr("aria-valuemax", 100).attr("aria-valuenow", 0).width("0%");
 		$progressBarContainer.append($progressBar);
 		
 		$(this).append($fileInput);
@@ -70,6 +70,7 @@ $(document).ready(function() {
 			if (state === 1 || state === 2) { // bar is visible
 				if (progressBarPercent !== progress) {
 					$progressBar.width(progress+"%");
+					$progressBar.attr("aria-valuenow", progress);
 					progressBarPercent = progress;
 				}
 			}
@@ -136,6 +137,7 @@ $(document).ready(function() {
 				return;
 			}
 			
+			$uploadBtn.blur();
 			$uploadBtn.removeClass("btn-default btn-info btn-danger");
 			if (state === 0) {
 				$uploadBtn.text("Upload");
@@ -146,8 +148,8 @@ $(document).ready(function() {
 				$uploadBtn.addClass("btn-danger");
 			}
 			else if (state === 2) {
-				$uploadBtn.text("Clear");
-				$uploadBtn.addClass("btn-danger");
+				$uploadBtn.text("Remove");
+				$uploadBtn.addClass("btn-default");
 			}
 		};
 		
@@ -190,7 +192,7 @@ $(document).ready(function() {
 		$fileInput.fileupload({
 			dropZone: $(self),
 			pasteZone: $(self),
-			url: baseUrl+"/upload",
+			url: baseUrl+"/admin/upload",
 			dataType: "json",
 			type: "POST",
 			limitConcurrentUploads: 3,
@@ -223,13 +225,15 @@ $(document).ready(function() {
 				errorOccurred();
 			},
 			done: function(e, data) {
+				var result = data.result;
+				console.log(result);
 				// response returned is object with 'success' and 'id' which is the id of the newly created file
-				if (!data.success) {
+				if (!result.success) {
 					errorOccurred();
 					return;
 				}
 				// place the file id in the hidden element
-				$idInput.val(data.id);
+				$idInput.val(result.id);
 				noUploads--;
 				state = 2
 				update();
@@ -252,6 +256,9 @@ $(document).ready(function() {
 				jqXHR.abort(); // this triggers the error callback
 			}
 			else if (state === 2) {
+				if (!confirm("Are you sure you want to remove this upload?")) {
+					return;
+				}
 				// clear current upload
 				$idInput.val("");
 				state = 0;

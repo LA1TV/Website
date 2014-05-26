@@ -22,6 +22,7 @@ Route::controller('/admin/siteusers', $p.'home\admin\siteusers\SiteUsersControll
 Route::controller('/admin/users', $p.'home\admin\users\UsersController');
 Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');
 Route::controller('/admin/monitoring', $p.'home\admin\monitoring\MonitoringController');
+Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 
 Route::controller('/admin', $p.'home\admin\AdminController');
 Route::controller('/', $p.'home\HomeController');
