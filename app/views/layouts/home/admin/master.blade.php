@@ -1,6 +1,6 @@
 <?php
 $nav = array(
-	"dashboard"			=> array("Dashboard", "admin/dashboard", false),
+	"dashboard"		=> array("Dashboard", "admin/dashboard", false),
 	"media"			=> array("Media", "admin/media", false),
 	"playlists"		=> array("Playlists/Series", "admin/playlists", false),
 	"livestreams"	=> array("Live Streams", "admin/livestreams", false),
@@ -29,7 +29,7 @@ if (isset($nav[$currentNavPage])) {
 		<?= stylesheet_link_tag("includes/admin/application") ?>
 		<?= javascript_include_tag("includes/admin/application") ?>
 	</head>
-	<body>
+	<body data-baseurl="<?=$baseUrl?>">
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">
