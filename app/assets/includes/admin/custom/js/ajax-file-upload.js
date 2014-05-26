@@ -1,8 +1,18 @@
 // handles attaching jquery.fileupload to all .ajax-upload
 
+// will be set to function to return number of active uploads.
+var getNoUploads = null;
+
+
 $(document).ready(function() {
 
 	var baseUrl = $("body").attr("data-baseUrl");
+	var noUploads = 0;
+	
+	getNoUploads = function() {
+		return noUploads;
+	};
+	
 	
 	$(".ajax-upload").each(function() {
 	
@@ -169,6 +179,7 @@ $(document).ready(function() {
 		update();
 		
 		var errorOccurred = function() {
+			noUploads--;
 			state = 3;
 			errorMsg = cancelling ? "Upload cancelled." : "An error occurred. Please try again.";
 			cancelling = false;
@@ -201,6 +212,7 @@ $(document).ready(function() {
 				
 				// start upload automatically
 				jqXHR = data.submit();
+				noUploads++;
 			},
 			progress: function(e, data) {
 				// Calculate the completion percentage of the upload
@@ -218,6 +230,7 @@ $(document).ready(function() {
 				}
 				// place the file id in the hidden element
 				$idInput.val(data.id);
+				noUploads--;
 				state = 2
 				update();
 			}
@@ -236,7 +249,7 @@ $(document).ready(function() {
 				}
 				// cancel upload
 				cancelling = true;
-				jqXHR.abort();
+				jqXHR.abort(); // this triggers the error callback
 			}
 			else if (state === 2) {
 				// clear current upload
