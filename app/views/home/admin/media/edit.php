@@ -2,7 +2,7 @@
 	<div class="panel-heading">
 		<h3 class="panel-title">Edit Media</h3>
 	</div>
-	<form role="form">
+	<form role="form" method="post">
 		<div class="panel-body">
 			<div class="form-group">
 				<label class="control-label">Name</label>

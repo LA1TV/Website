@@ -26,7 +26,8 @@ $(document).ready(function() {
 		
 		// the generated <input type="file">. Note: this gets replaced by jquery file upload after every time files are selected
 		// therefore always search for this element, don't use this reference as it will only be correct initially
-		var $fileInput = $('<input />').prop("type", "file").addClass("hidden");
+		// make disabled and only enable when needed so it is not submitted when form it is contained in is
+		var $fileInput = $('<input />').prop("type", "file").addClass("hidden").prop("disabled", true);
 		
 		// use this to get input for reason above
 		var getFileInput = function() {
@@ -197,6 +198,10 @@ $(document).ready(function() {
 			type: "POST",
 			limitConcurrentUploads: 3,
 			multipart: true,
+			formData: function() {
+				// don't send any extra data.
+				return [];
+			},
 			// This function is called when a file is added to the queue;
 			// either via the browse button, or via drag/drop:
 			add: function(e, data) {
@@ -245,7 +250,10 @@ $(document).ready(function() {
 			
 			if (state === 0 || state === 3) {
 				// start upload
-				getFileInput().click();
+				var input = getFileInput();
+				input.prop("disabled", false);
+				input.click();
+				input.prop("disabled", true);
 			}
 			else if (state === 1) {
 				if (!confirm("Are you sure you want to cancel this upload?")) {
