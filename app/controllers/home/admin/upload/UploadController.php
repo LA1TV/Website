@@ -11,18 +11,16 @@ class UploadController extends UploadBaseController {
 		
 		$resp = array("success"=> false);
 		
-		/*if (count($_FILES) >= 1) {
-			$file = $_FILES[0];
-			$extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+		if (isset($_FILES['files']) && count($_FILES['files']['name']) >= 1) {
+			
+			$extension = strtolower(pathinfo($_FILES['files']['name'][0], PATHINFO_EXTENSION));
 			if (in_array($extension, $extensions)) {
-				// move it
+				// TODO: move the file
 				$resp['success'] = true;
 				$resp['id'] = 0;
 			}
 		}
-		*/
-		$resp['success'] = true;
-		$resp['id'] = 1;
+		
 		return Response::json($resp);
 	}
 }
