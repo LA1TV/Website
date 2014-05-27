@@ -7,7 +7,7 @@ class UploadController extends UploadBaseController {
 	public function postIndex() {
 		
 		// A list of permitted file extensions
-		$extensions = array('jpg', 'mp4');
+		$extensions = array('jpg', 'jpeg', 'mp4');
 		
 		$resp = array("success"=> false);
 		

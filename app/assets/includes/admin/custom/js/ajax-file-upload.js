@@ -50,6 +50,8 @@ $(document).ready(function() {
 		$(this).append($btnContainer);
 		$(this).append($progressBarContainer);
 		
+		var allowedExtensions = $(this).attr("data-ajaxuploadextensions").split(",");
+		
 		var jqXHR = null;
 		var fileName = null;
 		var fileSize = null;
@@ -172,7 +174,7 @@ $(document).ready(function() {
 				updateProgressBar(1, progress);
 			}
 			else if (state === 2) { // uploaded
-				updateTxt(1, '"'+fileName+'" ('+fileSize+') uploaded!');
+				updateTxt(1, '"'+fileName+'" ('+formatFileSize(fileSize)+') uploaded!');
 				updateBtn(2);
 				updateProgressBar(2, progress);
 			}
@@ -209,9 +211,15 @@ $(document).ready(function() {
 					// must be in upload state to upload
 					return;
 				}
-			
+				
 				fileName = data.files[0].name;
 				fileSize = data.files[0].size;
+				
+				var extension = fileName.split('.').pop().toLowerCase();
+				if (jQuery.inArray(extension, allowedExtensions) === -1) {
+					alert("That file type is not allowed.");
+					return;
+				}
 				progress = 0;
 				state = 1;
 				update();

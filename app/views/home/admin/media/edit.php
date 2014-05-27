@@ -13,12 +13,12 @@
 		</div>
 		<div class="form-group">
 			<label class="control-label">Cover Image</label>
-			<div class="form-control ajax-upload" data-ajaxuploadresultname="cover-image-id"></div>
+			<div class="form-control ajax-upload" data-ajaxuploadresultname="cover-image-id" data-ajaxuploadextensions="jpg,jpeg"></div>
 			<input type="hidden" data-virtualform="1" name="cover-image-id" value="" />
 		</div>
 		<div class="form-group">
 			<label class="control-label">Side Banners Image</label>
-			<div class="form-control ajax-upload" data-ajaxuploadresultname="side-banners-image-id"></div>
+			<div class="form-control ajax-upload" data-ajaxuploadresultname="side-banners-image-id" data-ajaxuploadextensions="jpg,jpeg"></div>
 			<input type="hidden" data-virtualform="1" name="side-banners-image-id" value="" />
 		</div>
 	</div>
