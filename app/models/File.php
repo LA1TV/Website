@@ -3,7 +3,7 @@
 class File extends MyEloquent {
 
 	protected $table = 'files';
-	protected $fillable = array('in_use');
+	protected $fillable = array('in_use', 'filename', 'size', 'session_id');
 	
 	public function mediaItemWithCover() {
 		return $this->hasOne(self::$p.'MediaItem', 'cover_file_id');
