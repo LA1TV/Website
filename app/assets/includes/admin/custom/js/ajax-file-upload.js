@@ -230,7 +230,6 @@ $(document).ready(function() {
 			},
 			done: function(e, data) {
 				var result = data.result;
-				console.log(result);
 				// response returned is object with 'success' and 'id' which is the id of the newly created file
 				if (!result.success) {
 					errorOccurred();
