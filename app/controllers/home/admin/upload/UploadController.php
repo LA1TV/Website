@@ -42,10 +42,17 @@ class UploadController extends UploadBaseController {
 		return Response::json($resp);
 	}
 	
+	// get information about a temporary file
+	public function postInfo($id) {
+		$resp = array("success"=> false);
+		// TODO
+		return Response::json($resp);
+	}
+	
 	// remove a temporary file
 	public function postRemove($id) {
 		$resp = array("success"=> false);
-		
+		// TODO
 		return Response::json($resp);
 	}
 }
