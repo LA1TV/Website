@@ -18,16 +18,15 @@ $(document).ready(function() {
 	
 		var self = this;
 	
-		// after file uploaded it's id should be stored in hidden form element with name-id
-		var name = $(this).attr("data-name");
+		// after file uploaded it's id should be stored in hidden form element with name
+		var name = $(this).attr("data-ajaxuploadresultname");
 		
 		// the reference to the hidden form element where the file id should be placed
-		var $idInput = $(this).closest("form").find('[name="'+name+'-id"]').first();
+		var $idInput = $(this).parent().find('[name="'+name+'"]').first();
 		
 		// the generated <input type="file">. Note: this gets replaced by jquery file upload after every time files are selected
 		// therefore always search for this element, don't use this reference as it will only be correct initially
-		// make disabled and only enable when needed so it is not submitted when form it is contained in is
-		var $fileInput = $('<input />').prop("type", "file").addClass("hidden").prop("disabled", true);
+		var $fileInput = $('<input />').prop("type", "file").addClass("hidden");
 		
 		// use this to get input for reason above
 		var getFileInput = function() {
@@ -251,9 +250,7 @@ $(document).ready(function() {
 			if (state === 0 || state === 3) {
 				// start upload
 				var input = getFileInput();
-				input.prop("disabled", false);
 				input.click();
-				input.prop("disabled", true);
 			}
 			else if (state === 1) {
 				if (!confirm("Are you sure you want to cancel this upload?")) {
