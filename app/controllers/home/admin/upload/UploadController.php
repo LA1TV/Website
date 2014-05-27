@@ -8,10 +8,11 @@ class UploadController extends UploadBaseController {
 		
 		// A list of permitted file extensions
 		$extensions = array('jpg', 'jpeg', 'mp4');
+		$maxFileLength = 50;
 		
 		$resp = array("success"=> false);
 		
-		if (isset($_FILES['files']) && count($_FILES['files']['name']) >= 1) {
+		if (isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= $maxFileLength) {
 			
 			$extension = strtolower(pathinfo($_FILES['files']['name'][0], PATHINFO_EXTENSION));
 			if (in_array($extension, $extensions)) {

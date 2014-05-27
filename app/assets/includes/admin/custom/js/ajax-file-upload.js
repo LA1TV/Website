@@ -51,6 +51,7 @@ $(document).ready(function() {
 		$(this).append($progressBarContainer);
 		
 		var allowedExtensions = $(this).attr("data-ajaxuploadextensions").split(",");
+		var maxFileLength = 50;
 		
 		var jqXHR = null;
 		var fileName = null;
@@ -220,6 +221,12 @@ $(document).ready(function() {
 					alert("That file type is not allowed.");
 					return;
 				}
+				
+				if (fileName.length > maxFileLength) {
+					alert("The file name must be "+maxFileLength+" characters or less.");
+					return;
+				}
+				
 				progress = 0;
 				state = 1;
 				update();
