@@ -14,10 +14,10 @@ class File extends MyEloquent {
 	}
 	
 	public function playlistWithCover() {
-		return $this->hasOne(self::$p.'Playist', 'cover_file_id');
+		return $this->hasOne(self::$p.'Playlist', 'cover_file_id');
 	}
 	
 	public function playlistWithBanner() {
-		return $this->hasOne(self::$p.'Playist', 'side_banner_file_id');
+		return $this->hasOne(self::$p.'Playlist', 'side_banner_file_id');
 	}
 }

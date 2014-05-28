@@ -88,16 +88,16 @@ class UploadController extends UploadBaseController {
 		}
 		else {
 			// see if the file should be accessible
-			if (!is_null($file->mediaItemWithBanner()) && $file->mediaItemWithBanner()->getIsAccessible()) {
+			if (!is_null($file->mediaItemWithBanner()->first()) && $file->mediaItemWithBanner()->first()->getIsAccessible()) {
 				$accessAllowed = true;
 			}
-			else if (!is_null($file->mediaItemWithCover()) && $file->mediaItemWithCover()->getIsAccessible()) {
+			else if (!is_null($file->mediaItemWithCover()->first()) && $file->mediaItemWithCover()->first()->getIsAccessible()) {
 				$accessAllowed = true;
 			}
-			else if (!is_null($file->playlistWithBanner()) && $file->playlistWithBanner()->getIsAccessible()) {
+			else if (!is_null($file->playlistWithBanner()->first()) && $file->playlistWithBanner()->first()->getIsAccessible()) {
 				$accessAllowed = true;
 			}
-			else if (!is_null($file->playlistWithCover()) && $file->playlistWithCover()->getIsAccessible()) {
+			else if (!is_null($file->playlistWithCover()->first()) && $file->playlistWithCover()->first()->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
