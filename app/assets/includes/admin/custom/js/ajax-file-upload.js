@@ -181,6 +181,14 @@ $(document).ready(function() {
 			}
 		};
 		
+		if ($idInput.val() !== "") {
+			// populate with default values
+			fileName = $(this).attr("data-ajaxuploaddefaultfilename");
+			fileSize = parseInt($(this).attr("data-ajaxuploaddefaultfilesize"), 10);
+			progress = 100;
+			state = 2;
+		}
+		
 		update();
 		
 		var errorOccurred = function() {
@@ -256,6 +264,7 @@ $(document).ready(function() {
 				// might as well update these so it now shows the exact values the server calculated
 				fileName = result.fileName;
 				fileSize = result.fileSize;
+				progress = 100;
 				state = 2
 				update();
 			}
