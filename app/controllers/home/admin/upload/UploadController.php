@@ -34,7 +34,7 @@ class UploadController extends UploadBaseController {
 					$fileDb = File::create(array(
 						"in_use"	=> false,
 						"filename"	=> $fileName,
-						"filesize"	=> $fileSize,
+						"size"		=> $fileSize,
 						"session_id"	=> Session::getId() // the laravel session id
 					));
 					
@@ -82,7 +82,15 @@ class UploadController extends UploadBaseController {
 	// get information about a temporary file
 	public function postInfo() {
 		$resp = array("success"=> false);
-		// TODO
+		if (Input::has("id")) {
+			$id = intval(Input::get("id"), 10);
+			$file = $this->getFile($id);
+			if (!is_null($file)) {
+				$resp['fileName'] = $file->filename;
+				$resp['fileSize'] = $file->size;
+				$resp['success'] = true;
+			}
+		}
 		return Response::json($resp);
 	}
 	
@@ -91,18 +99,27 @@ class UploadController extends UploadBaseController {
 		$resp = array("success"=> false);
 		if (Input::has("id")) {
 			$id = intval(Input::get("id"), 10);
-			$file = File::find($id);
+			$file = $this->getFile($id);
 			if (!is_null($file)) {
-			
-				// check that the file isn't in_use (so temporary) and the session_id matches this users session
-				if (!$file->in_use && $file->session_id === Session::getId()) {
-					if (unlink(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id)) {
-						$file->delete();
-						$resp['success'] = true;
-					}
+				if (unlink(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id)) {
+					$file->delete();
+					$resp['success'] = true;
 				}
 			}
 		}
 		return Response::json($resp);
+	}
+	
+	// get file model from id if security checks pass
+	private function getFile($id) {
+		$file = File::find($id);
+		if (!is_null($file)) {
+		
+			// check that the file isn't in_use (so temporary) and the session_id matches this users session
+			if (!$file->in_use && $file->session_id === Session::getId()) {
+				return $file;
+			}
+		}
+		return null;
 	}
 }
