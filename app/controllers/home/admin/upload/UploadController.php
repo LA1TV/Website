@@ -5,6 +5,7 @@ use Session;
 use Config;
 use App;
 use DB;
+use Input;
 use uk\co\la1tv\website\models\File;
 
 class UploadController extends UploadBaseController {
@@ -47,8 +48,8 @@ class UploadController extends UploadBaseController {
 							// create the response
 							$resp['success'] = true;
 							$resp['id'] = $fileDb->id;
-							$resp['filename'] = $fileName;
-							$resp['filesize'] = $fileSize;
+							$resp['fileName'] = $fileName;
+							$resp['fileSize'] = $fileSize;
 						}
 						else {
 							DB::rollback();
@@ -79,16 +80,25 @@ class UploadController extends UploadBaseController {
 	}
 	
 	// get information about a temporary file
-	public function postInfo($id) {
+	public function postInfo() {
 		$resp = array("success"=> false);
 		// TODO
 		return Response::json($resp);
 	}
 	
 	// remove a temporary file
-	public function postRemove($id) {
+	public function postRemove() {
 		$resp = array("success"=> false);
-		// TODO
+		if (Input::has("id")) {
+			$id = intval(Input::get("id"), 10);
+			$file = File::find($id);
+			if (!is_null($file)) {
+				// TODO:: remove the file then remove from db
+				
+				// $file->delete();
+				$resp['success'] = true;
+			}
+		}
 		return Response::json($resp);
 	}
 }

@@ -195,7 +195,7 @@ $(document).ready(function() {
 		$fileInput.fileupload({
 			dropZone: $(self),
 			pasteZone: $(self),
-			url: baseUrl+"/admin/upload",
+			url: baseUrl+"/admin/upload/index",
 			dataType: "json",
 			type: "POST",
 			limitConcurrentUploads: 3,
@@ -253,6 +253,9 @@ $(document).ready(function() {
 				// place the file id in the hidden element
 				$idInput.val(result.id);
 				noUploads--;
+				// might as well update these so it now shows the exact values the server calculated
+				fileName = result.fileName;
+				fileSize = result.fileSize;
 				state = 2
 				update();
 			}
@@ -279,7 +282,18 @@ $(document).ready(function() {
 					return;
 				}
 				// clear current upload
+				var id = $idInput.val();
 				$idInput.val("");
+				fileName = null;
+				fileSize = null;
+				// make ajax request to server to tell it to remove the temporary file immediately
+				// don't really care if it fails because the file will be removed when the session ends anyway
+				jQuery.ajax(baseUrl+"/admin/upload/remove", {
+					cache: false,
+					dataType: "json",
+					data: {id: id},
+					type: "POST"
+				});
 				state = 0;
 				update();
 			}
