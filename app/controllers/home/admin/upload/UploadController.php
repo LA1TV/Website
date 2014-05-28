@@ -72,7 +72,9 @@ class UploadController extends UploadBaseController {
 	// serve up a file
 	public function getIndex($id) {
 		
+		// TODO: this should probably be with->movieitem and mediaitemvideos as these are needed when it checks to see if it should be accessible 
 		$file = File::find($id);
+		
 		if (is_null($file)) {
 			App::abort(404);
 			return;
@@ -86,7 +88,18 @@ class UploadController extends UploadBaseController {
 		}
 		else {
 			// see if the file should be accessible
-			
+			if (!is_null($file->mediaItemWithBanner()) && $file->mediaItemWithBanner()->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->mediaItemWithCover()) && $file->mediaItemWithCover()->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->playlistWithBanner()) && $file->playlistWithBanner()->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->playlistWithCover()) && $file->playlistWithCover()->getIsAccessible()) {
+				$accessAllowed = true;
+			}
 		}
 		
 		if (!$accessAllowed) {

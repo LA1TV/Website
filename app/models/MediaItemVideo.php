@@ -17,9 +17,9 @@ class MediaItemVideo extends MyEloquent {
 		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
 	}
 	
-	// returns true if this video should be accessible now. I.e enabled and scheduled_publish_time passed etc
+	// returns true if this video should be accessible now. I.e mediaitem enabled and this enabled and scheduled_publish_time passed etc
 	public function getIsAccessible() {
-		return $this->enabled && $this->scheduled_publish_time->getTimestamp() >= time();
+		return $this->mediaItem()->getIsAccessible() && $this->enabled && $this->scheduled_publish_time->getTimestamp() >= time();
 	}
 	
 }

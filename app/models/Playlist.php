@@ -20,4 +20,9 @@ class Playlist extends MyEloquent {
 	public function getDates() {
 		return array_merge(parent::getDates(), array('scheduled_publish_time'));
 	}
+	
+	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed etc
+	public function getIsAccessible() {
+		return $this->enabled && $this->scheduled_publish_time->getTimestamp() >= time();
+	}
 }
