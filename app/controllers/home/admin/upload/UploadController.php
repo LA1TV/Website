@@ -93,10 +93,14 @@ class UploadController extends UploadBaseController {
 			$id = intval(Input::get("id"), 10);
 			$file = File::find($id);
 			if (!is_null($file)) {
-				// TODO:: remove the file then remove from db
-				
-				// $file->delete();
-				$resp['success'] = true;
+			
+				// check that the file isn't in_use (so temporary) and the session_id matches this users session
+				if (!$file->in_use && $file->session_id === Session::getId()) {
+					if (unlink(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id)) {
+						$file->delete();
+						$resp['success'] = true;
+					}
+				}
 			}
 		}
 		return Response::json($resp);
