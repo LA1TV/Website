@@ -1,6 +1,5 @@
 <?php
 
-use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\LiveStreamQuality;
 use uk\co\la1tv\website\models\MediaItem;
@@ -26,7 +25,6 @@ class TruncateTablesSeeder extends Seeder {
 	public function run() {
 			
 		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-		File::truncate();
 		LiveStream::truncate();
 		LiveStreamQuality::truncate();
 		MediaItem::truncate();
