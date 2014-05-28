@@ -71,12 +71,30 @@ class UploadController extends UploadBaseController {
 	
 	// serve up a file
 	public function getIndex($id) {
-		App::abort(403); // forbidden
 		
-		App::abort(404);
+		$file = File::find($id);
+		if (is_null($file)) {
+			App::abort(404);
+			return;
+		}
 		
+		$accessAllowed = false;
 		
-		dd(Config::get("custom.files_location"));
+		// file should be accessible if not used yet and session matches users session
+		if (!$file->in_use && $file->session_id === Session::getId()) {
+			$accessAllowed = true;
+		}
+		else {
+			// see if the file should be accessible
+			
+		}
+		
+		if (!$accessAllowed) {
+			App::abort(403); // forbidden
+			return;
+		}
+		
+		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);		
 	}
 	
 	// get information about a temporary file
