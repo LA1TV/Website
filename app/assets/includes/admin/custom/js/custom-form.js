@@ -3,9 +3,13 @@
 $(document).ready(function() {
 	
 	// listen for enter key
-	$('input[data-virtualform]').keypress(function(e) {
+	$('[data-virtualform]').keypress(function(e) {
 		
 		if (e.which !== 13) {
+			return;
+		}
+		
+		if ($(this).prop("tagName").strToLower() === "textarea") {
 			return;
 		}
 	

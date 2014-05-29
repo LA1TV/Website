@@ -14,7 +14,7 @@
 		</div>
 		<div class="form-group">
 			<label class="control-label">Description (Optional)</label>
-			<input type="text" data-virtualform="1" class="form-control" name="description">
+			<textarea data-virtualform="1" class="form-control" name="description"></textarea>
 		</div>
 		<div class="form-group">
 			<label class="control-label">Cover Image (Optional)</label>
@@ -34,13 +34,34 @@
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
-						stuff
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" name="vod_enabled"> Enabled
+							</label>
+						</div>
+						<div class="form-group">
+							<label class="control-label">Name (Optional)</label>
+							<input type="text" data-virtualform="1" class="form-control" name="vod_name">
+						</div>
+						<div class="form-group">
+							<label class="control-label">Description (Optional)</label>
+							<textarea data-virtualform="1" class="form-control" name="vod_description"></textarea>
+						</div>
+						<div class="form-group">
+							<label class="control-label">Video</label>
+							<div class="form-control ajax-upload" data-ajaxuploadresultname="vod-video-id" data-ajaxuploadextensions="mp4" data-ajaxuploadcurrentfilename="" data-ajaxuploadcurrentfilesize=""></div>
+							<input type="hidden" data-virtualform="1" name="vod-video-id" value="" />
+						</div>
+						<div class="form-group">
+							<label class="control-label">Scheduled Publish Time (Optional)</label>
+							<input type="datetime-local" data-virtualform="1" class="form-control" name="vod_name">
+						</div>
 					</div>
 				</div>
 			</div>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h4 class="panel-title">Video On Demand</h4>
+					<h4 class="panel-title">Live Stream</h4>
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">

@@ -18,7 +18,7 @@ class UploadController extends UploadBaseController {
 		
 		$resp = array("success"=> false);
 		
-		if (isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= $maxFileLength) {
+		if (isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= $maxFileLength && isset($_FILES['files']['tmp_name'][0])) {
 			
 			$fileLocation = $_FILES['files']['tmp_name'][0];
 			$fileName = $_FILES['files']['name'][0];
@@ -26,7 +26,7 @@ class UploadController extends UploadBaseController {
 			
 			$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 			if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
-				
+
 				try {
 					DB::beginTransaction();
 					
