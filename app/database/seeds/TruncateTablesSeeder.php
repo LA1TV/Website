@@ -10,6 +10,7 @@ use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\Permission;
 use uk\co\la1tv\website\models\PermissionGroup;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\Series;
 use uk\co\la1tv\website\models\SiteUser;
 use uk\co\la1tv\website\models\User;
 use uk\co\la1tv\website\models\VideoFile;
@@ -36,6 +37,7 @@ class TruncateTablesSeeder extends Seeder {
 		PermissionGroup::truncate();
 		QualityDefinition::truncate();
 		Playlist::truncate();
+		Series::truncate();
 		SiteUser::truncate();
 		User::truncate();
 		VideoFile::truncate();

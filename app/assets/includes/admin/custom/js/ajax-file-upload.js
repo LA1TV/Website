@@ -183,8 +183,8 @@ $(document).ready(function() {
 		
 		if ($idInput.val() !== "") {
 			// populate with default values
-			fileName = $(this).attr("data-ajaxuploaddefaultfilename");
-			fileSize = parseInt($(this).attr("data-ajaxuploaddefaultfilesize"), 10);
+			fileName = $(this).attr("data-ajaxuploadcurrentfilename");
+			fileSize = parseInt($(this).attr("data-ajaxuploadcurrentfilesize"), 10);
 			progress = 100;
 			state = 2;
 		}

@@ -1,6 +1,7 @@
 <?php
 
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\Series;
 use uk\co\la1tv\website\models\MediaItem;
 
 class PlaylistsSeeder extends Seeder {
@@ -15,12 +16,14 @@ class PlaylistsSeeder extends Seeder {
 		// presumes that media items already exist and ids from autoincrement
 		$rosesSeriesId = NULL;
 		DB::transaction(function() use (&$rosesSeriesId) {
-			$playlist = Playlist::create(array(
+			$playlist = new Playlist(array(
 					"name"	=>	"Roses 2014!",
 					"enabled"	=> true,
 					"description"	=> "Description about roses 2014 series.",
-					"is_series"	=> true
+					"series_no"		=> 1
 			));
+			$playlist->series()->associate(Series::find(1));
+			$playlist->save();
 			$rosesSeriesId = $playlist->id;
 			$playlist->mediaItems()->attach(MediaItem::find(1), array("position"=>0));
 			$playlist->mediaItems()->attach(MediaItem::find(2), array("position"=>1));
@@ -30,8 +33,7 @@ class PlaylistsSeeder extends Seeder {
 			$playlist = Playlist::create(array(
 					"name"	=>	"Top Shows",
 					"enabled"	=> true,
-					"description"	=> "LA1:TV's top shows for 2014.",
-					"is_series"	=> false
+					"description"	=> "LA1:TV's top shows for 2014."
 			));
 			$playlist->mediaItems()->attach(MediaItem::find(2), array("position"=>0, "from_playlist_id"=>$rosesSeriesId));
 		});
