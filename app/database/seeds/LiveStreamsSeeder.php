@@ -14,11 +14,13 @@ class LiveStreamsSeeder extends Seeder {
 	public function run() {
 		
 		DB::transaction(function() {
+		
 			$stream = new LiveStream(array(
 				"name"		=>	"Studio Stream",
 				"description"	=>	"The stream from the studio.",
 				"server_address"	=>	"la1tv-wowza1.lancs.ac.uk",
-				"dvr_enabled"	=>	false
+				"dvr_enabled"	=>	false,
+				"enabled"	=> false
 			));
 			$stream->save();
 			
