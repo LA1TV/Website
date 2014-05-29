@@ -264,6 +264,8 @@ $(document).ready(function() {
 				// might as well update these so it now shows the exact values the server calculated
 				fileName = result.fileName;
 				fileSize = result.fileSize;
+				$(self).attr("data-ajaxuploadcurrentfilename", fileName);
+				$(self).attr("data-ajaxuploadcurrentfilesize", fileSize);
 				progress = 100;
 				state = 2
 				update();
@@ -295,6 +297,8 @@ $(document).ready(function() {
 				$idInput.val("");
 				fileName = null;
 				fileSize = null;
+				$(self).attr("data-ajaxuploadcurrentfilename", "");
+				$(self).attr("data-ajaxuploadcurrentfilesize", "");
 				// make ajax request to server to tell it to remove the temporary file immediately
 				// don't really care if it fails because the file will be removed when the session ends anyway
 				jQuery.ajax(baseUrl+"/admin/upload/remove", {
