@@ -20,6 +20,7 @@ class LiveStreamsSeeder extends Seeder {
 				"description"	=>	"The stream from the studio.",
 				"server_address"	=>	"la1tv-wowza1.lancs.ac.uk",
 				"dvr_enabled"	=>	false,
+				"stream_name"	=>	"studio",
 				"enabled"	=> false
 			));
 			$stream->save();
