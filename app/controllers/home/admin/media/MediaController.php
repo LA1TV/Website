@@ -6,6 +6,7 @@ use FormHelpers;
 use ObjectHelpers;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\File;
 
 class MediaController extends MediaBaseController {
 
@@ -13,7 +14,7 @@ class MediaController extends MediaBaseController {
 		$this->setContent(View::make('home.admin.media.index'), "media", "media");
 	}
 	
-	public function getEdit($id=null) {
+	public function anyEdit($id=null) {
 		
 		$mediaItem = null;
 		$editing = false;
@@ -26,19 +27,17 @@ class MediaController extends MediaBaseController {
 			$editing = true;
 		}
 		
+		$formSubmitted = isset($_POST['form-submitted']);
+	
+		
+		
 		// populate $formData with default values or received values
-		
-		
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $mediaItem, "enabled")),
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
-			array("cover-image-file-name", ObjectHelpers::getProp("", $mediaItem, "coverFile", "filename")),
-			array("cover-image-file-size", ObjectHelpers::getProp("", $mediaItem, "coverFile", "size")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannersFile", "id")),
-			array("side-banners-image-file-name", ObjectHelpers::getProp("", $mediaItem, "sideBannersFile", "filename")),
-			array("side-banners-image-file-size",  ObjectHelpers::getProp("", $mediaItem, "sideBannersFile", "size")),
 			array("vod-enabled", ObjectHelpers::getProp(false, $mediaItem, "videoItem", "enabled")),
 			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
 			array("vod-description", ObjectHelpers::getProp("", $mediaItem, "videoItem", "description")),
@@ -53,9 +52,30 @@ class MediaController extends MediaBaseController {
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-live-time", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "scheduled_live_time")),
 			array("stream-stream-id", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "liveStream", "id"))
-		), !$editing);
+		), !$formSubmitted);
 		
-		if (!is_null($mediaItem)) {
+		
+		// now set filenames and sizes
+		$formData['cover-image-file-name'] = "";
+		$formData['cover-image-file-size'] = "";
+		$formData['side-banners-image-file-name'] = "";
+		$formData['side-banners-image-file-size'] = "";
+		if ($formData['cover-image-id'] !== "") {
+			$file = File::find($formData['cover-image-id']);
+			if (!is_null($file)) {
+				$formData['cover-image-file-name'] = $file->filename;
+				$formData['cover-image-file-size'] = $file->size;
+			}
+		}
+		if ($formData['side-banners-image-id'] !== "") {
+			$file = File::find($formData['side-banners-image-id']);
+			if (!is_null($file)) {
+				$formData['side-banners-image-file-name'] = $file->filename;
+				$formData['side-banners-image-file-size'] = $file->size;
+			}
+		}
+		
+		if ($formSubmitted && !is_null($mediaItem)) {
 			// validate input. If it's all valid create new model
 			
 			

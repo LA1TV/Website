@@ -3,7 +3,7 @@
 class FormHelpers {
 	
 	public static function getValue($var, $default, $useDefault) {
-		return $useDefault || !self::hasPost($var) ? $default : $_POST['var'];
+		return $useDefault || !self::hasPost($var) ? $default : $_POST[$var];
 	}
 	
 	public static function hasPost($var) {
