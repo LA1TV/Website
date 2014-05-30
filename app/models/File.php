@@ -24,4 +24,9 @@ class File extends MyEloquent {
 	public function videoFiles() {
 		return $this->hasMany(self::$p.'VideoFile', 'file_id');
 	}
+	
+	public function getExtension() {
+		return strtolower(pathinfo($this->filename, PATHINFO_EXTENSION));
+	}
+
 }

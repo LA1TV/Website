@@ -4,6 +4,9 @@ use View;
 use App;
 use FormHelpers;
 use ObjectHelpers;
+use AllowedFileTypesHelper;
+use Validator;
+use Session;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
@@ -54,12 +57,6 @@ class MediaController extends MediaBaseController {
 			array("stream-stream-id", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "liveStream", "id"))
 		), !$formSubmitted);
 		
-		// convert checkboxes values to booleans
-		$formData['enabled'] = $formData['enabled'] === "y";
-		$formData['vod-enabled'] = $formData['vod-enabled'] === "y";
-		$formData['vod-live-recording'] = $formData['vod-live-recording'] === "y";
-		$formData['stream-enabled'] = $formData['stream-enabled'] === "y";
-		
 		// now set filenames and sizes
 		$formData['cover-image-file-name'] = "";
 		$formData['cover-image-file-size'] = "";
@@ -80,8 +77,50 @@ class MediaController extends MediaBaseController {
 			}
 		}
 		
-		if ($formSubmitted && !is_null($mediaItem)) {
-			// validate input. If it's all valid create new model
+		if ($formSubmitted) {
+			// validate input
+			
+			Validator::extend('valid_file_id', function($attribute, $value, $parameters) {
+				if ($value === "") {
+					return true;
+				}
+				$value = intval($value, 10);
+				$file = File::find($value);
+				return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId() || !in_array($file->getExtension(), explode("-", $parameters[0]), true));
+			});
+			
+			// TODO: date validation isn't good enough. need to check there is a time not just date
+			
+			$validator = Validator::make($formData,	array(
+				'name'		=> array('required', 'max:50'),
+				'description'	=> array('max:500'),
+				'cover-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
+				'side-banners-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
+				'vod-name'	=> array('required_if:vod-enabled,y', 'max:50'),
+				'vod-description'	=> array('max:500'),
+		//		'vod-video-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
+				'vod-time-recorded'	=> array('date'),
+				'vod-publish-time'	=> array('date'),
+				'stream-name'	=> array('required_if:stream-enabled,y', 'max:50'),
+				'stream-description'	=> array('max:500'),
+				'stream-live-time'	=> array('date'),
+			), array(
+				'name.required'		=> FormHelpers::getRequiredMsg(),
+				'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
+				'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+				'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+				'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+				'vod-name.required_if'	=> FormHelpers::getRequiredMsg(),
+				'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
+				'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+		//		'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(), //TODO
+				'vod-time-recorded.date'	=> FormHelpers::getInvalidTimeMsg(),
+				'vod-publish-time.date'	=> FormHelpers::getInvalidTimeMsg(),
+				'stream-name.required_if'	=> FormHelpers::getRequiredMsg(),
+				'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
+				'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+				'stream-live-team.date'	=> FormHelpers::getInvalidTimeMsg()
+			));
 			
 			
 			// if not valid then return form again with errors

@@ -23,5 +23,20 @@ class FormHelpers {
 		
 		return $formData;
 	}
+	
+	public static function getLessThanCharactersMsg($no) {
+		return "This must be less than ".$no." characters.";
+	}
+	
+	public static function getInvalidFileMsg() {
+		return "This file type is not allowed.";
+	}
+	
+	public static function getRequiredMsg() {
+		return "This is required.";
+	}
 
+	public static function getInvalidTimeMsg() {
+		return "This time is invalid.";
+	}
 }

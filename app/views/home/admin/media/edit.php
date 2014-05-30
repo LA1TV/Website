@@ -5,7 +5,7 @@
 	<div class="panel-body">
 		<div class="checkbox">
 			<label>
-				<input type="checkbox" data-virtualform="1" name="enabled" value="y" <?=$form['enabled'] ? "checked":""?> > Enabled
+				<input type="checkbox" data-virtualform="1" name="enabled" value="y" <?=$form['enabled']==="y" ? "checked":""?> > Enabled
 			</label>
 		</div>
 		<div class="form-group">
@@ -18,12 +18,12 @@
 		</div>
 		<div class="form-group">
 			<label class="control-label">Cover Image (Optional)</label>
-			<div class="form-control ajax-upload" data-ajaxuploadresultname="cover-image-id" data-ajaxuploadextensions="jpg,jpeg" data-ajaxuploadcurrentfilename="<?=e($form['cover-image-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['cover-image-file-size'])?>"></div>
+			<div class="form-control ajax-upload" data-ajaxuploadresultname="cover-image-id" data-ajaxuploadextensions="<?=e(implode(",", AllowedFileTypesHelper::getImages()))?>" data-ajaxuploadcurrentfilename="<?=e($form['cover-image-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['cover-image-file-size'])?>"></div>
 			<input type="hidden" data-virtualform="1" name="cover-image-id" value="<?=e($form['cover-image-id'])?>" />
 		</div>
 		<div class="form-group">
 			<label class="control-label">Side Banners Image (Optional)</label>
-			<div class="form-control ajax-upload" data-ajaxuploadresultname="side-banners-image-id" data-ajaxuploadextensions="jpg,jpeg" data-ajaxuploadcurrentfilename="<?=e($form['side-banners-image-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['side-banners-image-file-size'])?>"></div>
+			<div class="form-control ajax-upload" data-ajaxuploadresultname="side-banners-image-id" data-ajaxuploadextensions="<?=e(implode(",", AllowedFileTypesHelper::getImages()))?>" data-ajaxuploadcurrentfilename="<?=e($form['side-banners-image-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['side-banners-image-file-size'])?>"></div>
 			<input type="hidden" data-virtualform="1" name="side-banners-image-id" value="<?=e($form['side-banners-image-id'])?>" />
 		</div>
 		
@@ -36,7 +36,7 @@
 					<div class="panel-body">
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" data-virtualform="1" name="vod-enabled" value="y" <?=$form['vod-enabled']?"checked":""?>> Enabled
+								<input type="checkbox" data-virtualform="1" name="vod-enabled" value="y" <?=$form['vod-enabled']==="y"?"checked":""?>> Enabled
 							</label>
 						</div>
 						<div class="form-group">
@@ -49,7 +49,7 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label">Video</label>
-							<div class="form-control ajax-upload" data-ajaxuploadresultname="vod-video-id" data-ajaxuploadextensions="mp4" data-ajaxuploadcurrentfilename="<?=e($form['vod-video-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['vod-video-file-size'])?>"></div>
+							<div class="form-control ajax-upload" data-ajaxuploadresultname="vod-video-id" data-ajaxuploadextensions="<?=e(implode(",", AllowedFileTypesHelper::getVideos()))?>" data-ajaxuploadcurrentfilename="<?=e($form['vod-video-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['vod-video-file-size'])?>"></div>
 							<input type="hidden" data-virtualform="1" name="vod-video-id" value="<?=e($form['vod-video-id'])?>" />
 						</div>
 						<div class="form-group">
@@ -62,7 +62,7 @@
 						</div>
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" data-virtualform="1" name="vod-live-recording" value="y" <?=$form['vod-live-recording']?"checked":""?>> Is Live Recording
+								<input type="checkbox" data-virtualform="1" name="vod-live-recording" value="y" <?=$form['vod-live-recording']==="y"?"checked":""?>> Is Live Recording
 							</label>
 						</div>
 					</div>
@@ -76,7 +76,7 @@
 					<div class="panel-body">
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" data-virtualform="1" name="stream-enabled" value="y" <?=$form['stream-enabled']?"checked":""?>> Enabled
+								<input type="checkbox" data-virtualform="1" name="stream-enabled" value="y" <?=$form['stream-enabled']==="y"?"checked":""?>> Enabled
 							</label>
 						</div>
 						<div class="form-group">
