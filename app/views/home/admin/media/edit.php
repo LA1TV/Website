@@ -53,6 +53,10 @@
 							<input type="hidden" data-virtualform="1" name="vod-video-id" value="<?=e($form['vod-video-id'])?>" />
 						</div>
 						<div class="form-group">
+							<label class="control-label">Time Recorded (Optional)</label>
+							<input type="datetime-local" data-virtualform="1" class="form-control" name="vod-time-recorded" value="<?=e($form['vod-time-recorded'])?>">
+						</div>
+						<div class="form-group">
 							<label class="control-label">Scheduled Publish Time (Optional)</label>
 							<input type="datetime-local" data-virtualform="1" class="form-control" name="vod-publish-time" value="<?=e($form['vod-publish-time'])?>">
 						</div>

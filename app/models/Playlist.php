@@ -52,7 +52,7 @@ class Playlist extends MyEloquent {
 		if (!$this->enabled) {
 			return false;
 		}
-		if (!is_null($this->series()->first())) {
+		if (!is_null($this->series)) {
 			if (!$this->series()->first()->enabled) {
 				return false;
 			}
