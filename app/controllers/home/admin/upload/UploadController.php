@@ -7,6 +7,7 @@ use App;
 use DB;
 use Input;
 use FormHelpers;
+use AllowedFileTypesHelper;
 use uk\co\la1tv\website\models\File;
 
 class UploadController extends UploadBaseController {
@@ -14,7 +15,7 @@ class UploadController extends UploadBaseController {
 	public function postIndex() {
 		
 		// A list of permitted file extensions
-		$extensions = array('jpg', 'jpeg', 'mp4');
+		$extensions = AllowedFileTypesHelper::getAll();
 		$maxFileLength = 50;
 		
 		$resp = array("success"=> false);
