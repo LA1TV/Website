@@ -6,6 +6,7 @@ use Config;
 use App;
 use DB;
 use Input;
+use FormHelpers;
 use uk\co\la1tv\website\models\File;
 
 class UploadController extends UploadBaseController {
@@ -72,8 +73,8 @@ class UploadController extends UploadBaseController {
 	// serve up a file
 	public function getIndex($id) {
 		
-		// TODO: this should probably be with->movieitem and mediaitemvideos as these are needed when it checks to see if it should be accessible 
-		$file = File::find($id);
+		// TODO: might need to eager load more relations in getIsAccessible
+		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->find($id);
 		
 		if (is_null($file)) {
 			App::abort(404);
@@ -113,8 +114,8 @@ class UploadController extends UploadBaseController {
 	// get information about a temporary file
 	public function postInfo() {
 		$resp = array("success"=> false);
-		if (Input::has("id")) {
-			$id = intval(Input::get("id"), 10);
+		if (FormHelpers::hasPost("id")) {
+			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {
 				$resp['fileName'] = $file->filename;
@@ -128,8 +129,8 @@ class UploadController extends UploadBaseController {
 	// remove a temporary file
 	public function postRemove() {
 		$resp = array("success"=> false);
-		if (Input::has("id")) {
-			$id = intval(Input::get("id"), 10);
+		if (FormHelpers::hasPost("id")) {
+			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {
 				if (unlink(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id)) {
