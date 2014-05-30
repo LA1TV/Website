@@ -22,11 +22,11 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function sideBannerFile() {
-		return $this->belongsTo(self::$p.'file', 'side_banner_file_id');
+		return $this->belongsTo(self::$p.'File', 'side_banner_file_id');
 	}
 	
 	public function coverFile() {
-		return $this->belongsTo(self::$p.'file', 'cover_file_id');
+		return $this->belongsTo(self::$p.'File', 'cover_file_id');
 	}
 	
 	public function playlists() {

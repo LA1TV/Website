@@ -20,4 +20,8 @@ class File extends MyEloquent {
 	public function playlistWithBanner() {
 		return $this->hasOne(self::$p.'Playlist', 'side_banner_file_id');
 	}
+	
+	public function videoFiles() {
+		return $this->hasMany(self::$p.'VideoFile', 'file_id');
+	}
 }
