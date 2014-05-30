@@ -80,14 +80,7 @@ class MediaController extends MediaBaseController {
 		if ($formSubmitted) {
 			// validate input
 			
-			Validator::extend('valid_file_id', function($attribute, $value, $parameters) {
-				if ($value === "") {
-					return true;
-				}
-				$value = intval($value, 10);
-				$file = File::find($value);
-				return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId() || !in_array($file->getExtension(), explode("-", $parameters[0]), true));
-			});
+			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			
 			// TODO: date validation isn't good enough. need to check there is a time not just date
 			

@@ -39,4 +39,19 @@ class FormHelpers {
 	public static function getInvalidTimeMsg() {
 		return "This time is invalid.";
 	}
+	
+	public static function getValidFileValidatorFunction() {
+		return function($attribute, $value, $parameters) {
+			if ($value === "") {
+				return true;
+			}
+			$value = intval($value, 10);
+			$file = File::find($value);
+			return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId() || !in_array($file->getExtension(), explode("-", $parameters[0]), true));
+		};
+	}
+	
+	public static function getFileUploadElement($formName, $extensions, $currentFileName, $currentFileSize, $value) {
+		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'"></div><input type="hidden" data-virtualform="1" name="'.e($formName).'" value="'.e($value).'" />';
+	}
 }

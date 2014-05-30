@@ -18,13 +18,11 @@
 		</div>
 		<div class="form-group">
 			<label class="control-label">Cover Image (Optional)</label>
-			<div class="form-control ajax-upload" data-ajaxuploadresultname="cover-image-id" data-ajaxuploadextensions="<?=e(implode(",", AllowedFileTypesHelper::getImages()))?>" data-ajaxuploadcurrentfilename="<?=e($form['cover-image-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['cover-image-file-size'])?>"></div>
-			<input type="hidden" data-virtualform="1" name="cover-image-id" value="<?=e($form['cover-image-id'])?>" />
+			<?=FormHelpers::getFileUploadElement("cover-image-id", AllowedFileTypesHelper::getImages(), $form['cover-image-file-name'], $form['cover-image-file-size'], $form['cover-image-id']);?>
 		</div>
 		<div class="form-group">
 			<label class="control-label">Side Banners Image (Optional)</label>
-			<div class="form-control ajax-upload" data-ajaxuploadresultname="side-banners-image-id" data-ajaxuploadextensions="<?=e(implode(",", AllowedFileTypesHelper::getImages()))?>" data-ajaxuploadcurrentfilename="<?=e($form['side-banners-image-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['side-banners-image-file-size'])?>"></div>
-			<input type="hidden" data-virtualform="1" name="side-banners-image-id" value="<?=e($form['side-banners-image-id'])?>" />
+			<?=FormHelpers::getFileUploadElement("side-banners-image-id", AllowedFileTypesHelper::getImages(), $form['side-banners-image-file-name'], $form['side-banners-image-file-size'], $form['side-banners-image-id']);?>
 		</div>
 		
 		<div class="panel-group custom-accordian">
@@ -49,8 +47,7 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label">Video</label>
-							<div class="form-control ajax-upload" data-ajaxuploadresultname="vod-video-id" data-ajaxuploadextensions="<?=e(implode(",", AllowedFileTypesHelper::getVideos()))?>" data-ajaxuploadcurrentfilename="<?=e($form['vod-video-file-name'])?>" data-ajaxuploadcurrentfilesize="<?=e($form['vod-video-file-size'])?>"></div>
-							<input type="hidden" data-virtualform="1" name="vod-video-id" value="<?=e($form['vod-video-id'])?>" />
+							<?=FormHelpers::getFileUploadElement("vod-video-id", AllowedFileTypesHelper::getVideos(), $form['vod-video-file-name'], $form['vod-video-file-size'], $form['vod-video-id']);?>
 						</div>
 						<div class="form-group">
 							<label class="control-label">Time Recorded (Optional)</label>
