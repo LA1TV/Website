@@ -5,7 +5,7 @@
 	<div class="panel-body">
 		<div class="checkbox">
 			<label>
-				<input type="checkbox" name="enabled" value="y" <?=$form['enabled'] ? "checked":""?> > Enabled
+				<input type="checkbox" data-virtualform="1" name="enabled" value="y" <?=$form['enabled'] ? "checked":""?> > Enabled
 			</label>
 		</div>
 		<div class="form-group">
@@ -36,7 +36,7 @@
 					<div class="panel-body">
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" name="vod-enabled" value="y" <?=$form['vod-enabled']?"checked":""?>> Enabled
+								<input type="checkbox" data-virtualform="1" name="vod-enabled" value="y" <?=$form['vod-enabled']?"checked":""?>> Enabled
 							</label>
 						</div>
 						<div class="form-group">
@@ -62,7 +62,7 @@
 						</div>
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" name="vod-live-recording" value="y" <?=$form['vod-live-recording']?"checked":""?>> Is Live Recording
+								<input type="checkbox" data-virtualform="1" name="vod-live-recording" value="y" <?=$form['vod-live-recording']?"checked":""?>> Is Live Recording
 							</label>
 						</div>
 					</div>
@@ -76,7 +76,7 @@
 					<div class="panel-body">
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" name="stream-enabled" value="y" <?=$form['stream-enabled']?"checked":""?>> Enabled
+								<input type="checkbox" data-virtualform="1" name="stream-enabled" value="y" <?=$form['stream-enabled']?"checked":""?>> Enabled
 							</label>
 						</div>
 						<div class="form-group">

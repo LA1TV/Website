@@ -46,7 +46,13 @@ $(document).ready(function() {
 			if (typeof attr === 'undefined' || attr === false) {
 				return true; // continue
 			}
-			data[attr] = $(this).val();
+			
+			if ($(this).prop("type").toLowerCase() === "checkbox" || $(this).prop("type").toLowerCase() === "radio") {
+				data[attr] = $(this).prop("checked") ? $(this).val() : "";
+			}
+			else {
+				data[attr] = $(this).val();
+			}
 		});
 		
 		for (var key in data) {
