@@ -7,6 +7,7 @@ use ObjectHelpers;
 use AllowedFileTypesHelper;
 use Validator;
 use Session;
+use DB;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
@@ -41,6 +42,7 @@ class MediaController extends MediaBaseController {
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannersFile", "id")),
+			array("vod-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "videoItem")) ? "1":"0"),
 			array("vod-enabled", ObjectHelpers::getProp("", $mediaItem, "videoItem", "enabled")),
 			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
 			array("vod-description", ObjectHelpers::getProp("", $mediaItem, "videoItem", "description")),
@@ -50,6 +52,7 @@ class MediaController extends MediaBaseController {
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded")),
 			array("vod-publish-time", ObjectHelpers::getProp("", $mediaItem, "videoItem", "scheduled_publish_time")),
 			array("vod-live-recording", ObjectHelpers::getProp("", $mediaItem, "videoItem", "is_live_recording")),
+			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem")) ? "1":"0"),
 			array("stream-enabled", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "enabled")),
 			array("stream-name", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "name")),
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
@@ -84,38 +87,80 @@ class MediaController extends MediaBaseController {
 			
 			// TODO: date validation isn't good enough. need to check there is a time not just date
 			
-			$validator = Validator::make($formData,	array(
-				'name'		=> array('required', 'max:50'),
-				'description'	=> array('max:500'),
-				'cover-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
-				'side-banners-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
-				'vod-name'	=> array('required_if:vod-enabled,y', 'max:50'),
-				'vod-description'	=> array('max:500'),
-		//		'vod-video-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
-				'vod-time-recorded'	=> array('date'),
-				'vod-publish-time'	=> array('date'),
-				'stream-name'	=> array('required_if:stream-enabled,y', 'max:50'),
-				'stream-description'	=> array('max:500'),
-				'stream-live-time'	=> array('date'),
-			), array(
-				'name.required'		=> FormHelpers::getRequiredMsg(),
-				'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
-				'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
-				'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
-				'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
-				'vod-name.required_if'	=> FormHelpers::getRequiredMsg(),
-				'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
-				'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
-		//		'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(), //TODO
-				'vod-time-recorded.date'	=> FormHelpers::getInvalidTimeMsg(),
-				'vod-publish-time.date'	=> FormHelpers::getInvalidTimeMsg(),
-				'stream-name.required_if'	=> FormHelpers::getRequiredMsg(),
-				'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
-				'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
-				'stream-live-team.date'	=> FormHelpers::getInvalidTimeMsg()
-			));
+			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem) {
 			
+				$validator = Validator::make($formData,	array(
+					'name'		=> array('required', 'max:50'),
+					'description'	=> array('max:500'),
+					'cover-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
+					'side-banners-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
+					'vod-name'	=> array('required_if:vod-added,1', 'max:50'),
+					'vod-description'	=> array('max:500'),
+			//		'vod-video-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
+					'vod-time-recorded'	=> array('date'),
+					'vod-publish-time'	=> array('date'),
+					'stream-name'	=> array('required_if:stream-added,1', 'max:50'),
+					'stream-description'	=> array('max:500'),
+					'stream-live-time'	=> array('date'),
+				), array(
+					'name.required'		=> FormHelpers::getRequiredMsg(),
+					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
+					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+					'vod-name.required_if'	=> FormHelpers::getRequiredMsg(),
+					'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
+					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+			//		'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(), //TODO
+					'vod-time-recorded.date'	=> FormHelpers::getInvalidTimeMsg(),
+					'vod-publish-time.date'	=> FormHelpers::getInvalidTimeMsg(),
+					'stream-name.required_if'	=> FormHelpers::getRequiredMsg(),
+					'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
+					'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+					'stream-live-team.date'	=> FormHelpers::getInvalidTimeMsg()
+				));
+				
+				if (!$validator->fails()) {
+					// everything is good. save/create model
+					if (is_null($mediaItem)) {
+						$mediaItem = new MediaItem();
+					}
+					
+					$mediaItem->name = $formData['name'];
+					$mediaItem->description = FormHelpers::nullIfEmpty($formData['description']);
+					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
+					if (!is_null($coverImageId)) {
+						$coverImageId = intval($coverImageId, 10);
+						// we know this file will still exist because all of this is in transaction and file existed during validation
+						$file = File::find($coverImageId);
+						$file->in_use = true; // mark file as being in_use now
+						$mediaItem->coverFile()->associate($file);
+					}
+					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
+					if (!is_null($sideBannerFileId)) {
+						$sideBannerFileId = intval($sideBannerFileId, 10);
+						$file = File::find($sideBannerFileId);
+						$file->in_use = true; // mark file as being in_use now
+						$mediaItem->sideBannerFile()->associate($file);
+					}
+					
+					// vod
+					
+					// stream
+					
+					// the transaction callback result is returned out of the transaction function
+					return $mediaItem->save();
+				}
+				else {
+					return false;
+				}
+			});
 			
+			if ($modelCreated) {
+				// TODO
+				return "Success!";
+			}
 			// if not valid then return form again with errors
 		}
 		

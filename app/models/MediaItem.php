@@ -3,7 +3,7 @@
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
-	protected $fillable = array('name', 'description', 'cover_file_id', 'side_banner_file_id', 'enabled');
+	protected $fillable = array('name', 'description', 'enabled');
 	
 	public function comments() {
 		return $this->hasMany(self::$p.'MediaItemComment', 'media_item_id');

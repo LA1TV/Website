@@ -24,6 +24,15 @@ class FormHelpers {
 		return $formData;
 	}
 	
+	// return NULL if string empty
+	public static function nullIfEmpty($str) {
+		return !empty($str) ? $str : null;
+	}
+	
+	public static function toBoolean($val) {
+		return $val === "y";
+	}
+	
 	public static function getLessThanCharactersMsg($no) {
 		return "This must be less than ".$no." characters.";
 	}

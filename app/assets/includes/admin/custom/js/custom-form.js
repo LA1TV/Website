@@ -47,6 +47,11 @@ $(document).ready(function() {
 				return true; // continue
 			}
 			
+			var disabledAttr = $(this).attr("disabled");
+			if (typeof disabledAttr !== 'undefined' && disabledAttr !== false) {
+				return true; // continue
+			}
+			
 			if ($(this).prop("type").toLowerCase() === "checkbox" || $(this).prop("type").toLowerCase() === "radio") {
 				data[attr] = $(this).prop("checked") ? $(this).val() : "";
 			}
