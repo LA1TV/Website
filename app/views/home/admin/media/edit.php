@@ -32,11 +32,11 @@
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
+						<input type="hidden" class="enabled-input" data-virtualform="1" name="vod-added" value="<?=e($form['vod-added'])?>"> 
 						<div class="disabled-container">
 							<button class="btn btn-primary enable-button">Add Video On Demand</button>
 						</div>
 						<div class="enabled-container">
-							<input type="hidden" data-virtualform="1" name="vod-added" value="1"> 
 							<button class="btn btn-default disable-button">Remove Video On Demand</button>
 							<div class="checkbox">
 								<label>
@@ -78,11 +78,11 @@
 				</div>
 				<div class="panel-collapse collapse live-stream-panel">
 					<div class="panel-body">
+						<input type="hidden" class="enabled-input" data-virtualform="1" name="stream-added" value="<?=e($form['stream-added'])?>"> 
 						<div class="disabled-container">
 							<button class="btn btn-primary enable-button">Add Live Stream</button>
 						</div>
 						<div class="enabled-container">
-							<input type="hidden" data-virtualform="1" name="stream-added" value="1"> 
 							<button class="btn btn-default disable-button">Remove Live Stream</button>
 							<div class="checkbox">
 								<label>
