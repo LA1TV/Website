@@ -8,6 +8,7 @@ use AllowedFileTypesHelper;
 use Validator;
 use Session;
 use DB;
+use Exception;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
@@ -134,14 +135,26 @@ class MediaController extends MediaBaseController {
 						$coverImageId = intval($coverImageId, 10);
 						// we know this file will still exist because all of this is in transaction and file existed during validation
 						$file = File::find($coverImageId);
+						if (is_null($file)) {
+							throw(new Exception("File no longer exists in transaction."));
+						}
 						$file->in_use = true; // mark file as being in_use now
+						if ($file->save() === false) {
+							throw(new Exception("Error saving file model."));
+						}
 						$mediaItem->coverFile()->associate($file);
 					}
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
 					if (!is_null($sideBannerFileId)) {
 						$sideBannerFileId = intval($sideBannerFileId, 10);
 						$file = File::find($sideBannerFileId);
+						if (is_null($file)) {
+							throw(new Exception("File no longer exists in transaction."));
+						}
 						$file->in_use = true; // mark file as being in_use now
+						if ($file->save() === false) {
+							throw(new Exception("Error saving file model."));
+						}
 						$mediaItem->sideBannerFile()->associate($file);
 					}
 					
@@ -150,7 +163,10 @@ class MediaController extends MediaBaseController {
 					// stream
 					
 					// the transaction callback result is returned out of the transaction function
-					return $mediaItem->save();
+					if ($mediaItem->save() === false) {
+						throw(new Exception("Error saving MediaItem."));
+					}
+					return true;
 				}
 				else {
 					return false;
