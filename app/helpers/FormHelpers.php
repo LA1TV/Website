@@ -1,5 +1,7 @@
 <?php
 
+use uk\co\la1tv\website\models\File;
+
 class FormHelpers {
 	
 	public static function getValue($var, $default, $useDefault) {
