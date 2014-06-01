@@ -1,6 +1,7 @@
 <?php
 
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\LiveStream;
 
 class FormHelpers {
 	
@@ -51,6 +52,10 @@ class FormHelpers {
 		return "This time is invalid.";
 	}
 	
+	public static function getInvalidStreamMsg() {
+		return "This stream is invalid.";
+	}
+	
 	public static function getValidFileValidatorFunction() {
 		return function($attribute, $value, $parameters) {
 			if ($value === "") {
@@ -59,6 +64,17 @@ class FormHelpers {
 			$value = intval($value, 10);
 			$file = File::find($value);
 			return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId() || !in_array($file->getExtension(), explode("-", $parameters[0]), true));
+		};
+	}
+	
+	public static function getValidStreamValidatorFunction() {
+		return function($attribute, $value, $parameters) {
+			if ($value === "") {
+				return true;
+			}
+			$value = intval($value, 10);
+			$liveStream = LiveStream::find($value);
+			return !is_null($liveStream);
 		};
 	}
 	

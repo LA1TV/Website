@@ -44,7 +44,7 @@
 								</label>
 							</div>
 							<div class="form-group">
-								<label class="control-label">Name</label>
+								<label class="control-label">Name (Optional)</label>
 								<input type="text" data-virtualform="1" class="form-control" name="vod-name" value=<?=e($form['vod-name'])?>>
 							</div>
 							<div class="form-group">
@@ -90,7 +90,7 @@
 								</label>
 							</div>
 							<div class="form-group">
-								<label class="control-label">Name</label>
+								<label class="control-label">Name (Optional)</label>
 								<input type="text" data-virtualform="1" class="form-control" name="stream-name" value="<?=e($form['stream-name'])?>">
 							</div>
 							<div class="form-group">
@@ -103,7 +103,7 @@
 							</div>
 							<div class="form-group">
 								<label class="control-label">Stream</label>
-								<select class="form-control" name="stream-stream-id">
+								<select class="form-control" data-virtualform="1" name="stream-stream-id">
 									<?php foreach($streamOptions as $a): ?>
 									<option value="<?=e($a['id'])?>" <?=$a['id'] === $form['stream-stream-id']?"selected":""?>><?=e($a['name'])?></option>
 									<?php endforeach; ?>

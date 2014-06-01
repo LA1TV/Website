@@ -10,6 +10,8 @@ use Session;
 use DB;
 use Exception;
 use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\MediaItemVideo;
+use uk\co\la1tv\website\models\MediaItemLiveStream;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
 
@@ -85,6 +87,7 @@ class MediaController extends MediaBaseController {
 			// validate input
 			
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
+			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
 			
 			// TODO: date validation isn't good enough. need to check there is a time not just date
 			
@@ -95,30 +98,31 @@ class MediaController extends MediaBaseController {
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
 					'side-banners-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
-					'vod-name'	=> array('required_if:vod-added,1', 'max:50'),
+					'vod-name'	=> array('max:50'),
 					'vod-description'	=> array('max:500'),
-			//		'vod-video-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
+			//		'vod-video-id'	=> array(('required_if:vod-added,1', 'valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
 					'vod-time-recorded'	=> array('date'),
 					'vod-publish-time'	=> array('date'),
-					'stream-name'	=> array('required_if:stream-added,1', 'max:50'),
+					'stream-name'	=> array('max:50'),
 					'stream-description'	=> array('max:500'),
 					'stream-live-time'	=> array('date'),
+					'stream-stream-id'	=> array(('valid_stream_id'))
 				), array(
 					'name.required'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
-					'vod-name.required_if'	=> FormHelpers::getRequiredMsg(),
 					'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+			//		'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(), // TODO
 			//		'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(), //TODO
 					'vod-time-recorded.date'	=> FormHelpers::getInvalidTimeMsg(),
 					'vod-publish-time.date'	=> FormHelpers::getInvalidTimeMsg(),
-					'stream-name.required_if'	=> FormHelpers::getRequiredMsg(),
 					'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
-					'stream-live-team.date'	=> FormHelpers::getInvalidTimeMsg()
+					'stream-live-time.date'	=> FormHelpers::getInvalidTimeMsg(),
+					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg()
 				));
 				
 				if (!$validator->fails()) {
@@ -144,6 +148,14 @@ class MediaController extends MediaBaseController {
 						}
 						$mediaItem->coverFile()->associate($file);
 					}
+					else {
+						// remove coverimage if there currently is one
+						if (!is_null($mediaItem->coverFile)) {
+							if ($mediaItem->coverFile->delete() === false) {
+								throw(new Exception("Error deleting MediaItem cover file."));
+							}
+						}
+					}
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
 					if (!is_null($sideBannerFileId)) {
 						$sideBannerFileId = intval($sideBannerFileId, 10);
@@ -157,15 +169,93 @@ class MediaController extends MediaBaseController {
 						}
 						$mediaItem->sideBannerFile()->associate($file);
 					}
+					else {
+						// remove banner if there already is one
+						if (!is_null($mediaItem->sideBannerFile)) {
+							if ($mediaItem->sideBannerFile->delete() === false) {
+								throw(new Exception("Error deleting MediaItem side banner file."));
+							}
+						}
+					}
 					
 					// vod
+					$mediaItemVideo = null;
+					if ($formData['vod-added'] === "1") {
+					
+						// create MediaItemVideo if doesn't exist, otherwise retrieve it
+						if (!is_null($mediaItem->videoItem)) {
+							$mediaItemVideo = $mediaItem->videoItem;
+						}
+						else {
+							$mediaItemVideo = new MediaItemVideo();
+						}
+						
+						$mediaItemVideo->is_live_recording = FormHelpers::toBoolean($formData['vod-live-recording']);
+						$mediaItemVideo->time_recorded = FormHelpers::nullIfEmpty($formData['vod-time-recorded']);
+						$mediaItemVideo->name = FormHelpers::nullIfEmpty($formData['vod-name']);
+						$mediaItemVideo->description = FormHelpers::nullIfEmpty($formData['vod-description']);
+						$mediaItemVideo->enabled = FormHelpers::toBoolean($formData['vod-enabled']);
+						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty($formData['vod-publish-time']);
+					}
+					else {
+						// remove video model if there is one
+						if (!is_null($mediaItem->videoItem)) {
+							if ($mediaItem->videoItem->delete() === false) {
+								throw(new Exception("Error deleting MediaItemVideo."));
+							}
+						}
+					}
+					
 					
 					// stream
+					$mediaItemLiveStream = null;
+					if ($formData['stream-added'] === "1") {
 					
-					// the transaction callback result is returned out of the transaction function
+						// create MediaItemLiveStream if doesn't exist, otherwise retrieve it
+						if (!is_null($mediaItem->liveStreamItem)) {
+							$mediaItemLiveStream = $mediaItem->liveStreamItem;
+						}
+						else {
+							$mediaItemLiveStream = new MediaItemLiveStream();
+						}
+						
+						$mediaItemLiveStream->name = FormHelpers::nullIfEmpty($formData['stream-name']);
+						$mediaItemLiveStream->description = FormHelpers::nullIfEmpty($formData['stream-description']);
+						$mediaItemLiveStream->enabled = FormHelpers::toBoolean($formData['stream-enabled']);
+						$mediaItemLiveStream->scheduled_live_time = FormHelpers::toBoolean(FormHelpers::nullIfEmpty($formData['stream-live-time']));
+							
+						if (!is_null(FormHelpers::nullIfEmpty($formData['stream-stream-id']))) {
+							$liveStream = LiveStream::find(intval($formData['stream-stream-id'], 10));
+							if (is_null($liveStream)) {
+								throw(new Exception("Live stream no longer exists in transaction."));
+							}
+							$mediaItemLiveStream->liveStream()->associate($liveStream);
+						}
+					}
+					else {
+						// remove video model if there is one
+						if (!is_null($mediaItem->liveStreamItem)) {
+							if ($mediaItem->liveStreamItem->delete() === false) {
+								throw(new Exception("Error deleting MediaItemLiveStream."));
+							}
+						}
+					}
+					
 					if ($mediaItem->save() === false) {
 						throw(new Exception("Error saving MediaItem."));
 					}
+					if (!is_null($mediaItemVideo)) {
+						if ($mediaItem->videoItem()->save($mediaItemVideo) === false) {
+							throw(new Exception("Error creating MediaItemVideo."));
+						}
+					}
+					if (!is_null($mediaItemLiveStream)) {
+						if ($mediaItem->liveStreamItem()->save($mediaItemLiveStream) === false) {
+							throw(new Exception("Error creating MediaItemLiveStream."));
+						}
+					}
+					
+					// the transaction callback result is returned out of the transaction function
 					return true;
 				}
 				else {
