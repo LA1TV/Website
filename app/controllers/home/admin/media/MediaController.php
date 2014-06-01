@@ -9,6 +9,7 @@ use Validator;
 use Session;
 use DB;
 use Exception;
+use Redirect;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -60,7 +61,7 @@ class MediaController extends MediaBaseController {
 			array("stream-name", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "name")),
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-live-time", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "scheduled_live_time")),
-			array("stream-stream-id", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "liveStream", "id"))
+			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id"))
 		), !$formSubmitted);
 		
 		// now set filenames and sizes
@@ -83,6 +84,8 @@ class MediaController extends MediaBaseController {
 			}
 		}
 		
+		$errors = null;
+		
 		if ($formSubmitted) {
 			// validate input
 			
@@ -91,7 +94,7 @@ class MediaController extends MediaBaseController {
 			
 			// TODO: date validation isn't good enough. need to check there is a time not just date
 			
-			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem) {
+			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem, &$errors) {
 			
 				$validator = Validator::make($formData,	array(
 					'name'		=> array('required', 'max:50'),
@@ -106,7 +109,7 @@ class MediaController extends MediaBaseController {
 					'stream-name'	=> array('max:50'),
 					'stream-description'	=> array('max:500'),
 					'stream-live-time'	=> array('date'),
-					'stream-stream-id'	=> array(('valid_stream_id'))
+					'stream-stream-id'	=> array('valid_stream_id')
 				), array(
 					'name.required'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
@@ -151,9 +154,12 @@ class MediaController extends MediaBaseController {
 					else {
 						// remove coverimage if there currently is one
 						if (!is_null($mediaItem->coverFile)) {
-							if ($mediaItem->coverFile->delete() === false) {
+							$file = $mediaItem->coverFile;
+							$file->in_use = false;
+							if ($file->save() === false) {
 								throw(new Exception("Error deleting MediaItem cover file."));
 							}
+							$mediaItem[$mediaItem->coverFile->getForeignKey()] = null;
 						}
 					}
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
@@ -172,9 +178,12 @@ class MediaController extends MediaBaseController {
 					else {
 						// remove banner if there already is one
 						if (!is_null($mediaItem->sideBannerFile)) {
-							if ($mediaItem->sideBannerFile->delete() === false) {
+							$file = $mediaItem->sideBannerFile;
+							$file->in_use = false;
+							if ($file->save() === false) {
 								throw(new Exception("Error deleting MediaItem side banner file."));
 							}
+							$mediaItem[$mediaItem->sideBannerFile->getForeignKey()] = null;
 						}
 					}
 					
@@ -259,13 +268,13 @@ class MediaController extends MediaBaseController {
 					return true;
 				}
 				else {
+					$errors = $validator->messages();
 					return false;
 				}
 			});
 			
 			if ($modelCreated) {
-				// TODO
-				return "Success!";
+				return Redirect::to("/admin/media");
 			}
 			// if not valid then return form again with errors
 		}
@@ -286,6 +295,7 @@ class MediaController extends MediaBaseController {
 		$view->editing = $editing;
 		$view->streamOptions = $streamOptions;
 		$view->form = $formData;
+		$view->formErrors = $errors;
 	
 		$this->setContent($view, "media", "media-edit");
 	}

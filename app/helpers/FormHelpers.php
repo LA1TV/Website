@@ -78,6 +78,22 @@ class FormHelpers {
 		};
 	}
 	
+	public static function getErrCSS($errors, $name) {
+		$error = false;
+		if (!is_null($errors)) {
+			$error = $errors->has($name);
+		}
+		return $error ? "has-error" : "";
+	}
+	
+	public static function getErrMsgHTML($errors, $name) {
+		$error = false;
+		if (!is_null($errors)) {
+			$error = $errors->has($name);
+		}
+		return $error ? '<span class="help-block">'.$errors->get($name)[0].'</span>' : "";
+	}
+	
 	public static function getFileUploadElement($formName, $extensions, $currentFileName, $currentFileSize, $value) {
 		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'"></div><input type="hidden" data-virtualform="1" name="'.e($formName).'" value="'.e($value).'" />';
 	}
