@@ -91,9 +91,12 @@ class FormHelpers {
 		if (!is_null($errors)) {
 			$error = $errors->has($name);
 		}
+		if (!$error) {
+			return "";
+		}
 		$msgs = $errors->get($name);
 		$msg = $msgs[0];
-		return $error ? '<span class="help-block">'.e($msg).'</span>' : "";
+		return '<span class="help-block">'.e($msg).'</span>';
 	}
 	
 	public static function getFileUploadElement($formName, $extensions, $currentFileName, $currentFileSize, $value) {
