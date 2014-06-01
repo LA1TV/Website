@@ -91,7 +91,7 @@ class FormHelpers {
 		if (!is_null($errors)) {
 			$error = $errors->has($name);
 		}
-		return $error ? '<span class="help-block">'.$errors->get($name)[0].'</span>' : "";
+		return $error ? '<span class="help-block">'.e($errors->get($name)[0]).'</span>' : "";
 	}
 	
 	public static function getFileUploadElement($formName, $extensions, $currentFileName, $currentFileSize, $value) {
