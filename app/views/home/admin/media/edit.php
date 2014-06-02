@@ -13,7 +13,7 @@
 				<div class="panel-heading">
 					<h4 class="panel-title">Video On Demand</h4>
 				</div>
-				<div class="panel-collapse collapse">
+				<div class="panel-collapse collapse <?=$form['vod-added']==="1"?"in":""?>">
 					<div class="panel-body">
 						<div class="enabled-input hidden"><?=FormHelpers::getFormHiddenInput(1, "vod-added", $form['vod-added']);?></div>
 						<div class="disabled-container">
@@ -32,11 +32,11 @@
 					</div>
 				</div>
 			</div>
-			<div class="panel panel-default">
+			<div class="panel panel-default live-stream-panel">
 				<div class="panel-heading">
 					<h4 class="panel-title">Live Stream</h4>
 				</div>
-				<div class="panel-collapse collapse live-stream-panel">
+				<div class="panel-collapse collapse <?=$form['stream-added']==="1"?"in":""?>">
 					<div class="panel-body">
 						<div class="enabled-input hidden"><?=FormHelpers::getFormHiddenInput(1, "stream-added", $form['stream-added']);?></div>
 						<div class="disabled-container">
