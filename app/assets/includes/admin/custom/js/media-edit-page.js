@@ -20,7 +20,7 @@ $(document).ready(function() {
 	
 	var handler = function() {
 		var $panel = $(this).first();
-		var $enabledInput = $panel.find('.enabled-input').first();
+		var $enabledInput = $panel.find('.enabled-input input').first();
 		$enabledInput.val() === "1" ? enableFn($panel, $enabledInput) : disableFn($panel, $enabledInput);
 		
 		$(this).find(".disabled-container .enable-button").click(function(){enableFn($panel, $enabledInput);});

@@ -102,4 +102,45 @@ class FormHelpers {
 	public static function getFileUploadElement($formName, $extensions, $currentFileName, $currentFileSize, $value) {
 		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'"></div><input type="hidden" data-virtualform="1" name="'.e($formName).'" value="'.e($value).'" />';
 	}
+	
+	public static function getFormGroupStart($name, $formErrors) {
+		return '<div class="form-group '.FormHelpers::getErrCSS($formErrors, $name).'">';
+	}
+	
+	public static function getFormCheckInput($formId, $txt, $name, $enabled, $formErrors) {
+		$enabledTxt = $enabled === "y" ? "checked":"";
+		return self::getFormGroupStart($name, $formErrors).'<div class="checkbox"><label><input type="checkbox" data-virtualform="'.e($formId).'" name="'.e($name).'" value="y" '.$enabledTxt.'> '.e($txt).'</label></div>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getFormTxtInput($formId, $txt, $name, $val, $formErrors, $type="text") {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><input type="'.$type.'" data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'" value="'.e($val).'">'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getFormDateInput($formId, $txt, $name, $val, $formErrors) {
+		return self::getFormTxtInput($formId, $txt, $name, $val, $formErrors, "datetime-local");
+	}
+	
+	public static function getFormTxtAreaInput($formId, $txt, $name, $val, $formErrors) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><textarea data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'">'.e($val).'</textarea>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getFormUploadInput($formId, $txt, $name, $val, $formErrors, $allowedFileTypes, $fileName, $fileSize) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $allowedFileTypes, $fileName, $fileSize, $val).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getFormSelectInput($formId, $txt, $name, $val, $options, $formErrors) {
+		$selectStr = '<select class="form-control" data-virtualform="'.e($formId).'" name="'.e($name).'">';
+		foreach($options as $a) {
+			$selectedTxt = $a['id'] == $val ? "selected" : "";
+			$selectStr .= '<option value="'.e($a['id']).'" '.$selectedTxt.'>'.e($a['name']).'</option>';
+		}
+		$selectStr .= '</select>';
+	
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.$selectStr.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getFormHiddenInput($formId, $name, $val) {
+		return '<input type="hidden" data-virtualform="'.e($formId).'" name="'.e($name).'" value="'.e($val).'">';
+	}
+
 }
