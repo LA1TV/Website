@@ -8,7 +8,7 @@
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormUploadInput(1, "Cover Image (Optional)", "cover-image-id", $form['cover-image-id'], $formErrors, AllowedFileTypesHelper::getImages(), $form['cover-image-file-name'], $form['cover-image-file-size']);?>
 		<?=FormHelpers::getFormUploadInput(1, "Side Banners Image (Optional)", "side-banners-image-id", $form['side-banners-image-id'], $formErrors, AllowedFileTypesHelper::getImages(), $form['side-banners-image-file-name'], $form['side-banners-image-file-size']);?>
-		<div class="panel-group custom-accordian">
+		<div class="panel-group custom-accordian" data-grouptogether="0">
 			<div class="panel panel-default vod-panel">
 				<div class="panel-heading">
 					<h4 class="panel-title">Video On Demand</h4>

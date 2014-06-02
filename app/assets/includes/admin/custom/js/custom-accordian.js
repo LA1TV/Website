@@ -3,10 +3,11 @@ $(document).ready(function() {
 	$('.custom-accordian').each(function() {
 		
 		var $parent = $(this).first();
+		var groupTogether = $(this).attr("data-grouptogether") === "1";
 		
 		$(this).find(".panel-collapse").each(function() {
 			$(this).collapse({
-				parent: $parent,
+				parent: groupTogether ? $parent : null,
 				toggle: false
 			});
 		});
