@@ -1,5 +1,16 @@
 // can group form elements with a certain tag into a virtual form, meaning no <form> tags needed
 
+var customForm = {
+	handlers: {},
+	addHandler: function(id, handler) {
+		this.handlers[id] = handler;
+		return handler;
+	},
+	removeHandler: function(id, handler) {
+		delete this.handlers[id];
+	}
+};
+
 $(document).ready(function() {
 	
 	// listen for enter key
@@ -8,8 +19,7 @@ $(document).ready(function() {
 		if (e.which !== 13) {
 			return;
 		}
-		
-
+	
 		if ($(this).prop("tagName").toLowerCase() === "textarea") {
 			return;
 		}
@@ -29,6 +39,12 @@ $(document).ready(function() {
 	$('button[data-virtualformsubmit][data-virtualformsubmitmethod][data-virtualformsubmitaction][data-virtualform]').click(function(e) {
 		
 		e.preventDefault();
+		
+		for (var key in customForm.handlers) {
+			if (!customForm.handlers[key]()) {
+				return false;
+			}
+		}
 		
 		var method = $(this).attr("data-virtualformsubmitmethod");
 		var action = $(this).attr("data-virtualformaction");

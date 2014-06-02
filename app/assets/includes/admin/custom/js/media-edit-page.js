@@ -1,5 +1,13 @@
 $(document).ready(function() {
 	
+	customForm.addHandler(1, function() {
+		if (getNoActiveUploads() > 0) {
+			alert("There are still uploads are in progress.\n\nPlease either cancel them or wait for them to finish before saving.");
+			return false; // cancels submit
+		}
+		return true;
+	});
+	
 	var disableFn = function($panel, $enabledInput) {
 		var $disabledContainer = $panel.find(".disabled-container");
 		var $enabledContainer = $panel.find(".enabled-container");

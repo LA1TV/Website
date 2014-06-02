@@ -1,7 +1,7 @@
 // handles attaching jquery.fileupload to all .ajax-upload
 
 // will be set to function to return number of active uploads.
-var getNoUploads = null;
+var getNoActiveUploads = null;
 
 
 $(document).ready(function() {
@@ -9,7 +9,7 @@ $(document).ready(function() {
 	var baseUrl = $("body").attr("data-baseUrl");
 	var noUploads = 0;
 	
-	getNoUploads = function() {
+	getNoActiveUploads = function() {
 		return noUploads;
 	};
 	
