@@ -20,7 +20,38 @@ class MediaController extends MediaBaseController {
 
 	public function getIndex() {
 		$view = View::make('home.admin.media.index');
-		$view->tableData = array();
+		$tableData = array();
+		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->get();
+
+		foreach($mediaItems as $a) {
+			$hasVod = !is_null($a->videoItem);
+			$vodEnabled = $hasVod ? (boolean) $a->videoItem->enabled : null;
+			$hasStream = !is_null($a->streamItem);
+			$streamEnabled = $hasStream ? (boolean) $a->streamItem->enabled : null;
+			
+			$hasVodStr = $hasVod ? "Yes (" : "No";
+			if ($hasVod) {
+				$hasVodStr .= $vodEnabled ? "Enabled" : "Disabled";
+				$hasVodStr .= ")";
+			}
+			
+			$hasStreamStr = $hasStream ? "Yes (" : "No";
+			if ($hasStream) {
+				$hasStreamStr .= $streamEnabled ? "Enabled" : "Disabled";
+				$hasStreamStr .= ")";
+			}
+			
+			$tableData[] = array(
+				"name"			=> $a->name,
+				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
+				"has_vod"		=> $hasVodStr,
+				"has_vod_css"	=> $vodEnabled === TRUE ? "text-success" : "text-danger",
+				"has_stream"	=> $hasStreamStr,
+				"has_stream_css"	=> $streamEnabled === TRUE ? "text-success" : "text-danger",
+				"time_created"	=> $a->created_at->toDateTimeString()
+			);
+		}
+		$view->tableData = $tableData;
 		$this->setContent($view, "media", "media");
 	}
 	
