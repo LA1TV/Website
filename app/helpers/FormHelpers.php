@@ -140,15 +140,19 @@ class FormHelpers {
 	}
 	
 	public static function getFormPageSelectionBar($currentPage, $noPages) {
-		$a = '<ul class="pagination">';
+		$a = '<div class="clearfix">';
+		$a .= '<ul class="pagination pull-right">';
 		$tmp = $currentPage <= 0 ? 'class="disabled"' : '';
-		$a .= '<li '.$tmp.'><span>&laquo;</span></li>';
+		$tmp2 = $currentPage > 0 ? '<a href="'.URL::current().self::buildGetUri(array("pg"=>$currentPage-1+1)).'">&laquo;</a>' : '<span>&laquo;</span>';
+		$a .= '<li '.$tmp.'>'.$tmp2.'</li>';
 		for ($i=0; $i<$noPages; $i++) {
 			$tmp = $i===$currentPage ? 'class="active"':'';
-			$a.= '<li><a '. $tmp .' href="#">'.e($i+1).'</a></li>';
+			$a.= '<li '. $tmp .'><a href="'. URL::current().self::buildGetUri(array("pg"=>$i+1)).'">'.e($i+1).'</a></li>';
 		}
 		$tmp = $currentPage >= $noPages-1 ? 'class="disabled"' : '';
-		$a .= '<li '.$tmp.'><span>&raquo;</span></li>';
+		$tmp2 = $currentPage < $noPages-1 ? '<a href="'.URL::current().self::buildGetUri(array("pg"=>$currentPage+1+1)).'">&raquo;</a>' : '<span>&raquo;</span>';
+		$a .= '<li '.$tmp.'>'.$tmp2.'</li>';
+		$a .= '</div>';
 		return $a;
 	}
 	
@@ -172,5 +176,27 @@ class FormHelpers {
 	public static function getNoPages($noItems) {
 		return ceil($noItems / self::getPageNoItems());
 	}
+	
+	// generate query string with any attributes in uri still set unless overridden in $attrs
+	public static function buildGetUri($attrs) {
 
+		foreach($_GET as $b=>$a) {
+			if (!array_key_exists($b, $attrs)) {
+				$attrs[$b] = $a;
+			}
+		}
+	
+		$uri = "?";
+		$first = TRUE;
+		foreach($attrs as $b=>$a) {
+			if (!$first) {
+				$uri .= "&amp;";
+			}
+			else {
+				$first = FALSE;
+			}
+			$uri .= urlencode($b)."=".urlencode($a);
+		}
+		return $uri;
+	}
 }
