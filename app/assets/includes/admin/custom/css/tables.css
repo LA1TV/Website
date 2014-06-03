@@ -1,0 +1,7 @@
+.table .action-col {
+	text-align: center;
+}
+
+.table td, .table th {
+	vertical-align: middle !important;
+}

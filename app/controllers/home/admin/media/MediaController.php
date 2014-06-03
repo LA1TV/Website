@@ -19,7 +19,9 @@ use uk\co\la1tv\website\models\File;
 class MediaController extends MediaBaseController {
 
 	public function getIndex() {
-		$this->setContent(View::make('home.admin.media.index'), "media", "media");
+		$view = View::make('home.admin.media.index');
+		$view->tableData = array();
+		$this->setContent($view, "media", "media");
 	}
 	
 	public function anyEdit($id=null) {
