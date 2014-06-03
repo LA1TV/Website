@@ -35,5 +35,6 @@
 				</tr>
 			</tbody>
 		</table>
+		<?= FormHelpers::getFormPageSelectionBar($pageNo, $noPages); ?>
 	</div>
 </div>

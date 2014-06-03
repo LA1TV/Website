@@ -5,12 +5,12 @@ use uk\co\la1tv\website\models\LiveStream;
 
 class FormHelpers {
 	
-	public static function getValue($var, $default, $useDefault) {
-		return $useDefault || !self::hasPost($var) ? $default : $_POST[$var];
+	public static function getValue($var, $default, $useDefault=false, $useGet=false) {
+		return $useDefault || !self::hasPost($var, $useGet) ? $default : (!$useGet ? $_POST[$var] : $_GET[$var]);
 	}
 	
-	public static function hasPost($var) {
-		return isset($_POST[$var]);
+	public static function hasPost($var, $useGet=false) {
+		return !$useGet ? isset($_POST[$var]) : isset($_GET[$var]);
 	}
 	
 	// $structure should be an array containing arrays of form
@@ -139,8 +139,38 @@ class FormHelpers {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.$selectStr.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
+	public static function getFormPageSelectionBar($currentPage, $noPages) {
+		$a = '<ul class="pagination">';
+		$tmp = $currentPage <= 0 ? 'class="disabled"' : '';
+		$a .= '<li '.$tmp.'><span>&laquo;</span></li>';
+		for ($i=0; $i<$noPages; $i++) {
+			$tmp = $i===$currentPage ? 'class="active"':'';
+			$a.= '<li><a '. $tmp .' href="#">'.e($i+1).'</a></li>';
+		}
+		$tmp = $currentPage >= $noPages-1 ? 'class="disabled"' : '';
+		$a .= '<li '.$tmp.'><span>&raquo;</span></li>';
+		return $a;
+	}
+	
 	public static function getFormHiddenInput($formId, $name, $val) {
 		return '<input type="hidden" data-virtualform="'.e($formId).'" name="'.e($name).'" value="'.e($val).'">';
+	}
+	
+	public static function getPageNo() {
+		$no = intval(self::getValue("pg", 1, false, true), 10)-1;
+		return $no < 0 ? 0 : $no;
+	}
+	
+	public static function getPageStartIndex() {
+		return self::getPageNo() * self::getPageNoItems();
+	}
+	
+	public static function getPageNoItems() {
+		return Config::get("custom.items_per_page");
+	}
+	
+	public static function getNoPages($noItems) {
+		return ceil($noItems / self::getPageNoItems());
 	}
 
 }

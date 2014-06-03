@@ -21,14 +21,24 @@ class MediaController extends MediaBaseController {
 	public function getIndex() {
 		$view = View::make('home.admin.media.index');
 		$tableData = array();
-		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->get();
-
+		
+		$pageNo = FormHelpers::getPageNo();
+		$noMediaItems = MediaItem::count();
+		$noPages = FormHelpers::getNoPages($noMediaItems);
+		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noMediaItems-1) {
+			App::abort(404);
+			return;
+		}
+		
+		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems())->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->get();
+		
+		
+		
 		foreach($mediaItems as $a) {
 			$hasVod = !is_null($a->videoItem);
 			$vodEnabled = $hasVod ? (boolean) $a->videoItem->enabled : null;
 			$hasStream = !is_null($a->streamItem);
 			$streamEnabled = $hasStream ? (boolean) $a->streamItem->enabled : null;
-			
 			$hasVodStr = $hasVod ? "Yes (" : "No";
 			if ($hasVod) {
 				$hasVodStr .= $vodEnabled ? "Enabled" : "Disabled";
@@ -52,6 +62,8 @@ class MediaController extends MediaBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->pageNo = $pageNo;
+		$view->noPages = $noPages;
 		$this->setContent($view, "media", "media");
 	}
 	
