@@ -40,4 +40,11 @@ class MyEloquent extends Eloquent {
 		}
 		return $returnVal;
 	}
+	
+	public function scopeWhereContains($q, $column, $value, $fromLeft=false, $fromRight=false) {
+		$escapedVal = str_replace("%", "|%", $value);
+		$leftTmp = !$fromLeft ? "%" : "";
+		$rightTmp = !$fromRight ? "%" : "";
+		return $q->whereRaw("`" . $column . "` LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
+	}
 }
