@@ -5,7 +5,7 @@ use uk\co\la1tv\website\models\LiveStream;
 
 class FormHelpers {
 	
-	public static function getValue($var, $default, $useDefault=false, $useGet=false) {
+	public static function getValue($var, $default=null, $useDefault=false, $useGet=false) {
 		return $useDefault || !self::hasPost($var, $useGet) ? $default : (!$useGet ? $_POST[$var] : $_GET[$var]);
 	}
 	

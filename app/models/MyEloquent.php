@@ -41,10 +41,18 @@ class MyEloquent extends Eloquent {
 		return $returnVal;
 	}
 	
+	// $column can be a string or an array of strings to search multiple columns
 	public function scopeWhereContains($q, $column, $value, $fromLeft=false, $fromRight=false) {
 		$escapedVal = str_replace("%", "|%", $value);
 		$leftTmp = !$fromLeft ? "%" : "";
 		$rightTmp = !$fromRight ? "%" : "";
-		return $q->whereRaw("`" . $column . "` LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
+		
+		$columns = !is_array($column) ? array($column) : $column;
+		$q->where(function($q2) use (&$escapedVal, &$leftTmp, &$rightTmp, &$columns) {
+			foreach($columns as $a) {
+				$q2 = $q2->orWhereRaw("`" . $a . "` LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
+			}
+		});
+		return $q;
 	}
 }

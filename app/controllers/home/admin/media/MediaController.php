@@ -23,16 +23,18 @@ class MediaController extends MediaBaseController {
 		$tableData = array();
 		
 		$pageNo = FormHelpers::getPageNo();
-		$noMediaItems = MediaItem::count();
+		$searchTerm = FormHelpers::getValue("search", "", false, true);
+		
+		// TODO: tidy up so not duplicating whereContains
+		
+		$noMediaItems = MediaItem::whereContains(array("name", "description"), $searchTerm)->count();
 		$noPages = FormHelpers::getNoPages($noMediaItems);
 		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noMediaItems-1) {
 			App::abort(404);
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems())->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->get();
-		
-		
+		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->whereContains(array("name", "description"), $searchTerm)->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems())->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->get();
 		
 		foreach($mediaItems as $a) {
 			$hasVod = !is_null($a->videoItem);
