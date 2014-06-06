@@ -25,16 +25,16 @@ class MediaController extends MediaBaseController {
 		$pageNo = FormHelpers::getPageNo();
 		$searchTerm = FormHelpers::getValue("search", "", false, true);
 		
-		// TODO: tidy up so not duplicating whereContains
-		
-		$noMediaItems = MediaItem::whereContains(array("name", "description"), $searchTerm)->count();
+		// get shared lock on records so that they can't be deleted before query runs to get specific range
+		// (this doesn't prevent new ones getting added but that doesn't really matter too much)
+		$noMediaItems = MediaItem::search($searchTerm)->sharedLock()->count();
 		$noPages = FormHelpers::getNoPages($noMediaItems);
 		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noMediaItems-1) {
 			App::abort(404);
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->whereContains(array("name", "description"), $searchTerm)->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems())->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->get();
+		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->search($searchTerm)->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems())->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
 			$hasVod = !is_null($a->videoItem);
