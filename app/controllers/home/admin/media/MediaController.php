@@ -69,6 +69,7 @@ class MediaController extends MediaBaseController {
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/media/edit";
+		$view->deleteUri = Config::get("custom.admin_base_url") . "/media/delete";
 		$this->setContent($view, "media", "media");
 	}
 	

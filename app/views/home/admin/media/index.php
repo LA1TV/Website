@@ -23,7 +23,7 @@
 					<td><span class="<?=e($a['has_vod_css']);?>"><?=e($a['has_vod']);?></span></td>
 					<td><span class="<?=e($a['has_stream_css']);?>"><?=e($a['has_stream']);?></span></td>
 					<td><?=e($a['time_created']);?></td>
-					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['edit_uri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger">&times;</button></td>
+					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['edit_uri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
 				<tr>
