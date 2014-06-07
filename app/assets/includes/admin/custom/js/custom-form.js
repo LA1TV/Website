@@ -36,56 +36,66 @@ $(document).ready(function() {
 	});
 	
 	
-	$('button[data-virtualformsubmit][data-virtualformsubmitmethod][data-virtualformsubmitaction][data-virtualform]').click(function(e) {
+	$('button[data-virtualformsubmit][data-virtualformsubmitmethod][data-virtualformsubmitaction][data-virtualform]').each(function() {
 		
-		e.preventDefault();
-		
-		for (var key in customForm.handlers) {
-			if (!customForm.handlers[key]()) {
-				return false;
-			}
+		var attr = $(this).attr("data-virtualformconfirm");
+		if (typeof attr !== 'undefined' && attr !== false) {
+			pageProtect.enable(attr === "" ? "Are you sure you want to leave this page without saving?" : attr);
 		}
 		
-		var method = $(this).attr("data-virtualformsubmitmethod");
-		var action = $(this).attr("data-virtualformaction");
-		var id = $(this).attr("data-virtualform");
-		
-		// create the form again (off screen) with all the form elements with the same ID and submit it
-		var $form = $("<form />").attr("method", method).attr("action", action).addClass("hidden");
-		
-		var data = {};
-		data["form-submitted"] = 1;
-		
-		$('[data-virtualform="'+id+'"]').each(function() {
+		$(this).click(function(e) {
 			
-			var attr = $(this).attr("name");
-			if (typeof attr === 'undefined' || attr === false) {
-				return true; // continue
+			e.preventDefault();
+			
+			for (var key in customForm.handlers) {
+				if (!customForm.handlers[key]()) {
+					return false;
+				}
 			}
 			
-			var disabledAttr = $(this).attr("disabled");
-			if (typeof disabledAttr !== 'undefined' && disabledAttr !== false) {
-				return true; // continue
+			var method = $(this).attr("data-virtualformsubmitmethod");
+			var action = $(this).attr("data-virtualformaction");
+			var id = $(this).attr("data-virtualform");
+			
+			// create the form again (off screen) with all the form elements with the same ID and submit it
+			var $form = $("<form />").attr("method", method).attr("action", action).addClass("hidden");
+			
+			var data = {};
+			data["form-submitted"] = 1;
+			
+			$('[data-virtualform="'+id+'"]').each(function() {
+				
+				var attr = $(this).attr("name");
+				if (typeof attr === 'undefined' || attr === false) {
+					return true; // continue
+				}
+				
+				var disabledAttr = $(this).attr("disabled");
+				if (typeof disabledAttr !== 'undefined' && disabledAttr !== false) {
+					return true; // continue
+				}
+				
+				if ($(this).prop("type").toLowerCase() === "checkbox" || $(this).prop("type").toLowerCase() === "radio") {
+					data[attr] = $(this).prop("checked") ? $(this).val() : "";
+				}
+				else {
+					data[attr] = $(this).val();
+				}
+			});
+			
+			for (var key in data) {
+				$el = $('<input />').attr("type", "hidden").attr("name", key).val(data[key]);
+				$form.append($el);
 			}
 			
-			if ($(this).prop("type").toLowerCase() === "checkbox" || $(this).prop("type").toLowerCase() === "radio") {
-				data[attr] = $(this).prop("checked") ? $(this).val() : "";
-			}
-			else {
-				data[attr] = $(this).val();
-			}
+			$("body").append($form);
+			
+			pageProtect.disable();
+			
+			$form.submit();
+			return false;
 		});
-		
-		for (var key in data) {
-			$el = $('<input />').attr("type", "hidden").attr("name", key).val(data[key]);
-			$form.append($el);
-		}
-		
-		$("body").append($form);
-		$form.submit();
-		return false;
 	});
-
 
 
 });

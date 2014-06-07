@@ -58,7 +58,7 @@
 	</div>
 	<div class="panel-footer clearfix">
 		<div class="pull-left">
-			<button type="button" data-virtualform="1" data-virtualformsubmit="1" data-virtualformsubmitmethod="post" data-virtualformsubmitaction="" class="btn btn-primary"><?=$editing?"Update":"Create"?> Media</button>
+			<button type="button" data-virtualform="1" data-virtualformsubmit="1" data-virtualformsubmitmethod="post" data-virtualformsubmitaction="" data-virtualformconfirm="" class="btn btn-primary"><?=$editing?"Update":"Create"?> Media</button>
 		</div>
 		<div class="pull-right">
 			<a type="button" class="btn btn-default" data-confirm="Are you sure you want to cancel?" href="<?=e($cancelUri)?>">Cancel</a>
