@@ -61,7 +61,7 @@
 			<button type="button" data-virtualform="1" data-virtualformsubmit="1" data-virtualformsubmitmethod="post" data-virtualformsubmitaction="" class="btn btn-primary"><?=$editing?"Update":"Create"?> Media</button>
 		</div>
 		<div class="pull-right">
-			<button type="button" class="btn btn-default">Cancel</button>
+			<a type="button" class="btn btn-default" data-confirm="Are you sure you want to cancel?" href="<?=e($cancelUri)?>">Cancel</a>
 		</div>
 	</div>
 </div>
