@@ -3,6 +3,7 @@
 		<h3 class="panel-title">Media</h3>
 	</div>
 	<div class="panel-body">
+		<?=FormHelpers::getSearchBar(); ?>
 		<table class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -22,7 +23,7 @@
 					<td><span class="<?=e($a['has_vod_css']);?>"><?=e($a['has_vod']);?></span></td>
 					<td><span class="<?=e($a['has_stream_css']);?>"><?=e($a['has_stream']);?></span></td>
 					<td><?=e($a['time_created']);?></td>
-					<td class="action-col"><button type="button" class="btn btn-xs btn-info">Edit</button> <button type="button" class="btn btn-xs btn-danger">&times;</button></td>
+					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['edit_uri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
 				<tr>
@@ -31,7 +32,7 @@
 					<td></td>
 					<td></td>
 					<td></td>
-					<td class="action-col"><button type="button" class="btn btn-xs btn-primary">Create</button></td>
+					<td class="action-col"><a type="button" class="btn btn-xs btn-primary" href="<?=e($createUri)?>">Create</a></td>
 				</tr>
 			</tbody>
 		</table>

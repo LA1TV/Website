@@ -1,14 +1,14 @@
 <?php
 $nav = array(
-	"dashboard"		=> array("Dashboard", "admin/dashboard", false),
-	"media"			=> array("Media", "admin/media", false),
-	"playlists"		=> array("Playlists/Series", "admin/playlists", false),
-	"livestreams"	=> array("Live Streams", "admin/livestreams", false),
-	"comments"		=> array("Comments", "admin/comments", false),
-	"siteusers"		=> array("Site Users", "admin/siteusers", false),
-	"users"			=> array("CMS Users", "admin/users", false),
-	"permissions"	=> array("Permissions", "admin/permissions", false),
-	"monitoring"	=> array("Monitoring", "admin/monitoring", false)
+	"dashboard"		=> array("Dashboard", Config::get("custom.admin_base_url")."/dashboard", false),
+	"media"			=> array("Media", Config::get("custom.admin_base_url")."/media", false),
+	"playlists"		=> array("Playlists/Series", Config::get("custom.admin_base_url")."/playlists", false),
+	"livestreams"	=> array("Live Streams", Config::get("custom.admin_base_url")."/livestreams", false),
+	"comments"		=> array("Comments", Config::get("custom.admin_base_url")."/comments", false),
+	"siteusers"		=> array("Site Users", Config::get("custom.admin_base_url")."/siteusers", false),
+	"users"			=> array("CMS Users", Config::get("custom.admin_base_url")."/users", false),
+	"permissions"	=> array("Permissions", Config::get("custom.admin_base_url")."/permissions", false),
+	"monitoring"	=> array("Monitoring", Config::get("custom.admin_base_url")."/monitoring", false)
 );
 
 // make the current page active in the nav bar
@@ -39,7 +39,7 @@ if (isset($nav[$currentNavPage])) {
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="<?=URL::to("admin")?>">LA1:TV CMS</a>
+					<a class="navbar-brand" href="<?=Config::get("custom.admin_base_url");?>">LA1:TV CMS</a>
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">

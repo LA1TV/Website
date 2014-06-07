@@ -10,6 +10,7 @@ use Session;
 use DB;
 use Exception;
 use Redirect;
+use Config;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -60,12 +61,14 @@ class MediaController extends MediaBaseController {
 				"has_vod_css"	=> $vodEnabled === TRUE ? "text-success" : "text-danger",
 				"has_stream"	=> $hasStreamStr,
 				"has_stream_css"	=> $streamEnabled === TRUE ? "text-success" : "text-danger",
-				"time_created"	=> $a->created_at->toDateTimeString()
+				"time_created"	=> $a->created_at->toDateTimeString(),
+				"edit_uri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id
 			);
 		}
 		$view->tableData = $tableData;
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
+		$view->createUri = Config::get("custom.admin_base_url") . "/media/edit";
 		$this->setContent($view, "media", "media");
 	}
 	
@@ -74,7 +77,7 @@ class MediaController extends MediaBaseController {
 		$mediaItem = null;
 		$editing = false;
 		if (!is_null($id)) {
-			$mediaItem = MediaItem::with("coverFile", "sideBannersFile", "videoItem", "liveStreamItem", "liveStreamItem.liveStream")->find($id);
+			$mediaItem = MediaItem::with("coverFile", "sideBannerFile", "videoItem", "liveStreamItem", "liveStreamItem.liveStream")->find($id);
 			if (is_null($mediaItem)) {
 				App::abort(404);
 				return;
@@ -92,7 +95,7 @@ class MediaController extends MediaBaseController {
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
-			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannersFile", "id")),
+			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFile", "id")),
 			array("vod-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "videoItem")) ? "1":"0"),
 			array("vod-enabled", ObjectHelpers::getProp("", $mediaItem, "videoItem", "enabled")),
 			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
@@ -321,7 +324,7 @@ class MediaController extends MediaBaseController {
 			});
 			
 			if ($modelCreated) {
-				return Redirect::to("/admin/media");
+				return Redirect::to(Config::get("custom.admin_base_url") . "/media");
 			}
 			// if not valid then return form again with errors
 		}

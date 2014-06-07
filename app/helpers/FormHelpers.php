@@ -156,6 +156,10 @@ class FormHelpers {
 		return $a;
 	}
 	
+	public static function getSearchBar() {
+		return '<div class="search-box clearfix"><div class="the-container"><input type="text" class="form-control search-input" placeholder="Search" value="'.self::getValue("search", "", false, true).'"></div></div>';
+	}
+
 	public static function getFormHiddenInput($formId, $name, $val) {
 		return '<input type="hidden" data-virtualform="'.e($formId).'" name="'.e($name).'" value="'.e($val).'">';
 	}

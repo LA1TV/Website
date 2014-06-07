@@ -1,0 +1,15 @@
+.search-box {
+	display: block;
+	text-align: right;
+	margin-bottom: 5px;
+}
+
+.search-box .the-container {
+	display: inline-block;
+	width: 100%;
+	max-width: 400px;
+}
+
+.search-box form .search-input {
+	display: block;
+}
