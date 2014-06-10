@@ -363,8 +363,8 @@ class MediaController extends MediaBaseController {
 				if (!is_null($mediaItem)) {
 					// mark any related files as no longer in use (so they will be removed)
 					$files = array(
-						$sideBannerFile = $mediaItem->sideBannerFile(),
-						$mediaItem->coverFile()
+						$mediaItem->sideBannerFile,
+						$mediaItem->coverFile
 					);
 					foreach($files as $a) {
 						if (!is_null($a)) {
