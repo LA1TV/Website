@@ -57,9 +57,6 @@ $(document).ready(function() {
 			var action = $(this).attr("data-virtualformaction");
 			var id = $(this).attr("data-virtualform");
 			
-			// create the form again (off screen) with all the form elements with the same ID and submit it
-			var $form = $("<form />").attr("method", method).attr("action", action).addClass("hidden");
-			
 			var data = {};
 			data["form-submitted"] = 1;
 			
@@ -83,16 +80,9 @@ $(document).ready(function() {
 				}
 			});
 			
-			for (var key in data) {
-				$el = $('<input />').attr("type", "hidden").attr("name", key).val(data[key]);
-				$form.append($el);
-			}
-			
-			$("body").append($form);
-			
 			pageProtect.disable();
 			
-			$form.submit();
+			submitVirtualForm("post", "", data);
 			return false;
 		});
 	});

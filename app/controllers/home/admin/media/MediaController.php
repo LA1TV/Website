@@ -62,7 +62,8 @@ class MediaController extends MediaBaseController {
 				"has_stream"	=> $hasStreamStr,
 				"has_stream_css"	=> $streamEnabled === TRUE ? "text-success" : "text-danger",
 				"time_created"	=> $a->created_at->toDateTimeString(),
-				"edit_uri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id
+				"edit_uri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id,
+				"id"			=> $a->id
 			);
 		}
 		$view->tableData = $tableData;
