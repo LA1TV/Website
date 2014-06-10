@@ -66,6 +66,8 @@ $(document).ready(function() {
 		var errorMsg = null;
 		var state = 0; // 0=choose file, 1=uploading, 2=uploaded, 3=error
 		var cancelling = false;
+		var defaultId = $idInput.val();
+		defaultId = defaultId === "" ? null : parseInt(defaultId, 10);
 		
 		// state: 0=hidden, 1=visible and active, 2=visible
 		var updateProgressBar = function(state, progress) {
@@ -181,7 +183,7 @@ $(document).ready(function() {
 			}
 		};
 		
-		if ($idInput.val() !== "") {
+		if (defaultId !== null) {
 			// populate with default values
 			fileName = $(this).attr("data-ajaxuploadcurrentfilename");
 			fileSize = parseInt($(this).attr("data-ajaxuploadcurrentfilesize"), 10);
@@ -293,20 +295,23 @@ $(document).ready(function() {
 					return;
 				}
 				// clear current upload
-				var id = $idInput.val();
+				var id = parseInt($idInput.val(), 10);
 				$idInput.val("");
 				fileName = null;
 				fileSize = null;
 				$(self).attr("data-ajaxuploadcurrentfilename", "");
 				$(self).attr("data-ajaxuploadcurrentfilesize", "");
-				// make ajax request to server to tell it to remove the temporary file immediately
-				// don't really care if it fails because the file will be removed when the session ends anyway
-				jQuery.ajax(baseUrl+"/admin/upload/remove", {
-					cache: false,
-					dataType: "json",
-					data: {id: id},
-					type: "POST"
-				});
+				if (id !== defaultId) {
+					// make ajax request to server to tell it to remove the temporary file immediately
+					// don't really care if it fails because the file will be removed when the session ends anyway
+					// this will not be made if the user is removing the file that was already set (because the user could cancel the form and it should still be on the server)
+					jQuery.ajax(baseUrl+"/admin/upload/remove", {
+						cache: false,
+						dataType: "json",
+						data: {id: id},
+						type: "POST"
+					});
+				}
 				state = 0;
 				update();
 			}

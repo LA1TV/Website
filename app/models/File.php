@@ -3,7 +3,7 @@
 class File extends MyEloquent {
 
 	protected $table = 'files';
-	protected $fillable = array('in_use', 'filename', 'size', 'session_id');
+	protected $fillable = array('in_use', 'filename', 'size', 'session_id', 'ready_for_delete');
 	
 	public function mediaItemWithCover() {
 		return $this->hasOne(self::$p.'MediaItem', 'cover_file_id');
@@ -27,6 +27,11 @@ class File extends MyEloquent {
 	
 	public function getExtension() {
 		return strtolower(pathinfo($this->filename, PATHINFO_EXTENSION));
+	}
+	
+	public function markReadyForDelete() {
+		$this->in_use = false;
+		$this->ready_for_delete = true;
 	}
 
 }

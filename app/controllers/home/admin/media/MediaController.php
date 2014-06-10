@@ -358,12 +358,25 @@ class MediaController extends MediaBaseController {
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
-			$mediaItem = MediaItem::find($id);
-			if (!is_null($mediaItem)) {
-				if ($mediaItem->delete()) { // TODO: check related records removed as well
-					$resp['success'] = true;
+			DB::transaction(function() use (&$id, &$resp) {
+				$mediaItem = MediaItem::find($id);
+				if (!is_null($mediaItem)) {
+					// mark any related files as no longer in use (so they will be removed)
+					$files = array(
+						$sideBannerFile = $mediaItem->sideBannerFile(),
+						$mediaItem->coverFile()
+					);
+					foreach($files as $a) {
+						if (!is_null($a)) {
+							$a->markReadyForDelete();
+							$a->save();
+						}
+					}
+					if ($mediaItem->delete()) {
+						$resp['success'] = true;
+					}
 				}
-			}
+			});
 		}
 		return Response::json($resp);
 	}
