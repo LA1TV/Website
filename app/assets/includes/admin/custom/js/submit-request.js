@@ -1,6 +1,5 @@
 // create a virtual form with params and values and then submit it
 
-
 var submitVirtualForm = null;
 
 $(document).ready(function() {

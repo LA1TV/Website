@@ -8,6 +8,11 @@ $(document).ready(function() {
 			var data = {
 				id: id
 			};
+			
+			var errorOccurred = function() {
+				alert("Sorry there was an error deleting.");
+			};
+			
 			jQuery.ajax({
 				url: uri,
 				cache: false,
@@ -16,11 +21,15 @@ $(document).ready(function() {
 				timeout: 5000,
 				type: "POST"
 			}).done(function(data) {
+				if (!data.success) {
+					errorOccurred();
+					return;
+				}
 				// success. reload page
 				pageProtect.disable();
 				window.location.reload();
 			}).fail(function() {
-				alert("Sorry there was an error deleting.");
+				errorOccurred();
 			});
 		}
 	});

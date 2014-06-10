@@ -11,6 +11,7 @@ use DB;
 use Exception;
 use Redirect;
 use Config;
+use Response;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -351,5 +352,19 @@ class MediaController extends MediaBaseController {
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
 	
 		$this->setContent($view, "media", "media-edit");
+	}
+	
+	public function postDelete() {
+		$resp = array("success"=>false);
+		if (FormHelpers::hasPost("id")) {
+			$id = intval($_POST["id"], 10);
+			$mediaItem = MediaItem::find($id);
+			if (!is_null($mediaItem)) {
+				if ($mediaItem->delete()) { // TODO: check related records removed as well
+					$resp['success'] = true;
+				}
+			}
+		}
+		return Response::json($resp);
 	}
 }
