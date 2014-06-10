@@ -51,6 +51,7 @@ $(document).ready(function() {
 		$(this).append($progressBarContainer);
 		
 		var allowedExtensions = $(this).attr("data-ajaxuploadextensions").split(",");
+		var uploadPointId = $(this).attr("data-uploadpointid");
 		var maxFileLength = 50;
 		
 		var jqXHR = null;
@@ -211,8 +212,10 @@ $(document).ready(function() {
 			limitConcurrentUploads: 3,
 			multipart: true,
 			formData: function() {
-				// don't send any extra data.
-				return [];
+				// extra data to be sent
+				return {
+					uploadPointId: uploadPointId
+				};
 			},
 			// This function is called when a file is added to the queue;
 			// either via the browse button, or via drag/drop:

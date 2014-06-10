@@ -349,6 +349,9 @@ class MediaController extends MediaBaseController {
 		$view->streamOptions = $streamOptions;
 		$view->form = $formData;
 		$view->formErrors = $errors;
+		$view->coverImageUploadPointId = "edit-media-cover_image";
+		$view->sideBannersImageUploadPointId = "edit-media-side_banners_image";
+		$view->vodVideoUploadPointId = "edit-media-vod_video";
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
 	
 		$this->setContent($view, "media", "media-edit");
