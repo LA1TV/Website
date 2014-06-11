@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder {
 		$this->call('PermissionSeeder');
 		$this->call('PermissionGroupSeeder');
 		$this->call('QualityDefinitionsSeeder');
+		$this->call('FileExtensionsSeeder');
+		$this->call('FileTypesSeeder');
 		$this->call('UserSeeder');
 		$this->call('SiteUsersSeeder');
 		$this->call('LiveStreamsSeeder');

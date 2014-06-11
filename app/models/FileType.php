@@ -3,9 +3,9 @@
 class FileType extends MyEloquent {
 
 	protected $table = 'file_types';
-	protected $fillable = array('description');
+	protected $fillable = array('id', 'description');
 	
-	public function fileExtensions() {
+	public function extensions() {
 		return $this->belongsToMany(self::$p.'FileExtension', 'file_extension_to_file_type', 'file_type_id', 'file_extension_id');
 	}
 	
