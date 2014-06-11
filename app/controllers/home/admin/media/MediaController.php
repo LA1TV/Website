@@ -349,6 +349,7 @@ class MediaController extends MediaBaseController {
 		$view->streamOptions = $streamOptions;
 		$view->form = $formData;
 		$view->formErrors = $errors;
+		// used to uniquely identify these file upload points on the site. Must not appear anywhere else.
 		$view->coverImageUploadPointId = "edit-media-cover_image";
 		$view->sideBannersImageUploadPointId = "edit-media-side_banners_image";
 		$view->vodVideoUploadPointId = "edit-media-vod_video";
