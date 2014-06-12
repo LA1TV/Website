@@ -13,6 +13,7 @@
 			"app/commands",
 			"app/controllers",
 			"app/models",
+			"app/serviceproviders",
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/helpers",

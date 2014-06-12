@@ -94,6 +94,7 @@ return array(
 	'providers' => array(
 
 		'Illuminate\Foundation\Providers\ArtisanServiceProvider',
+		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
 		'Illuminate\Auth\AuthServiceProvider',
 		'Illuminate\Cache\CacheServiceProvider',
 		'Illuminate\Session\CommandsServiceProvider',
@@ -151,6 +152,7 @@ return array(
 
 		'App'             => 'Illuminate\Support\Facades\App',
 		'Artisan'         => 'Illuminate\Support\Facades\Artisan',
+		'Csrf'            => 'uk\co\la1tv\website\serviceProviders\csrf\CsrfFacade',
 		'Auth'            => 'Illuminate\Support\Facades\Auth',
 		'Blade'           => 'Illuminate\Support\Facades\Blade',
 		'Carbon'          => 'Carbon\Carbon', // use laravel's carbon API for datetime conversions
