@@ -14,7 +14,7 @@ class CreateUploadPointsTable extends Migration {
 	{
 		Schema::create('upload_points', function(Blueprint $table)
 		{
-			$table->increments('id');
+			$table->integer('id')->unsigned();
 			$table->integer("file_type_id")->unsigned();
 			$table->text('description')->nullable();
 			$table->timestamps();
