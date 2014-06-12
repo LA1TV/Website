@@ -5,6 +5,8 @@ class UploadPoint extends MyEloquent {
 	protected $table = 'upload_points';
 	protected $fillable = array('id', 'description');
 	
-	
+	public function fileType() {
+		return $this->hasOne(self::$p.'FileType', 'file_type_id');
+	}
 
 }

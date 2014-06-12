@@ -12,4 +12,8 @@ class FileType extends MyEloquent {
 	public function files() {
 		return $this->hasMany(self::$p.'File', 'file_type_id');
 	}
+	
+	public function uploadPoints() {
+		return $this->hasMany(self::$p.'UploadPoint', 'file_type_id');
+	}
 }
