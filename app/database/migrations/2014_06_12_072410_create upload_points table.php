@@ -19,6 +19,7 @@ class CreateUploadPointsTable extends Migration {
 			$table->text('description')->nullable();
 			$table->timestamps();
 			
+			$table->unique("id");
 			$table->index("file_type_id");
 			$table->foreign("file_type_id")->references('id')->on('file_types')->onUpdate("restrict")->onDelete('restrict');	
 		});
