@@ -211,11 +211,9 @@ $(document).ready(function() {
 			type: "POST",
 			limitConcurrentUploads: 3,
 			multipart: true,
-			formData: function() {
-				// extra data to be sent
-				return {
-					uploadPointId: uploadPointId
-				};
+			// extra data to be sent
+			formData: {
+				upload_point_id: uploadPointId
 			},
 			// This function is called when a file is added to the queue;
 			// either via the browse button, or via drag/drop:

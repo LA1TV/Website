@@ -12,6 +12,7 @@ use Exception;
 use Redirect;
 use Config;
 use Response;
+use Upload;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -350,9 +351,9 @@ class MediaController extends MediaBaseController {
 		$view->form = $formData;
 		$view->formErrors = $errors;
 		// used to uniquely identify these file upload points on the site. Must not appear anywhere else.
-		$view->coverImageUploadPointId = "edit-media-cover_image";
-		$view->sideBannersImageUploadPointId = "edit-media-side_banners_image";
-		$view->vodVideoUploadPointId = "edit-media-vod_video";
+		$view->coverImageUploadPointId = 2;
+		$view->sideBannersImageUploadPointId = 1;
+		$view->vodVideoUploadPointId = 3;
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
 	
 		$this->setContent($view, "media", "media-edit");

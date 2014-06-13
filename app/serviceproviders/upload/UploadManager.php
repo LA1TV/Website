@@ -4,7 +4,10 @@ use Response;
 use Session;
 use Config;
 use DB;
+use FormHelpers;
+use Exception;
 use uk\co\la1tv\website\models\UploadPoint;
+use uk\co\la1tv\website\models\File;
 
 class UploadManager {
 
@@ -14,73 +17,80 @@ class UploadManager {
 	private $responseData = array();
 	
 	// process the file that has been uploaded
-	// pass in the UploadPoint model corresponding to the point where this file was uploaded from
-	// When loading the model eager load it with fileType and fileType.extensions as these are needed.
 	// Returns true if succeeds or false otherwise
-	public function process(UploadPoint $uploadPoint) {
+	public function process($allowedIds=null) {
 		
 		if ($this->processCalled) {
 			throw(new Exception("'process' can only be called once."));
 		}
-		$processCalled = true;
+		$this->processCalled = true;
 		
 		$this->responseData = array("success"=> false);
 		$success = false;
 		
-		if (isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= self::$maxFileLength && isset($_FILES['files']['tmp_name'][0])) {
+		$uploadPointId = FormHelpers::getValue("upload_point_id");
+		
+		if (!is_null($uploadPointId) && (is_null($allowedIds) || in_array($uploadPointId, $allowedIds, true))) {
+			$uploadPointId = intval($uploadPointId, 10);
+			$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);
 			
-			$fileLocation = $_FILES['files']['tmp_name'][0];
-			$fileName = $_FILES['files']['name'][0];
-			$fileSize = filesize($fileLocation);
-			
-			$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-			$extensions = array();
-			foreach($uploadPoint->extensions as $a) {
-				$extensions[] = $a->extension;
-			}
-			if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
+			if (!is_null($uploadPoint) && isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= self::$maxFileLength && isset($_FILES['files']['tmp_name'][0])) {
+				
+				$fileLocation = $_FILES['files']['tmp_name'][0];
+				$fileName = $_FILES['files']['name'][0];
+				$fileSize = filesize($fileLocation);
+				
+				$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+				$extensions = array();
+				$extensionModels = $uploadPoint->fileType->extensions;
+				if (!is_null($extensionModels)) {
+					foreach($extensionModels as $a) {
+						$extensions[] = $a->extension;
+					}
+				}
+				if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
 
-				try {
-					DB::beginTransaction();
-					
-					// create the file reference in the db
-					$fileDb = new File(array(
-						"in_use"	=> false,
-						"filename"	=> $fileName,
-						"size"		=> $fileSize,
-						"session_id"	=> Session::getId() // the laravel session id
-					));
-					$fileDb->fileType()->associate($uploadPoint->fileType);
-					
-					if ($fileDb->save() !== FALSE) {
-						// move the file
-						if (move_uploaded_file($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {				
-							
-							// commit transaction so file record is committed to database
-							DB::commit();
-							
-							// success
-							$success = true;
-							$this->responseData['success'] = true;
-							$this->responseData['id'] = $fileDb->id;
-							$this->responseData['fileName'] = $fileName;
-							$this->responseData['fileSize'] = $fileSize;
+					try {
+						DB::beginTransaction();
+						
+						// create the file reference in the db
+						$fileDb = new File(array(
+							"in_use"	=> false,
+							"filename"	=> $fileName,
+							"size"		=> $fileSize,
+							"session_id"	=> Session::getId() // the laravel session id
+						));
+						$fileDb->fileType()->associate($uploadPoint->fileType);
+						if ($fileDb->save() !== FALSE) {
+							// move the file
+							if (move_uploaded_file($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {				
+								
+								// commit transaction so file record is committed to database
+								DB::commit();
+								
+								// success
+								$success = true;
+								$this->responseData['success'] = true;
+								$this->responseData['id'] = $fileDb->id;
+								$this->responseData['fileName'] = $fileName;
+								$this->responseData['fileSize'] = $fileSize;
+							}
+							else {
+								DB::rollback();
+							}
 						}
 						else {
 							DB::rollback();
 						}
 					}
-					else {
+					catch (\Exception $e) {
 						DB::rollback();
+						throw($e);
 					}
 				}
-				catch (\Exception $e) {
-					DB::rollback();
-					throw($e);
-				}
-				return $success;
 			}
 		}
+		return $success;
 	}
 	
 	// get the Laravel response (json) object to be returned to the user

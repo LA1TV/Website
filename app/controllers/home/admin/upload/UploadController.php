@@ -7,11 +7,15 @@ use App;
 use DB;
 use Input;
 use FormHelpers;
-use AllowedFileTypesHelper;
+use Upload;
 use uk\co\la1tv\website\models\File;
 
 class UploadController extends UploadBaseController {
 
+	public function postIndex() {
+		Upload::process();
+		return Upload::getResponse();
+	}
 	
 	// serve up a file
 	public function getIndex($id) {

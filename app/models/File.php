@@ -3,7 +3,7 @@
 class File extends MyEloquent {
 
 	protected $table = 'files';
-	protected $fillable = array('in_use', 'filename', 'size', 'session_id', 'ready_for_delete', 'upload_point_id');
+	protected $fillable = array('in_use', 'filename', 'size', 'session_id', 'ready_for_delete');
 	
 	public function fileType() {
 		return $this->belongsTo(self::$p.'FileType', 'file_type_id');

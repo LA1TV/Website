@@ -123,7 +123,7 @@ return array(
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		
 		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
-		'uk\co\la1tv\website\serviceProviders\csrf\UploadServiceProvider',
+		'uk\co\la1tv\website\serviceProviders\upload\UploadServiceProvider',
 	),
 
 	/*
