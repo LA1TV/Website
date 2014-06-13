@@ -29,7 +29,7 @@ if (isset($nav[$currentNavPage])) {
 		<?= stylesheet_link_tag("includes/admin/application") ?>
 		<?= javascript_include_tag("includes/admin/application") ?>
 	</head>
-	<body data-baseurl="<?=$baseUrl?>">
+	<body data-baseurl="<?=e($baseUrl)?>" data-csrftoken="<?=e($csrfToken)?>">
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">
