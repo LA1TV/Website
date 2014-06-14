@@ -9,10 +9,6 @@ class VideoFile extends MyEloquent {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}
 	
-	public function mediaItemVideo() {
-		return $this->belongsTo(self::$p.'MediaItemVideo', 'media_items_video_id');
-	}
-	
 	public function qualityDefinition() {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
