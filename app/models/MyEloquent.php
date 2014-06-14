@@ -50,6 +50,7 @@ class MyEloquent extends Eloquent {
 		$columns = !is_array($column) ? array($column) : $column;
 		$q->where(function($q2) use (&$escapedVal, &$leftTmp, &$rightTmp, &$columns) {
 			foreach($columns as $a) {
+				$a = str_replace("`", "", $a);
 				$q2 = $q2->orWhereRaw("`" . $a . "` LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
 			}
 		});
