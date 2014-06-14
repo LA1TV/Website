@@ -27,6 +27,7 @@ $app = new Illuminate\Foundation\Application;
 $env = $app->detectEnvironment(array(
 
 	'tom' => array('Tom-Lenovo'),
+	'adam'=> array('AdamLaptop.local')
 
 ));
 
