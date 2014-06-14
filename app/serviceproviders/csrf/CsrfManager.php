@@ -6,7 +6,7 @@ use Input;
 
 class CsrfManager {
 	
-	public function hasValidToken($customName="_token") {
+	public function hasValidToken($customName="csrf_token") {
 		return Session::token() === Input::get($customName);
 	}
 	

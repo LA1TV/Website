@@ -6,6 +6,7 @@ use Config;
 use DB;
 use FormHelpers;
 use Exception;
+use Csrf;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
 
@@ -30,7 +31,7 @@ class UploadManager {
 		
 		$uploadPointId = FormHelpers::getValue("upload_point_id");
 		
-		if (!is_null($uploadPointId) && (is_null($allowedIds) || in_array($uploadPointId, $allowedIds, true))) {
+		if (Csrf::hasValidToken() && !is_null($uploadPointId) && (is_null($allowedIds) || in_array($uploadPointId, $allowedIds, true))) {
 			$uploadPointId = intval($uploadPointId, 10);
 			$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);
 			
