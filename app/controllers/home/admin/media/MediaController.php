@@ -13,6 +13,7 @@ use Redirect;
 use Config;
 use Response;
 use Upload;
+use Csrf;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -91,7 +92,10 @@ class MediaController extends MediaBaseController {
 		
 		$formSubmitted = isset($_POST['form-submitted']);
 	
-		
+		if ($formSubmitted) {
+			// throws exception if token invalid
+			Csrf::check();
+		};
 		
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
