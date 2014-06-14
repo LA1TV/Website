@@ -217,7 +217,7 @@ class MediaController extends MediaBaseController {
 							if ($file->save() === false) {
 								throw(new Exception("Error deleting MediaItem cover file."));
 							}
-							$mediaItem[$mediaItem->coverFile->getForeignKey()] = null;
+							$mediaItem[$mediaItem->coverFile()->getForeignKey()] = null;
 						}
 					}
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
@@ -241,7 +241,7 @@ class MediaController extends MediaBaseController {
 							if ($file->save() === false) {
 								throw(new Exception("Error deleting MediaItem side banner file."));
 							}
-							$mediaItem[$mediaItem->sideBannerFile->getForeignKey()] = null;
+							$mediaItem[$mediaItem->sideBannerFile()->getForeignKey()] = null;
 						}
 					}
 					
