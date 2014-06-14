@@ -48,7 +48,7 @@ class VideoFilesSeeder extends Seeder {
 		$file->qualityDefinition()->associate(QualityDefinition::find(5));
 		$file->save();
 		
-		$this->command->info('Video files records created and assigned to video media items!');
+		$this->command->info('Video files records created!');
 	}
 
 
