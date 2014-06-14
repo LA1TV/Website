@@ -203,6 +203,7 @@ $(document).ready(function() {
 		};
 		
 		// Initialize the jQuery File Upload plugin
+		// https://github.com/blueimp/jQuery-File-Upload/
 		$fileInput.fileupload({
 			dropZone: $(self),
 			pasteZone: $(self),
@@ -212,8 +213,11 @@ $(document).ready(function() {
 			limitConcurrentUploads: 3,
 			multipart: true,
 			// extra data to be sent
-			formData: {
-				upload_point_id: uploadPointId
+			formData: function() {
+				return [
+					{name: 'upload_point_id', value: uploadPointId},
+					{name: 'csrf_token', value: getCsrfToken()}
+				]
 			},
 			// This function is called when a file is added to the queue;
 			// either via the browse button, or via drag/drop:
