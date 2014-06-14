@@ -263,6 +263,17 @@ class MediaController extends MediaBaseController {
 						$mediaItemVideo->description = FormHelpers::nullIfEmpty($formData['vod-description']);
 						$mediaItemVideo->enabled = FormHelpers::toBoolean($formData['vod-enabled']);
 						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty($formData['vod-publish-time']);
+						
+						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
+						
+						if (!is_null($vodVideoId)) {
+							$vodVideoId = intval($vodVideoId, 10);
+							// create entry in files.
+							// update source_file to that file id
+							
+							// entries will then be created in video_files by the server software with a link to that source video
+						}
+						
 					}
 					else {
 						// remove video model if there is one

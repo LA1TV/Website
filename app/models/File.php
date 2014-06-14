@@ -9,6 +9,10 @@ class File extends MyEloquent {
 		return $this->belongsTo(self::$p.'FileType', 'file_type_id');
 	}
 	
+	public function mediaItemWithFile() {
+		return $this->hasOne(self::$p.'MediaItem', 'source_file_id');
+	}
+	
 	public function mediaItemWithCover() {
 		return $this->hasOne(self::$p.'MediaItem', 'cover_file_id');
 	}

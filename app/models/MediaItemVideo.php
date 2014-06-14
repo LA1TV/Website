@@ -9,6 +9,10 @@ class MediaItemVideo extends MyEloquent {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
 	}
 	
+	public function sourceFile() {
+		return $this->belongsTo(self::$p.'File', 'source_file_id');
+	}
+	
 	public function videoFiles() {
 		return $this->hasMany(self::$p.'VideoFile', 'media_items_video_id');
 	}
