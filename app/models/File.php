@@ -30,7 +30,7 @@ class File extends MyEloquent {
 	}
 	
 	public function videoFiles() {
-		return $this->hasMany(self::$p.'VideoFile', 'file_id');
+		return $this->hasMany(self::$p.'VideoFile', 'source_file_id');
 	}
 	
 	public function getExtension() {
