@@ -209,7 +209,7 @@ class MediaController extends MediaBaseController {
 						// remove coverimage if there currently is one
 						if (!is_null($mediaItem->coverFile)) {
 							$file = $mediaItem->coverFile;
-							$file->in_use = false;
+							$file->markReadyForDelete();
 							if ($file->save() === false) {
 								throw(new Exception("Error deleting MediaItem cover file."));
 							}
@@ -233,7 +233,7 @@ class MediaController extends MediaBaseController {
 						// remove banner if there already is one
 						if (!is_null($mediaItem->sideBannerFile)) {
 							$file = $mediaItem->sideBannerFile;
-							$file->in_use = false;
+							$file->markReadyForDelete();
 							if ($file->save() === false) {
 								throw(new Exception("Error deleting MediaItem side banner file."));
 							}
