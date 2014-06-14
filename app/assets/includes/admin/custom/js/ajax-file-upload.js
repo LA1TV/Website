@@ -313,7 +313,10 @@ $(document).ready(function() {
 					jQuery.ajax(baseUrl+"/admin/upload/remove", {
 						cache: false,
 						dataType: "json",
-						data: {id: id},
+						data: {
+							id: id,
+							csrf_token: getCsrfToken()
+						},
 						type: "POST"
 					});
 				}

@@ -8,6 +8,7 @@ use DB;
 use Input;
 use FormHelpers;
 use Upload;
+use Csrf;
 use uk\co\la1tv\website\models\File;
 
 class UploadController extends UploadBaseController {
@@ -61,7 +62,7 @@ class UploadController extends UploadBaseController {
 	// get information about a temporary file
 	public function postInfo() {
 		$resp = array("success"=> false);
-		if (FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {
@@ -76,7 +77,7 @@ class UploadController extends UploadBaseController {
 	// remove a temporary file
 	public function postRemove() {
 		$resp = array("success"=> false);
-		if (FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {
