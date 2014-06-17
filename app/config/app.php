@@ -79,6 +79,9 @@ return array(
 	*/
 
 	'key' => 'Yvxq2bIOPm48kmL1Dpd47aPbqewwI7tL',
+	
+	// new option in 4.2
+	'cipher' => MCRYPT_RIJNDAEL_256,
 
 	/*
 	|--------------------------------------------------------------------------
