@@ -78,6 +78,15 @@ class FormHelpers {
 		};
 	}
 	
+	public static function getValidDateValidatorFunction() {
+		return function($attribute, $value, $parameters) {
+			if ($value === "") {
+				return true;
+			}
+			return preg_match("/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/", $value) === 1;
+		};
+	}
+	
 	public static function getErrCSS($errors, $name) {
 		$error = false;
 		if (!is_null($errors)) {
@@ -114,7 +123,11 @@ class FormHelpers {
 	}
 	
 	public static function getFormTxtInput($formId, $txt, $name, $val, $formErrors, $type="text") {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><input type="'.$type.'" data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'" value="'.e($val).'">'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+		$tmp = "";
+		if ($type === "datetime-local" || $type === "datetime") {
+			$tmp = " step=60";
+		}
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><input type="'.$type.'" data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'" value="'.e($val).'" '.$tmp.'>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
 	public static function getFormDateInput($formId, $txt, $name, $val, $formErrors) {

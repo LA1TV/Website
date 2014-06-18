@@ -149,6 +149,7 @@ class MediaController extends MediaBaseController {
 			
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
+			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			
 			// TODO: date validation isn't good enough. need to check there is a time not just date
 			
@@ -162,11 +163,11 @@ class MediaController extends MediaBaseController {
 					'vod-name'	=> array('max:50'),
 					'vod-description'	=> array('max:500'),
 			//		'vod-video-id'	=> array(('required_if:vod-added,1', 'valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
-					'vod-time-recorded'	=> array('date'),
-					'vod-publish-time'	=> array('date'),
+					'vod-time-recorded'	=> array('my_date'),
+					'vod-publish-time'	=> array('my_date'),
 					'stream-name'	=> array('max:50'),
 					'stream-description'	=> array('max:500'),
-					'stream-live-time'	=> array('date'),
+					'stream-live-time'	=> array('my_date'),
 					'stream-stream-id'	=> array('valid_stream_id')
 				), array(
 					'name.required'		=> FormHelpers::getRequiredMsg(),
@@ -178,11 +179,11 @@ class MediaController extends MediaBaseController {
 					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 			//		'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(), // TODO
 			//		'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(), //TODO
-					'vod-time-recorded.date'	=> FormHelpers::getInvalidTimeMsg(),
-					'vod-publish-time.date'	=> FormHelpers::getInvalidTimeMsg(),
+					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
+					'vod-publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
-					'stream-live-time.date'	=> FormHelpers::getInvalidTimeMsg(),
+					'stream-live-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg()
 				));
 				
