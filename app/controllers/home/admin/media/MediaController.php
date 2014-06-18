@@ -151,8 +151,6 @@ class MediaController extends MediaBaseController {
 			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			
-			// TODO: date validation isn't good enough. need to check there is a time not just date
-			
 			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem, &$errors) {
 			
 				$validator = Validator::make($formData,	array(
