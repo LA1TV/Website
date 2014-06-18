@@ -52,6 +52,7 @@ $(document).ready(function() {
 		
 		var allowedExtensions = $(this).attr("data-ajaxuploadextensions").split(",");
 		var uploadPointId = $(this).attr("data-uploadpointid");
+		var remoteRemove = $(this).attr("data-remoteremove") === "1";
 		var maxFileLength = 50;
 		
 		var jqXHR = null;
@@ -306,10 +307,10 @@ $(document).ready(function() {
 				fileSize = null;
 				$(self).attr("data-ajaxuploadcurrentfilename", "");
 				$(self).attr("data-ajaxuploadcurrentfilesize", "");
-				if (id !== defaultId) {
+				if (remoteRemove || id !== defaultId) {
 					// make ajax request to server to tell it to remove the temporary file immediately
 					// don't really care if it fails because the file will be removed when the session ends anyway
-					// this will not be made if the user is removing the file that was already set (because the user could cancel the form and it should still be on the server)
+					// this will not be made if the user is removing the file that is already saved because remoteRemove should be false and the id should match the one that was there when the page was loaded (because the user could cancel the form and it should still be on the server)
 					jQuery.ajax(baseUrl+"/admin/upload/remove", {
 						cache: false,
 						dataType: "json",

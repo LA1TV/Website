@@ -99,8 +99,9 @@ class FormHelpers {
 		return '<span class="help-block">'.e($msg).'</span>';
 	}
 	
-	public static function getFileUploadElement($formInputName, $uploadPointId, $extensions, $currentFileName, $currentFileSize, $value) {
-		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-uploadpointid="'.e($uploadPointId).'"></div><input type="hidden" data-virtualform="1" name="'.e($formInputName).'" value="'.e($value).'" />';
+	public static function getFileUploadElement($formInputName, $uploadPointId, $extensions, $currentFileName, $currentFileSize, $value, $remoteRemove) {
+		$remoteRemoveVal = $remoteRemove?"1":"0";
+		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-uploadpointid="'.e($uploadPointId).'" data-remoteremove="'.e($remoteRemoveVal).'"></div><input type="hidden" data-virtualform="1" name="'.e($formInputName).'" value="'.e($value).'" />';
 	}
 	
 	public static function getFormGroupStart($name, $formErrors) {
@@ -124,8 +125,8 @@ class FormHelpers {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><textarea data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'">'.e($val).'</textarea>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $allowedFileTypes, $fileName, $fileSize) {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $allowedFileTypes, $fileName, $fileSize, $val).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $allowedFileTypes, $fileName, $fileSize, $remoteRemove) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $allowedFileTypes, $fileName, $fileSize, $val, $remoteRemove).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
 	public static function getFormSelectInput($formId, $txt, $name, $val, $options, $formErrors) {
