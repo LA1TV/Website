@@ -257,16 +257,19 @@ class MediaController extends MediaBaseController {
 						}
 						
 						$mediaItemVideo->is_live_recording = FormHelpers::toBoolean($formData['vod-live-recording']);
-						$mediaItemVideo->time_recorded = FormHelpers::nullIfEmpty($formData['vod-time-recorded']);
+						$mediaItemVideo->time_recorded = FormHelpers::nullIfEmpty(strtotime($formData['vod-time-recorded']));
 						$mediaItemVideo->name = FormHelpers::nullIfEmpty($formData['vod-name']);
 						$mediaItemVideo->description = FormHelpers::nullIfEmpty($formData['vod-description']);
 						$mediaItemVideo->enabled = FormHelpers::toBoolean($formData['vod-enabled']);
-						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty($formData['vod-publish-time']);
+						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['vod-publish-time']));
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
 						
 						if (!is_null($vodVideoId)) {
 							$vodVideoId = intval($vodVideoId, 10);
+							
+							// TODO: 
+							
 							// create entry in files.
 							// update source_file to that file id
 							
@@ -299,7 +302,7 @@ class MediaController extends MediaBaseController {
 						$mediaItemLiveStream->name = FormHelpers::nullIfEmpty($formData['stream-name']);
 						$mediaItemLiveStream->description = FormHelpers::nullIfEmpty($formData['stream-description']);
 						$mediaItemLiveStream->enabled = FormHelpers::toBoolean($formData['stream-enabled']);
-						$mediaItemLiveStream->scheduled_live_time = FormHelpers::toBoolean(FormHelpers::nullIfEmpty($formData['stream-live-time']));
+						$mediaItemLiveStream->scheduled_live_time = FormHelpers::nullIfEmpty(strtotime($formData['stream-live-time']));
 							
 						if (!is_null(FormHelpers::nullIfEmpty($formData['stream-stream-id']))) {
 							$liveStream = LiveStream::find(intval($formData['stream-stream-id'], 10));
