@@ -108,9 +108,7 @@ class MediaController extends MediaBaseController {
 			array("vod-enabled", ObjectHelpers::getProp("", $mediaItem, "videoItem", "enabled")),
 			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
 			array("vod-description", ObjectHelpers::getProp("", $mediaItem, "videoItem", "description")),
-			array("vod-video-id", ""), // TODO
-			array("vod-video-file-name", ""), //TODO
-			array("vod-video-file-size", ""), //TODO
+			array("vod-video-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "sourceFile", "id")),
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded")),
 			array("vod-publish-time", ObjectHelpers::getProp("", $mediaItem, "videoItem", "scheduled_publish_time")),
 			array("vod-live-recording", ObjectHelpers::getProp("", $mediaItem, "videoItem", "is_live_recording")),
@@ -127,6 +125,8 @@ class MediaController extends MediaBaseController {
 		$formData['cover-image-file-size'] = "";
 		$formData['side-banners-image-file-name'] = "";
 		$formData['side-banners-image-file-size'] = "";
+		$formData['vod-video-file-name'] = "";
+		$formData['vod-video-file-size'] = "";
 		if ($formData['cover-image-id'] !== "") {
 			$file = File::find($formData['cover-image-id']);
 			if (!is_null($file)) {
@@ -139,6 +139,13 @@ class MediaController extends MediaBaseController {
 			if (!is_null($file)) {
 				$formData['side-banners-image-file-name'] = $file->filename;
 				$formData['side-banners-image-file-size'] = $file->size;
+			}
+		}
+		if ($formData['vod-video-id'] !== "") {
+			$file = File::find($formData['vod-video-id']);
+			if (!is_null($file)) {
+				$formData['vod-video-file-name'] = $file->filename;
+				$formData['vod-video-file-size'] = $file->size;
 			}
 		}
 		
@@ -264,22 +271,47 @@ class MediaController extends MediaBaseController {
 						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['vod-publish-time']));
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
-						
 						if (!is_null($vodVideoId)) {
 							$vodVideoId = intval($vodVideoId, 10);
-							
-							// TODO: 
-							
-							// create entry in files.
-							// update source_file to that file id
-							
-							// entries will then be created in video_files by the server software with a link to that source video
+							$file = File::find($vodVideoId);
+							if (is_null($file)) {
+								throw(new Exception("File no longer exists in transaction."));
+							}
+							$file->in_use = true; // mark file as being in_use now
+							if ($file->save() === false) {
+								throw(new Exception("Error saving file model."));
+							}
+							$mediaItemVideo->sourceFile()->associate($file);
+							// entries will be created in video_files by the server software with a link to this source video file
+						}
+						else {
+							// remove if there currently is one
+							if (!is_null($mediaItemVideo->sourceFile)) {
+								$file = $mediaItemVideo->sourceFile;
+								$file->markReadyForDelete();
+								if ($file->save() === false) {
+									throw(new Exception("Error deleting MediaItemVideo source file."));
+								}
+								$mediaItemVideo[$mediaItemVideo->sourceFile()->getForeignKey()] = null;
+								// server software will then see that the source file foreign key in video_files has changed (to null) and clean up
+							}
 						}
 						
 					}
 					else {
 						// remove video model if there is one
 						if (!is_null($mediaItem->videoItem)) {
+							
+							if (!is_null($mediaItem->videoItem->sourceFile)) {
+								$file = $mediaItem->videoItem->sourceFile;
+								$file->markReadyForDelete();
+								if ($file->save() === false) {
+									throw(new Exception("Error saving file model."));
+								}
+								$mediaItemVideo->sourceFile()->associate($file);
+								// entries will be created in video_files by the server software with a link to this source video file
+							}
+						
 							if ($mediaItem->videoItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemVideo."));
 							}
@@ -388,18 +420,26 @@ class MediaController extends MediaBaseController {
 						$mediaItem->sideBannerFile,
 						$mediaItem->coverFile
 					);
+					if (!is_null($mediaItem->videoItem)) {
+						if (!is_null($mediaItem->videoItem->sourceFile)) {
+							$files[] = $mediaItem->videoItem->sourceFile;
+						}
+					}
 					foreach($files as $a) {
 						if (!is_null($a)) {
 							$a->markReadyForDelete();
-							$a->save();
+							if ($a->save() === false) {
+								throw(new Exception("Error deleting file."));
+							}
 						}
 					}
-					if ($mediaItem->delete()) {
-						$resp['success'] = true;
+					if ($mediaItem->delete() === false) {
+						throw(new Exception("Error deleting MediaItem."));
 					}
 				}
 			});
 		}
+		$resp['success'] = true;
 		return Response::json($resp);
 	}
 }
