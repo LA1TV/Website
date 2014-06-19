@@ -436,10 +436,10 @@ class MediaController extends MediaBaseController {
 					if ($mediaItem->delete() === false) {
 						throw(new Exception("Error deleting MediaItem."));
 					}
+					$resp['success'] = true;
 				}
 			});
 		}
-		$resp['success'] = true;
 		return Response::json($resp);
 	}
 }
