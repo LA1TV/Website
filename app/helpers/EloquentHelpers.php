@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model;
-
 class EloquentHelpers {
 	
 	// calls associate() on the relation with the model if the model is not null
