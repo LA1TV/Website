@@ -8,5 +8,9 @@ class UploadPoint extends MyEloquent {
 	public function fileType() {
 		return $this->belongsTo(self::$p.'FileType', 'file_type_id');
 	}
+	
+	public function files() {
+		return $this->hasMany(self::$p.'File', 'upload_point_id');
+	}
 
 }
