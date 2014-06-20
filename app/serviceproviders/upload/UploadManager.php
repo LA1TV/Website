@@ -63,6 +63,7 @@ class UploadManager {
 							"session_id"	=> Session::getId() // the laravel session id
 						));
 						$fileDb->fileType()->associate($uploadPoint->fileType);
+						$fileDb->uploadPoint()->associate($uploadPoint);
 						if ($fileDb->save() !== FALSE) {
 							// move the file
 							if (move_uploaded_file($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {				
