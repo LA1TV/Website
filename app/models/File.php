@@ -5,6 +5,16 @@ class File extends MyEloquent {
 	protected $table = 'files';
 	protected $fillable = array('in_use', 'filename', 'size', 'session_id', 'ready_for_delete');
 	
+	protected static function boot() {
+		parent::boot();
+		self::saving(function($model) {
+			if ($model->exists && $model->original["ready_for_delete"]) {
+				throw(new Exception("This file is pending deletion and can no longer be modified."));
+			}
+			return true;
+		});
+	}
+	
 	public function fileType() {
 		return $this->belongsTo(self::$p.'FileType', 'file_type_id');
 	}

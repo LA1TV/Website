@@ -7,6 +7,7 @@ use DB;
 use FormHelpers;
 use Exception;
 use Csrf;
+use EloquentHelpers;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
 
@@ -110,6 +111,63 @@ class UploadManager {
 		}
 		$data = $this->responseData;
 		return $data['success'] ? array("fileName"=>$data['fileName'], "fileSize"=>$data['fileSize']) : null;
+	}
+	
+	// register a file as now in use by its id. It assumed that this id is valid. an exception is thrown otherwise
+	// optionally pass in the File object of a file that this will be replacing.
+	// returns the File model of the registered file or null if there is no file with $fileId
+	// if the $fileId doesn't match a file an exception will be thrown.
+	// if the $fileId is null then the $fileToReplace will be removed and null will be returned.
+	public static function register($fileId, File $fileToReplace=null) {
+		
+		if (!is_null($fileId)) {
+			$fileId = intval($fileId, 10);
+		}
+		
+		if (!is_null($fileToReplace) && $fileToReplace->id === $fileId) {
+			// if we are replacing the file with the same file then nothing to do.
+			// just return the model
+			return $fileToReplace;
+		}
+		
+		$file = null;
+		if (!is_null($fileId)) {
+			$file = File::find($fileId);
+			if (is_null($file)) {
+				throw(new Exception("File model could not be found."));
+			}
+		}
+		
+		if (!is_null($file)) {
+			$file->in_use = true; // mark file as being in_use now
+		}
+		DB::transaction(function() use (&$file, &$fileToReplace) {
+			
+			if (!is_null($file) && $file->save() === false) {
+				throw(new Exception("Error saving file model."));
+			}
+			if (!is_null($fileToReplace)) {
+				self::delete($fileToReplace);
+			}
+		});
+		
+		return $file;
+	}
+	
+	// mark the files/file past in for deletion
+	// will ignore any null models
+	public static function delete($files) {
+		if (!is_array($files)) {
+			$files = array($files);
+		}
+		foreach($files as $a) {
+			if (!is_null($a)) {
+				$a->markReadyForDelete();
+				if ($a->save() === false) {
+					throw(new Exception("Error deleting file."));
+				}
+			}
+		}
 	}
 	
 }

@@ -14,6 +14,7 @@ use Config;
 use Response;
 use Upload;
 use Csrf;
+use EloquentHelpers;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -201,55 +202,14 @@ class MediaController extends MediaBaseController {
 					$mediaItem->name = $formData['name'];
 					$mediaItem->description = FormHelpers::nullIfEmpty($formData['description']);
 					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
+					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
-					if (!is_null($coverImageId)) {
-						$coverImageId = intval($coverImageId, 10);
-						// we know this file will still exist because all of this is in transaction and file existed during validation
-						$file = File::find($coverImageId);
-						if (is_null($file)) {
-							throw(new Exception("File no longer exists in transaction."));
-						}
-						$file->in_use = true; // mark file as being in_use now
-						if ($file->save() === false) {
-							throw(new Exception("Error saving file model."));
-						}
-						$mediaItem->coverFile()->associate($file);
-					}
-					else {
-						// remove coverimage if there currently is one
-						if (!is_null($mediaItem->coverFile)) {
-							$file = $mediaItem->coverFile;
-							$file->markReadyForDelete();
-							if ($file->save() === false) {
-								throw(new Exception("Error deleting MediaItem cover file."));
-							}
-							$mediaItem[$mediaItem->coverFile()->getForeignKey()] = null;
-						}
-					}
+					$file = Upload::register($coverImageId, $mediaItem->coverFile);
+					EloquentHelpers::associateOrNull($mediaItem, "coverFile", $file);
+					
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
-					if (!is_null($sideBannerFileId)) {
-						$sideBannerFileId = intval($sideBannerFileId, 10);
-						$file = File::find($sideBannerFileId);
-						if (is_null($file)) {
-							throw(new Exception("File no longer exists in transaction."));
-						}
-						$file->in_use = true; // mark file as being in_use now
-						if ($file->save() === false) {
-							throw(new Exception("Error saving file model."));
-						}
-						$mediaItem->sideBannerFile()->associate($file);
-					}
-					else {
-						// remove banner if there already is one
-						if (!is_null($mediaItem->sideBannerFile)) {
-							$file = $mediaItem->sideBannerFile;
-							$file->markReadyForDelete();
-							if ($file->save() === false) {
-								throw(new Exception("Error deleting MediaItem side banner file."));
-							}
-							$mediaItem[$mediaItem->sideBannerFile()->getForeignKey()] = null;
-						}
-					}
+					$file = Upload::register($sideBannerFileId, $mediaItem->sideBannerFile);
+					EloquentHelpers::associateOrNull($mediaItem, "sideBannerFile", $file);
 					
 					// vod
 					$mediaItemVideo = null;
@@ -271,46 +231,16 @@ class MediaController extends MediaBaseController {
 						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['vod-publish-time']));
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
-						if (!is_null($vodVideoId)) {
-							$vodVideoId = intval($vodVideoId, 10);
-							$file = File::find($vodVideoId);
-							if (is_null($file)) {
-								throw(new Exception("File no longer exists in transaction."));
-							}
-							$file->in_use = true; // mark file as being in_use now
-							if ($file->save() === false) {
-								throw(new Exception("Error saving file model."));
-							}
-							$mediaItemVideo->sourceFile()->associate($file);
-							// entries will be created in video_files by the server software with a link to this source video file
-						}
-						else {
-							// remove if there currently is one
-							if (!is_null($mediaItemVideo->sourceFile)) {
-								$file = $mediaItemVideo->sourceFile;
-								$file->markReadyForDelete();
-								if ($file->save() === false) {
-									throw(new Exception("Error deleting MediaItemVideo source file."));
-								}
-								$mediaItemVideo[$mediaItemVideo->sourceFile()->getForeignKey()] = null;
-								// server software will then see that the source file foreign key in video_files has changed (to null) and clean up
-							}
-						}
+						$file = Upload::register($vodVideoId, $mediaItemVideo->sourceFile);
+						EloquentHelpers::associateOrNull($mediaItemVideo, "sourceFile", $file);
 						
 					}
 					else {
 						// remove video model if there is one
 						if (!is_null($mediaItem->videoItem)) {
 							
-							if (!is_null($mediaItem->videoItem->sourceFile)) {
-								$file = $mediaItem->videoItem->sourceFile;
-								$file->markReadyForDelete();
-								if ($file->save() === false) {
-									throw(new Exception("Error saving file model."));
-								}
-								$mediaItemVideo->sourceFile()->associate($file);
-								// entries will be created in video_files by the server software with a link to this source video file
-							}
+							// remove source file (if there is one)
+							Upload::register(null, $mediaItem->videoItem->sourceFile);
 						
 							if ($mediaItem->videoItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemVideo."));
@@ -416,23 +346,12 @@ class MediaController extends MediaBaseController {
 				$mediaItem = MediaItem::find($id);
 				if (!is_null($mediaItem)) {
 					// mark any related files as no longer in use (so they will be removed)
-					$files = array(
+					Upload::delete(array(
 						$mediaItem->sideBannerFile,
-						$mediaItem->coverFile
-					);
-					if (!is_null($mediaItem->videoItem)) {
-						if (!is_null($mediaItem->videoItem->sourceFile)) {
-							$files[] = $mediaItem->videoItem->sourceFile;
-						}
-					}
-					foreach($files as $a) {
-						if (!is_null($a)) {
-							$a->markReadyForDelete();
-							if ($a->save() === false) {
-								throw(new Exception("Error deleting file."));
-							}
-						}
-					}
+						$mediaItem->coverFile,
+						ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile")
+					));
+					
 					if ($mediaItem->delete() === false) {
 						throw(new Exception("Error deleting MediaItem."));
 					}
