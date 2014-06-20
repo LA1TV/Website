@@ -240,7 +240,7 @@ class MediaController extends MediaBaseController {
 						if (!is_null($mediaItem->videoItem)) {
 							
 							// remove source file (if there is one)
-							Upload::register(null, $mediaItem->videoItem->sourceFile);
+							Upload::delete($mediaItem->videoItem->sourceFile);
 						
 							if ($mediaItem->videoItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemVideo."));
@@ -275,7 +275,7 @@ class MediaController extends MediaBaseController {
 						}
 					}
 					else {
-						// remove video model if there is one
+						// remove livestream model if there is one
 						if (!is_null($mediaItem->liveStreamItem)) {
 							if ($mediaItem->liveStreamItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemLiveStream."));
