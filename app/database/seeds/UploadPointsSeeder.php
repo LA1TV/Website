@@ -15,6 +15,7 @@ class UploadPointsSeeder extends Seeder {
 			array("id"=>1, "description"=>"For side banner images.", "fileTypeId"=>1),
 			array("id"=>2, "description"=>"For cover images.", "fileTypeId"=>2),
 			array("id"=>3, "description"=>"For vod video uploads.", "fileTypeId"=>3),
+			array("id"=>4, "description"=>"For cover art uploads.", "fileTypeId"=>4),
 		);
 		
 		foreach($uploadPoints as $b=>$a) {
