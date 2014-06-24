@@ -3,7 +3,7 @@
 class CoverArtFile extends MyEloquent {
 
 	protected $table = 'cover_art_files';
-	protected $fillable = array(); // TODO: check this does as intended when empty
+	protected $fillable = array();
 	
 	public function sourceFile() {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
