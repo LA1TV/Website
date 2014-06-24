@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateThumbnailFiles extends Migration {
+class CreateCoverArtFiles extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,7 +12,7 @@ class CreateThumbnailFiles extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('thumbnail_files', function(Blueprint $table)
+		Schema::create('cover_art_files', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->integer('source_file_id')->unsigned();
@@ -37,7 +37,7 @@ class CreateThumbnailFiles extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('thumbnail_files');
+		Schema::drop('cover_art_files');
 	}
 
 }

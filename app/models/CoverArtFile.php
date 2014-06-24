@@ -1,8 +1,8 @@
 <?php namespace uk\co\la1tv\website\models;
 
-class ThumbnailFile extends MyEloquent {
+class CoverArtFile extends MyEloquent {
 
-	protected $table = 'thumbnail_files';
+	protected $table = 'cover_art_files';
 	protected $fillable = array(); // TODO: check this does as intended when empty
 	
 	public function sourceFile() {
