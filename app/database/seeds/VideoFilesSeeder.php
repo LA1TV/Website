@@ -16,7 +16,7 @@ class VideoFilesSeeder extends Seeder {
 	public function run() {
 		
 		$group = VodVideoGroup::first();
-		$destinationFile = File::first();
+		$destinationFile = File::where("in_use", "=", true)->first();
 		
 		$file = new VideoFile(array(
 			"width"		=>	1920,
