@@ -5,8 +5,8 @@ class VideoFile extends MyEloquent {
 	protected $table = 'video_files';
 	protected $fillable = array('width', 'height');
 	
-	public function sourceFile() {
-		return $this->belongsTo(self::$p.'File', 'source_file_id');
+	public function file() {
+		return $this->belongsTo(self::$p.'File', 'file_id');
 	}
 	
 	public function qualityDefinition() {

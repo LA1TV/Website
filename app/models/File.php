@@ -43,8 +43,12 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'Playlist', 'side_banner_file_id');
 	}
 	
-	public function videoFiles() {
-		return $this->hasMany(self::$p.'VideoFile', 'source_file_id');
+	public function vodVideoGroups() {
+		return $this->hasMany(self::$p.'VodVideoGroup', 'source_file_id');
+	}
+	
+	public function videoFile() {
+		return $this->hasOne(self::$p.'VideoFile', 'file_id');
 	}
 	
 	public function thumbnailFiles() {
