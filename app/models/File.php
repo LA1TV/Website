@@ -1,5 +1,8 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use EloquentHelpers;
+// TODO add check so that relations can not be saved if in_use is false
+
 class File extends MyEloquent {
 
 	protected $table = 'files';
@@ -13,6 +16,19 @@ class File extends MyEloquent {
 			}
 			else if ($model->exists && $model->original["ready_for_delete"]) {
 				throw(new Exception("This file is pending deletion and can no longer be modified."));
+			}
+			else if (!$model->in_use && (
+				!EloquentHelpers::getIsForeignNull($model->mediaItemWithFile()) ||
+				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCover()) ||
+				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
+				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
+				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
+				!EloquentHelpers::getIsForeignNull($model->vodVideoGroups()) ||
+				!EloquentHelpers::getIsForeignNull($model->videoFile()) ||
+				!EloquentHelpers::getIsForeignNull($model->thumbnailFiles()) ||
+				!EloquentHelpers::getIsForeignNull($model->thumbnailFile())
+				)) {
+				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
 			return true;
 		});
