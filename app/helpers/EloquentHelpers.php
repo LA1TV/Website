@@ -17,4 +17,9 @@ class EloquentHelpers {
 		$model = $relation->getParent();
 		$model[$relation->getForeignKey()] = null;
 	}
+	
+	public static function getIsForeignNull($relation) {
+		$model = $relation->getParent();
+		return is_null($model[$relation->getForeignKey()]);
+	}
 }
