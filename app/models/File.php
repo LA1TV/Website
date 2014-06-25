@@ -1,12 +1,12 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use EloquentHelpers;
-// TODO add check so that relations can not be saved if in_use is false
+use Exception;
 
 class File extends MyEloquent {
 
 	protected $table = 'files';
-	protected $fillable = array('in_use', 'filename', 'size', 'session_id', 'ready_for_delete');
+	protected $fillable = array('in_use', 'filename', 'size', 'session_id');
 	
 	protected static function boot() {
 		parent::boot();
@@ -30,6 +30,33 @@ class File extends MyEloquent {
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
+			
+			if ($model->exists && $model->original[$model->fileType()->getForeignKey()] !== $model->attributes[$model->fileType()->getForeignKey()]) {
+				throw(new Exception("The file type cannot be changed."));
+			}
+			
+			if (!$model->exists) {
+				// TODO: the following line is repeated a lot because we only want the relation to be loaded if necessary. Can probably be tidied up
+				$fileTypeObj = $model->fileType->getFileTypeObj();
+				if (!$fileTypeObj->preCreation($model)) {
+					throw(new Exception("Creation was cancelled by preCreation callback."));
+				}
+			}
+			
+			if ($model->in_use && !$model->original["in_use"]) {
+				$fileTypeObj = $model->fileType->getFileTypeObj();
+				if (!$fileTypeObj->preRegistration($model)) {
+					throw(new Exception("Registration was cancelled by preRegistration callback."));
+				}
+			}
+			
+			if ($model->ready_for_delete && !$model->original["ready_for_delete"]) {
+				$fileTypeObj = $model->fileType->getFileTypeObj();
+				if (!$fileTypeObj->preDeletion($model)) {
+					throw(new Exception("Deletion was cancelled by preDeletion callback."));
+				}
+			}
+			
 			return true;
 		});
 	}
