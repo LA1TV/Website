@@ -205,11 +205,11 @@ class MediaController extends MediaBaseController {
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register($coverImageId, $mediaItem->coverFile);
-					EloquentHelpers::associateOrNull($mediaItem, "coverFile", $file);
+					EloquentHelpers::associateOrNull($mediaItem->coverFile(), $file);
 					
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
 					$file = Upload::register($sideBannerFileId, $mediaItem->sideBannerFile);
-					EloquentHelpers::associateOrNull($mediaItem, "sideBannerFile", $file);
+					EloquentHelpers::associateOrNull($mediaItem->sideBannerFile(), $file);
 					
 					// vod
 					$mediaItemVideo = null;
@@ -232,7 +232,7 @@ class MediaController extends MediaBaseController {
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
 						$file = Upload::register($vodVideoId, $mediaItemVideo->sourceFile);
-						EloquentHelpers::associateOrNull($mediaItemVideo, "sourceFile", $file);
+						EloquentHelpers::associateOrNull($mediaItemVideo->sourceFile(), $file);
 						
 					}
 					else {

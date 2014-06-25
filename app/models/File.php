@@ -8,7 +8,10 @@ class File extends MyEloquent {
 	protected static function boot() {
 		parent::boot();
 		self::saving(function($model) {
-			if ($model->exists && $model->original["ready_for_delete"]) {
+			if ($model->exists && $model->original["in_use"] && !$model->in_use && !$model->ready_for_delete) {
+				throw(new Exception("The file can only be marked in_use once."));
+			}
+			else if ($model->exists && $model->original["ready_for_delete"]) {
 				throw(new Exception("This file is pending deletion and can no longer be modified."));
 			}
 			return true;

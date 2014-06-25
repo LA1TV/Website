@@ -176,7 +176,7 @@ class UploadManager {
 	// eager load the 'fileType' relation with the model before this function for best performance
 	
 	// TODO: work in progress
-	public static function getInfo(File $file) {
+/*	public static function getInfo(File $file) {
 		$info = array(
 			"name"	=> $file->filename,
 			"size"	=> $file->size
@@ -191,5 +191,5 @@ class UploadManager {
 		
 		return $info;
 	}
-	
+*/
 }
