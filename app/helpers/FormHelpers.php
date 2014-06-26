@@ -118,7 +118,7 @@ class FormHelpers {
 	}
 	
 	public static function getFormCheckInput($formId, $txt, $name, $enabled, $formErrors) {
-		$enabledTxt = $enabled === "y" ? "checked":"";
+		$enabledTxt = $enabled ? "checked":"";
 		return self::getFormGroupStart($name, $formErrors).'<div class="checkbox"><label><input type="checkbox" data-virtualform="'.e($formId).'" name="'.e($name).'" value="y" '.$enabledTxt.'> '.e($txt).'</label></div>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
