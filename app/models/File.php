@@ -4,7 +4,7 @@ use EloquentHelpers;
 use Exception;
 use uk\co\la1tv\website\fileTypeObjs\FileTypeObjBuilder;
 
-// File models should be created and managed using the Upload service provider.
+// FILE MODELS SHOULD NOT BE CREATED MANUALLY. They should be created and managed using the Upload service provider.
 
 class File extends MyEloquent {
 
@@ -86,7 +86,7 @@ class File extends MyEloquent {
 		return strtolower(pathinfo($this->filename, PATHINFO_EXTENSION));
 	}
 	
-	// this should not be called directly. This should be managed from the Upload service provider
+	// THIS SHOULD NOT BE CALLED DIRECTLY. This should be managed from the Upload service provider
 	public function markReadyForDelete() {
 		$this->in_use = false;
 		$this->ready_for_delete = true;

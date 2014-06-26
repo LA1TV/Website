@@ -81,8 +81,8 @@ class UploadController extends UploadBaseController {
 			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {
-				
 				Upload::delete($file);
+				$resp['success'] = true;
 			}
 		}
 		return Response::json($resp);

@@ -6,13 +6,13 @@ use Exception;
 // There should be a FileObj object associated with each file.
 // Therefore we cache an object when it's build with the file id so that that instance can be retrieved in the future if it is 'built' again
 
+// TODO: if a file model is deleted and is in the cache it should be removed from the cache.
+// doesn't appear to be a neat way of doing this at the moment due to the way that the eloquent callbacks work and the fact that php doesn't support inner classes
+
 class FileObjBuilder {
-
-	// TODO: add listener to File models and remove item from cache if file model is deleted
-
+	
 	// array of FileObjs with the key being the file id.
 	private static $cache = array();
-	
 	
 	// build the object if an instance has not already been created for the file, otherwise return the cached one
 	public static function retrieve(File $file) {
