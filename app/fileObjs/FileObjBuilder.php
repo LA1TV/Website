@@ -22,8 +22,7 @@ class FileObjBuilder {
 			return self::$cache[$file->id];
 		}
 	
-		// TODO: improve this so not having to load relation to get id
-		$typeId = intval($file->fileType->id, 10);
+		$typeId = intval($file->{$file->fileType()->getForeignKey()}, 10);
 		$fileObj = null;
 		
 		if ($typeId === 1) { // side banner images

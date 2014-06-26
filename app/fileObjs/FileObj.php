@@ -1,12 +1,18 @@
 <?php namespace uk\co\la1tv\website\fileObjs;
 
 use uk\co\la1tv\website\models\File;
+use Exception;
 
 abstract class FileObj {
 
 	private $file = null;
+	private $constructed = false;
 
 	public final function __construct(File $file) {
+		if ($this->constructed) {
+			throw(new Exception("This must only be constructed once from the FileObjBuilder."));
+		}
+		$this->constructed = true;
 		$this->file = $file;
 		$this->init();
 	}

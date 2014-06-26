@@ -81,10 +81,8 @@ class UploadController extends UploadBaseController {
 			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {
-				if (unlink(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id)) {
-					$file->delete();
-					$resp['success'] = true;
-				}
+				
+				Upload::delete($file);
 			}
 		}
 		return Response::json($resp);
