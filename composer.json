@@ -14,7 +14,7 @@
 			"app/controllers",
 			"app/models",
 			"app/serviceProviders",
-			"app/fileTypeObjs",
+			"app/fileObjs",
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/helpers",

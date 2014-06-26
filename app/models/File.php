@@ -2,6 +2,9 @@
 
 use EloquentHelpers;
 use Exception;
+use uk\co\la1tv\website\fileTypeObjs\FileTypeObjBuilder;
+
+// File models should be created and managed using the Upload service provider.
 
 class File extends MyEloquent {
 
@@ -30,33 +33,7 @@ class File extends MyEloquent {
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
-			
-			if ($model->exists && $model->original[$model->fileType()->getForeignKey()] !== $model->attributes[$model->fileType()->getForeignKey()]) {
-				throw(new Exception("The file type cannot be changed."));
-			}
-			
-			if (!$model->exists) {
-				// TODO: the following line is repeated a lot because we only want the relation to be loaded if necessary. Can probably be tidied up
-				$fileTypeObj = $model->fileType->getFileTypeObj();
-				if (!$fileTypeObj->preCreation($model)) {
-					throw(new Exception("Creation was cancelled by preCreation callback."));
-				}
-			}
-			
-			if ($model->in_use && !$model->original["in_use"]) {
-				$fileTypeObj = $model->fileType->getFileTypeObj();
-				if (!$fileTypeObj->preRegistration($model)) {
-					throw(new Exception("Registration was cancelled by preRegistration callback."));
-				}
-			}
-			
-			if ($model->ready_for_delete && !$model->original["ready_for_delete"]) {
-				$fileTypeObj = $model->fileType->getFileTypeObj();
-				if (!$fileTypeObj->preDeletion($model)) {
-					throw(new Exception("Deletion was cancelled by preDeletion callback."));
-				}
-			}
-			
+
 			return true;
 		});
 	}
@@ -109,9 +86,14 @@ class File extends MyEloquent {
 		return strtolower(pathinfo($this->filename, PATHINFO_EXTENSION));
 	}
 	
+	// this should not be called directly. This should be managed from the Upload service provider
 	public function markReadyForDelete() {
 		$this->in_use = false;
 		$this->ready_for_delete = true;
+	}
+	
+	public function getFileTypeObj() {
+		return FileTypeObjectBuilder::retrieve($this);
 	}
 
 }

@@ -10,6 +10,7 @@ use Csrf;
 use EloquentHelpers;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\fileObjs\FileObjBuilder;
 
 class UploadManager {
 
@@ -67,6 +68,9 @@ class UploadManager {
 						if ($fileDb->save() !== FALSE) {
 							// move the file
 							if (move_uploaded_file($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {				
+								
+								$fileObj = self::getFileObj($fileDb);
+								$fileObj->postCreation();
 								
 								// commit transaction so file record is committed to database
 								DB::commit();
@@ -144,8 +148,15 @@ class UploadManager {
 		}
 		DB::transaction(function() use (&$file, &$fileToReplace) {
 			
-			if (!is_null($file) && $file->save() === false) {
-				throw(new Exception("Error saving file model."));
+			if (!is_null($file)) {
+				$fileObj = self::getFileObj($file);
+				if (!$fileObj->preRegistration()) {
+					throw(new Exception("File registration was cancelled by preRegistration callback."));
+				}
+				if ($file->save() === false) {
+					throw(new Exception("Error saving file model."));
+				}
+				$fileObj->postRegistration();
 			}
 			if (!is_null($fileToReplace)) {
 				self::delete($fileToReplace);
@@ -163,12 +174,23 @@ class UploadManager {
 		}
 		foreach($files as $a) {
 			if (!is_null($a)) {
-				$a->markReadyForDelete();
-				if ($a->save() === false) {
-					throw(new Exception("Error deleting file."));
-				}
+				$fileObj = self::getFileObj($a);
+				DB::transaction(function() use(&$fileObj, &$a) {
+					if (!$fileObj->preDeletion()) {
+						throw(new Exception("File deletion was cancelled by preDeletion callback."));
+					}
+					$a->markReadyForDelete();
+					if ($a->save() === false) {
+						throw(new Exception("Error deleting file."));
+					}		
+					$fileObj->postDeletion();
+				});
 			}
 		}
+	}
+	
+	public static function getFileObj(File $file) {
+		return FileObjBuilder::retrieve($file);
 	}
 	
 	// return an information array about the file
