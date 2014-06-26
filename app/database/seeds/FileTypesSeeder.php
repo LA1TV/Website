@@ -14,8 +14,9 @@ class FileTypesSeeder extends Seeder {
 		$fileTypes = array(
 			array("id"=>1, "description"=>"For side banner images.", "extensions"=>array(1, 2, 3)),
 			array("id"=>2, "description"=>"For cover images.", "extensions"=>array(1, 2, 3)),
-			array("id"=>3, "description"=>"For vod video uploads.", "extensions"=>array(4)),
+			array("id"=>3, "description"=>"For vod video source uploads.", "extensions"=>array(4)),
 			array("id"=>4, "description"=>"Cover art for media.", "extensions"=>array(1, 2, 3)),
+			array("id"=>5, "description"=>"For vod video renders.", "extensions"=>array(4)),
 		);
 		
 		foreach($fileTypes as $a) {

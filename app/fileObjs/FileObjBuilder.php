@@ -31,11 +31,14 @@ class FileObjBuilder {
 		else if ($typeId === 2) { // cover images
 			$fileObj = new CoverImage($file);
 		}
-		else if ($typeId === 3) { // video uploads
+		else if ($typeId === 3) { // video source uploads
 			$fileObj = new VideoUpload($file);
 		}
 		else if ($typeId === 4) { // cover art for media
 			$fileObj = new CoverArt($file);
+		}
+		else if ($typeId === 5) { //vod video renders
+			$fileObj = new VideoRender($file);
 		}
 		else {
 			throw(new Exception("Invalid file type id."));
