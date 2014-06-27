@@ -2,5 +2,5 @@
 
 
 class SideBannerImage extends FileObj {
-	
+
 }

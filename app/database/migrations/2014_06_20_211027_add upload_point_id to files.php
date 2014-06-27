@@ -14,7 +14,7 @@ class AddUploadPointIdToFiles extends Migration {
 	{
 		Schema::table('files', function(Blueprint $table)
 		{
-			$table->integer("upload_point_id")->unsigned();
+			$table->integer("upload_point_id")->unsigned()->nullable();
 			
 			$table->index("upload_point_id");
 			$table->foreign("upload_point_id", "upload_point_id_foreign")->references('id')->on('upload_points')->onUpdate("restrict")->onDelete('cascade');	

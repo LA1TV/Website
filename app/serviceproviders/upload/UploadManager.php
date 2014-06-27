@@ -126,7 +126,6 @@ class UploadManager {
 	// if the $fileId is null then the $fileToReplace will be removed and null will be returned.
 	public static function register($uploadPointId, $fileId, File $fileToReplace=null) {
 		
-		$uploadPointId = intval($uploadPointId, 10);
 		$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);	
 	
 		if (is_null($uploadPoint)) {
@@ -145,6 +144,9 @@ class UploadManager {
 			$file = File::with("uploadPoint")->find($fileId);
 			if (is_null($file)) {
 				throw(new Exception("File model could not be found."));
+			}
+			else if (is_null($file->uploadPoint)) {
+				throw(new Exception("This file doesn't have an upload point. This probably means it was created externally and 'register' should not be used on it."));
 			}
 			else if ($file->in_use) {
 				throw(new Exception("This file has already been registered."));

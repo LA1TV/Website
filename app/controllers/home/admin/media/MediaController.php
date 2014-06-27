@@ -230,7 +230,7 @@ class MediaController extends MediaBaseController {
 						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['vod-publish-time']));
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
-						$file = Upload::register(Config::get("uploadPoints.vodVideoId"), $vodVideoId, $mediaItemVideo->sourceFile);
+						$file = Upload::register(Config::get("uploadPoints.vodVideo"), $vodVideoId, $mediaItemVideo->sourceFile);
 						EloquentHelpers::associateOrNull($mediaItemVideo->sourceFile(), $file);
 						
 					}
@@ -331,7 +331,7 @@ class MediaController extends MediaBaseController {
 		// used to uniquely identify these file upload points on the site. Must not appear anywhere else.
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
-		$view->vodVideoUploadPointId =  Config::get("uploadPoints.vodVideo");
+		$view->vodVideoUploadPointId = Config::get("uploadPoints.vodVideo");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
 	
 		$this->setContent($view, "media", "media-edit");
