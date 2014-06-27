@@ -119,9 +119,10 @@ class UploadManager {
 	}
 	
 	// register a file as now in use by its id. It assumed that this id is valid. an exception is thrown otherwise
+	// if the file has already been registered then an exception is thrown, unless the $fileToReplace is the same file.
 	// the first parameter is the upload point id and this is used to check that the file being registered is one that was uploaded at the expected upload point
 	// optionally pass in the File object of a file that this will be replacing.
-	// returns the File model of the registered file or null if there is no file with $fileId
+	// returns the File model of the registered file or null if $fileId was null
 	// if the $fileId doesn't match a file an exception will be thrown.
 	// if the $fileId is null then the $fileToReplace will be removed and null will be returned.
 	public static function register($uploadPointId, $fileId, File $fileToReplace=null) {
@@ -133,11 +134,7 @@ class UploadManager {
 			throw(new Exception("Invalid upload point."));
 		}
 		
-		if (!is_null($fileId)) {
-			$fileId = intval($fileId, 10);
-		}
-		
-		if (!is_null($fileToReplace) && $fileToReplace->id === $fileId) {
+		if (!is_null($fileToReplace) && !is_null($fileId) && intval($fileToReplace->id, 10) === intval($fileId, 10)) {
 			// if we are replacing the file with the same file then nothing to do.
 			// just return the model
 			return $fileToReplace;
@@ -145,9 +142,13 @@ class UploadManager {
 		
 		$file = null;
 		if (!is_null($fileId)) {
+			$fileId = intval($fileId, 10);
 			$file = File::with("uploadPoint")->find($fileId);
 			if (is_null($file)) {
 				throw(new Exception("File model could not be found."));
+			}
+			else if ($file->in_use) {
+				throw(new Exception("This file has already been registered."));
 			}
 			else if ($file->uploadPoint->id !== $uploadPoint->id) {
 				throw(new Exception("Upload points don't match. This could happen if a file was uploaded at one upload point and now the file with that id is being registered somewhere else."));

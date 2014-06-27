@@ -60,6 +60,8 @@ class FormHelpers {
 		return "This stream is invalid.";
 	}
 	
+	// checks if the file exists in the database
+	// If the file is not in use it checks that the session id matches the session that created it
 	public static function getValidFileValidatorFunction() {
 		return function($attribute, $value, $parameters) {
 			if ($value === "") {
@@ -67,10 +69,8 @@ class FormHelpers {
 			}
 			$value = intval($value, 10);
 			$file = File::find($value);
-			// issue is that in_use is 1
-			//TODO: need to make sure it's only possible for a fule to belong to one thing.
-			// at the moment a user could submit a file id twice in the same form for 2 different things and I don't think it would be caught.
-			return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId());
+			
+			return !is_null($file) && ($file->in_use || (!is_null($file->session_id) && $file->session_id === Session::getId()));
 		};
 	}
 	
