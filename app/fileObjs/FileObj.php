@@ -57,16 +57,4 @@ abstract class FileObj {
 	public function postDeletion() {
 		return;
 	}
-	
-	// return the stage of any processing that is occurring with this as the source file.
-	// should return a FileProcessStats object
-	// e.g. for video files the video source file will return the process that the system is at in rendering the other versions of the file.
-	public function getProcess() {
-		return new FileProcessStat();
-	}
-	
-	// return true if an error has occurred with the processing of this file
-	public function hasError() {
-		return $this->getProcess()->getError();
-	}
 }
