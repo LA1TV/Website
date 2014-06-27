@@ -119,11 +119,19 @@ class UploadManager {
 	}
 	
 	// register a file as now in use by its id. It assumed that this id is valid. an exception is thrown otherwise
+	// the first parameter is the upload point id and this is used to check that the file being registered is one that was uploaded at the expected upload point
 	// optionally pass in the File object of a file that this will be replacing.
 	// returns the File model of the registered file or null if there is no file with $fileId
 	// if the $fileId doesn't match a file an exception will be thrown.
 	// if the $fileId is null then the $fileToReplace will be removed and null will be returned.
-	public static function register($fileId, File $fileToReplace=null) {
+	public static function register($uploadPointId, $fileId, File $fileToReplace=null) {
+		
+		$uploadPointId = intval($uploadPointId, 10);
+		$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);	
+	
+		if (is_null($uploadPoint)) {
+			throw(new Exception("Invalid upload point."));
+		}
 		
 		if (!is_null($fileId)) {
 			$fileId = intval($fileId, 10);
@@ -137,9 +145,12 @@ class UploadManager {
 		
 		$file = null;
 		if (!is_null($fileId)) {
-			$file = File::find($fileId);
+			$file = File::with("uploadPoint")->find($fileId);
 			if (is_null($file)) {
 				throw(new Exception("File model could not be found."));
+			}
+			else if ($file->uploadPoint->id !== $uploadPoint->id) {
+				throw(new Exception("Upload points don't match. This could happen if a file was uploaded at one upload point and now the file with that id is being registered somewhere else."));
 			}
 		}
 		

@@ -4,7 +4,6 @@ use View;
 use App;
 use FormHelpers;
 use ObjectHelpers;
-use AllowedFileTypesHelper;
 use Validator;
 use Session;
 use DB;
@@ -20,6 +19,7 @@ use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\UploadPoint;
 
 class MediaController extends MediaBaseController {
 
@@ -154,7 +154,6 @@ class MediaController extends MediaBaseController {
 		
 		if ($formSubmitted) {
 			// validate input
-			
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
@@ -164,11 +163,11 @@ class MediaController extends MediaBaseController {
 				$validator = Validator::make($formData,	array(
 					'name'		=> array('required', 'max:50'),
 					'description'	=> array('max:500'),
-					'cover-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
-					'side-banners-image-id'	=> array('valid_file_id:'.implode("-", AllowedFileTypesHelper::getImages())),
+					'cover-image-id'	=> array('valid_file_id'),
+					'side-banners-image-id'	=> array('valid_file_id'),
 					'vod-name'	=> array('max:50'),
 					'vod-description'	=> array('max:500'),
-			//		'vod-video-id'	=> array(('required_if:vod-added,1', 'valid_file_id:'.implode("-", AllowedFileTypesHelper::getVideos())), //TODO
+			//		'vod-video-id'	=> array(('required_if:vod-added,1', 'valid_file_id'), //TODO
 					'vod-time-recorded'	=> array('my_date'),
 					'vod-publish-time'	=> array('my_date'),
 					'stream-name'	=> array('max:50'),
@@ -204,11 +203,11 @@ class MediaController extends MediaBaseController {
 					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
-					$file = Upload::register($coverImageId, $mediaItem->coverFile);
+					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $mediaItem->coverFile);
 					EloquentHelpers::associateOrNull($mediaItem->coverFile(), $file);
 					
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
-					$file = Upload::register($sideBannerFileId, $mediaItem->sideBannerFile);
+					$file = Upload::register(Config::get("uploadPoints.sideBannersImage"), $sideBannerFileId, $mediaItem->sideBannerFile);
 					EloquentHelpers::associateOrNull($mediaItem->sideBannerFile(), $file);
 					
 					// vod
@@ -231,7 +230,7 @@ class MediaController extends MediaBaseController {
 						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['vod-publish-time']));
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
-						$file = Upload::register($vodVideoId, $mediaItemVideo->sourceFile);
+						$file = Upload::register(Config::get("uploadPoints.vodVideoId"), $vodVideoId, $mediaItemVideo->sourceFile);
 						EloquentHelpers::associateOrNull($mediaItemVideo->sourceFile(), $file);
 						
 					}
@@ -330,9 +329,9 @@ class MediaController extends MediaBaseController {
 		$view->form = $formData;
 		$view->formErrors = $errors;
 		// used to uniquely identify these file upload points on the site. Must not appear anywhere else.
-		$view->coverImageUploadPointId = 2;
-		$view->sideBannersImageUploadPointId = 1;
-		$view->vodVideoUploadPointId = 3;
+		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
+		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
+		$view->vodVideoUploadPointId =  Config::get("uploadPoints.vodVideo");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
 	
 		$this->setContent($view, "media", "media-edit");

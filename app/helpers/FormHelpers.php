@@ -2,8 +2,12 @@
 
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\UploadPoint;
 
 class FormHelpers {
+	
+	// stores the extensions an upload point allows with the key being the UploadPoint id
+	private static $uploadPointExtensionsCache = array();
 	
 	public static function getValue($var, $default=null, $useDefault=false, $useGet=false) {
 		return $useDefault || !self::hasPost($var, $useGet) ? $default : (!$useGet ? $_POST[$var] : $_GET[$var]);
@@ -63,7 +67,10 @@ class FormHelpers {
 			}
 			$value = intval($value, 10);
 			$file = File::find($value);
-			return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId() || !in_array($file->getExtension(), explode("-", $parameters[0]), true));
+			// issue is that in_use is 1
+			//TODO: need to make sure it's only possible for a fule to belong to one thing.
+			// at the moment a user could submit a file id twice in the same form for 2 different things and I don't think it would be caught.
+			return !(is_null($file) || $file->in_use || is_null($file->session_id) || $file->session_id !== Session::getId());
 		};
 	}
 	
@@ -108,7 +115,8 @@ class FormHelpers {
 		return '<span class="help-block">'.e($msg).'</span>';
 	}
 	
-	public static function getFileUploadElement($formInputName, $uploadPointId, $extensions, $currentFileName, $currentFileSize, $value, $remoteRemove) {
+	public static function getFileUploadElement($formInputName, $uploadPointId, $currentFileName, $currentFileSize, $value, $remoteRemove) {
+		$extensions = FormHelpers::getUploadPointExtensions($uploadPointId);
 		$remoteRemoveVal = $remoteRemove?"1":"0";
 		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-uploadpointid="'.e($uploadPointId).'" data-remoteremove="'.e($remoteRemoveVal).'"></div><input type="hidden" data-virtualform="1" name="'.e($formInputName).'" value="'.e($value).'" />';
 	}
@@ -138,8 +146,8 @@ class FormHelpers {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><textarea data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'">'.e($val).'</textarea>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $allowedFileTypes, $fileName, $fileSize, $remoteRemove) {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $allowedFileTypes, $fileName, $fileSize, $val, $remoteRemove).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $remoteRemove) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $fileName, $fileSize, $val, $remoteRemove).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
 	public static function getFormSelectInput($formId, $txt, $name, $val, $options, $formErrors) {
@@ -216,5 +224,17 @@ class FormHelpers {
 			$uri .= urlencode($b)."=".urlencode($a);
 		}
 		return $uri;
+	}
+	
+	public static function getUploadPointExtensions($uploadPointId) {
+		
+		if (in_array($uploadPointId, self::$uploadPointExtensionsCache)) {
+			return self::$uploadPointExtensionsCache[$uploadPointId];
+		}
+		$a = UploadPoint::with("fileType", "fileType.extensions")->findOrFail(Config::get("uploadPoints.coverImage"));
+		$extensions = $a->fileType->getExtensionsArray();
+		// add to cache
+		self::$uploadPointExtensionsCache[$a->id] = $extensions;
+		return $extensions;
 	}
 }

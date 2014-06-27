@@ -6,8 +6,8 @@
 		<?=FormHelpers::getFormCheckInput(1, "Enabled", "enabled", $form['enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
-		<?=FormHelpers::getFormUploadInput(1, $coverImageUploadPointId, "Cover Image (Optional)", "cover-image-id", $form['cover-image-id'], $formErrors, AllowedFileTypesHelper::getImages(), $form['cover-image-file-name'], $form['cover-image-file-size'], !$editing);?>
-		<?=FormHelpers::getFormUploadInput(1, $sideBannersImageUploadPointId, "Side Banners Image (Optional)", "side-banners-image-id", $form['side-banners-image-id'], $formErrors, AllowedFileTypesHelper::getImages(), $form['side-banners-image-file-name'], $form['side-banners-image-file-size'], !$editing);?>
+		<?=FormHelpers::getFormUploadInput(1, $coverImageUploadPointId, "Cover Image (Optional)", "cover-image-id", $form['cover-image-id'], $formErrors, $form['cover-image-file-name'], $form['cover-image-file-size'], !$editing);?>
+		<?=FormHelpers::getFormUploadInput(1, $sideBannersImageUploadPointId, "Side Banners Image (Optional)", "side-banners-image-id", $form['side-banners-image-id'], $formErrors, $form['side-banners-image-file-name'], $form['side-banners-image-file-size'], !$editing);?>
 		<div class="panel-group custom-accordian" data-grouptogether="0">
 			<div class="panel panel-default vod-panel">
 				<div class="panel-heading">
@@ -24,7 +24,7 @@
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "vod-enabled", $form['vod-enabled']==="y", $formErrors);?>
 							<?=FormHelpers::getFormTxtInput(1, "Name (Optional)", "vod-name", $form['vod-name'], $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "vod-description", $form['vod-description'], $formErrors);?>
-							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, AllowedFileTypesHelper::getVideos(), $form['vod-video-file-name'], $form['vod-video-file-size'], !$editing);?>
+							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $form['vod-video-file-name'], $form['vod-video-file-size'], !$editing);?>
 							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
 							<?=FormHelpers::getFormDateInput(1, "Scheduled Publish Time (Optional)", "vod-publish-time", $form['vod-publish-time'], $formErrors);?>
 							<?=FormHelpers::getFormCheckInput(1, "Live Recording", "vod-live-recording", $form['vod-live-recording']==="y", $formErrors);?>
