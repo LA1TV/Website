@@ -123,7 +123,6 @@ class UploadManager {
 	// the first parameter is the upload point id and this is used to check that the file being registered is one that was uploaded at the expected upload point
 	// optionally pass in the File object of a file that this will be replacing.
 	// returns the File model of the registered file or null if $fileId was null
-	// if the $fileId doesn't match a file an exception will be thrown.
 	// if the $fileId is null then the $fileToReplace will be removed and null will be returned.
 	public static function register($uploadPointId, $fileId, File $fileToReplace=null) {
 		
