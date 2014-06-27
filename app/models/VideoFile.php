@@ -13,8 +13,4 @@ class VideoFile extends MyEloquent {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
 	
-	public function vodVideoGroup() {
-		return $this->belongsTo(self::$p.'VodVideoGroup', 'vod_video_group_id');
-	}
-	
 }

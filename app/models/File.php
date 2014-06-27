@@ -14,6 +14,9 @@ class File extends MyEloquent {
 	protected static function boot() {
 		parent::boot();
 		self::saving(function($model) {
+			
+			$parentFileForeignKey = $model->parentFile()->getForeignKey();
+			
 			if ($model->exists && $model->original["in_use"] && !$model->in_use && !$model->ready_for_delete) {
 				throw(new Exception("The file can only be marked in_use once."));
 			}
@@ -27,11 +30,12 @@ class File extends MyEloquent {
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->vodVideoGroups()) ||
-				!EloquentHelpers::getIsForeignNull($model->videoFile()) ||
-				!EloquentHelpers::getIsForeignNull($model->thumbnailFiles()) ||
-				!EloquentHelpers::getIsForeignNull($model->thumbnailFile())
+				!EloquentHelpers::getIsForeignNull($model->videoFile())
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
+			}
+			else if ($model->original[$parentFileForeignKey] !== $model->$parentFileForeignKey) {
+				throw(new Exception("The parent file should only be set externally."));
 			}
 
 			return true;
