@@ -45,7 +45,7 @@ class FormHelpers {
 	}
 	
 	public static function getInvalidFileMsg() {
-		return "This file type is not allowed.";
+		return "An error occurred with this file.";
 	}
 	
 	public static function getRequiredMsg() {
@@ -231,7 +231,7 @@ class FormHelpers {
 		if (in_array($uploadPointId, self::$uploadPointExtensionsCache)) {
 			return self::$uploadPointExtensionsCache[$uploadPointId];
 		}
-		$a = UploadPoint::with("fileType", "fileType.extensions")->findOrFail(Config::get("uploadPoints.coverImage"));
+		$a = UploadPoint::with("fileType", "fileType.extensions")->findOrFail($uploadPointId);
 		$extensions = $a->fileType->getExtensionsArray();
 		// add to cache
 		self::$uploadPointExtensionsCache[$a->id] = $extensions;
