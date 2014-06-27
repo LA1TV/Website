@@ -15,7 +15,6 @@ use uk\co\la1tv\website\models\SiteUser;
 use uk\co\la1tv\website\models\User;
 use uk\co\la1tv\website\models\VideoFile;
 use uk\co\la1tv\website\models\QualityDefinition;
-use uk\co\la1tv\website\models\VodVideoGroup;
 
 class TruncateTablesSeeder extends Seeder {
 
@@ -42,7 +41,6 @@ class TruncateTablesSeeder extends Seeder {
 		SiteUser::truncate();
 		User::truncate();
 		VideoFile::truncate();
-		VodVideoGroup::truncate();
 		DB::table("media_item_to_playlist")->truncate();
 		DB::table("permission_to_group")->truncate();
 		DB::table("user_to_group")->truncate();
