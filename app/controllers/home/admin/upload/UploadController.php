@@ -59,15 +59,15 @@ class UploadController extends UploadBaseController {
 		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);		
 	}
 	
-	// get information about a temporary file
-	public function postInfo() {
-		$resp = array("success"=> false);
+	// get process info about a file
+	public function postProcessInfo() {
+		$resp = array("success"=> false, "payload"=>null);
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
-			$file = $this->getFile($id);
+			// TODO: the info should only be returned if the file should be accessible to the public so a check is needed here
+			$file = File::find($id);
 			if (!is_null($file)) {
-				$resp['fileName'] = $file->filename;
-				$resp['fileSize'] = $file->size;
+				$resp['payload'] = $file->getProcessInfo();
 				$resp['success'] = true;
 			}
 		}
