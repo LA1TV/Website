@@ -2,7 +2,6 @@
 
 use EloquentHelpers;
 use Exception;
-use uk\co\la1tv\website\fileTypeObjs\FileTypeObjBuilder;
 
 // FILE MODELS SHOULD NOT BE CREATED MANUALLY. They should be created and managed using the Upload service provider.
 
@@ -29,12 +28,13 @@ class File extends MyEloquent {
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
-				!EloquentHelpers::getIsForeignNull($model->vodVideoGroups()) ||
 				!EloquentHelpers::getIsForeignNull($model->videoFile())
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
-			else if ($model->original[$parentFileForeignKey] !== $model->$parentFileForeignKey) {
+			else if (	($model->exists && $model->original[$parentFileForeignKey] !== $model->$parentFileForeignKey) ||
+						(!$model->exists && !is_null($model->$parentFileForeignKey))
+					) {
 				throw(new Exception("The parent file should only be set externally."));
 			}
 
@@ -70,10 +70,6 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'Playlist', 'side_banner_file_id');
 	}
 	
-	public function vodVideoGroups() {
-		return $this->hasMany(self::$p.'VodVideoGroup', 'source_file_id');
-	}
-	
 	public function videoFile() {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
 	}
@@ -94,10 +90,6 @@ class File extends MyEloquent {
 	public function markReadyForDelete() {
 		$this->in_use = false;
 		$this->ready_for_delete = true;
-	}
-	
-	public function getFileTypeObj() {
-		return FileTypeObjectBuilder::retrieve($this);
 	}
 	
 	//returns array containing these keys;
