@@ -43,6 +43,7 @@ class FileTypesSeeder extends Seeder {
 					foreach($toAdd as $b) {
 						$f->extensions()->attach(FileExtension::find($b));
 					}
+					// TODO: THIS IS BROKEN. not removing extensions that are no longer in list
 				});
 			}
 			else {
