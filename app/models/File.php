@@ -74,12 +74,12 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
 	}
 	
-	public function thumbnailFiles() {
-		return $this->hasMany(self::$p.'CoverArtFile', 'source_file_id');
+	public function parentFile() {
+		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}
 	
-	public function thumbnailFile() {
-		return $this->hasOne(self::$p.'CoverArtFile', 'file_id');
+	public function sourceFiles() {
+		return $this->hasMany(self::$p.'File', 'source_file_id');
 	}
 	
 	public function getExtension() {

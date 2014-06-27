@@ -58,13 +58,15 @@ abstract class FileObj {
 		return;
 	}
 	
-	// return the process stage that this file is at
-	public function processStage() {
-		return 0;
+	// return the stage of any processing that is occurring with this as the source file.
+	// should return a FileProcessStats object
+	// e.g. for video files the video source file will return the process that the system is at in rendering the other versions of the file.
+	public function getProcess() {
+		return new FileProcessStat();
 	}
 	
-	// return true if an error has occurred with this file
+	// return true if an error has occurred with the processing of this file
 	public function hasError() {
-		return false;
+		return $this->getProcess()->getError();
 	}
 }
