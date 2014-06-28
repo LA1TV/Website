@@ -42,6 +42,14 @@ class File extends MyEloquent {
 		});
 	}
 	
+	public function getProcessStateAttribute($state) {
+		$stateInt = intval($state, 10);
+		if ($stateInt < 0 || $stateInt > 2) {
+			throw(new Exception("Invalid process state."));
+		}
+		return $state;
+	}
+	
 	public function fileType() {
 		return $this->belongsTo(self::$p.'FileType', 'file_type_id');
 	}

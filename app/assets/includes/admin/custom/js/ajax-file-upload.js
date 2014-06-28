@@ -69,7 +69,7 @@ $(document).ready(function() {
 		var btnState = null;
 		var progress = null;
 		var errorMsg = null;
-		var state = 0; // 0=choose file, 1=uploading, 2=uploaded, 3=error
+		var state = 0; // 0=choose file, 1=uploading, 2=uploaded and processed (even if process error), 3=error, 4=uploaded and processing
 		var cancelling = false;
 		var defaultId = $idInput.val();
 		defaultId = defaultId === "" ? null : parseInt(defaultId, 10);
@@ -117,7 +117,7 @@ $(document).ready(function() {
 			}
 		};
 		
-		// state: 0=normal, 1=success, 2=error
+		// state: 0=normal, 1=success, 2=error, 3=working
 		var updateTxt = function(state, txt) {
 			
 			if (currentTxt !== txt) {
@@ -126,7 +126,7 @@ $(document).ready(function() {
 			}
 			
 			if (txtState !== state) {
-				$txt.removeClass("text-success text-danger");
+				$txt.removeClass("text-success text-danger text-info");
 				if (state === 0) { //normal
 					// intentional
 				}
@@ -135,6 +135,9 @@ $(document).ready(function() {
 				}
 				else if (state === 2) { //error
 					$txt.addClass("text-danger");
+				}
+				else if (state === 3) { //working
+					$txt.addClass("text-info");
 				}
 				txtState = state;
 			}
@@ -170,7 +173,7 @@ $(document).ready(function() {
 				if (state === 0) {
 					updateTxt(0, "Choose file.");
 				}
-				else if (state === 3) {
+				else if (state === 3 || state === 4) {
 					updateTxt(2, errorMsg);
 				}
 				updateBtn(0);
@@ -181,10 +184,15 @@ $(document).ready(function() {
 				updateBtn(1);
 				updateProgressBar(1, progress);
 			}
-			else if (state === 2) { // uploaded
+			else if (state === 2) { // uploaded and processed
 				updateTxt(1, '"'+fileName+'" ('+formatFileSize(fileSize)+') uploaded!');
 				updateBtn(2);
 				updateProgressBar(2, progress);
+			}
+			else if (state === 4) { // uploaded and processing
+				updateTxt(3, '"'+fileName+'" ('+formatFileSize(fileSize)+') processing...');
+				updateBtn(2);
+				updateProgressBar(1, progress);
 			}
 		};
 		
@@ -196,9 +204,8 @@ $(document).ready(function() {
 			processPercentage = $(this).attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($(this).attr("data-ajaxuploadprocesspercentage"), 10) : null;
 			processMsg = $(this).attr("data-ajaxuploadprocessmsg") !== "" ? $(this).attr("data-ajaxuploadprocessmsg") : null;
 			progress = 100;
-			state = 2;
+			state = processState === 1 ? 2 : 4;
 		}
-		console.log(processState, processPercentage, processMsg);
 		update();
 		
 		var errorOccurred = function() {
@@ -278,10 +285,16 @@ $(document).ready(function() {
 				// might as well update these so it now shows the exact values the server calculated
 				fileName = result.fileName;
 				fileSize = result.fileSize;
+				processState = result.processInfo.state;
+				processPercentage = result.processInfo.percentage;
+				processMsg = result.processInfo.msg;
 				$(self).attr("data-ajaxuploadcurrentfilename", fileName);
 				$(self).attr("data-ajaxuploadcurrentfilesize", fileSize);
+				$(self).attr("data-ajaxuploadprocessstate", processState);
+				$(self).attr("data-ajaxuploadprocesspercentage", processPercentage);
+				$(self).attr("data-ajaxuploadprocessMsg", processMsg);
 				progress = 100;
-				state = 2
+				state = processState === 1 ? 2 : 4;
 				update();
 			}
 		});
@@ -302,7 +315,7 @@ $(document).ready(function() {
 				cancelling = true;
 				jqXHR.abort(); // this triggers the error callback
 			}
-			else if (state === 2) {
+			else if (state === 2 || state === 4) {
 				if (!confirm("Are you sure you want to remove this upload?")) {
 					return;
 				}
