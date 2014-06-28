@@ -115,10 +115,10 @@ class FormHelpers {
 		return '<span class="help-block">'.e($msg).'</span>';
 	}
 	
-	public static function getFileUploadElement($formInputName, $uploadPointId, $currentFileName, $currentFileSize, $value, $remoteRemove) {
+	public static function getFileUploadElement($formInputName, $uploadPointId, $currentFileName, $currentFileSize, $value, $remoteRemove, $processState, $processPercentage, $processMsg) {
 		$extensions = FormHelpers::getUploadPointExtensions($uploadPointId);
 		$remoteRemoveVal = $remoteRemove?"1":"0";
-		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-uploadpointid="'.e($uploadPointId).'" data-remoteremove="'.e($remoteRemoveVal).'"></div><input type="hidden" data-virtualform="1" name="'.e($formInputName).'" value="'.e($value).'" />';
+		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-uploadpointid="'.e($uploadPointId).'" data-remoteremove="'.e($remoteRemoveVal).'" data-processstate="'.e($processState).'" data-processpercentage="'.e($processPercentage).'" data-processmsg="'.e($processMsg).'"></div><input type="hidden" data-virtualform="1" name="'.e($formInputName).'" value="'.e($value).'" />';
 	}
 	
 	public static function getFormGroupStart($name, $formErrors) {
@@ -146,8 +146,8 @@ class FormHelpers {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><textarea data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'">'.e($val).'</textarea>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $remoteRemove) {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $fileName, $fileSize, $val, $remoteRemove).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $remoteRemove, $processState, $processPercentage, $processMsg) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $fileName, $fileSize, $val, $remoteRemove, $processState, $processPercentage, $processMsg).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
 	public static function getFormSelectInput($formId, $txt, $name, $val, $options, $formErrors) {
@@ -236,5 +236,28 @@ class FormHelpers {
 		// add to cache
 		self::$uploadPointExtensionsCache[$a->id] = $extensions;
 		return $extensions;
+	}
+	
+	public static function getFileInfo($fileId) {
+		$info = array(
+			"name"	=> "",
+			"size"	=> "",
+			"processState"	=> "",
+			"processPercentage"	=> "",
+			"processMsg"	=> ""
+		);
+		if ($fileId === "") {
+			return $info;
+		}
+		
+		$file = File::find(intval($fileId, 10));
+		if (!is_null($file)) {
+			$info['name'] = $file->filename;
+			$info['size'] = $file->size;
+			$info['processState'] = $file->process_state;
+			$info['processPercentage'] = !is_null($file->process_percentage) ? $file->process_percentage : "";
+			$info['processMsg'] = !is_null($file->msg) ? $file->msg : "";
+		}
+		return $info;
 	}
 }

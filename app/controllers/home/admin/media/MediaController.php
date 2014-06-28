@@ -121,34 +121,12 @@ class MediaController extends MediaBaseController {
 			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id"))
 		), !$formSubmitted);
 		
-		// now set filenames and sizes
-		$formData['cover-image-file-name'] = "";
-		$formData['cover-image-file-size'] = "";
-		$formData['side-banners-image-file-name'] = "";
-		$formData['side-banners-image-file-size'] = "";
-		$formData['vod-video-file-name'] = "";
-		$formData['vod-video-file-size'] = "";
-		if ($formData['cover-image-id'] !== "") {
-			$file = File::find($formData['cover-image-id']);
-			if (!is_null($file)) {
-				$formData['cover-image-file-name'] = $file->filename;
-				$formData['cover-image-file-size'] = $file->size;
-			}
-		}
-		if ($formData['side-banners-image-id'] !== "") {
-			$file = File::find($formData['side-banners-image-id']);
-			if (!is_null($file)) {
-				$formData['side-banners-image-file-name'] = $file->filename;
-				$formData['side-banners-image-file-size'] = $file->size;
-			}
-		}
-		if ($formData['vod-video-id'] !== "") {
-			$file = File::find($formData['vod-video-id']);
-			if (!is_null($file)) {
-				$formData['vod-video-file-name'] = $file->filename;
-				$formData['vod-video-file-size'] = $file->size;
-			}
-		}
+		// this will contain any additional data which does not get saved anywhere
+		$additionalFormData = array(
+			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
+			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
+			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id'])
+		);
 		
 		$errors = null;
 		
@@ -327,6 +305,7 @@ class MediaController extends MediaBaseController {
 		$view->editing = $editing;
 		$view->streamOptions = $streamOptions;
 		$view->form = $formData;
+		$view->additionalForm = $additionalFormData;
 		$view->formErrors = $errors;
 		// used to uniquely identify these file upload points on the site. Must not appear anywhere else.
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");

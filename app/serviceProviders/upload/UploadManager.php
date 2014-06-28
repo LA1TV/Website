@@ -78,6 +78,7 @@ class UploadManager {
 								$this->responseData['id'] = $fileDb->id;
 								$this->responseData['fileName'] = $fileName;
 								$this->responseData['fileSize'] = $fileSize;
+								$this->responseData['processInfo'] = $fileDb->getProcessInfo();
 							}
 							else {
 								DB::rollback();
@@ -183,26 +184,4 @@ class UploadManager {
 			}
 		}
 	}
-
-	// return an information array about the file
-	// there may be extra information available for certain file types
-	// eager load the 'fileType' relation with the model before this function for best performance
-	
-	// TODO: work in progress
-/*	public static function getInfo(File $file) {
-		$info = array(
-			"name"	=> $file->filename,
-			"size"	=> $file->size
-		);
-		$type = $file->fileType();
-		if ($type->id == 3) { // vod video uploads
-			
-		}
-		else if ($type->id == 4) { // cover art for media
-		
-		}
-		
-		return $info;
-	}
-*/
 }
