@@ -263,7 +263,16 @@ $(document).ready(function() {
 				updateProgressBar(2, progress);
 			}
 			else if (state === 4) { // uploaded and processing
-				var str = processMsg === null ? fileStr+' processing...' : fileStr+' processing: '+processMsg;
+				var str = null;
+				if (processMsg !== null) {
+					str = fileStr+' processing: '+processMsg;
+					if (processPercentage !== null) {
+						str += " "+processPercentage+"%";
+					}
+				}
+				else {
+					str =  fileStr+' processing...';
+				}
 				updateTxt(3, str);
 				updateBtn(2);
 				updateProgressBar(1, progress);
