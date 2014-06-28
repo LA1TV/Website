@@ -145,7 +145,7 @@ class MediaController extends MediaBaseController {
 					'side-banners-image-id'	=> array('valid_file_id'),
 					'vod-name'	=> array('max:50'),
 					'vod-description'	=> array('max:500'),
-			//		'vod-video-id'	=> array(('required_if:vod-added,1', 'valid_file_id'), //TODO
+					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
 					'vod-time-recorded'	=> array('my_date'),
 					'vod-publish-time'	=> array('my_date'),
 					'stream-name'	=> array('max:50'),
@@ -160,8 +160,8 @@ class MediaController extends MediaBaseController {
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
-			//		'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(), // TODO
-			//		'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(), //TODO
+					'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(),
+					'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'vod-publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
