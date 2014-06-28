@@ -214,10 +214,8 @@ class MediaController extends MediaBaseController {
 					else {
 						// remove video model if there is one
 						if (!is_null($mediaItem->videoItem)) {
-						//	dd("here");
 							// remove source file (if there is one)
 							Upload::delete($mediaItem->videoItem->sourceFile);
-							//dd($mediaItem->videoItem->sourceFile);
 							if ($mediaItem->videoItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemVideo."));
 							}
