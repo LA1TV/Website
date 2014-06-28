@@ -264,8 +264,11 @@ $(document).ready(function() {
 			}
 			else if (state === 4) { // uploaded and processing
 				var str = null;
-				if (processMsg !== null) {
-					str = fileStr+' processing: '+processMsg;
+				if (processMsg !== null || processPercentage !== null) {
+					str = fileStr+' processing:';
+					if (processMsg !== null) {
+						str += " "+processMsg;
+					}
 					if (processPercentage !== null) {
 						str += " "+processPercentage+"%";
 					}
