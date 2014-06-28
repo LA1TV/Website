@@ -51,13 +51,16 @@ $(document).ready(function() {
 		$(this).append($progressBarContainer);
 		
 		var allowedExtensions = $(this).attr("data-ajaxuploadextensions").split(",");
-		var uploadPointId = $(this).attr("data-uploadpointid");
-		var remoteRemove = $(this).attr("data-remoteremove") === "1";
+		var uploadPointId = $(this).attr("data-ajaxuploaduploadpointid");
+		var remoteRemove = $(this).attr("data-ajaxuploadremoteremove") === "1";
 		var maxFileLength = 50;
 		
 		var jqXHR = null;
 		var fileName = null;
 		var fileSize = null;
+		var processState = null;
+		var processPercentage = null;
+		var processMsg = null;
 		var progressBarVisible = false;
 		var progressBarActive = false;
 		var progressBarPercent = null;
@@ -189,10 +192,13 @@ $(document).ready(function() {
 			// populate with default values
 			fileName = $(this).attr("data-ajaxuploadcurrentfilename");
 			fileSize = parseInt($(this).attr("data-ajaxuploadcurrentfilesize"), 10);
+			processState = parseInt($(this).attr("data-ajaxuploadprocessstate"), 10);
+			processPercentage = $(this).attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($(this).attr("data-ajaxuploadprocesspercentage"), 10) : null;
+			processMsg = $(this).attr("data-ajaxuploadprocessmsg") !== "" ? $(this).attr("data-ajaxuploadprocessmsg") : null;
 			progress = 100;
 			state = 2;
 		}
-		
+		console.log(processState, processPercentage, processMsg);
 		update();
 		
 		var errorOccurred = function() {
