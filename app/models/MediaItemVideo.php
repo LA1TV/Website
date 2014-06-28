@@ -13,6 +13,10 @@ class MediaItemVideo extends MyEloquent {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}
 	
+	public function coverArtFile() {
+		return $this->belongsTo(self::$p.'File', 'cover_art_file_id');
+	}
+	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
 	}

@@ -82,6 +82,10 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
 	}
 	
+	public function coverArtFile() {
+		return $this->hasOne(self::$p.'MediaItemVideo', 'cover_art_file_id');
+	}
+	
 	public function parentFile() {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}

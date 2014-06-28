@@ -109,6 +109,7 @@ class MediaController extends MediaBaseController {
 			array("vod-enabled", ObjectHelpers::getProp(false, $mediaItem, "videoItem", "enabled")?"y":""),
 			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
 			array("vod-description", ObjectHelpers::getProp("", $mediaItem, "videoItem", "description")),
+			array("vod-cover-art-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "coverArtFile", "id")),
 			array("vod-video-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "sourceFile", "id")),
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded")),
 			array("vod-publish-time", ObjectHelpers::getProp("", $mediaItem, "videoItem", "scheduled_publish_time")),
@@ -125,7 +126,8 @@ class MediaController extends MediaBaseController {
 		$additionalFormData = array(
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
-			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id'])
+			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
+			"vodCoverArtFile"		=> FormHelpers::getFileInfo($formData['vod-cover-art-id'])
 		);
 		
 		$errors = null;
@@ -146,6 +148,7 @@ class MediaController extends MediaBaseController {
 					'vod-name'	=> array('max:50'),
 					'vod-description'	=> array('max:500'),
 					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
+					'vod-cover-art-id'	=> array('valid_file_id'),
 					'vod-time-recorded'	=> array('my_date'),
 					'vod-publish-time'	=> array('my_date'),
 					'stream-name'	=> array('max:50'),
@@ -160,6 +163,7 @@ class MediaController extends MediaBaseController {
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+					'vod-cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(),
 					'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
@@ -210,12 +214,17 @@ class MediaController extends MediaBaseController {
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
 						$file = Upload::register(Config::get("uploadPoints.vodVideo"), $vodVideoId, $mediaItemVideo->sourceFile);
 						EloquentHelpers::associateOrNull($mediaItemVideo->sourceFile(), $file);
+						
+						$vodCoverArtId = FormHelpers::nullIfEmpty($formData['vod-cover-art-id']);
+						$file = Upload::register(Config::get("uploadPoints.vodCoverArt"), $vodCoverArtId, $mediaItemVideo->coverArtFile);
+						EloquentHelpers::associateOrNull($mediaItemVideo->coverArtFile(), $file);
 					}
 					else {
 						// remove video model if there is one
 						if (!is_null($mediaItem->videoItem)) {
-							// remove source file (if there is one)
+							// remove source file and cover art file (if there is one)
 							Upload::delete($mediaItem->videoItem->sourceFile);
+							Upload::delete($mediaItem->videoItem->coverArtFile);
 							if ($mediaItem->videoItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemVideo."));
 							}
@@ -308,6 +317,7 @@ class MediaController extends MediaBaseController {
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
 		$view->vodVideoUploadPointId = Config::get("uploadPoints.vodVideo");
+		$view->vodCoverArtUploadPointId = Config::get("uploadPoints.vodCoverArt");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
 	
 		$this->setContent($view, "media", "media-edit");
@@ -324,7 +334,8 @@ class MediaController extends MediaBaseController {
 					Upload::delete(array(
 						$mediaItem->sideBannerFile,
 						$mediaItem->coverFile,
-						ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile")
+						ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile"),
+						ObjectHelpers::getProp(null, $mediaItem->videoItem, "coverArtFile")
 					));
 					
 					if ($mediaItem->delete() === false) {
