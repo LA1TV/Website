@@ -210,15 +210,14 @@ class MediaController extends MediaBaseController {
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
 						$file = Upload::register(Config::get("uploadPoints.vodVideo"), $vodVideoId, $mediaItemVideo->sourceFile);
 						EloquentHelpers::associateOrNull($mediaItemVideo->sourceFile(), $file);
-						
 					}
 					else {
 						// remove video model if there is one
 						if (!is_null($mediaItem->videoItem)) {
-							
+						//	dd("here");
 							// remove source file (if there is one)
 							Upload::delete($mediaItem->videoItem->sourceFile);
-						
+							//dd($mediaItem->videoItem->sourceFile);
 							if ($mediaItem->videoItem->delete() === false) {
 								throw(new Exception("Error deleting MediaItemVideo."));
 							}

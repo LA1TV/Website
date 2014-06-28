@@ -181,6 +181,7 @@ class UploadManager {
 		foreach($files as $a) {
 			if (!is_null($a)) {
 				$a->markReadyForDelete();
+				$a->save();
 			}
 		}
 	}
