@@ -60,7 +60,7 @@ class UploadController extends UploadBaseController {
 	}
 	
 	// get process info about a file
-	public function postProcessInfo() {
+	public function postProcessinfo() {
 		$resp = array("success"=> false, "payload"=>null);
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);

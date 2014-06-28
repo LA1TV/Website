@@ -107,10 +107,9 @@ class File extends MyEloquent {
 	//  - msg (may be null)
 	public function getProcessInfo() {
 		return array(
-			"processed"	=>  $this->processState == 2,
-			"error"		=> $this->processState == 3,
-			"processPercentage"	=> !is_null($this->process_percentage) ? intval($this->process_percentage, 10) : null,
-			"msg"		=> $this->msg
+			"state"			=>  intval($this->process_state, 10),
+			"percentage"	=> !is_null($this->process_percentage) ? intval($this->process_percentage, 10) : null,
+			"msg"			=> $this->msg
 		);
 	}
 

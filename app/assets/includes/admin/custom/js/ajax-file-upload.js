@@ -56,6 +56,8 @@ $(document).ready(function() {
 		var maxFileLength = 50;
 		
 		var jqXHR = null;
+		var id = $idInput.val();
+		id = id === "" ? null : parseInt(id, 10);
 		var fileName = null;
 		var fileSize = null;
 		var processState = null;
@@ -71,8 +73,7 @@ $(document).ready(function() {
 		var errorMsg = null;
 		var state = 0; // 0=choose file, 1=uploading, 2=uploaded and processed (even if process error), 3=error, 4=uploaded and processing
 		var cancelling = false;
-		var defaultId = $idInput.val();
-		defaultId = defaultId === "" ? null : parseInt(defaultId, 10);
+		var defaultId = id;
 		
 		// state: 0=hidden, 1=visible and active, 2=visible
 		var updateProgressBar = function(state, progress) {
@@ -166,9 +167,65 @@ $(document).ready(function() {
 			}
 		};
 		
+		// update the process state
+		// this makes an ajax request and updates the processState, processPercentage, and processMsg variables and then calls update
+		// this function will automatically be called at set intervals after the first call. However ajax requests will only be made when necessary
+		var updateProcessState = function() {
+			
+			var startTimer = function() {
+				setTimeout(updateProcessState, 2000);
+			};
+			
+			if (id === null || processState !== 0) {
+				// no file uploaded or the uploaded file has finished processing.
+				startTimer();
+				return;
+			}
+			
+			// the order that the js files are loaded is indeterminable so the file containing this function might not have been loaded yet.
+			// if this is the case just ignore and try again later. This could be improved by using something like requireJS in the future to manage dependencies.
+			if (typeof(getCsrfToken) !== "function") {
+				startTimer();
+				return;
+			}
+			
+			var theId = id;
+			
+			jQuery.ajax(baseUrl+"/admin/upload/processinfo", {
+				cache: false,
+				dataType: "json",
+				data: {
+					id: id,
+					csrf_token: getCsrfToken()
+				},
+				type: "POST"
+			}).done(function(data) {
+				if (data.success) {
+					var processInfo = data.payload;
+					processState = processInfo.state;
+					processPercentage = processInfo.percentage;
+					processMsg = processInfo.msg;
+					
+					if (processState !== 0 && state === 4 && id === theId) {
+						// if finished processing and state hasn't been changed somewhere else, and it's still the same file
+						state = 2; // uploaded and processed (or error processing)
+					}
+					update();
+				}
+			}).always(function() {
+				// call this function again in 2 seconds
+				startTimer();
+			});
+		};
+		
 		// update the dom
 		var update = function() {
-			var str = "";
+			
+			var fileStr = "";
+			if (state === 1 || state === 2 || state === 4) {
+				fileStr = '"'+fileName+'" ('+formatFileSize(fileSize)+')';
+			}
+		
 			if (state === 0 || state === 3) { // choose file
 				if (state === 0) {
 					updateTxt(0, "Choose file.");
@@ -180,17 +237,34 @@ $(document).ready(function() {
 				updateProgressBar(0);
 			}
 			else if (state === 1) { // uploading
-				updateTxt(0, 'Uploading "'+fileName+'" ('+formatFileSize(fileSize)+'). '+progress+"%");
+				updateTxt(0, 'Uploading '+fileStr+': '+progress+"%");
 				updateBtn(1);
 				updateProgressBar(1, progress);
 			}
 			else if (state === 2) { // uploaded and processed
-				updateTxt(1, '"'+fileName+'" ('+formatFileSize(fileSize)+') uploaded!');
+				var str = null;
+				if (processState === 1) { // processed successfully
+					str = fileStr+' uploaded and processed!';
+				}
+				else if (processState === 2) { // error processing
+					if (processMsg !== null) {
+						str = 'Error processing '+fileStr+': '+processMsg;
+					}
+					else {
+						str = 'Error processing '+fileStr+'.';
+					}
+				}
+				else {
+					console.log("ERROR: Invalid process state.");
+					return;
+				}
+				updateTxt(processState === 1 ? 1 : 2, str);
 				updateBtn(2);
 				updateProgressBar(2, progress);
 			}
 			else if (state === 4) { // uploaded and processing
-				updateTxt(3, '"'+fileName+'" ('+formatFileSize(fileSize)+') processing...');
+				var str = processMsg === null ? fileStr+' processing...' : fileStr+' processing: '+processMsg;
+				updateTxt(3, str);
 				updateBtn(2);
 				updateProgressBar(1, progress);
 			}
@@ -204,8 +278,10 @@ $(document).ready(function() {
 			processPercentage = $(this).attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($(this).attr("data-ajaxuploadprocesspercentage"), 10) : null;
 			processMsg = $(this).attr("data-ajaxuploadprocessmsg") !== "" ? $(this).attr("data-ajaxuploadprocessmsg") : null;
 			progress = 100;
-			state = processState === 1 ? 2 : 4;
+			state = processState !== 0 ? 2 : 4;
 		}
+		
+		updateProcessState(); // starts periodic checks
 		update();
 		
 		var errorOccurred = function() {
@@ -279,22 +355,25 @@ $(document).ready(function() {
 					errorOccurred();
 					return;
 				}
-				// place the file id in the hidden element
-				$idInput.val(result.id);
 				noUploads--;
-				// might as well update these so it now shows the exact values the server calculated
+				
+				id = result.id;
 				fileName = result.fileName;
 				fileSize = result.fileSize;
 				processState = result.processInfo.state;
 				processPercentage = result.processInfo.percentage;
 				processMsg = result.processInfo.msg;
+				
+				// place the file id in the hidden element
+				$idInput.val(result.id);
+				
 				$(self).attr("data-ajaxuploadcurrentfilename", fileName);
 				$(self).attr("data-ajaxuploadcurrentfilesize", fileSize);
 				$(self).attr("data-ajaxuploadprocessstate", processState);
 				$(self).attr("data-ajaxuploadprocesspercentage", processPercentage);
 				$(self).attr("data-ajaxuploadprocessMsg", processMsg);
 				progress = 100;
-				state = processState === 1 ? 2 : 4;
+				state = processState !== 0 ? 2 : 4;
 				update();
 			}
 		});
@@ -320,13 +399,20 @@ $(document).ready(function() {
 					return;
 				}
 				// clear current upload
-				var id = parseInt($idInput.val(), 10);
+				tmpId = id;
 				$idInput.val("");
+				id = null;
 				fileName = null;
 				fileSize = null;
+				processState = null;
+				processPercentage = null;
+				processMsg = null;
 				$(self).attr("data-ajaxuploadcurrentfilename", "");
 				$(self).attr("data-ajaxuploadcurrentfilesize", "");
-				if (remoteRemove || id !== defaultId) {
+				$(self).attr("data-ajaxuploadprocessstate", "");
+				$(self).attr("data-ajaxuploadprocesspercentage", "");
+				$(self).attr("data-ajaxuploadprocessMsg", "");
+				if (remoteRemove || tmpId !== defaultId) {
 					// make ajax request to server to tell it to remove the temporary file immediately
 					// don't really care if it fails because the file will be removed when the session ends anyway
 					// this will not be made if the user is removing the file that is already saved because remoteRemove should be false and the id should match the one that was there when the page was loaded (because the user could cancel the form and it should still be on the server)
@@ -334,7 +420,7 @@ $(document).ready(function() {
 						cache: false,
 						dataType: "json",
 						data: {
-							id: id,
+							id: tmpId,
 							csrf_token: getCsrfToken()
 						},
 						type: "POST"
