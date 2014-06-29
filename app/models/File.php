@@ -15,6 +15,7 @@ class File extends MyEloquent {
 		self::saving(function($model) {
 			
 			$parentFileForeignKey = $model->parentFile()->getForeignKey();
+			$uploadPointForeignKey = $model->uploadPoint()->getForeignKey();
 			
 			if ($model->exists && $model->original["in_use"] && !$model->in_use && !$model->ready_for_delete) {
 				throw(new Exception("The file can only be marked in_use once."));
@@ -36,6 +37,9 @@ class File extends MyEloquent {
 						(!$model->exists && !is_null($model->$parentFileForeignKey))
 					) {
 				throw(new Exception("The parent file should only be set externally."));
+			}
+			else if ($model->exists && $model->original[$uploadPointForeignKey] !== $model->$uploadPointForeignKey) {
+				throw(new Exception("The upload point can only be set on creation."));
 			}
 
 			return true;
