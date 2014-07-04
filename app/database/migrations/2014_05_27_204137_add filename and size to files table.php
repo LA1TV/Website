@@ -14,7 +14,7 @@ class AddFilenameAndSizeToFilesTable extends Migration {
 	{
 		Schema::table('files', function(Blueprint $table)
 		{
-			$table->string("filename", 50);
+			$table->string("filename", 50)->nullable();
 			$table->bigInteger("size")->unsigned();
 			$table->string("session_id", 255)->nullable();
 			
