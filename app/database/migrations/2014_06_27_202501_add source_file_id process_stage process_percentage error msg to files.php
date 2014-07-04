@@ -22,7 +22,7 @@ class AddSourceFileIdProcessStageProcessPercentageErrorMsgToFiles extends Migrat
 			
 			$table->index("source_file_id");
 			
-			$table->foreign("source_file_id", "source_file_id_frn")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("source_file_id", "source_file_id_frn")->references('id')->on('files')->onUpdate("restrict")->onDelete('restrict');
 
 		});
 	}

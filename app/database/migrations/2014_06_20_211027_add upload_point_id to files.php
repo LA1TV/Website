@@ -17,7 +17,7 @@ class AddUploadPointIdToFiles extends Migration {
 			$table->integer("upload_point_id")->unsigned()->nullable();
 			
 			$table->index("upload_point_id");
-			$table->foreign("upload_point_id", "upload_point_id_foreign")->references('id')->on('upload_points')->onUpdate("restrict")->onDelete('cascade');	
+			$table->foreign("upload_point_id", "upload_point_id_foreign")->references('id')->on('upload_points')->onUpdate("restrict")->onDelete('restrict');	
 
 		});
 	}
