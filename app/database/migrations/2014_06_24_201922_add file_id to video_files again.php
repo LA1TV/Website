@@ -18,7 +18,7 @@ class AddFileIdToVideoFilesAgain extends Migration {
 			
 			$table->index("file_id");
 			
-			$table->foreign("file_id", "file_id_foreign")->references('id')->on('files')->onUpdate("restrict")->onDelete('restrict');
+			$table->foreign("file_id", "file_id_foreign")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
 
 		});
 	}
