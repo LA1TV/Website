@@ -270,7 +270,7 @@ $(document).ready(function() {
 						str += " "+processMsg;
 					}
 					if (processPercentage !== null) {
-						str += " "+processPercentage+"%";
+						str += " "+processPercentage+"% complete.";
 					}
 				}
 				else {
