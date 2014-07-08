@@ -28,8 +28,7 @@ class File extends MyEloquent {
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
-				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
-				!EloquentHelpers::getIsForeignNull($model->videoFile())
+				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner())
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
@@ -41,7 +40,6 @@ class File extends MyEloquent {
 			else if ($model->exists && $model->original[$uploadPointForeignKey] !== $model->$uploadPointForeignKey) {
 				throw(new Exception("The upload point can only be set on creation."));
 			}
-
 			return true;
 		});
 	}
@@ -84,6 +82,10 @@ class File extends MyEloquent {
 	
 	public function videoFile() {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
+	}
+
+	public function imageFile() {
+		return $this->hasOne(self::$p.'ImageFile', 'file_id');
 	}
 	
 	public function coverArtFile() {
