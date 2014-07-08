@@ -16,8 +16,8 @@ class CreateVideoFilesAgain extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('media_items_video_id')->unsigned();
-			$table->smallInteger('width');
-			$table->smallInteger('height');
+			$table->smallInteger('width')->unsigned();
+			$table->smallInteger('height')->unsigned();
 			$table->tinyInteger('encode_stage')->unsigned()->default(0);
 			$table->timestamps();
 			

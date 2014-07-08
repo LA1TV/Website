@@ -15,8 +15,8 @@ class CreateImageFiles extends Migration {
 		Schema::create('image_files', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->integer("width")->unsigned();
-			$table->integer("height")->unsigned();
+			$table->smallInteger("width")->unsigned();
+			$table->smallInteger("height")->unsigned();
 			$table->integer("file_id")->unsigned();
 			$table->timestamps();
 			
