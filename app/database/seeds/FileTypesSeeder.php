@@ -12,10 +12,10 @@ class FileTypesSeeder extends Seeder {
 	 */
 	public function run() {
 		$fileTypes = array(
-			array("id"=>1, "description"=>"For side banner source images.", "extensions"=>array(1, 2)),
-			array("id"=>2, "description"=>"For cover source images.", "extensions"=>array(1, 2)),
+			array("id"=>1, "description"=>"For side banner source images.", "extensions"=>array(1, 2, 3)),
+			array("id"=>2, "description"=>"For cover source images.", "extensions"=>array(1, 2, 3)),
 			array("id"=>3, "description"=>"For vod video source uploads.", "extensions"=>array(4)),
-			array("id"=>4, "description"=>"For cover art source images.", "extensions"=>array(1, 2)),
+			array("id"=>4, "description"=>"For cover art source images.", "extensions"=>array(1, 2, 3)),
 			array("id"=>5, "description"=>"For vod video renders.", "extensions"=>array()),
 			array("id"=>6, "description"=>"For side banner image renders.", "extensions"=>array()),
 			array("id"=>7, "description"=>"For cover image renders.", "extensions"=>array()),
