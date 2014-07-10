@@ -260,4 +260,8 @@ class FormHelpers {
 		}
 		return $info;
 	}
+	
+	public static function formatDateForInput($timestamp) {
+		return date("Y-m-d\TH:i", $timestamp);
+	}
 }
