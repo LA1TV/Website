@@ -67,8 +67,8 @@ class UploadManager {
 						$fileDb->uploadPoint()->associate($uploadPoint);
 						if ($fileDb->save() !== FALSE) {
 							// move the file
-							if (move_uploaded_file($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {				
-								
+							if (move_uploaded_file($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
+							
 								// commit transaction so file record is committed to database
 								DB::commit();
 								
