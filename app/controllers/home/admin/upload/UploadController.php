@@ -19,10 +19,11 @@ class UploadController extends UploadBaseController {
 	}
 	
 	// serve up a file
+	// TODO: It think most of this logic should be moved into the upload service provider
 	public function getIndex($id) {
 		
 		// TODO: might need to eager load more relations in getIsAccessible
-		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->find($id);
+		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->where("process_state", 1)->find($id);
 		
 		if (is_null($file)) {
 			App::abort(404);
