@@ -90,7 +90,7 @@ class FormHelpers {
 			if ($value === "") {
 				return true;
 			}
-			return strtotime($value) !== FALSE && preg_match("/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/", $value) === 1;
+			return strtotime($value) !== FALSE && preg_match("/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/", $value) === 1;
 		};
 	}
 	

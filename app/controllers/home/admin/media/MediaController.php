@@ -121,7 +121,6 @@ class MediaController extends MediaBaseController {
 			array("stream-live-time", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "scheduled_live_time")),
 			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id"))
 		), !$formSubmitted);
-		dd($formData);
 		
 		// this will contain any additional data which does not get saved anywhere
 		$additionalFormData = array(
