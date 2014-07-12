@@ -14,7 +14,7 @@ class AddAuthTokenToUsers extends Migration {
 	{
 		Schema::table('users', function(Blueprint $table)
 		{
-			$table->string("auth_token", 40)->nullable();
+			$table->string("auth_token", 255)->nullable();
 		});
 	}
 

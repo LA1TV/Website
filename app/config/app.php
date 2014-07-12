@@ -97,7 +97,7 @@ return array(
 	'providers' => array(
 
 		'Illuminate\Foundation\Providers\ArtisanServiceProvider',
-		'Illuminate\Auth\AuthServiceProvider',
+	//	'Illuminate\Auth\AuthServiceProvider',
 		'Illuminate\Cache\CacheServiceProvider',
 		'Illuminate\Session\CommandsServiceProvider',
 		'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
@@ -125,6 +125,7 @@ return array(
 		
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		
+		'uk\co\la1tv\website\serviceProviders\auth\AuthServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\upload\UploadServiceProvider',
 	),
@@ -157,7 +158,7 @@ return array(
 
 		'App'             => 'Illuminate\Support\Facades\App',
 		'Artisan'         => 'Illuminate\Support\Facades\Artisan',
-		'Auth'            => 'Illuminate\Support\Facades\Auth',
+	//	'Auth'            => 'Illuminate\Support\Facades\Auth',
 		'Blade'           => 'Illuminate\Support\Facades\Blade',
 		'Carbon'          => 'Carbon\Carbon', // use laravel's carbon API for datetime conversions
 		'Cache'           => 'Illuminate\Support\Facades\Cache',
@@ -194,8 +195,9 @@ return array(
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
 		
+		'Auth'            => 'uk\co\la1tv\website\serviceProviders\auth\AuthFacade',
 		'Csrf'            => 'uk\co\la1tv\website\serviceProviders\csrf\CsrfFacade',
-		'Upload'            => 'uk\co\la1tv\website\serviceProviders\upload\UploadFacade',
+		'Upload'          => 'uk\co\la1tv\website\serviceProviders\upload\UploadFacade',
 
 	),
 
