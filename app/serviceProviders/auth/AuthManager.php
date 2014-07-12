@@ -39,12 +39,13 @@ class AuthManager {
 			return $this->user;
 		}
 		
-		// check users table for user with matching session_id
-		// if there is one return that user
-		
-		
-		
-		if (!is_null($this->authToken)) {
+		$a = null;
+		if (!is_null($tmp = User::where("session_id", Session::getId())) {
+			// check users table for user with matching session_id
+			// if there is one return that user
+			$a = $tmp->first();
+		}
+		else if (!is_null($this->authToken)) {
 			// attempt to authenticate with token
 			$a = $this->getUserModel("auth_token", $this->authToken);
 			if (!is_null($a)) {
@@ -63,7 +64,6 @@ class AuthManager {
 		}
 		else {
 			// authentication unsuccessful
-			return null;
 		}
 		if (!is_null($a)) {
 			// set this session id 
