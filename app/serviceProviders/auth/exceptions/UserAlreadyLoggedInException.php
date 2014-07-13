@@ -2,6 +2,6 @@
 
 use Exception;
 
-class UserAlreadyRetrievedException extends Exception {
+class UserAlreadyLoggedInException extends Exception {
 
 }

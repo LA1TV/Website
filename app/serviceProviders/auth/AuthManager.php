@@ -2,7 +2,7 @@
 
 use uk\co\la1tv\website\serviceProviders\auth\exceptions\NoUserLoggedInException;
 use uk\co\la1tv\website\serviceProviders\auth\exceptions\ErrorLoggingOutException;
-use uk\co\la1tv\website\serviceProviders\auth\exceptions\UserAlreadyRetrievedException;
+use uk\co\la1tv\website\serviceProviders\auth\exceptions\UserAlreadyLoggedInException;
 
 use uk\co\la1tv\website\models\User;
 use Hash;
@@ -11,7 +11,7 @@ class AuthManager {
 	
 	private $user = null; // contains the user model after is has been requested if a user is logged in
 	private $cosignUser = null; // contains the cosign user name after it has been requested
-	private $authToken = null; // the hashed version of the token being used to authenticate the user
+	private $requestInterval = Config::get("auth.attemptInterval");
 	
 	// returns the user name of the logged in cosign user or null if no cosign user logged in
 	public function getCosignUser() {
@@ -33,61 +33,29 @@ class AuthManager {
 	// gets the user model corresponding to the logged in user
 	// returns null if there is not a registered user logged in
 	public function getUser() {
-		
 		// if the user has been requested before returned cached version
 		if ($this->user) {
 			return $this->user;
 		}
 		
-		$a = null;
-		if (!is_null($tmp = User::where("session_id", Session::getId())) {
-			// check users table for user with matching session_id
-			// if there is one return that user
-			$a = $tmp->first();
-		}
-		else if (!is_null($this->authToken)) {
-			// attempt to authenticate with token
-			$a = $this->getUserModel("auth_token", $this->authToken);
-			if (!is_null($a)) {
-				if (Hash::needsRehash($a)) {
-					// happens if now needs to be converted to a more secure hash (ie more hash cycles/different hash algorithm altogether etc)
-					$a->auth_token = Hash::make($a->auth_token);
-					if (!$a->save()) {
-						$a = null;
+		// check users table for user with matching session_id
+		$this->user = User::where("session_id", Session::getId())->first();
+		
+		if (is_null($this->user)) {
+			// user is not already logged in. (ie no session_id assigned to them)
+			// try and log in user from cosign information
+			if (App::environment() === 'production' && $this->getCosignUser()) {
+				// attempt to authenticate with cosign user
+				$a = User::where("cosign_user", $this->getCosignUser())->first();
+				if (!is_null($a)) {
+					if ($this->authenticateUser($a)) {
+						$this->user = $a;
 					}
 				}
 			}
 		}
-		else if (App::environment() === 'production' && $this->getCosignUser()) {
-			// attempt to authenticate with cosign user
-			$a = $this->getUserModel("cosign_user", $this->getCosignUser());
-		}
-		else {
-			// authentication unsuccessful
-		}
-		if (!is_null($a)) {
-			// set this session id 
-			$a->session_id = Session::getId(); 
-			if (!$a->save()) {
-				$a = null;
-			}
-			$this->user = $a;
-		}
+		
 		return $this->user;
-	}
-	
-	// retrieves the user model using the $field and $value
-	// then if successful sets the session_id in the user model
-	private function getUserModel($field, $value) {
-		$a = User::where($field, $value)->first();
-		if (is_null($a)) {
-			return null;
-		}
-		$a->session_id = Session::getId();
-		if (!$a->save()) {
-			return null;
-		}
-		return $a;
 	}
 	
 	// return login URL for redirecting the user to cosign
@@ -99,7 +67,7 @@ class AuthManager {
 	// 0: user is in normal active state
 	// 1: account disabled by admin. Shouldn't be allowed to use system.
 	public function getUserState() {
-		if ($this->getUser() === false) {
+		if (is_null($this->getUser())) {
 			// error
 			throw(new NoUserLoggedInException());
 		}
@@ -111,46 +79,93 @@ class AuthManager {
 		}
 	}
 
-	// set an auth token that will be used for authentication instead.
-	// this takes precedence over cosign
-	// must be done before the first successful call of getUser() (or after a user has been logged out)
-	public function setAuthToken($authToken) {
-		
+	// attempts to login with a username and password
+	// returns true if successful.
+	public function login($username, $password) {
+		// should be $this->user not getUser() because getUser() will attempt to authenticate with cosign
 		if (!is_null($this->user)) {
-			// if a user model has already been retrieved then you cannot change the authentication mode
-			throw(new UserAlreadyRetrievedException());
+			throw(new UserAlreadyLoggedInException());
 		}
 		
-		$authTokenHashed = Hash::make($authToken);
+		$passwordHash = Hash::make($password);
 		
-		$this->authToken = $authTokenHashed;
+		// find user model and if valid set to $user
+		$user = User::where("username", $username)->first();
+		if (is_null($user)) {
+			$this->doSleep();
+			return false;
+		}
+
+		if ($user->password_hash !== $passwordHash) {
+			$this->doSleep($user->last_login_attempt);
+			return false;
+		}
+		
+		if (Hash::needsRehash($passwordHash)) {
+			// happens if now needs to be converted to a more secure hash (ie more hash cycles/different hash algorithm altogether etc)
+			$user->password_hash = Hash::make($password);
+			if (!$user->save()) {
+				$this->doSleep($user->last_login_attempt);
+				return false;
+			}
+		}
+		if (!$this->authenticateUser($user)) {
+			$this->doSleep($user->last_login_attempt);
+			return false;
+		}
+		$this->user = $user;
+		return true;
 	}
 	
-	// log the user out of cosign if logged into cosign, or just the site if using token.
+	private function authenticateUser(User $user) {
+		$user->session_id = Session::getId();
+		if (!$user->save()) {
+			return false;
+		}
+		return true;
+	}
+	
+	// log the user out of the site. This does not log the user out of cosign.
+	// returns true if successfully logged out
+	public function logout() {
+		if (is_null($this->user)) {
+			// already logged out
+			return false;
+		}
+		$this->user->session_id = null;
+		if ($this->user->save()) {
+			$this->user = null;
+			return true;
+		}
+		return false;
+	}
+	
 	// returns the redirect route that should then be returned from the controller.
-	public function logout($redirectLocation="") {
+	public function logoutCosign($redirectLocation="") {
 		
 		$redirectUrl = url('/').$redirectLocation;
 		
-		$user = $this->getUser();
-		if (is_null($user)) {
-			return Redirect::to($redirectUrl);
-		}
-		
-		$user->session_id = null;
-		if (!$user->save()) {
-			throw(new ErrorLoggingOutException());
-		}
-		$user = null;
-		
-		
-		if (!$this->getCosignUser()) {
+		if (is_null($this->getCosignUser())) {
 			return Redirect::to($redirectUrl);
 		}
 		
 		// http://www.lancaster.ac.uk/iss/tsg/cosign/using_php.html
 		$logoutUrl="https://weblogin.lancs.ac.uk/logout";
 		return Redirect::to($logoutUrl."?".$redirectUrl)->withCookie(Cookie::forget($_SERVER['COSIGN_SERVICE']));
+	}
+	
+	// only allow a request once every $requestInterval seconds (with a bit of randomness) seconds for a particular user.
+	// pass in the time the last request was made.
+	// if null is passed in then the sleep will occur for a second
+	// the way this works means someone could determine if a user name is correct by measuring the response times, but if they do guess a correct user name brute forcing the password should be infeasible
+	public function doSleep($lastAttempt=null) {
+		$randAmount = rand(0, 100) * 10000;
+		if (is_null($lastAttempt)) {
+			usleep(($this->requestInterval * 1000000) + $randAmount);
+		}
+		else {
+			usleep(max(($this->requestInterval - $lastAttempt->diffInSeconds()) * 1000000, 0) + $randAmount);
+		}
 	}
 
 }

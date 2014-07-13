@@ -8,4 +8,8 @@ class User extends MyEloquent {
 	public function permissionGroups() {
 		return $this->belongsToMany(self::$p.'PermissionGroup', 'user_to_group', 'user_id', 'group_id');
 	}
+
+	public function getDates() {
+		return array_merge(parent::getDates(), array('last_login_attempt'));
+	}
 }
