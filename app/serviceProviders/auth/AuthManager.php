@@ -158,7 +158,7 @@ class AuthManager {
 	// pass in the time the last request was made.
 	// if null is passed in then the sleep will occur for a second
 	// the way this works means someone could determine if a user name is correct by measuring the response times, but if they do guess a correct user name brute forcing the password should be infeasible
-	public function doSleep($lastAttempt=null) {
+	private function doSleep($lastAttempt=null) {
 		$randAmount = rand(0, 100) * 10000;
 		if (is_null($lastAttempt)) {
 			usleep(($this->requestInterval * 1000000) + $randAmount);
