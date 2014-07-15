@@ -190,12 +190,16 @@ class FormHelpers {
 		return '<input type="hidden" data-virtualform="'.e($formId).'" name="'.e($name).'" value="'.e($val).'">';
 	}
 	
-	public static function getFormSubmitButton($formId, $val, $action="", $primary=false, $method="post", $confirmMsg="") {
+	public static function getFormSubmitButton($formId, $val, $action="", $primary=false, $confirmMsg=null, $method="post") {
 		if (empty($action)) {
 			$action = Request::url();
 		}
 		$tmp = $primary ? " btn-primary" : "";
-		return '<button type="button" data-virtualform="'.e($formId).'" data-virtualformsubmit="1" data-virtualformsubmitmethod="'.e($method).'" data-virtualformsubmitaction="'.e($action).'" data-virtualformconfirm="'.e($confirmMsg).'" class="btn'.e($tmp).'">'.e($val).'</button>';
+		$tmp2 = "";
+		if (!is_null($confirmMsg)) {
+			$tmp2 = ' data-virtualformconfirm="'.e($confirmMsg).'"';
+		}
+		return '<button type="button" data-virtualform="'.e($formId).'" data-virtualformsubmit="1" data-virtualformsubmitmethod="'.e($method).'" data-virtualformsubmitaction="'.e($action).'"'.$tmp2.' class="btn'.e($tmp).'">'.e($val).'</button>';
 	}
 	
 	public static function getPageNo() {
