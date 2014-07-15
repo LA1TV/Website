@@ -13,6 +13,7 @@
 
 $p = "uk\\co\\la1tv\\website\\controllers\\";
 
+Route::controller('/admin/login', $p.'home\admin\login\LoginController');
 Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
 Route::controller('/admin/media', $p.'home\admin\media\MediaController');
 Route::controller('/admin/playlists', $p.'home\admin\playlists\PlaylistsController');
