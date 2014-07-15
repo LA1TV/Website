@@ -142,6 +142,10 @@ class FormHelpers {
 		return self::getFormTxtInput($formId, $txt, $name, $val, $formErrors, "datetime-local");
 	}
 	
+	public static function getFormPassInput($formId, $txt, $name, $val, $formErrors) {
+		return self::getFormTxtInput($formId, $txt, $name, $val, $formErrors, "password");
+	}
+	
 	public static function getFormTxtAreaInput($formId, $txt, $name, $val, $formErrors) {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><textarea data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'">'.e($val).'</textarea>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
@@ -184,6 +188,14 @@ class FormHelpers {
 
 	public static function getFormHiddenInput($formId, $name, $val) {
 		return '<input type="hidden" data-virtualform="'.e($formId).'" name="'.e($name).'" value="'.e($val).'">';
+	}
+	
+	public static function getFormSubmitButton($formId, $val, $action="", $primary=false, $method="post", $confirmMsg="") {
+		if (empty($action)) {
+			$action = Request::url();
+		}
+		$tmp = $primary ? " btn-primary" : "";
+		return '<button type="button" data-virtualform="'.e($formId).'" data-virtualformsubmit="1" data-virtualformsubmitmethod="'.e($method).'" data-virtualformsubmitaction="'.e($action).'" data-virtualformconfirm="'.e($confirmMsg).'" class="btn'.e($tmp).'">'.e($val).'</button>';
 	}
 	
 	public static function getPageNo() {
