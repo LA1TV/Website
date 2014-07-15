@@ -5,10 +5,16 @@ use FormHelpers;
 use Csrf;
 use Validator;
 use Auth;
+use App;
+use Config;
 
 class LoginController extends LoginBaseController {
 
 	public function anyIndex() {
+	
+		$view = View::make('home.admin.login.index');
+		
+		$loggedIn = !is_null(Auth::getUser());
 		
 		$formSubmitted = isset($_POST['form-submitted']);
 	
@@ -25,7 +31,10 @@ class LoginController extends LoginBaseController {
 		
 		$errors = null;
 		
-		if ($formSubmitted) {
+		if ($formSubmitted && !$loggedIn) {
+
+			// attempt to authenticate user
+			Auth::login($formData['user'], $formData['pass']);
 		
 			Validator::extend('logged_in', function($attribute, $value, $parameters) {
 				if ($value === "") {
@@ -43,20 +52,25 @@ class LoginController extends LoginBaseController {
 				'pass.logged_in'	=> "Either this or the username you entered was incorrect."
 			));
 			
-			if (!$validator->fails()) {
-				
+			if ($validator->fails()) {
+				$errors = $validator->messages();
 			}
 			else {
-				$errors = $validator->messages();
+				$loggedIn = true;
 			}
 		}
 		
-		$formData['pass'] = ""; // never send the password back
+		if ($loggedIn) {
+			$view->accountDisabled = $this->getUser()->getUserState() === 1;
+		}
+		else {
+			$view->cosignEnabled = App::environment() === 'production' && Config::get("auth.cosignEnabled");
+		}
 		
-		$view = View::make('home.admin.login.index');
+		$formData['pass'] = ""; // never send the password back
 		$view->form = $formData;
 		$view->formErrors = $errors;
-	
+		$view->loggedIn = $loggedIn;
 		$this->setContent($view, "login", "login");
 	}
 }

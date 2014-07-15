@@ -97,6 +97,10 @@ class AuthManager {
 			throw(new UserAlreadyLoggedInException());
 		}
 		
+		if (empty($username) || $password === "") {
+			return false;
+		}
+		
 		$passwordHash = Hash::make($password);
 		
 		// find user model and if valid set to $user

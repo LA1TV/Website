@@ -1,10 +1,3 @@
-<?php
-	// TODO: REMOVE
-	$cosignEnabled = true;
-	$loggedIn = false;
-	$accountDisabled = false;
-?>
-
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h3 class="panel-title">Login</h3>
