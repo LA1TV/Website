@@ -16,4 +16,10 @@ var pageProtect = null;
 		}
 	};
 	
+	$(document).ready(function() {
+		$('a[data-disablepageprotect="1"]').click(function() {
+			pageProtect.disable();
+		});
+	});
+	
 })();

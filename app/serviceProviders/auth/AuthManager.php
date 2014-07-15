@@ -6,12 +6,18 @@ use uk\co\la1tv\website\serviceProviders\auth\exceptions\UserAlreadyLoggedInExce
 
 use uk\co\la1tv\website\models\User;
 use Hash;
+use Config;
+use Session;
 
 class AuthManager {
 	
 	private $user = null; // contains the user model after is has been requested if a user is logged in
 	private $cosignUser = null; // contains the cosign user name after it has been requested
-	private $requestInterval = Config::get("auth.attemptInterval");
+	private $requestInterval = null;
+	
+	public function AuthManager() {
+		$this->requestInterval = Config::get("auth.attemptInterval");
+	}
 	
 	// returns the user name of the logged in cosign user or null if no cosign user logged in
 	public function getCosignUser() {
@@ -34,27 +40,12 @@ class AuthManager {
 	// returns null if there is not a registered user logged in
 	public function getUser() {
 		// if the user has been requested before returned cached version
-		if ($this->user) {
+		if (!is_null($this->user)) {
 			return $this->user;
 		}
 		
 		// check users table for user with matching session_id
 		$this->user = User::where("session_id", Session::getId())->first();
-		
-		if (is_null($this->user)) {
-			// user is not already logged in. (ie no session_id assigned to them)
-			// try and log in user from cosign information
-			if (App::environment() === 'production' && $this->getCosignUser()) {
-				// attempt to authenticate with cosign user
-				$a = User::where("cosign_user", $this->getCosignUser())->first();
-				if (!is_null($a)) {
-					if ($this->authenticateUser($a)) {
-						$this->user = $a;
-					}
-				}
-			}
-		}
-		
 		return $this->user;
 	}
 	
@@ -78,12 +69,31 @@ class AuthManager {
 			return 0;
 		}
 	}
+	
+	// attempts to login the user with cosign
+	// returns true if successful
+	public function loginWithCosign() {
+		if (!is_null($this->getUser())) {
+			throw(new UserAlreadyLoggedInException());
+		}
+		
+		// try and log in user from cosign information
+		if (App::environment() === 'production' && $this->getCosignUser()) {
+			// attempt to authenticate with cosign user
+			$a = User::where("cosign_user", $this->getCosignUser())->first();
+			if (!is_null($a)) {
+				if ($this->authenticateUser($a)) {
+					$this->user = $a;
+				}
+			}
+		}
+		return !is_null($this->getUser());
+	}
 
 	// attempts to login with a username and password
 	// returns true if successful.
 	public function login($username, $password) {
-		// should be $this->user not getUser() because getUser() will attempt to authenticate with cosign
-		if (!is_null($this->user)) {
+		if (!is_null($this->getUser())) {
 			throw(new UserAlreadyLoggedInException());
 		}
 		
@@ -114,7 +124,7 @@ class AuthManager {
 			return false;
 		}
 		$this->user = $user;
-		return true;
+		return !is_null($this->getUser());
 	}
 	
 	private function authenticateUser(User $user) {
@@ -128,7 +138,7 @@ class AuthManager {
 	// log the user out of the site. This does not log the user out of cosign.
 	// returns true if successfully logged out
 	public function logout() {
-		if (is_null($this->user)) {
+		if (is_null($this->getUser())) {
 			// already logged out
 			return false;
 		}
