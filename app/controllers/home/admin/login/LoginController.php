@@ -93,20 +93,21 @@ class LoginController extends LoginBaseController {
 	
 	public function anyLogout() {
 		// id of the form that's been submitted
-//		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
+		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
 	
-//		if ($formSubmitted) {
-//			// throws exception if token invalid
-//			Csrf::check();
-//		};
+		if ($formSubmitted) {
+			// throws exception if token invalid
+			Csrf::check();
+		};
 		
-//		if ($formSubmitted !== 1) {
-//			App::abort(403); // forbidden
-//		}
-		
-		if (Auth::isLoggedIn()) {
-			Auth::logout();
+		if ($formSubmitted === 1) {
+			if (Auth::isLoggedIn()) {
+				Auth::logout();
+			}			
 		}
-		return Redirect::to(URL::to("/admin/login"));
+		
+		$view = View::make('home.admin.login.logout');
+		$view->loggedIn = Auth::isLoggedIn();
+		$this->setContent($view, "logout", "logout");
 	}
 }

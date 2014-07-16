@@ -23,7 +23,7 @@ if (isset($nav[$currentNavPage])) {
 <?php foreach(array("dashboard", "media", "playlists", "livestreams", "comments") as $b):
 	$a = $nav[$b];
 ?>
-<li class="<?=$a[2]?"active":""?>"><a href="<?=URL::to($a[1])?>"><?=e($a[0])?></a></li>
+<li class="<?=$a[2]?"active":""?>"><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>
 <?php endforeach; ?>
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
@@ -31,7 +31,7 @@ if (isset($nav[$currentNavPage])) {
 		<?php foreach(array("siteusers", "users", "permissions", "monitoring") as $b):
 			$a = $nav[$b];
 		?>
-		<li><a href="<?=URL::to($a[1])?>"><?=e($a[0])?></a></li>
+		<li><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>
 		<?php endforeach; ?>
 	</ul>
 </li>
