@@ -100,14 +100,23 @@ class LoginController extends LoginBaseController {
 			Csrf::check();
 		};
 		
+		// logout
 		if ($formSubmitted === 1) {
 			if (Auth::isLoggedIn()) {
 				Auth::logout();
 			}			
 		}
 		
+		// logout of cosign
+		if ($formSubmitted === 2) {
+			if (Auth::isLoggedIntoCosign()) {
+				return Auth::logoutCosign("/admin/login/logout");
+			}
+		}
+		
 		$view = View::make('home.admin.login.logout');
 		$view->loggedIn = Auth::isLoggedIn();
+		$view->loggedIntoCosign = Auth::isLoggedIntoCosign();
 		$this->setContent($view, "logout", "logout");
 	}
 }

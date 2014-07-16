@@ -10,6 +10,7 @@ use Config;
 use Session;
 use App;
 use Carbon;
+use Redirect;
 
 class AuthManager {
 	
@@ -54,6 +55,10 @@ class AuthManager {
 	// helper that returns true if user logged in
 	public function isLoggedIn() {
 		return !is_null($this->getUser());
+	}
+	
+	public function isLoggedIntoCosign() {
+		return !is_null($this->getCosignUser());
 	}
 	
 	// return login URL for redirecting the user to cosign
