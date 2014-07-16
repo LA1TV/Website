@@ -12,7 +12,7 @@
 		<h3>Login With Cosign</h3>
 		<p>Login with your university account details.</p>
 		<?php if ($cosignEnabled): ?>
-		<a class="btn btn-primary" href="<?=e(Auth::getLoginUrl("admin/login"));?>">Login With Cosign</a>
+		<?=FormHelpers::getFormSubmitButton(2, "Login With Cosign", "", true);?>
 		<?php else: ?>
 		<button class="btn btn-default" type="button" disabled>Login With Cosign (Currently Unavailable)</button>
 		<?php endif; ?>

@@ -7,14 +7,14 @@ use Validator;
 use Auth;
 use App;
 use Config;
+use Redirect;
+use Session;
 
 class LoginController extends LoginBaseController {
 
 	public function anyIndex() {
 	
 		$view = View::make('home.admin.login.index');
-		
-		$loggedIn = !is_null(Auth::getUser());
 		
 		// id of the form that's been submitted
 		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
@@ -32,7 +32,7 @@ class LoginController extends LoginBaseController {
 		
 		$errors = null;
 		
-		if (!$loggedIn) {
+		if (!Auth::isLoggedIn()) {
 			if ($formSubmitted === 1) {
 				// logging in with username and password
 			
@@ -59,16 +59,24 @@ class LoginController extends LoginBaseController {
 					$errors = $validator->messages();
 				}
 			}
-			else {
-				// attempt to login with cosign
+			else if ($formSubmitted === 2) {
+				// user clicked the login with cosign button
+				if (!Auth::loginWithCosign()) {
+					// the login attempt failed so redirect the user to the cosign login page
+					// send them back with a flag so that when they return we can immediatly try and authenticate
+					// them instead of them having to click login again
+					return Redirect::to(Auth::getLoginUrl("admin/login?fromCosign=1&token=".md5(Session::getId())));
+				}
+				
+			}
+			else if (FormHelpers::getValue("fromCosign", null, false, true) === "1" && FormHelpers::getValue("token", null, false, true) === md5(Session::getId())) {
+				// the user has returned from cosign so should be authenticated
+				// attempt to log them in from cosign
 				Auth::loginWithCosign();
 			}
-			
-			// update loggedIn status
-			$loggedIn = !is_null(Auth::getUser());
 		}
 		
-		if ($loggedIn) {
+		if (Auth::isLoggedIn()) {
 			$view->accountDisabled = $this->getUser()->getUserState() === 1;
 		}
 		else {
@@ -78,7 +86,7 @@ class LoginController extends LoginBaseController {
 		$formData['pass'] = ""; // never send the password back
 		$view->form = $formData;
 		$view->formErrors = $errors;
-		$view->loggedIn = $loggedIn;
+		$view->loggedIn = Auth::isLoggedIn();
 		$this->setContent($view, "login", "login");
 	}
 }

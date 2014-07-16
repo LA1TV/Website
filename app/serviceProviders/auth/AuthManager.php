@@ -50,6 +50,11 @@ class AuthManager {
 		return $this->user;
 	}
 	
+	// helper that returns true if user logged in
+	public function isLoggedIn() {
+		return !is_null($this->getUser());
+	}
+	
 	// return login URL for redirecting the user to cosign
 	public function getLoginUrl($redirectLocation="") {
 		return "https://weblogin.lancs.ac.uk/?cosign-http-www2.la1tv.co.uk&http://www2.la1tv.co.uk/".$redirectLocation;
