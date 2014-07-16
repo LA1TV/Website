@@ -16,7 +16,8 @@ class LoginController extends LoginBaseController {
 		
 		$loggedIn = !is_null(Auth::getUser());
 		
-		$formSubmitted = isset($_POST['form-submitted']);
+		// id of the form that's been submitted
+		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
 	
 		if ($formSubmitted) {
 			// throws exception if token invalid
@@ -31,7 +32,7 @@ class LoginController extends LoginBaseController {
 		
 		$errors = null;
 		
-		if ($formSubmitted && !$loggedIn) {
+		if ($formSubmitted === 1 && !$loggedIn) {
 
 			// attempt to authenticate user
 			Auth::login($formData['user'], $formData['pass']);
