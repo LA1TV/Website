@@ -91,7 +91,7 @@ class MediaController extends MediaBaseController {
 			$editing = true;
 		}
 		
-		$formSubmitted = isset($_POST['form-submitted']);
+		$formSubmitted = isset($_POST['form-submitted']) && $_POST['form-submitted'] === "1"; // has id 1
 	
 		if ($formSubmitted) {
 			// throws exception if token invalid
