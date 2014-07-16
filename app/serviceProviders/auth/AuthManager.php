@@ -8,6 +8,7 @@ use uk\co\la1tv\website\models\User;
 use Hash;
 use Config;
 use Session;
+use App;
 
 class AuthManager {
 	

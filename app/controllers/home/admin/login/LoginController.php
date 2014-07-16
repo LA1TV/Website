@@ -32,33 +32,40 @@ class LoginController extends LoginBaseController {
 		
 		$errors = null;
 		
-		if ($formSubmitted === 1 && !$loggedIn) {
-
-			// attempt to authenticate user
-			Auth::login($formData['user'], $formData['pass']);
-		
-			Validator::extend('logged_in', function($attribute, $value, $parameters) {
-				if ($value === "") {
-					return true;
-				}
-				return !is_null(Auth::getUser());
-			});
-		
-			$validator = Validator::make($formData,	array(
-				'user'	=> array('required', 'logged_in'),
-				'pass'	=> array('logged_in')
-			), array(
-				'user.required'		=> FormHelpers::getRequiredMsg(),
-				'user.logged_in'	=> "Either this or the password you entered was incorrect.",
-				'pass.logged_in'	=> "Either this or the username you entered was incorrect."
-			));
+		if (!$loggedIn) {
+			if ($formSubmitted === 1) {
+				// logging in with username and password
 			
-			if ($validator->fails()) {
-				$errors = $validator->messages();
+				// attempt to authenticate user
+				Auth::login($formData['user'], $formData['pass']);
+			
+				Validator::extend('logged_in', function($attribute, $value, $parameters) {
+					if ($value === "") {
+						return true;
+					}
+					return !is_null(Auth::getUser());
+				});
+			
+				$validator = Validator::make($formData,	array(
+					'user'	=> array('required', 'logged_in'),
+					'pass'	=> array('logged_in')
+				), array(
+					'user.required'		=> FormHelpers::getRequiredMsg(),
+					'user.logged_in'	=> "Either this or the password you entered was incorrect.",
+					'pass.logged_in'	=> "Either this or the username you entered was incorrect."
+				));
+				
+				if ($validator->fails()) {
+					$errors = $validator->messages();
+				}
 			}
 			else {
-				$loggedIn = true;
+				// attempt to login with cosign
+				Auth::loginWithCosign();
 			}
+			
+			// update loggedIn status
+			$loggedIn = !is_null(Auth::getUser());
 		}
 		
 		if ($loggedIn) {
