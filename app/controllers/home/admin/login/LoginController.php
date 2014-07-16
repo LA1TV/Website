@@ -9,6 +9,7 @@ use App;
 use Config;
 use Redirect;
 use Session;
+use URL;
 
 class LoginController extends LoginBaseController {
 
@@ -77,7 +78,7 @@ class LoginController extends LoginBaseController {
 		}
 		
 		if (Auth::isLoggedIn()) {
-			$view->accountDisabled = $this->getUser()->getUserState() === 1;
+			$view->accountDisabled = Auth::getUserState() === 1;
 		}
 		else {
 			$view->cosignEnabled = App::environment() === 'production' && Config::get("auth.cosignEnabled");
@@ -88,5 +89,24 @@ class LoginController extends LoginBaseController {
 		$view->formErrors = $errors;
 		$view->loggedIn = Auth::isLoggedIn();
 		$this->setContent($view, "login", "login");
+	}
+	
+	public function anyLogout() {
+		// id of the form that's been submitted
+//		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
+	
+//		if ($formSubmitted) {
+//			// throws exception if token invalid
+//			Csrf::check();
+//		};
+		
+//		if ($formSubmitted !== 1) {
+//			App::abort(403); // forbidden
+//		}
+		
+		if (Auth::isLoggedIn()) {
+			Auth::logout();
+		}
+		return Redirect::to(URL::to("/admin/login"));
 	}
 }

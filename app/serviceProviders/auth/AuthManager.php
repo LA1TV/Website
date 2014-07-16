@@ -9,6 +9,7 @@ use Hash;
 use Config;
 use Session;
 use App;
+use Carbon;
 
 class AuthManager {
 	
@@ -16,7 +17,7 @@ class AuthManager {
 	private $cosignUser = null; // contains the cosign user name after it has been requested
 	private $requestInterval = null;
 	
-	public function AuthManager() {
+	public function __construct() {
 		$this->requestInterval = Config::get("auth.attemptInterval");
 	}
 	
@@ -107,30 +108,35 @@ class AuthManager {
 			return false;
 		}
 		
-		$passwordHash = Hash::make($password);
-		
 		// find user model and if valid set to $user
 		$user = User::where("username", $username)->first();
 		if (is_null($user)) {
 			$this->doSleep();
 			return false;
 		}
-
-		if ($user->password_hash !== $passwordHash) {
-			$this->doSleep($user->last_login_attempt);
+		
+		$lastLoginAttempt = $user->last_login_attempt;
+		// update last login attempt
+		$user->last_login_attempt = Carbon::now();
+		if (!$user->save()) {
+			$this->doSleep($lastLoginAttempt);
 			return false;
 		}
 		
-		if (Hash::needsRehash($passwordHash)) {
+		$this->doSleep($lastLoginAttempt);
+		
+		if (Hash::check($password, $user->password_hash)) {
+			return false;
+		}
+		
+		if (Hash::needsRehash($user->password_hash)) {
 			// happens if now needs to be converted to a more secure hash (ie more hash cycles/different hash algorithm altogether etc)
 			$user->password_hash = Hash::make($password);
 			if (!$user->save()) {
-				$this->doSleep($user->last_login_attempt);
 				return false;
 			}
 		}
 		if (!$this->authenticateUser($user)) {
-			$this->doSleep($user->last_login_attempt);
 			return false;
 		}
 		$this->user = $user;
@@ -181,10 +187,10 @@ class AuthManager {
 	private function doSleep($lastAttempt=null) {
 		$randAmount = rand(0, 100) * 10000;
 		if (is_null($lastAttempt)) {
-			usleep(($this->requestInterval * 1000000) + $randAmount);
+			usleep(1000000 + $randAmount);
 		}
 		else {
-			usleep(max(($this->requestInterval - $lastAttempt->diffInSeconds()) * 1000000, 0) + $randAmount);
+			usleep(max(($this->requestInterval - $lastAttempt->diffInSeconds()) * 1000000, 1000000) + $randAmount);
 		}
 	}
 
