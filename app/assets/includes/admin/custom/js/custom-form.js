@@ -58,7 +58,7 @@ $(document).ready(function() {
 			var id = $(this).attr("data-virtualform");
 			
 			var data = {};
-			data["form-submitted"] = "1";
+			data["form-submitted"] = ""+id;
 			
 			$('[data-virtualform="'+id+'"]').each(function() {
 				
