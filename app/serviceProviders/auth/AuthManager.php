@@ -61,6 +61,24 @@ class AuthManager {
 		return !is_null($this->getCosignUser());
 	}
 	
+	public function isCurrentUserLoggedIntoCosign() {
+		if (is_null($this->getUser())) {
+			throw(new NoUserLoggedInException());
+		}
+		if (is_null($this->getUser()->cosign_user)) {
+			return false;
+		}
+		return $this->getUser()->cosign_user === $this->getCosignUser();
+	}
+	
+	// returns true if the last user that was logged in logged in with cosign, and are still logged into cosign
+	public function wasCosignUserLoggedIn() {
+		if (is_null($this->getCosignUser())) {
+			return false;
+		}
+		return Session::get("lastCosignUserLoggedIn", null) === $this->getCosignUser();
+	}
+	
 	// return login URL for redirecting the user to cosign
 	public function getLoginUrl($redirectLocation="") {
 		return "https://weblogin.lancs.ac.uk/?cosign-http-www2.la1tv.co.uk&http://www2.la1tv.co.uk/".$redirectLocation;
@@ -152,6 +170,7 @@ class AuthManager {
 		if (!$user->save()) {
 			return false;
 		}
+		$this->updateLastCosignUser();
 		return true;
 	}
 	
@@ -196,6 +215,11 @@ class AuthManager {
 		else {
 			usleep(max(($this->requestInterval - $lastAttempt->diffInSeconds()) * 1000000, 1000000) + $randAmount);
 		}
+	}
+	
+	private function updateLastCosignUser() {
+		// contains the cosign username of the last cosign user that logged into the system succesfully
+		Session::put("lastCosignUserLoggedIn",$this->getLoggedIn() ? getCosignUser() : null);
 	}
 
 }
