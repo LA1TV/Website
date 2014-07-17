@@ -29,4 +29,6 @@ Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin', $p.'home\admin\AdminController');
 });
 
+// make upload controller also accessible at /upload
+Route::controller('/upload', $p.'home\admin\upload\UploadController');
 Route::controller('/', $p.'home\HomeController');
