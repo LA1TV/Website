@@ -116,7 +116,7 @@ class LoginController extends LoginBaseController {
 		
 		$view = View::make('home.admin.login.logout');
 		$view->loggedIn = Auth::isLoggedIn();
-		$view->loggedIntoCosign = Auth::isLoggedIntoCosign();
+		$view->showCosignLogoutButton = Auth::wasCosignUserLoggedIn();
 		$this->setContent($view, "logout", "logout");
 	}
 }

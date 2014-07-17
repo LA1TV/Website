@@ -10,7 +10,7 @@
 		<p>You are logged out.</p>
 		<a class="btn btn-info" href="<?=e(URL::to("/admin/login"));?>">Click Here To Login</a>
 		<?php endif; ?>
-		<?php if($loggedIntoCosign): ?>
+		<?php if($showCosignLogoutButton): ?>
 		<p>You are logged into cosign.</p>
 		<?=FormHelpers::getFormSubmitButton(2, "Logout Of Cosign", "", true);?>
 		<?php endif; ?>

@@ -219,7 +219,7 @@ class AuthManager {
 	
 	private function updateLastCosignUser() {
 		// contains the cosign username of the last cosign user that logged into the system succesfully
-		Session::put("lastCosignUserLoggedIn",$this->getLoggedIn() ? getCosignUser() : null);
+		Session::put("lastCosignUserLoggedIn",$this->isLoggedIn() ? getCosignUser() : null);
 	}
 
 }
