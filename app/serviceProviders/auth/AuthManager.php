@@ -57,6 +57,12 @@ class AuthManager {
 		return !is_null($this->getUser());
 	}
 	
+	public function loggedInOr403() {
+		if (!$this->isLoggedIn()) {
+			App::abort(403); // forbidden
+		}
+	}
+	
 	public function isLoggedIntoCosign() {
 		return !is_null($this->getCosignUser());
 	}
@@ -218,7 +224,7 @@ class AuthManager {
 	}
 	
 	private function updateLastCosignUser() {
-		// contains the cosign username of the last cosign user that logged into the system succesfully
+		// contains the cosign username of the last cosign user that logged into the system successfully
 		Session::put("lastCosignUserLoggedIn",$this->isLoggedIn() ? $this->getCosignUser() : null);
 	}
 

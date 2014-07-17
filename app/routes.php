@@ -14,6 +14,7 @@
 $p = "uk\\co\\la1tv\\website\\controllers\\";
 
 Route::controller('/admin/login', $p.'home\admin\login\LoginController');
+Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 
 Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
@@ -25,8 +26,6 @@ Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/users', $p.'home\admin\users\UsersController');
 	Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');
 	Route::controller('/admin/monitoring', $p.'home\admin\monitoring\MonitoringController');
-	Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
-
 	Route::controller('/admin', $p.'home\admin\AdminController');
 });
 

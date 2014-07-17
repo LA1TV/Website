@@ -9,11 +9,13 @@ use Input;
 use FormHelpers;
 use Upload;
 use Csrf;
+use Auth;
 use uk\co\la1tv\website\models\File;
 
 class UploadController extends UploadBaseController {
 
 	public function postIndex() {
+		Auth::loggedInOr403();
 		Upload::process();
 		return Upload::getResponse();
 	}
@@ -21,6 +23,9 @@ class UploadController extends UploadBaseController {
 	// serve up a file
 	// TODO: It think most of this logic should be moved into the upload service provider
 	public function getIndex($id) {
+		
+		// TODO: this obviously needs changing but will do for now.
+		Auth::loggedInOr403();
 		
 		// TODO: might need to eager load more relations in getIsAccessible
 		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->where("process_state", 1)->find($id);
@@ -62,6 +67,9 @@ class UploadController extends UploadBaseController {
 	
 	// get process info about a file
 	public function postProcessinfo() {
+		
+		Auth::loggedInOr403();
+	
 		$resp = array("success"=> false, "payload"=>null);
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
@@ -77,6 +85,9 @@ class UploadController extends UploadBaseController {
 	
 	// remove a temporary file
 	public function postRemove() {
+		
+		Auth::loggedInOr403();
+	
 		$resp = array("success"=> false);
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
