@@ -33,7 +33,7 @@ $(document).ready(function() {
 		
 		e.preventDefault();
 		
-		$('button[data-virtualform="'+id+'"][data-virtualformsubmit]').click();
+		$('button[data-virtualform="'+id+'"][data-virtualformsubmit]').first().click();
 		return false;
 	});
 	
