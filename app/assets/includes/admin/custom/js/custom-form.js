@@ -29,9 +29,11 @@ $(document).ready(function() {
 			return;
 		}
 		
+		var id = parseInt($(this).attr("data-virtualform"));
+		
 		e.preventDefault();
 		
-		$('button[data-virtualform][data-virtualformsubmit]').click();
+		$('button[data-virtualform="'+id+'"][data-virtualformsubmit]').click();
 		return false;
 	});
 	
