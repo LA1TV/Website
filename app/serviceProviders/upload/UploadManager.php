@@ -191,7 +191,7 @@ class UploadManager {
 	// returns the File object for a file if the security checks pass.
 	// returns the File model or null
 	public static function getFile($fileId) {
-		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->where("process_state", 1)->find($fileId);
+		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover", "mediaItemVideoWithFile.mediaItem")->where("process_state", 1)->find($fileId);
 		
 		if (is_null($file)) {
 			return null;
@@ -210,6 +210,9 @@ class UploadManager {
 				$accessAllowed = true;
 			}
 			else if (!is_null($file->mediaItemWithCover) && $file->mediaItemWithCover->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->mediaItemVideoWithFile) && $file->mediaItemVideoWithFile->mediaItem->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 			else if (!is_null($file->playlistWithBanner) && $file->playlistWithBanner->getIsAccessible()) {
