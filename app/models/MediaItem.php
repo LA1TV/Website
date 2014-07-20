@@ -33,7 +33,6 @@ class MediaItem extends MyEloquent {
 		return $this->belongsToMany(self::$p.'Playlist', 'media_item_to_playlist', 'media_item_id', 'playlist_id')->withPivot('position', 'from_playlist_id');
 	}
 	
-	// returns true if this mediaitem should be accessible now. I.e enabled and scheduled_publish_time passed etc
 	public function getIsAccessible() {
 		if (!$this->enabled) {
 			return false;

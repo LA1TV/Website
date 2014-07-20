@@ -21,48 +21,8 @@ class UploadController extends UploadBaseController {
 	}
 	
 	// serve up a file
-	// TODO: It think most of this logic should be moved into the upload service provider
 	public function getIndex($id) {
-		
-		// TODO: this obviously needs changing but will do for now.
-		Auth::loggedInOr403();
-		
-		// TODO: might need to eager load more relations in getIsAccessible
-		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->where("process_state", 1)->find($id);
-		
-		if (is_null($file)) {
-			App::abort(404);
-			return;
-		}
-		
-		$accessAllowed = false;
-		
-		// file should be accessible if not used yet and session matches users session
-		if (!$file->in_use && $file->session_id === Session::getId()) {
-			$accessAllowed = true;
-		}
-		else {
-			// see if the file should be accessible
-			if (!is_null($file->mediaItemWithBanner) && $file->mediaItemWithBanner->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->mediaItemWithCover) && $file->mediaItemWithCover->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->playlistWithBanner) && $file->playlistWithBanner->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->playlistWithCover) && $file->playlistWithCover->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-		}
-		
-		if (!$accessAllowed) {
-			App::abort(403); // forbidden
-			return;
-		}
-		
-		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);		
+		return Upload::getFileResponse($id);
 	}
 	
 	// get process info about a file

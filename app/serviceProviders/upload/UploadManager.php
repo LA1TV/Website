@@ -8,6 +8,7 @@ use FormHelpers;
 use Exception;
 use Csrf;
 use EloquentHelpers;
+use Auth;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\fileObjs\FileObjBuilder;
@@ -185,5 +186,55 @@ class UploadManager {
 				$a->save();
 			}
 		}
+	}
+	
+	// returns the File object for a file if the security checks pass.
+	// returns the File model or null
+	public static function getFile($fileId) {
+		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover")->where("process_state", 1)->find($fileId);
+		
+		if (is_null($file)) {
+			return null;
+		}
+		
+		$accessAllowed = false;
+		
+		// file should be accessible if not used yet and session matches users session
+		// this necessary in order for a preview of the file to be shown
+		if (Auth::isLoggedIn() && !$file->in_use && $file->session_id === Session::getId()) {
+			$accessAllowed = true;
+		}
+		else {
+			// see if the file should be accessible
+			if (!is_null($file->mediaItemWithBanner) && $file->mediaItemWithBanner->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->mediaItemWithCover) && $file->mediaItemWithCover->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->playlistWithBanner) && $file->playlistWithBanner->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+			else if (!is_null($file->playlistWithCover) && $file->playlistWithCover->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+		}
+		return $accessAllowed ? $file : null;
+	}
+	
+	// helper that returns true if the current user should have access to this file
+	public static function hasAccessToFile($fileId) {
+		return !is_null(self::getFile($fileId));
+	}
+	
+	// returns the file laravel response that should be returned to the user.
+	// this will either be the file, or a 404
+	public static function getFileResponse($fileId) {
+		$file = self::getFile($fileId);
+		if (is_null($file)) {
+			// return 404 response
+			return Response::make("", 404);
+		}
+		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);
 	}
 }
