@@ -14,8 +14,6 @@ $(document).ready(function() {
 			$form.append($el);
 		}
 		$("body").append($form);
-		//setTimeout(function() {
-			$form.submit();
-		//}, 0);
+		$form.submit();
 	};
 });
