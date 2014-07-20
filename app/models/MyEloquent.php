@@ -2,6 +2,7 @@
 
 use Eloquent;
 use DB;
+use FormHelpers;
 
 // custom extension of eloquent that wraps the 'save' and 'push' in transactions
 class MyEloquent extends Eloquent {
@@ -38,5 +39,9 @@ class MyEloquent extends Eloquent {
 			}
 		});
 		return $q;
+	}
+	
+	public function scopeUsePagination($q) {
+		return $q->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems());
 	}
 }

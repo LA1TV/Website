@@ -39,7 +39,7 @@ class MediaController extends MediaBaseController {
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->search($searchTerm)->skip(FormHelpers::getPageStartIndex())->take(FormHelpers::getPageNoItems())->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
 			$hasVod = !is_null($a->videoItem);
