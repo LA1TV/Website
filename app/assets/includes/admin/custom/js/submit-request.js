@@ -14,6 +14,6 @@ $(document).ready(function() {
 			$form.append($el);
 		}
 		$("body").append($form);
-		$form.submit();
+	//	$form.submit();
 	};
 });
