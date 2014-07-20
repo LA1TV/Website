@@ -10,7 +10,7 @@ $(document).ready(function() {
 		data.csrf_token = getCsrfToken();
 		for (var key in data) {
 			$el = $('<input />').attr("type", "hidden").attr("name", key).val(data[key]);
-			alert(key+"="+data[key]);
+		//	alert(key+"="+data[key]);
 			$form.append($el);
 		}
 		$("body").append($form);
