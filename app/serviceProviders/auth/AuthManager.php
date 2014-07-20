@@ -137,6 +137,8 @@ class AuthManager {
 			return false;
 		}
 		
+		$username = strtolower($username);
+		
 		// find user model and if valid set to $user
 		$user = User::where("username", $username)->first();
 		if (is_null($user)) {
