@@ -7,4 +7,8 @@ class PlaylistsController extends PlaylistsBaseController {
 	public function getIndex() {
 		$this->setContent(View::make('home.admin.playlists.index'), "playlists", "playlists");
 	}
+	
+	public function anyEdit($id=null) {
+		$this->setContent(View::make('home.admin.playlists.edit'), "playlists", "playlists-edit");
+	}
 }

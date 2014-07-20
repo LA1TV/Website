@@ -1,0 +1,32 @@
+.ajax-select .has-result {
+	display: table-row;
+	
+}
+
+.ajax-select .has-result .result-container, .ajax-select .has-result .button-container {
+	display: table-cell;
+}
+
+.ajax-select .has-result .result-container {
+	width: 100%;
+}
+
+.ajax-select .searching .search {
+	width: 100%;
+	margin-bottom: 2px;
+}
+
+.ajax-select .searching .results {
+	width: 100%;
+	max-height: 200px;
+	overflow: auto;
+}
+
+.ajax-select .searching .results .result-row {
+	margin: 2px 0;
+	padding: 2px 8px;
+}
+
+.ajax-select .searching .results .result-row[data-selected='1'] {
+	background-color: #e0e0ff
+}
