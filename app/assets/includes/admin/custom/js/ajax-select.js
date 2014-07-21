@@ -6,14 +6,18 @@ $(document).ready(function() {
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 	
 	$(".ajax-select").each(function() {
+		
+		var self = this;
+	
 		var dataSourceUri = $(this).attr("data-datasourceuri");
 		var destinationName = $(this).attr("data-destinationname");
-		var currentItemName = $(this).attr("data-currentitemname");
 		// the reference to the hidden form element where chosen rows id should be placed
 		var $destinationEl = $(this).parent().find('[name="'+destinationName+'"]').first();
 		
 		var hasResult = null;
-		var id = null;
+		var chosenItemId = $destinationEl.val();
+		chosenItemId = chosenItemId !== "" ? parseInt(chosenItemId) : null;
+		var chosenItemText = $(this).attr("data-chosenitemtext");
 		var changeTimerId = null;
 		var results = [];
 		var resultsIds = [];
@@ -39,6 +43,10 @@ $(document).ready(function() {
 		var $results = $('<div />').addClass("results").hide();
 		var $noResults = $('<div />').addClass("no-results").html('No results.').hide();
 		
+		$clearButton.click(function() {
+			setItem(null);
+		});
+		
 		$hasResult.append($resultContainer);
 		$hasResult.append($buttonContainer);
 		$buttonContainer.append($clearButton);
@@ -48,17 +56,13 @@ $(document).ready(function() {
 		$searching.append($results);
 		
 		if ($destinationEl.val() !== "") {
-			id = parseInt($destinationEl.val());
+			chosenItemId = parseInt($destinationEl.val());
 		}
 		
 		render();
 		
 		$(this).append($hasResult);
 		$(this).append($searching);
-		
-		if (!hasResult) {
-			updateResults();
-		}
 		
 		$search.keyup(function(e) {
 			
@@ -89,21 +93,10 @@ $(document).ready(function() {
 			
 			if (e.which === 13) { // enter
 				e.preventDefault();
-				
-				if (changeTimerId !== null) {
-					clearTimeout(changeTimerId);
-				}
-				
-				if (!getTermChanged()) {
-					// term hasn't changed so do nothing
-					loading = false;
-					renderLoading();
+				if (loading || hasResult || hasNoResults || defaultResult === null) {
 					return;
 				}
-				
-				loading = true;
-				renderLoading();
-				updateResults();
+				setItem(results[resultsIds.indexOf(defaultResult)]);
 				return;
 			}
 			
@@ -130,17 +123,23 @@ $(document).ready(function() {
 		});
 		
 		function render() {
-			var localHasResult = id !== null;
+			var localHasResult = chosenItemId !== null;
 			if (hasResult !== localHasResult) {
 				hasResult = localHasResult;
 				if (hasResult) {
+					loading = false;
+					renderLoading();
 					$searching.hide();
+					$resultContainer.text(chosenItemText);
 					$hasResult.show();
 				}
 				else {
+					loading = true;
 					renderLoading();
+					term = null;
+					$search.val("");
+					updateResults();
 					renderHighlighted();
-					renderResults();
 					$hasResult.hide();
 					$searching.show();
 				}
@@ -173,15 +172,19 @@ $(document).ready(function() {
 					var $el = $('<div />').addClass("result-row").attr("data-id", result.id).attr("data-selected", "0").text(result.text);
 					
 					(function() {
-						var elId = result.id;
+						var id = result.id;
 						$el.hover(function() {
-							hoveredResult = elId;
+							hoveredResult = id;
 							renderHighlighted();
 						}, function() {
-							if (hoveredResult === elId) {
+							if (hoveredResult === id) {
 								hoveredResult = null;
 							}
 							renderHighlighted();
+						});
+						
+						$el.click(function() {
+							setItem(results[resultsIds.indexOf(id)]);
 						});
 					})();
 					
@@ -236,6 +239,20 @@ $(document).ready(function() {
 		
 		function getTermChanged() {
 			return $search.val() !== term;
+		}
+		
+		function setItem(item) {
+			if (item !== null) {
+				chosenItemId = item.id;
+				chosenItemText = item.text;
+			}
+			else {
+				chosenItemId = null;
+				chosenItemText = null;
+			}
+			$destinationEl.val(chosenItemId !== null ? chosenItemId : "");
+			$(self).attr("data-chosenitemtext", chosenItemText !== null ? chosenItemText : "");
+			render();
 		}
 	});
 	

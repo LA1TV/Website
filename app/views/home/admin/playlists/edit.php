@@ -11,7 +11,7 @@
 	<div class="panel-body">
 		<div class="form-group">
 			<label class="control-label">Dropdown</label>
-			<div class="form-control ajax-select" data-datasourceuri="" data-destinationname="dropdown_id" data-currentitemname="">
+			<div class="form-control ajax-select" data-datasourceuri="" data-destinationname="dropdown_id" data-chosenitemtext="">
 				
 			</div>
 			<input type="hidden" data-virtualform="1" class="form-control" name="dropdown_id" value="">
