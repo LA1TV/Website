@@ -24,7 +24,7 @@ class File extends MyEloquent {
 				throw(new Exception("This file is pending deletion and can no longer be modified."));
 			}
 			else if (!$model->in_use && (
-				!EloquentHelpers::getIsForeignNull($model->mediaItemWithFile()) ||
+				!EloquentHelpers::getIsForeignNull($model->mediaItemVideoWithFile()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
