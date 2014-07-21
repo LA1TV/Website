@@ -229,7 +229,7 @@ $(document).ready(function() {
 				{id: 2, text: "Item 2"}
 			];
 			// callback after ajax request
-			setInterval(function() {
+			setTimeout(function() {
 				renderResults();
 			}, 500);
 		}
