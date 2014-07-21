@@ -14,7 +14,7 @@ var customForm = {
 $(document).ready(function() {
 	
 	// listen for enter key
-	$('[data-virtualform]').keypress(function(e) {
+	$('[data-virtualform]').keyup(function(e) {
 		
 		if (e.which !== 13) {
 			return;

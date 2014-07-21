@@ -10,7 +10,7 @@
 		<?= stylesheet_link_tag("includes/admin/application") ?>
 		<?= javascript_include_tag("includes/admin/application") ?>
 	</head>
-	<body data-baseurl="<?=e($baseUrl)?>" data-csrftoken="<?=e($csrfToken)?>">
+	<body data-baseurl="<?=e($baseUrl)?>" data-assetsbaseurl="<?=e(asset(""))?>" data-csrftoken="<?=e($csrfToken)?>">
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">

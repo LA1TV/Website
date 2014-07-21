@@ -22,9 +22,22 @@
 	overflow: auto;
 }
 
-.ajax-select .searching .results .result-row {
+.ajax-select .searching .loading, .ajax-select .searching .no-results {
+	text-align: center;
+	font-size: 16px;
+}
+
+.ajax-select .searching .loading .txt {
+	vertical-align: middle;
+}
+
+.ajax-select .searching .results .result-row, .ajax-select .searching .loading, .ajax-select .searching .no-results {
 	margin: 2px 0;
 	padding: 2px 8px;
+}
+
+.ajax-select .searching .results .result-row {
+	cursor: pointer;
 }
 
 .ajax-select .searching .results .result-row[data-selected='1'] {
