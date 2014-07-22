@@ -226,15 +226,25 @@ $(document).ready(function() {
 				return;
 			}
 			term = $search.val();
-			resultsChanged = true;
-			results = [
-				{id: 1, text: "Item 1"},
-				{id: 2, text: "Item 2"}
-			];
-			// callback after ajax request
-			setTimeout(function() {
-				renderResults();
-			}, 500);
+			
+			jQuery.ajax(dataSourceUri, {
+				cache: false,
+				dataType: "json",
+				data: {
+					term: term,
+					csrf_token: getCsrfToken()
+				},
+				type: "POST"
+			}).done(function(data) {
+				if (data.success) {
+					var payload = data.payload;
+					resultsChanged = true;
+					results = payload.results;
+					renderResults();
+				}
+			}).always(function() {
+				// TODO: handle errors etc
+			});
 		}
 		
 		function getTermChanged() {

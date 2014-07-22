@@ -325,7 +325,8 @@ class MediaController extends MediaBaseController {
 	
 	public function postDelete() {
 		$resp = array("success"=>false);
-		if (FormHelpers::hasPost("id")) {
+		
+		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$mediaItem = MediaItem::find($id);
@@ -344,6 +345,29 @@ class MediaController extends MediaBaseController {
 					$resp['success'] = true;
 				}
 			});
+		}
+		return Response::json($resp);
+	}
+	
+	// json data for ajaxSelect element
+	public function postAjaxselect() {
+		$resp = array("success"=>false, "payload"=>null);
+		
+		if (Csrf::hasValidToken()) {
+			$searchTerm = FormHelpers::getValue("term");
+			$mediaItems = null;
+			if (!is_null($searchTerm)) {
+				$mediaItems = MediaItem::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
+			}
+			else {
+				$mediaItems = MediaItem::orderBy("created_at", "desc")->take(20)->get();
+			}
+			
+			$results = array();
+			foreach($mediaItems as $a) {
+				$results[] = array("id"=>intval($a->id), "text"=>$a->name);
+			}
+			$response['payload'] = array("results"=>$results);
 		}
 		return Response::json($resp);
 	}
