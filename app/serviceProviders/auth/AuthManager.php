@@ -87,6 +87,7 @@ class AuthManager {
 	
 	// return login URL for redirecting the user to cosign
 	public function getLoginUrl($redirectLocation="") {
+		$redirectLocation = "";
 		return "https://weblogin.lancs.ac.uk/?cosign-http-www2.la1tv.co.uk&http://www2.la1tv.co.uk/".$redirectLocation;
 	}
 	
