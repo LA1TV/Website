@@ -182,13 +182,6 @@ $(document).ready(function() {
 				return;
 			}
 			
-			// the order that the js files are loaded is indeterminable so the file containing this function might not have been loaded yet.
-			// if this is the case just ignore and try again later. This could be improved by using something like requireJS in the future to manage dependencies.
-			if (typeof(getCsrfToken) !== "function") {
-				startTimer();
-				return;
-			}
-			
 			var theId = id;
 			
 			jQuery.ajax(baseUrl+"/admin/upload/processinfo", {
