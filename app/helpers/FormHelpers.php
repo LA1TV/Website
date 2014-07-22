@@ -115,10 +115,14 @@ class FormHelpers {
 		return '<span class="help-block">'.e($msg).'</span>';
 	}
 	
-	public static function getFileUploadElement($formInputName, $uploadPointId, $currentFileName, $currentFileSize, $value, $remoteRemove, $processState, $processPercentage, $processMsg) {
+	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $remoteRemove, $processState, $processPercentage, $processMsg) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($formId, $name, $uploadPointId, $fileName, $fileSize, $val, $remoteRemove, $processState, $processPercentage, $processMsg).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getFileUploadElement($formId, $formInputName, $uploadPointId, $currentFileName, $currentFileSize, $value, $remoteRemove, $processState, $processPercentage, $processMsg) {
 		$extensions = FormHelpers::getUploadPointExtensions($uploadPointId);
 		$remoteRemoveVal = $remoteRemove?"1":"0";
-		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-ajaxuploaduploadpointid="'.e($uploadPointId).'" data-ajaxuploadremoteremove="'.e($remoteRemoveVal).'" data-ajaxuploadprocessstate="'.e($processState).'" data-ajaxuploadprocesspercentage="'.e($processPercentage).'" data-ajaxuploadprocessmsg="'.e($processMsg).'"></div><input type="hidden" data-virtualform="1" name="'.e($formInputName).'" value="'.e($value).'" />';
+		return '<div class="form-control ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-ajaxuploaduploadpointid="'.e($uploadPointId).'" data-ajaxuploadremoteremove="'.e($remoteRemoveVal).'" data-ajaxuploadprocessstate="'.e($processState).'" data-ajaxuploadprocesspercentage="'.e($processPercentage).'" data-ajaxuploadprocessmsg="'.e($processMsg).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $value);
 	}
 	
 	public static function getFormGroupStart($name, $formErrors) {
@@ -150,10 +154,6 @@ class FormHelpers {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><textarea data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'">'.e($val).'</textarea>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $remoteRemove, $processState, $processPercentage, $processMsg) {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($name, $uploadPointId, $fileName, $fileSize, $val, $remoteRemove, $processState, $processPercentage, $processMsg).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
-	}
-	
 	public static function getFormSelectInput($formId, $txt, $name, $val, $options, $formErrors) {
 		$selectStr = '<select class="form-control" data-virtualform="'.e($formId).'" name="'.e($name).'">';
 		foreach($options as $a) {
@@ -180,6 +180,14 @@ class FormHelpers {
 		$a .= '<li '.$tmp.'>'.$tmp2.'</li>';
 		$a .= '</div>';
 		return $a;
+	}
+	
+	public static function getAjaxSelectInput($formId, $txt, $name, $val, $formErrors, $dataUri, $chosenItemText) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getAjaxSelectElement($formId, $name, $val, $dataUri, $chosenItemText).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getAjaxSelectElement($formId, $formInputName, $value, $dataUri, $chosenItemTxt) {		
+		return '<div class="form-control ajax-select" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'">'.self::getFormHiddenInput($formId, $formInputName, $value);
 	}
 	
 	public static function getSearchBar() {

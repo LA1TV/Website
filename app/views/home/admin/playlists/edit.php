@@ -9,13 +9,7 @@
 		<h3 class="panel-title"><?=$editing?"Edit":"Create"?> Playlist</h3>
 	</div>
 	<div class="panel-body">
-		<div class="form-group">
-			<label class="control-label">Dropdown</label>
-			<div class="form-control ajax-select" data-datasourceuri="<?=URL::to("/admin/media/ajaxselect");?>" data-destinationname="dropdown_id" data-chosenitemtext="">
-				
-			</div>
-			<input type="hidden" data-virtualform="1" class="form-control" name="dropdown_id" value="">
-		</div>
+		<?=FormHelpers::getAjaxSelectInput(1, "Test Dropdown", "test_dropdown_id", "", null, URL::to("/admin/media/ajaxselect"), "") ?>
 	</div>
 	<div class="panel-footer clearfix">
 		<div class="pull-left">
