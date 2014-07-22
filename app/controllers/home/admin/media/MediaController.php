@@ -354,10 +354,10 @@ class MediaController extends MediaBaseController {
 		$resp = array("success"=>false, "payload"=>null);
 		
 		if (Csrf::hasValidToken()) {
-			$searchTerm = FormHelpers::getValue("term");
+			$searchTerm = FormHelpers::getValue("term", "");
 			$mediaItems = null;
-			if (!is_null($searchTerm)) {
-				$mediaItems = MediaItem::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
+			if (!empty($searchTerm)) {
+				$mediaItems = MediaItem::search($searchTerm)->take(20)->get();
 			}
 			else {
 				$mediaItems = MediaItem::orderBy("created_at", "desc")->take(20)->get();
