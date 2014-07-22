@@ -367,7 +367,7 @@ class MediaController extends MediaBaseController {
 			foreach($mediaItems as $a) {
 				$results[] = array("id"=>intval($a->id), "text"=>$a->name);
 			}
-			$resp['payload'] = array("results"=>$results);
+			$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
 			$resp['success'] = true;
 		}
 		return Response::json($resp);

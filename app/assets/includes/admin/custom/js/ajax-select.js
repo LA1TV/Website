@@ -239,10 +239,11 @@ $(document).ready(function() {
 					var payload = data.payload;
 					resultsChanged = true;
 					results = payload.results;
-					renderResults();
+					if (loading && term === payload.term) {
+						// makes sure that this response is for the latest term that was requested
+						renderResults();
+					}
 				}
-			}).always(function() {
-				// TODO: handle errors etc
 			});
 		}
 		
