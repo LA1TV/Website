@@ -187,7 +187,7 @@ class FormHelpers {
 	}
 	
 	public static function getAjaxSelectElement($formId, $formInputName, $value, $dataUri, $chosenItemTxt) {		
-		return '<div class="form-control ajax-select" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'">'.self::getFormHiddenInput($formId, $formInputName, $value);
+		return '<div class="form-control ajax-select" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $value);
 	}
 	
 	public static function getSearchBar() {
