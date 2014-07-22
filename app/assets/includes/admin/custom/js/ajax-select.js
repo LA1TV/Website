@@ -31,7 +31,6 @@ $(document).ready(function() {
 		var loading = true;
 		var loadingVisible = true;
 		var resultsChanged = false;
-		var hasNoResults = false;
 		
 		var $hasResult = $('<div />').addClass("has-result");
 		var $resultContainer = $('<div />').addClass("result-container");
@@ -93,7 +92,7 @@ $(document).ready(function() {
 			
 			if (e.which === 13) { // enter
 				e.preventDefault();
-				if (loading || hasResult || hasNoResults || defaultResult === null) {
+				if (loading || hasResult || results.length === 0 || defaultResult === null) {
 					return;
 				}
 				setItem(results[resultsIds.indexOf(defaultResult)]);
@@ -192,7 +191,7 @@ $(document).ready(function() {
 					$results.append($el);
 				}
 				defaultResult = results.length > 0 ? results[0].id : null;
-				highlightedResult = null;
+				currentlyHighlightedResult = null;
 				renderHighlighted();
 				loading = false;
 				renderLoading();
@@ -210,7 +209,7 @@ $(document).ready(function() {
 			}
 			else {
 				$loading.hide();
-				if (hasNoResults) {
+				if (results.length === 0) {
 					$noResults.show();
 				}
 				else {
