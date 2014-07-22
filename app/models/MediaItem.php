@@ -48,6 +48,6 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function scopeSearch($q, $value) {
-		return $value === "" ? $q : $q->whereMatch(array("name", "description"), $value);
+		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
 }

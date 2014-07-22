@@ -357,7 +357,7 @@ class MediaController extends MediaBaseController {
 			$searchTerm = FormHelpers::getValue("term", "");
 			$mediaItems = null;
 			if (!empty($searchTerm)) {
-				$mediaItems = MediaItem::search($searchTerm)->take(20)->get();
+				$mediaItems = MediaItem::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
 			}
 			else {
 				$mediaItems = MediaItem::orderBy("created_at", "desc")->take(20)->get();
