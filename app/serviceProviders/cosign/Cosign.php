@@ -23,12 +23,14 @@ class Cosign {
 		$this->requested = true;
 		
 		// get the cosign cookie val
-		$key = isset($_COOKIE[$this->service]) ? $_COOKIE[$this->service] : null;
+		$cookieName = str_replace(".", "_", $key);
+		$key = isset($_COOKIE[$cookieName]) ? $_COOKIE[$cookieName] : null;
+		
+		echo($key);
 		if (is_null($key)) {
+			dd("not found");
 			return;
 		}
-		$key = str_replace(".", "_", $key);
-		echo($key);
 		if (preg_match("/^[A-Za-z0-9_\+\-/]+$/", $value) !== 1) {
 			// value contains unexpected characters
 			dd("failed");
