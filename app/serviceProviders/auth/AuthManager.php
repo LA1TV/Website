@@ -11,6 +11,7 @@ use Session;
 use App;
 use Carbon;
 use Redirect;
+use Cookie;
 use uk\co\la1tv\website\serviceProviders\cosign\Cosign;
 
 class AuthManager {
