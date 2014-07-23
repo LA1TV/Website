@@ -42,12 +42,11 @@ class Cosign {
 				continue;
 			}
 			$type = substr($line, 0, 1);
-			$value = substr($line, 1);
+			$value = trim(substr($line, 1));
 			if ($type === "i") {
 				$this->ip = $value;
 			}
 			else if ($type === "p") {
-				dd($value);
 				$this->username = $value;
 			}
 			else if ($type === "r") {
