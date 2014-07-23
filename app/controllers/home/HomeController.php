@@ -12,7 +12,7 @@ class HomeController extends BaseController {
 
 	// TODO: Temporary for debugging cosign
 	public function getInfo() {
-		var_dump($_ENV);
+		var_dump($_SERVER);
 		
 	}
 }
