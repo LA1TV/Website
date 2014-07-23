@@ -12,6 +12,7 @@ class HomeController extends BaseController {
 
 	// TODO: Temporary for debugging cosign
 	public function getInfo() {
-		return Auth::getCosignUser();
+		var_dump($_SERVER);
+		
 	}
 }
