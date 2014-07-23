@@ -214,7 +214,7 @@ class AuthManager {
 		
 		// http://www.lancaster.ac.uk/iss/tsg/cosign/using_php.html
 		$logoutUrl="https://weblogin.lancs.ac.uk/logout";
-		return Redirect::to($logoutUrl."?".$redirectUrl)->withCookie(Cookie::forget(Config::get("auth.cosignServiceName")));
+		return Redirect::to($logoutUrl."?".$redirectUrl)->withCookie(Cookie::forget($this->cosign->getCookieName()));
 	}
 	
 	// only allow a request once every $requestInterval seconds (with a bit of randomness) seconds for a particular user.

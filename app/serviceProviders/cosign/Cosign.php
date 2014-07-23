@@ -23,7 +23,7 @@ class Cosign {
 		$this->requested = true;
 		
 		// get the cosign cookie val
-		$cookieName = str_replace(".", "_", $this->service);
+		$cookieName = $this->getCookieName();
 		$key = isset($_COOKIE[$cookieName]) ? $_COOKIE[$cookieName] : null;
 		if (is_null($key)) {
 			return;
@@ -60,6 +60,10 @@ class Cosign {
 			}
 		}
 		fclose($handle);
+	}
+	
+	public function getCookieName() {
+		str_replace(".", "_", $this->service);
 	}
 	
 	public function getUsername() {
