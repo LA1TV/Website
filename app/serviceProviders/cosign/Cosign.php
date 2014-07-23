@@ -37,7 +37,7 @@ class Cosign {
 			return;
 		}
 		
-		$handle = fopen($filterDbLocation."/".$key, "r");
+		$handle = fopen($this->filterDbLocation."/".$key, "r");
 		if ($handle === FALSE) {
 			dd("failed read");
 			return;
