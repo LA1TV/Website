@@ -67,11 +67,6 @@ class Cosign {
 			}
 		}
 		fclose($handle);
-		
-		if ($contents === FALSE) {
-			return;
-		}
-		
 	}
 	
 	public function getUsername() {
