@@ -1,23 +1,35 @@
 // handles all .ajax-select
 
+var ajaxSelect = {
+	register: null // will be set to a function to render the ajax select on an element
+};
+
 $(document).ready(function() {
 
 	var baseUrl = $("body").attr("data-baseUrl");
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 	
 	$(".ajax-select").each(function() {
-		
-		var self = this;
+		register($(this).first());
+	});
 	
-		var dataSourceUri = $(this).attr("data-datasourceuri");
-		var destinationName = $(this).attr("data-destinationname");
+	ajaxSelect.register = register;
+	
+	function register($container) {
+	
+		if (!$container.hasClass("ajax-select")) {
+			$container.addClass("ajax-select");
+		}
+		
+		var dataSourceUri = $container.attr("data-datasourceuri");
+		var destinationName = $container.attr("data-destinationname");
 		// the reference to the hidden form element where chosen rows id should be placed
-		var $destinationEl = $(this).parent().find('[name="'+destinationName+'"]').first();
+		var $destinationEl = $container.parent().find('[name="'+destinationName+'"]').first();
 		
 		var hasResult = null;
 		var chosenItemId = $destinationEl.val();
 		chosenItemId = chosenItemId !== "" ? parseInt(chosenItemId) : null;
-		var chosenItemText = $(this).attr("data-chosenitemtext");
+		var chosenItemText = $container.attr("data-chosenitemtext");
 		var changeTimerId = null;
 		var results = [];
 		var resultsIds = [];
@@ -60,8 +72,8 @@ $(document).ready(function() {
 		
 		render();
 		
-		$(this).append($hasResult);
-		$(this).append($searching);
+		$container.append($hasResult);
+		$container.append($searching);
 		
 		$search.keyup(function(e) {
 			
@@ -261,9 +273,9 @@ $(document).ready(function() {
 				chosenItemText = null;
 			}
 			$destinationEl.val(chosenItemId !== null ? chosenItemId : "");
-			$(self).attr("data-chosenitemtext", chosenItemText !== null ? chosenItemText : "");
+			$container.attr("data-chosenitemtext", chosenItemText !== null ? chosenItemText : "");
 			render();
 		}
-	});
+	};
 	
 });
