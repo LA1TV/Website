@@ -25,21 +25,15 @@ class Cosign {
 		// get the cosign cookie val
 		$cookieName = str_replace(".", "_", $this->service);
 		$key = isset($_COOKIE[$cookieName]) ? $_COOKIE[$cookieName] : null;
-		
-		echo($key);
 		if (is_null($key)) {
-			dd("not found");
 			return;
 		}
 		if (preg_match("/^[A-Za-z0-9\+-_\/ ]+$/", $key) !== 1) {
 			// key contains unexpected characters
-			dd("failed");
 			return;
 		}
-		// TODO: add @
-		$handle = fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
+		$handle = @fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
 		if ($handle === FALSE) {
-			dd("failed read");
 			return;
 		}
 		
@@ -49,11 +43,11 @@ class Cosign {
 			}
 			$type = substr($line, 0, 1);
 			$value = substr($line, 1);
-			echo($type."=".$value);
 			if ($type === "i") {
 				$this->ip = $value;
 			}
 			else if ($type === "p") {
+				dd($value);
 				$this->username = $value;
 			}
 			else if ($type === "r") {
