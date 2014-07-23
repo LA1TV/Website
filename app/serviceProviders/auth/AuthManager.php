@@ -11,15 +11,18 @@ use Session;
 use App;
 use Carbon;
 use Redirect;
+use uk\co\la1tv\website\serviceProviders\cosign\Cosign;
 
 class AuthManager {
 	
 	private $user = null; // contains the user model after is has been requested if a user is logged in
 	private $cosignUser = null; // contains the cosign user name after it has been requested
 	private $requestInterval = null;
+	private $cosign = null;
 	
 	public function __construct() {
 		$this->requestInterval = Config::get("auth.attemptInterval");
+		$this->cosign = new Cosign(Config::get("auth.cosignServiceName"), Config::get("auth.filterDbLocation"));
 	}
 	
 	// returns the user name of the logged in cosign user or null if no cosign user logged in
@@ -29,11 +32,13 @@ class AuthManager {
 			//return cached version
 			return $this->cosignUser;
 		}
-		else if (App::environment() === 'production' && isset($_SERVER["REMOTE_REALM"]) && $_SERVER["REMOTE_REALM"] === "LANCS.LOCAL" &&
-			isset($_SERVER["REMOTE_USER"]) && $_SERVER["REMOTE_USER"] !== "") {
-			// usernames are case insensitive so might as well convert to lower case
-			// to make sure no one can register several times by entering their username with
-			// different punctuation. the cosign apache mod might already have done this.
+		else if (App::environment() === 'production') {
+			// couldn't use $_SERVER variables (remote_realm and remote_user) because of issues of them getting renamed with fastcgi, and also remote_user getting overwritten with the username used for basic auth, when apache basic auth is enabled
+			// http://webapps.itcs.umich.edu/cosign/index.php/Cosign_Wiki:CosignFilterSpec
+			// so build CosignServiceProvider to talk to the db directly and use that instead
+			
+			
+			
 			$this->cosignUser = strtolower($_SERVER["REMOTE_USER"]);
 		}
 		return $this->cosignUser;

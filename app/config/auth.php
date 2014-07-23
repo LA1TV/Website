@@ -2,7 +2,8 @@
 
 return array(
 	// interval that must occur between login attempts in seconds
-	"attemptInterval"	=> 8,
-	"cosignEnabled"		=> true
-
+	"attemptInterval"			=> 8,
+	"cosignEnabled"				=> true,
+	"cosignServiceName"			=> "cosign-http-www2.la1tv.co.uk",
+	"cosignFilterDbLocation"	=> "/var/cosign/filter"
 );
