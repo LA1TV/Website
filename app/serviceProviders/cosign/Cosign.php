@@ -67,7 +67,7 @@ class Cosign {
 	}
 	
 	public function getCookieName() {
-		str_replace(".", "_", $this->service);
+		return str_replace(".", "_", $this->service);
 	}
 	
 	public function getUsername() {
