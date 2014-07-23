@@ -24,6 +24,7 @@ class Cosign {
 		
 		// get the cosign cookie val
 		$cookieName = $this->getCookieName();
+		echo("Reading cookie: ".$cookieName);
 		$key = isset($_COOKIE[$cookieName]) ? $_COOKIE[$cookieName] : null;
 		if (is_null($key)) {
 			return;
