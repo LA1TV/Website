@@ -24,18 +24,20 @@ class Cosign {
 		
 		// get the cosign cookie val
 		$key = isset($_COOKIE[$this->service]) ? $_COOKIE[$this->service] : null;
-		echo($this->service);
-		dd($_COOKIE);
 		if (is_null($key)) {
 			return;
 		}
-		if (preg_match("/^[A-Za-z0-9\.\+\-/]+$/", $value) !== 1) {
+		$key = str_replace(".", "_", $key);
+		echo($key);
+		if (preg_match("/^[A-Za-z0-9_\+\-/]+$/", $value) !== 1) {
 			// value contains unexpected characters
+			dd("failed");
 			return;
 		}
 		
 		$handle = fopen($filterDbLocation."/".$key, "r");
 		if ($handle === FALSE) {
+			dd("failed read");
 			return;
 		}
 		
@@ -45,6 +47,7 @@ class Cosign {
 			}
 			$type = substr($line, 0, 1);
 			$value = substr($line, 1);
+			echo($type."=".$value);
 			if ($type === "i") {
 				$this->ip = $value;
 			}
