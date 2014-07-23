@@ -37,7 +37,7 @@ class Cosign {
 			return;
 		}
 		
-		$handle = fopen($this->filterDbLocation."/".$key, "r");
+		$handle = @fopen($this->filterDbLocation."/".urlencode($cookieName)."=".urlencode($key), "r");
 		if ($handle === FALSE) {
 			dd("failed read");
 			return;

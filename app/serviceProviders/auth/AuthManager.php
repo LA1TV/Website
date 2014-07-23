@@ -22,7 +22,7 @@ class AuthManager {
 	
 	public function __construct() {
 		$this->requestInterval = Config::get("auth.attemptInterval");
-		$this->cosign = new Cosign(Config::get("auth.cosignServiceName"), Config::get("auth.filterDbLocation"));
+		$this->cosign = new Cosign(Config::get("auth.cosignServiceName"), Config::get("auth.cosignFilterDbLocation"));
 	}
 	
 	// returns the user name of the logged in cosign user or null if no cosign user logged in
