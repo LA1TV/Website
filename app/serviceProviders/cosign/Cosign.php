@@ -32,7 +32,8 @@ class Cosign {
 			// key contains unexpected characters
 			return;
 		}
-		$handle = @fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
+		//TODO: add @
+		$handle = fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
 		if ($handle === FALSE) {
 			return;
 		}
