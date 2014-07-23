@@ -24,7 +24,6 @@ class Cosign {
 		
 		// get the cosign cookie val
 		$cookieName = $this->getCookieName();
-		echo("Reading cookie: ".$cookieName);
 		$key = isset($_COOKIE[$cookieName]) ? $_COOKIE[$cookieName] : null;
 		if (is_null($key)) {
 			return;
@@ -33,9 +32,7 @@ class Cosign {
 			// key contains unexpected characters
 			return;
 		}
-		//TODO: add @
-		echo("looking at ".$this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]));
-		$handle = fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
+		$handle = @fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
 		if ($handle === FALSE) {
 			return;
 		}
@@ -50,7 +47,6 @@ class Cosign {
 				$this->ip = $value;
 			}
 			else if ($type === "p") {
-				echo("USER: ".$value);
 				$this->username = $value;
 			}
 			else if ($type === "r") {

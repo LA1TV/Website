@@ -212,6 +212,8 @@ class AuthManager {
 			return Redirect::to($redirectUrl);
 		}
 		
+		dd($this->cosign->getCookieName());
+		
 		// http://www.lancaster.ac.uk/iss/tsg/cosign/using_php.html
 		$logoutUrl="https://weblogin.lancs.ac.uk/logout";
 		return Redirect::to($logoutUrl."?".$redirectUrl)->withCookie(Cookie::forget($this->cosign->getCookieName()));
