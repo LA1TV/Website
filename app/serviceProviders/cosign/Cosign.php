@@ -23,7 +23,7 @@ class Cosign {
 		$this->requested = true;
 		
 		// get the cosign cookie val
-		var_dump($_COOKIE);
+		// php array key can't contain . so it converts them to _
 		$cookieName = str_replace(".", "_", $this->service);
 		$key = isset($_COOKIE[$cookieName]) ? $_COOKIE[$cookieName] : null;
 		if (is_null($key)) {
