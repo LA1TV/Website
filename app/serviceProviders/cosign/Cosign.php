@@ -17,10 +17,10 @@ class Cosign {
 	}
 	
 	private function makeRequest() {
-		if ($requested) {
+		if ($this->requested) {
 			return;
 		}
-		$requested = true;
+		$this->requested = true;
 		
 		// get the cosign cookie val
 		$key = isset($_COOKIE[$this->service]) ? $_COOKIE[$this->service] : null;
