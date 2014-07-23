@@ -24,7 +24,8 @@ class Cosign {
 		
 		// get the cosign cookie val
 		$key = isset($_COOKIE[$this->service]) ? $_COOKIE[$this->service] : null;
-		dd($key);
+		echo($this->service);
+		dd($_COOKIE);
 		if (is_null($key)) {
 			return;
 		}
