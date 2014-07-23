@@ -33,6 +33,7 @@ class Cosign {
 			return;
 		}
 		//TODO: add @
+		echo("looking at ".$this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]));
 		$handle = fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
 		if ($handle === FALSE) {
 			return;
@@ -48,6 +49,7 @@ class Cosign {
 				$this->ip = $value;
 			}
 			else if ($type === "p") {
+				echo("USER: ".$value);
 				$this->username = $value;
 			}
 			else if ($type === "r") {
