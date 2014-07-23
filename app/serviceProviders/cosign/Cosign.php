@@ -31,8 +31,8 @@ class Cosign {
 			dd("not found");
 			return;
 		}
-		if (preg_match("/^[A-Za-z0-9_\+\-/]+$/", $value) !== 1) {
-			// value contains unexpected characters
+		if (preg_match("/^[A-Za-z0-9_\+\-/]+$/", $key) !== 1) {
+			// key contains unexpected characters
 			dd("failed");
 			return;
 		}
