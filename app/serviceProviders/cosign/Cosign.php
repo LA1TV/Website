@@ -82,5 +82,4 @@ class Cosign {
 		$this->makeRequest();
 		return $this->realm;
 	}
-
 }
