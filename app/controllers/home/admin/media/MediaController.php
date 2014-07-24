@@ -45,8 +45,8 @@ class MediaController extends MediaBaseController {
 		foreach($mediaItems as $a) {
 			$hasVod = !is_null($a->videoItem);
 			$vodEnabled = $hasVod ? (boolean) $a->videoItem->enabled : null;
-			$hasStream = !is_null($a->streamItem);
-			$streamEnabled = $hasStream ? (boolean) $a->streamItem->enabled : null;
+			$hasStream = !is_null($a->liveStreamItem);
+			$streamEnabled = $hasStream ? (boolean) $a->liveStreamItem->enabled : null;
 			$hasVodStr = $hasVod ? "Yes (" : "No";
 			if ($hasVod) {
 				$hasVodStr .= $vodEnabled ? "Enabled" : "Disabled";
