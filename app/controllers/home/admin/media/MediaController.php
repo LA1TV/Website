@@ -14,6 +14,7 @@ use Response;
 use Upload;
 use Csrf;
 use EloquentHelpers;
+use Auth;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -350,10 +351,11 @@ class MediaController extends MediaBaseController {
 	}
 	
 	// json data for ajaxSelect element
-	public function postAjaxselect() {
+	// route to this in routes.php
+	public function handleAjaxSelect() {
 		$resp = array("success"=>false, "payload"=>null);
 		
-		if (Csrf::hasValidToken()) {
+		if (Csrf::hasValidToken() && Auth::isLoggedIn()) {
 			$searchTerm = FormHelpers::getValue("term", "");
 			$mediaItems = null;
 			if (!empty($searchTerm)) {

@@ -16,6 +16,8 @@ $p = "uk\\co\\la1tv\\website\\controllers\\";
 Route::controller('/admin/login', $p.'home\admin\login\LoginController');
 Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 
+Route::post('/admin/media/ajaxselect', $p.'home\admin\media\MediaController@handleAjaxSelect');
+
 Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
 	Route::controller('/admin/media', $p.'home\admin\media\MediaController');
