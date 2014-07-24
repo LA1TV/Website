@@ -4,6 +4,7 @@
  *
  * https://github.com/CodeSleeve/asset-pipeline
  *
- *= require bootstrap/css/bootstrap.min.css
+ *= require_tree bootstrap/css
+ *= require_tree jqueryui/css
  *= require_tree ./custom
  */
