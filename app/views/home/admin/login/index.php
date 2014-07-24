@@ -22,7 +22,6 @@
 		<?=FormHelpers::getFormPassInput(1, "Password", "pass", $form['pass'], $formErrors);?>
 		<p><?=FormHelpers::getFormSubmitButton(1, "Login", "", true);?></p>
 		<?php else: ?>
-		<h3>Logged In!</h3>
 		<?php if ($accountDisabled): ?>
 		<p>You are logged in but your account is currently disabled. Please contact an admin.</p>
 		<?php else: ?>
