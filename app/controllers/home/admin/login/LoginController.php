@@ -95,7 +95,7 @@ class LoginController extends LoginBaseController {
 		$view->form = $formData;
 		$view->formErrors = $errors;
 		$view->loggedIn = Auth::isLoggedIn();
-		$view->loggedIntoCosignAsUnknownUser = Auth::isLoggedIntoCosign() ? Auth::currentCosignUserHasAccount() : false;
+		$view->loggedIntoCosignAsUnknownUser = Auth::isLoggedIntoCosign() ? !Auth::currentCosignUserHasAccount() : false;
 		$this->setContent($view, "login", "login");
 	}
 	
