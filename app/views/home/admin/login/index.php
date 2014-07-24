@@ -17,7 +17,7 @@
 		<p><button class="btn btn-default" type="button" disabled>Login With Cosign (Currently Unavailable)</button></p>
 		<?php endif; ?>
 		<h3>Login With Username and Password</h3>
-		<p>Login with a username and password assigned to you for this site. <strong>This is not your university login.</strong></p>
+		<p>Login with a username and password assigned to you for this control panel. <strong>This is not your university login.</strong></p>
 		<?=FormHelpers::getFormTxtInput(1, "Username", "user", $form['user'], $formErrors);?>
 		<?=FormHelpers::getFormPassInput(1, "Password", "pass", $form['pass'], $formErrors);?>
 		<p><?=FormHelpers::getFormSubmitButton(1, "Login", "", true);?></p>
