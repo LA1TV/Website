@@ -17,24 +17,50 @@ class MediaItemSeeder extends Seeder {
 	 * @return void
 	 */
 	public function run() {
-
-		$mediaItemVideo = new MediaItemVideo(array(
-			"is_live_recording"	=>	true,
-			"time_recorded"	=>	 Carbon::now()->subHour(),
-			"description"	=>	"Breakfast show description that should override general mediafile one.",
-			"enabled"	=>	true
-		));
-		$mediaItem = new MediaItem(array(
-			"name"	=>	"Breakfast Show!",
-			"description"	=>	"This is the breakfast show description.",
-			"enabled"	=>	true
-		));
-		DB::transaction(function() use (&$mediaItem, &$mediaItemVideo) {
-			$mediaItem->save();
-			$mediaItem->videoItem()->save($mediaItemVideo);
-		});
-		$this->addLikes($mediaItem);
-		$this->addComments($mediaItem);
+	
+		$videoItems = array(
+			array("Breakfast Show!", "This is the breakfast show description."),
+			array("BBC News"),
+			array("BBC News 24"),
+			array("Dragons Den"),
+			array("Mock The Week!"),
+			array("Some Other Show"),
+			array("Soundbooth Sessions"),
+			array("The LA1 Show"),
+			array("The One Show"),
+			array("Star Wars"),
+			array("Sugar TV!"),
+			array("The Incredibles"),
+			array("University Challenge"),
+			array("Countdown"),
+			array("8 out of 10 Cats Does Countdown"),
+			array("Jurassic Park"),
+			array("Jurassic Park 2"),
+			array("Shrek"),
+			array("Shrek 2"),
+			array("Shrek 3"),
+			array("Mission Impossible")
+		);
+	
+		foreach($videoItems as $a) {
+			$mediaItemVideo = new MediaItemVideo(array(
+				"is_live_recording"	=>	rand(0, 1) ? true : false,
+				"time_recorded"	=>	 Carbon::now()->subHour(),
+				"description"	=>	rand(0, 4) === 0 ? "A description that should override the general media item one." : null,
+				"enabled"	=>	rand(0, 1) ? true : false
+			));
+			$mediaItem = new MediaItem(array(
+				"name"	=>	$a[0],
+				"description"	=>	count($a) >= 2 ? $a[1] : null,
+				"enabled"	=>	rand(0, 1) ? true : false,
+			));
+			DB::transaction(function() use (&$mediaItem, &$mediaItemVideo) {
+				$mediaItem->save();
+				$mediaItem->videoItem()->save($mediaItemVideo);
+			});
+			$this->addLikes($mediaItem);
+			$this->addComments($mediaItem);
+		}
 		
 		$mediaItemLiveStream = new MediaItemLiveStream(array(
 			"enabled"	=>	true
