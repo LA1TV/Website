@@ -202,7 +202,7 @@ class FormHelpers {
 		if (empty($action)) {
 			$action = Request::url();
 		}
-		$tmp = $primary ? " btn-primary" : "";
+		$tmp = $primary ? " btn-primary" : " btn-default";
 		$tmp2 = "";
 		if (!is_null($confirmMsg)) {
 			$tmp2 = ' data-virtualformconfirm="'.e($confirmMsg).'"';

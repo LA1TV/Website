@@ -83,6 +83,14 @@ class AuthManager {
 		return $this->getUser()->cosign_user === $this->getCosignUser();
 	}
 	
+	// returns true if the current cosign user has an account on the system.
+	public function currentCosignUserHasAccount() {
+		if (is_null($this->getCosignUser())) {
+			throw(new NoUserLoggedInException());
+		}
+		return User::where("cosign_user", $this->getCosignUser())->count() !== 0;
+	}
+	
 	// returns true if the last user that was logged in logged in with cosign, and are still logged into cosign
 	public function wasCosignUserLoggedIn() {
 		if (is_null($this->getCosignUser())) {

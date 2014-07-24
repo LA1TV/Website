@@ -24,6 +24,13 @@ class LoginController extends LoginBaseController {
 			// throws exception if token invalid
 			Csrf::check();
 		};
+		
+		// logout cosign button if logged in as unknown user
+		if ($formSubmitted === 3) {
+			if (Auth::isLoggedIntoCosign()) {
+				return Auth::logoutCosign("/admin/login");
+			}
+		}
 	
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
@@ -88,6 +95,7 @@ class LoginController extends LoginBaseController {
 		$view->form = $formData;
 		$view->formErrors = $errors;
 		$view->loggedIn = Auth::isLoggedIn();
+		$view->loggedIntoCosignAsUnknownUser = Auth::isLoggedIntoCosign() ? Auth::currentCosignUserHasAccount() : false;
 		$this->setContent($view, "login", "login");
 	}
 	
