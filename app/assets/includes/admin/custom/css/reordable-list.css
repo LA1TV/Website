@@ -1,0 +1,51 @@
+.reordable-list .list-container {
+	display: table;
+}
+
+.reordable-list .list-container .list-row {
+	display: table-row;
+}
+
+/* hovering over */
+.reordable-list .list-container .list-row[data-highlight-state='1'] {
+	background-color: #e0e0ff;
+}
+
+/* dragging */
+.reordable-list .list-container .list-row[data-highlight-state='2'] {
+	background-color: #e0e0ff;
+}
+
+.reordable-list .list-container .list-row .cell {
+	display: table-cell;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+.reordable-list .list-container .list-row .cell:first-child {
+	padding-left: 8px;
+}
+
+.reordable-list .list-container .list-row .cell:last-child {
+	padding-right: 8px;
+}
+
+.reordable-list .list-container .list-row .cell-no {
+	padding-right: 10px;
+}
+
+.reordable-list .list-container .list-row .cell-content {
+	width: 100%;
+}
+
+.reordable-list .list-container .list-row .cell-options {
+	padding-left: 15px;
+}
+
+.reordable-list .list-container .list-row .cell-options .option {
+	display: inline-block;
+}
+
+.reordable-list .list-container .list-row .cell-options .option-drag {
+	cursor: move;
+}
