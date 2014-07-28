@@ -16,17 +16,17 @@
 				<div class="list-row" data-highlight-state="0">
 					<div class="cell cell-no">9.</div>
 					<div class="cell cell-content">Some programme</div>
-					<div class="cell cell-options"><div class="option option-drag">[DRAG]</div></div>
+					<div class="cell cell-options"><div class="option option-drag handle">[DRAG]</div></div>
 				</div>
 				<div class="list-row" data-highlight-state="1">
 					<div class="cell cell-no">10.</div>
 					<div class="cell cell-content">Some programme</div>
-					<div class="cell cell-options"><div class="option option-drag">[DRAG]</div></div>
+					<div class="cell cell-options"><div class="option option-drag handle">[DRAG]</div></div>
 				</div>
 				<div class="list-row" data-highlight-state="0">
 					<div class="cell cell-no">11.</div>
 					<div class="cell cell-content">Some programme</div>
-					<div class="cell cell-options"><div class="option option-drag">[DRAG]</div></div>
+					<div class="cell cell-options"><div class="option option-drag handle">[DRAG]</div></div>
 				</div>
 			</div>
 		</div>

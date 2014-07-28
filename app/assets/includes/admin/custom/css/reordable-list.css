@@ -4,6 +4,7 @@
 
 .reordable-list .list-container .list-row {
 	display: table-row;
+	background-color: #ffffff;
 }
 
 /* hovering over */
