@@ -38,8 +38,11 @@ class AuthManager {
 			// http://webapps.itcs.umich.edu/cosign/index.php/Cosign_Wiki:CosignFilterSpec
 			// so build CosignServiceProvider to talk to the db directly and use that instead
 			
-			if (!is_null($this->cosign->getUsername())) {
-				$this->cosignUser = strtolower($this->cosign->getUsername());
+			if (!is_null($this->cosign->getTime()) && $this->cosign->getTime() < time()-Config::get("auth.cosignCookieDuration")) {
+				// cookie hasn't expired
+				if (!is_null($this->cosign->getUsername())) {
+					$this->cosignUser = strtolower($this->cosign->getUsername());
+				}
 			}
 		}
 		return $this->cosignUser;

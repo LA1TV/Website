@@ -9,6 +9,7 @@ class Cosign {
 	private $ip = null;
 	private $factors = null;
 	private $realm = null;
+	private $timeAuthenticated = null;
 	private $requested = false;
 	
 	public function __construct($service, $filterDbLocation="/var/cosign/filter") {
@@ -33,10 +34,17 @@ class Cosign {
 			// key contains unexpected characters
 			return;
 		}
-		$handle = @fopen($this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]), "r");
+		$filePath = $this->filterDbLocation."/".$this->service."=".str_replace(" ", "+", explode("/", $key, 2)[0]);
+		$handle = @fopen($filePath, "r");
 		if ($handle === FALSE) {
 			return;
 		}
+		
+		$timeAuthenticated = filemtime($filePath);
+		if ($timeAuthenticated === FALSE) {
+			return;
+		}
+		$this->timeAuthenticated = $timeAuthenticated;
 		
 		while (($line = fgets($handle)) !== false) {
 			if (strlen($line) < 2) {
@@ -81,5 +89,10 @@ class Cosign {
 	public function getRealm() {
 		$this->makeRequest();
 		return $this->realm;
+	}
+	
+	public function getTime() {
+		$this->makeRequest();
+		return $this->timeAuthenticated;
 	}
 }
