@@ -1,34 +1,34 @@
-// handles all .ajax-select
-
-var ajaxSelect = {
-	register: null // will be set to a function to render the ajax select on an element
-};
+var AjaxSelect = null;
 
 $(document).ready(function() {
 
 	var baseUrl = $("body").attr("data-baseUrl");
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
-	
-	$(".ajax-select").each(function() {
-		register($(this).first());
-	});
-	
-	ajaxSelect.register = register;
-	
-	function register($container) {
-	
+
+	AjaxSelect = function($container, chosenItemId) {
+		
+		var self = this;
+		
+		this.getId = function() {
+			return chosenItemId;
+		};
+		
+		this.setId = function(id) {
+			if (id === null) {
+				setItem(null);
+			}
+			else {
+				var index = resultsIds.indexOf(id);
+				setItem(index !== -1 ? results[index] : null);
+			}
+		};
+		
 		if (!$container.hasClass("ajax-select")) {
 			$container.addClass("ajax-select");
 		}
 		
 		var dataSourceUri = $container.attr("data-datasourceuri");
-		var destinationName = $container.attr("data-destinationname");
-		// the reference to the hidden form element where chosen rows id should be placed
-		var $destinationEl = $container.parent().find('[name="'+destinationName+'"]').first();
-		
 		var hasResult = null;
-		var chosenItemId = $destinationEl.val();
-		chosenItemId = chosenItemId !== "" ? parseInt(chosenItemId) : null;
 		var chosenItemText = $container.attr("data-chosenitemtext");
 		var changeTimerId = null;
 		var results = [];
@@ -55,7 +55,7 @@ $(document).ready(function() {
 		var $noResults = $('<div />').addClass("no-results").html('No results.').hide();
 		
 		$clearButton.click(function() {
-			setItem(null);
+			self.setId(null);
 		});
 		
 		$hasResult.append($resultContainer);
@@ -65,11 +65,7 @@ $(document).ready(function() {
 		$searching.append($loading);
 		$searching.append($noResults);
 		$searching.append($results);
-		
-		if ($destinationEl.val() !== "") {
-			chosenItemId = parseInt($destinationEl.val());
-		}
-		
+			
 		render();
 		
 		$container.append($hasResult);
@@ -107,7 +103,7 @@ $(document).ready(function() {
 				if (loading || hasResult || results.length === 0 || defaultResult === null) {
 					return;
 				}
-				setItem(results[resultsIds.indexOf(defaultResult)]);
+				self.setId(defaultResult);
 				return;
 			}
 			
@@ -195,7 +191,7 @@ $(document).ready(function() {
 						});
 						
 						$el.click(function() {
-							setItem(results[resultsIds.indexOf(id)]);
+							self.setId(id);
 						});
 					})();
 					
@@ -272,10 +268,9 @@ $(document).ready(function() {
 				chosenItemId = null;
 				chosenItemText = null;
 			}
-			$destinationEl.val(chosenItemId !== null ? chosenItemId : "");
+			$(self).triggerHandler("idChanged");
 			$container.attr("data-chosenitemtext", chosenItemText !== null ? chosenItemText : "");
 			render();
 		}
 	};
-	
 });
