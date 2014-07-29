@@ -10,19 +10,20 @@ $(document).ready(function() {
 	reordableList.register = register;
 	
 	/*
-	*  rowElement should be an object with the following functions:
-	*  - build(id) return a dom element to be added to the row. Should default to the id passed in. Can be null.
+	*  rowElement should be a class with the following functions:
+	*  - constructor(id) the id representing chosen option
+	*  - getEl() return the dom element to be added to the row. Should default to the id passed in. Can be null.
 	*  - getId() return an id representing the chosen option
 	*  - setId(id) set the id representing the chosen option
 	*/
-	function register($container, rowElement) {
+	function register($container, RowElement) {
 		
 		// contains ListRow's
 		var rows = [];
 		
-		function ListRow(no) {
+		function ListRow(no, id) {
 			var rowNo = null;
-		
+			var rowElement = new RowElement(id);
 			var $listRow = $("<div />").addClass("list-row").attr("data-highlight-state", 0);
 			var $rowNoCell = $("<div />").addClass("cell cell-no");
 			var $contentCell = $("<div />").addClass("cell cell-content");
@@ -32,6 +33,7 @@ $(document).ready(function() {
 			$listRow.append($rowNoCell);
 			$listRow.append($contentCell);
 			$optionsCell.append($optionDrag);
+			$contentCell.append(rowElement.getEl());
 			$listRow.append($optionsCell);
 			
 			$listRow.hover(function() {
@@ -52,12 +54,16 @@ $(document).ready(function() {
 				}
 			};
 			
+			this.getRowElement = function() {
+				return rowElement;
+			}
+			
 			this.setRowNo(no);
 			
 		}
 		
 		function createRow(id) {
-			var row = new ListRow(rows.length+1);
+			var row = new ListRow(rows.length+1, id);
 			rows.push(row);
 			updateRowNums();
 			$listTable.append(row.getEl());
@@ -114,6 +120,21 @@ $(document).ready(function() {
 	
 	
 	// TODO: TEMPORARY
-	register($(".reordable-list").first(), null);
+	register($(".reordable-list").first(), function(id) {
+		var $el = $("<div />").text("test");
+		var id = -1;
+		
+		this.getEl = function() {
+			return $el;
+		};
+		
+		this.getId = function() {
+			return id;
+		};
+		
+		this.setId = function(idParam) {
+			id = idParam;
+		};
+	});
 	
 });

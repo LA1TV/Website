@@ -10,4 +10,5 @@
 //= require jquery-file-upload/jquery.iframe-transport.js
 //= require jquery-file-upload/jquery.fileupload.js
 //= require custom_ordered/js/csrf.js
+//= require custom_ordered/js/ajax-select.js
 //= require_tree ./custom
