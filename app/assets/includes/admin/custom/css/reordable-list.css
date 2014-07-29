@@ -1,52 +1,57 @@
 .reordable-list .list-container {
+	max-height: 200px;
+	overflow: auto;
+}
+
+.reordable-list .list-container .list-table {
 	display: table;
 }
 
-.reordable-list .list-container .list-row {
+.reordable-list .list-container .list-table .list-row {
 	display: table-row;
 	background-color: #ffffff;
 }
 
 /* hovering over */
-.reordable-list .list-container .list-row[data-highlight-state='1'] {
+.reordable-list .list-container .list-table .list-row[data-highlight-state='1'] {
 	background-color: #e0e0ff;
 }
 
 /* dragging */
-.reordable-list .list-container .list-row[data-highlight-state='2'] {
-	background-color: #e0e0ff;
+.reordable-list .list-container .list-table .list-row[data-highlight-state='2'] {
+	background-color: #b0b0ff;
 }
 
-.reordable-list .list-container .list-row .cell {
+.reordable-list .list-container .list-table .list-row .cell {
 	display: table-cell;
 	padding-top: 3px;
 	padding-bottom: 3px;
 }
 
-.reordable-list .list-container .list-row .cell:first-child {
+.reordable-list .list-container .list-table .list-row .cell:first-child {
 	padding-left: 8px;
 }
 
-.reordable-list .list-container .list-row .cell:last-child {
+.reordable-list .list-container .list-table .list-row .cell:last-child {
 	padding-right: 8px;
 }
 
-.reordable-list .list-container .list-row .cell-no {
+.reordable-list .list-container .list-table .list-row .cell-no {
 	padding-right: 10px;
 }
 
-.reordable-list .list-container .list-row .cell-content {
+.reordable-list .list-container .list-table .list-row .cell-content {
 	width: 100%;
 }
 
-.reordable-list .list-container .list-row .cell-options {
+.reordable-list .list-container .list-table .list-row .cell-options {
 	padding-left: 15px;
 }
 
-.reordable-list .list-container .list-row .cell-options .option {
+.reordable-list .list-container .list-table .list-row .cell-options .option {
 	display: inline-block;
 }
 
-.reordable-list .list-container .list-row .cell-options .option-drag {
+.reordable-list .list-container .list-table .list-row .cell-options .option-drag {
 	cursor: move;
 }

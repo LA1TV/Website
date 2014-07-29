@@ -11,25 +11,7 @@
 	<div class="panel-body">
 		<?=FormHelpers::getAjaxSelectInput(1, "Test Dropdown", "test_dropdown_id", "", null, URL::to("/admin/media/ajaxselect"), "") ?>
 		
-		<div class="form-control reordable-list">
-			<div class="list-container">
-				<div class="list-row" data-highlight-state="0">
-					<div class="cell cell-no">9.</div>
-					<div class="cell cell-content">Some programme</div>
-					<div class="cell cell-options"><div class="option option-drag handle">[DRAG]</div></div>
-				</div>
-				<div class="list-row" data-highlight-state="1">
-					<div class="cell cell-no">10.</div>
-					<div class="cell cell-content">Some programme</div>
-					<div class="cell cell-options"><div class="option option-drag handle">[DRAG]</div></div>
-				</div>
-				<div class="list-row" data-highlight-state="0">
-					<div class="cell cell-no">11.</div>
-					<div class="cell cell-content">Some programme</div>
-					<div class="cell cell-options"><div class="option option-drag handle">[DRAG]</div></div>
-				</div>
-			</div>
-		</div>
+		<div class="form-control reordable-list"></div>
 		
 	</div>
 	<div class="panel-footer clearfix">
