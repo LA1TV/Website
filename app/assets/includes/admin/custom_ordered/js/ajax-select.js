@@ -5,7 +5,7 @@ $(document).ready(function() {
 	var baseUrl = $("body").attr("data-baseUrl");
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 
-	AjaxSelect = function(dataSourceUri,  chosenItemId, chosenItemText) {
+	AjaxSelect = function(dataSourceUri, chosenItemId, chosenItemText) {
 		
 		var self = this;
 		
@@ -13,14 +13,8 @@ $(document).ready(function() {
 			return chosenItemId;
 		};
 		
-		this.setId = function(id) {
-			if (id === null) {
-				setItem(null);
-			}
-			else {
-				var index = resultsIds.indexOf(id);
-				setItem(index !== -1 ? results[index] : null);
-			}
+		this.setState = function(state) {
+		
 		};
 		
 		this.getEl = function() {
@@ -258,6 +252,16 @@ $(document).ready(function() {
 		function getTermChanged() {
 			return $search.val() !== term;
 		}
+		
+		function setId(id) {
+			if (id === null) {
+				setItem(null);
+			}
+			else {
+				var index = resultsIds.indexOf(id);
+				setItem(index !== -1 ? results[index] : null);
+			}
+		};
 		
 		function setItem(item) {
 			if (item !== null) {

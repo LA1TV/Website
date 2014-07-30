@@ -11,4 +11,5 @@
 //= require jquery-file-upload/jquery.fileupload.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/ajax-select.js
+//= require custom_ordered/js/ajax-file-upload.js
 //= require_tree ./custom

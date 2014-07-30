@@ -11,10 +11,10 @@ $(document).ready(function() {
 	
 	/*
 	*  rowElement should be a class with the following functions:
-	*  - constructor(id) the id representing chosen option
+	*  - constructor(state) the state object representing chosen option
 	*  - getEl() return the dom element to be added to the row. Should default to the id passed in. Can be null.
 	*  - getId() return an id representing the chosen option
-	*  - setId(id) set the id representing the chosen option
+	*  - setState(state) set the the chosen option using state object
 	*/
 	function register($container, RowElement) {
 		

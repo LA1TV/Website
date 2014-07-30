@@ -1,4 +1,4 @@
-// handles attaching jquery.fileupload to all .ajax-upload
+var AjaxUpload = null;
 
 // will be set to function to return number of active uploads.
 var getNoActiveUploads = null;
@@ -14,15 +14,23 @@ $(document).ready(function() {
 	};
 	
 	
-	$(".ajax-upload").each(function() {
-	
-		var self = this;
-	
-		// after file uploaded it's id should be stored in hidden form element with name
-		var name = $(this).attr("data-ajaxuploadresultname");
+	AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, id, fileName, fileSize, processState, processPercentage, processMsg) {
 		
-		// the reference to the hidden form element where the file id should be placed
-		var $idInput = $(this).parent().find('[name="'+name+'"]').first();
+		var self = this;
+		
+		this.getId = function() {
+			return id;
+		};
+		
+		this.setState  = function(state) {
+			
+		};
+		
+		this.getEl = function() {
+			return $container;
+		};
+		
+		var $container = $("<div />").addClass("ajax-upload");
 		
 		// the generated <input type="file">. Note: this gets replaced by jquery file upload after every time files are selected
 		// therefore always search for this element, don't use this reference as it will only be correct initially
@@ -30,7 +38,7 @@ $(document).ready(function() {
 		
 		// use this to get input for reason above
 		var getFileInput = function() {
-			return $(self).find('input[type="file"]').first();
+			return $container.find('input[type="file"]').first();
 		};
 		
 		var $btnContainer = $("<div />").addClass("btn-container");
@@ -46,23 +54,13 @@ $(document).ready(function() {
 		var $progressBar = $("<div />").addClass("progress-bar").attr("role", "progressbar").attr("aria-valuemin", 0).attr("aria-valuemax", 100).attr("aria-valuenow", 0).width("0%");
 		$progressBarContainer.append($progressBar);
 		
-		$(this).append($fileInput);
-		$(this).append($btnContainer);
-		$(this).append($progressBarContainer);
+		$container.append($fileInput);
+		$container.append($btnContainer);
+		$container.append($progressBarContainer);
 		
-		var allowedExtensions = $(this).attr("data-ajaxuploadextensions").split(",");
-		var uploadPointId = $(this).attr("data-ajaxuploaduploadpointid");
-		var remoteRemove = $(this).attr("data-ajaxuploadremoteremove") === "1";
 		var maxFileLength = 50;
 		
 		var jqXHR = null;
-		var id = $idInput.val();
-		id = id === "" ? null : parseInt(id, 10);
-		var fileName = null;
-		var fileSize = null;
-		var processState = null;
-		var processPercentage = null;
-		var processMsg = null;
 		var progressBarVisible = false;
 		var progressBarActive = false;
 		var progressBarPercent = null;
@@ -248,7 +246,7 @@ $(document).ready(function() {
 					}
 				}
 				else {
-					console.log("ERROR: Invalid process state.");
+					console.log("ERROR: Invalid process state.", processState);
 					return;
 				}
 				updateTxt(processState === 1 ? 1 : 2, str);
@@ -276,12 +274,6 @@ $(document).ready(function() {
 		};
 		
 		if (defaultId !== null) {
-			// populate with default values
-			fileName = $(this).attr("data-ajaxuploadcurrentfilename");
-			fileSize = parseInt($(this).attr("data-ajaxuploadcurrentfilesize"), 10);
-			processState = parseInt($(this).attr("data-ajaxuploadprocessstate"), 10);
-			processPercentage = $(this).attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($(this).attr("data-ajaxuploadprocesspercentage"), 10) : null;
-			processMsg = $(this).attr("data-ajaxuploadprocessmsg") !== "" ? $(this).attr("data-ajaxuploadprocessmsg") : null;
 			progress = 100;
 			state = processState !== 0 ? 2 : 4;
 		}
@@ -300,8 +292,8 @@ $(document).ready(function() {
 		// Initialize the jQuery File Upload plugin
 		// https://github.com/blueimp/jQuery-File-Upload/
 		$fileInput.fileupload({
-			dropZone: $(self),
-			pasteZone: $(self),
+			dropZone: $container,
+			pasteZone: $container,
 			url: baseUrl+"/admin/upload/index",
 			dataType: "json",
 			type: "POST",
@@ -369,14 +361,7 @@ $(document).ready(function() {
 				processPercentage = result.processInfo.percentage;
 				processMsg = result.processInfo.msg;
 				
-				// place the file id in the hidden element
-				$idInput.val(result.id);
-				
-				$(self).attr("data-ajaxuploadcurrentfilename", fileName);
-				$(self).attr("data-ajaxuploadcurrentfilesize", fileSize);
-				$(self).attr("data-ajaxuploadprocessstate", processState);
-				$(self).attr("data-ajaxuploadprocesspercentage", processPercentage);
-				$(self).attr("data-ajaxuploadprocessMsg", processMsg);
+				$container.triggerHandler("idChanged");
 				progress = 100;
 				state = processState !== 0 ? 2 : 4;
 				update();
@@ -385,7 +370,6 @@ $(document).ready(function() {
 		
 		
 		$uploadBtn.click(function() {
-			
 			if (state === 0 || state === 3) {
 				// start upload
 				var input = getFileInput();
@@ -405,18 +389,13 @@ $(document).ready(function() {
 				}
 				// clear current upload
 				tmpId = id;
-				$idInput.val("");
 				id = null;
+				$container.triggerHandler("idChanged");
 				fileName = null;
 				fileSize = null;
 				processState = null;
 				processPercentage = null;
 				processMsg = null;
-				$(self).attr("data-ajaxuploadcurrentfilename", "");
-				$(self).attr("data-ajaxuploadcurrentfilesize", "");
-				$(self).attr("data-ajaxuploadprocessstate", "");
-				$(self).attr("data-ajaxuploadprocesspercentage", "");
-				$(self).attr("data-ajaxuploadprocessMsg", "");
 				if (remoteRemove || tmpId !== defaultId) {
 					// make ajax request to server to tell it to remove the temporary file immediately
 					// don't really care if it fails because the file will be removed when the session ends anyway
@@ -435,6 +414,6 @@ $(document).ready(function() {
 				update();
 			}
 		});
-	});
+	};
 	
 });
