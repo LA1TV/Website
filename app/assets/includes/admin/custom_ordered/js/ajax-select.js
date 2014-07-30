@@ -5,7 +5,7 @@ $(document).ready(function() {
 	var baseUrl = $("body").attr("data-baseUrl");
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 
-	AjaxSelect = function($container, chosenItemId) {
+	AjaxSelect = function(dataSourceUri,  chosenItemId, chosenItemText) {
 		
 		var self = this;
 		
@@ -23,13 +23,13 @@ $(document).ready(function() {
 			}
 		};
 		
-		if (!$container.hasClass("ajax-select")) {
-			$container.addClass("ajax-select");
-		}
+		this.getEl = function() {
+			return $container;
+		};
 		
-		var dataSourceUri = $container.attr("data-datasourceuri");
+		$container = $("<div />").addClass("ajax-select");
+		
 		var hasResult = null;
-		var chosenItemText = $container.attr("data-chosenitemtext");
 		var changeTimerId = null;
 		var results = [];
 		var resultsIds = [];
