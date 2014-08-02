@@ -1,19 +1,10 @@
 var AjaxUpload = null;
 
-// will be set to function to return number of active uploads.
-var getNoActiveUploads = null;
-
-
 $(document).ready(function() {
 
 	var baseUrl = $("body").attr("data-baseUrl");
 	var noUploads = 0;
-	
-	getNoActiveUploads = function() {
-		return noUploads;
-	};
-	
-	
+
 	AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, id, fileName, fileSize, processState, processPercentage, processMsg) {
 		
 		var self = this;
@@ -361,7 +352,7 @@ $(document).ready(function() {
 				processPercentage = result.processInfo.percentage;
 				processMsg = result.processInfo.msg;
 				
-				$container.triggerHandler("idChanged");
+				$(self).triggerHandler("idChanged");
 				progress = 100;
 				state = processState !== 0 ? 2 : 4;
 				update();
@@ -390,7 +381,7 @@ $(document).ready(function() {
 				// clear current upload
 				tmpId = id;
 				id = null;
-				$container.triggerHandler("idChanged");
+				$(self).triggerHandler("idChanged");
 				fileName = null;
 				fileSize = null;
 				processState = null;
@@ -414,6 +405,10 @@ $(document).ready(function() {
 				update();
 			}
 		});
+	};
+	
+	AjaxUpload.getNoActiveUploads = function() {
+		return noUploads;
 	};
 	
 });

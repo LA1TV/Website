@@ -3,7 +3,7 @@ $(document).ready(function() {
 	$(".page-media-edit").first().each(function() {
 		
 		customForm.addHandler(1, function() {
-			if (getNoActiveUploads() > 0) {
+			if (AjaxUpload.getNoActiveUploads() > 0) {
 				alert("There are still uploads are in progress.\n\nPlease either cancel them or wait for them to finish before saving.");
 				return false; // cancels submit
 			}
