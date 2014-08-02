@@ -49,7 +49,7 @@ $(document).ready(function() {
 		var $noResults = $('<div />').addClass("no-results").html('No results.').hide();
 		
 		$clearButton.click(function() {
-			self.setId(null);
+			setId(null);
 		});
 		
 		$hasResult.append($resultContainer);
@@ -97,7 +97,7 @@ $(document).ready(function() {
 				if (loading || hasResult || results.length === 0 || defaultResult === null) {
 					return;
 				}
-				self.setId(defaultResult);
+				setId(defaultResult);
 				return;
 			}
 			
@@ -185,7 +185,7 @@ $(document).ready(function() {
 						});
 						
 						$el.click(function() {
-							self.setId(id);
+							setId(id);
 						});
 					})();
 					
