@@ -4,5 +4,5 @@
 // https://github.com/CodeSleeve/asset-pipeline
 //
 //= require_tree jquery
-//= require bootstrap/js/bootstrap.js
+//= require bootstrap/js/bootstrap.min.js
 //= require_tree ./custom
