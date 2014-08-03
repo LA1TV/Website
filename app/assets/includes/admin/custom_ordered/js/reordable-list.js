@@ -14,7 +14,7 @@ $(document).ready(function() {
 	*
 	*  - It will get passed the initial state object as the first parameter
 	*/
-	ReordableList = function(state, rowElementBuilder) {
+	ReordableList = function(deleteEnabled, addEnabled, rowElementBuilder, state) {
 		
 		var self = this;
 		
@@ -69,19 +69,36 @@ $(document).ready(function() {
 		$container.append($listContainer);
 		
 		function ListRow(no, rowState) {
+			
+			var listRowSelf = this;
+		
 			var rowNo = null;
 			var rowElement = rowElementBuilder(rowState);
 			var $listRow = $("<div />").addClass("list-row").attr("data-highlight-state", 0);
 			var $rowNoCell = $("<div />").addClass("cell cell-no");
 			var $contentCell = $("<div />").addClass("cell cell-content");
 			var $optionsCell = $("<div />").addClass("cell cell-options");
+			if (deleteEnabled) {
+				var $optionDelete = $("<div />").addClass("option");
+				var $deleteButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-danger").html("&times;");
+			}
 			var $optionDrag = $("<div />").addClass("option option-drag handle").text("[DRAG]");
 			
 			$listRow.append($rowNoCell);
 			$listRow.append($contentCell);
+			if (deleteEnabled) {
+				$optionsCell.append($optionDelete);
+				$optionDelete.append($deleteButton);
+			}
 			$optionsCell.append($optionDrag);
 			$contentCell.append(rowElement.getEl());
 			$listRow.append($optionsCell);
+			
+			$deleteButton.click(function() {
+				if (confirm("Are you sure you want to delete this row?")) {
+					deleteRow(listRowSelf);
+				}
+			});
 			
 			$listRow.hover(function() {
 				$listRow.attr("data-highlight-state", 1);
@@ -140,7 +157,7 @@ $(document).ready(function() {
 		function deleteRowImpl(row) {
 			// TODO: check shift params
 			rows.shift(rows.indexOf(row));
-			$listTable.remove(row.getEl());
+			row.getEl().remove();
 		}
 		
 		function updateRowOrder() {
