@@ -27,7 +27,7 @@ $(document).ready(function() {
 			processPercentage: processPercentage,
 			processMsg: processMsg
 		});
-		$(ajaxUpload).on("idChanged", function() {
+		$(ajaxUpload).on("stateChanged", function() {
 			$destinationEl.val(ajaxUpload.getId() !== null ? ajaxUpload.getId() : "");
 		});
 		$container.append(ajaxUpload.getEl());

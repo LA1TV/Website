@@ -11,7 +11,7 @@
 	<div class="panel-body">
 		<?=FormHelpers::getAjaxSelectInput(1, "Test Dropdown", "test_dropdown_id", "", null, URL::to("/admin/media/ajaxselect"), "") ?>
 		
-		<div class="form-control reordable-list"></div>
+		<div class="form-control tmp-reordable-list"></div>
 		
 	</div>
 	<div class="panel-footer clearfix">

@@ -15,7 +15,7 @@ $(document).ready(function() {
 			id: chosenItemId,
 			text: chosenItemText
 		});
-		$(ajaxSelect).on("idChanged", function() {
+		$(ajaxSelect).on("stateChanged", function() {
 			$destinationEl.val(ajaxSelect.getId() !== null ? ajaxSelect.getId() : "");
 		});
 		$container.append(ajaxSelect.getEl());

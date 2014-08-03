@@ -13,6 +13,13 @@ $(document).ready(function() {
 			return chosenItemId;
 		};
 		
+		this.getState = function() {
+			return {
+				id: chosenItemId,
+				text: chosenItemText
+			};
+		};
+		
 		this.setState = function(state) {
 			var item = null;
 			if (state.id !== null) {
@@ -28,7 +35,7 @@ $(document).ready(function() {
 			return $container;
 		};
 		
-		$container = $("<div />").addClass("ajax-select");
+		var $container = $("<div />").addClass("ajax-select");
 		
 		var chosenItemId = null;
 		var chosenItemText = null;
@@ -49,6 +56,8 @@ $(document).ready(function() {
 		var resultsChanged = false;
 		
 		var $hasResult = $('<div />').addClass("has-result");
+		var $resultTable = $('<div />').addClass("result-table");
+		var $resultRow = $('<div />').addClass("result-row");
 		var $resultContainer = $('<div />').addClass("result-container");
 		var $buttonContainer = $('<div />').addClass("button-container");
 		var $clearButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-default").html("&times;");
@@ -62,8 +71,10 @@ $(document).ready(function() {
 			setId(null);
 		});
 		
-		$hasResult.append($resultContainer);
-		$hasResult.append($buttonContainer);
+		$hasResult.append($resultTable);
+		$resultTable.append($resultRow);
+		$resultRow.append($resultContainer);
+		$resultRow.append($buttonContainer);
 		$buttonContainer.append($clearButton);
 		$searching.append($search);
 		$searching.append($loading);
@@ -287,7 +298,7 @@ $(document).ready(function() {
 				chosenItemId = null;
 				chosenItemText = null;
 			}
-			$(self).triggerHandler("idChanged");
+			$(self).triggerHandler("stateChanged");
 			render();
 		}
 	};

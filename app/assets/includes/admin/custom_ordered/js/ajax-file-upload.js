@@ -13,11 +13,22 @@ $(document).ready(function() {
 			return id;
 		};
 		
+		this.getState = function() {
+			return {
+				id: id,
+				fileName: fileName,
+				fileSize: fileSize,
+				processState: processState,
+				processMsg: processMsg,
+				processPercentage: processPercentage
+			};
+		};
+		
 		this.setState  = function(stateParam) {
 			cancelUpload();
 			removeUpload();
 			id = stateParam.id;
-			$(self).triggerHandler("idChanged");
+			$(self).triggerHandler("stateChanged");
 			fileName = stateParam.fileName;
 			fileSize = stateParam.fileSize;
 			processState = stateParam.processState;
@@ -387,7 +398,7 @@ $(document).ready(function() {
 				noUploads--;
 				
 				id = result.id;
-				$(self).triggerHandler("idChanged");
+				$(self).triggerHandler("stateChanged");
 				fileName = result.fileName;
 				fileSize = result.fileSize;
 				processState = result.processInfo.state;
@@ -413,7 +424,7 @@ $(document).ready(function() {
 			}
 			tmpId = id;
 			id = null;
-			$(self).triggerHandler("idChanged");
+			$(self).triggerHandler("stateChanged");
 			fileName = null;
 			fileSize = null;
 			processState = null;

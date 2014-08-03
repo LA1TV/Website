@@ -1,29 +1,82 @@
-var reordableList = {
-	register: null
-};
+
+
+
+
+var ReordableList = null;
 
 $(document).ready(function() {
 
 	var baseUrl = $("body").attr("data-baseUrl");
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 	
-	reordableList.register = register;
-	
 	/*
-	*  rowElement should be a class with the following functions:
-	*  - constructor(state) the state object representing chosen option
-	*  - getEl() return the dom element to be added to the row. Should default to the id passed in. Can be null.
+	*  rowElementBuilder should be a function that returns a class with the following functions:
+	*  - getEl() return the dom element to be added to the row.
 	*  - getId() return an id representing the chosen option
-	*  - setState(state) set the the chosen option using state object
+	*  - setState(state) set the the chosen option using a state object
+	*  - getState() return the state object for the element
 	*/
-	function register($container, RowElement) {
+	ReordableList = function(state, rowElementBuilder) {
 		
+		var self = this;
+		
+		this.getState = function() {
+			return {
+				// TODO
+			};
+		};
+		
+		this.setState = function(state) {
+			for(var i=0; i<state.length; i++) {
+				
+			}
+			render();
+		};
+		
+		this.getEl = function() {
+			return $container;
+		};
+		
+		
+		var $container = $("<div />").addClass("reordable-list");
 		// contains ListRow's
 		var rows = [];
+		var id = null;
+		var $listContainer = $("<div />").addClass("list-container");
+		var $listTable = $("<div />").addClass("list-table");
+		$listContainer.append($listTable);
+		
+		this.setState(state); // calls render()
+		
+		$listTable.sortable({
+			appendTo: $listTable,
+			axis: "y",
+			containment: $listContainer,
+			cursor: "move",
+			handle: ".handle",
+			items: "> .list-row",
+			helper: function(e, $el) {
+				return $el.clone().attr("data-highlight-state", 2);
+			},
+			stop: function() {
+				updateRowOrder();
+			}
+		});
+		
+		
+		// TODO: TMP
+		for (var i=0; i<20; i++) {
+			createRow(null);
+		}
+		
+		
+		$container.append($listContainer);
+		
+		
 		
 		function ListRow(no, id) {
 			var rowNo = null;
-			var rowElement = new RowElement(id);
+			var rowElement = rowElementBuilder();
 			var $listRow = $("<div />").addClass("list-row").attr("data-highlight-state", 0);
 			var $rowNoCell = $("<div />").addClass("cell cell-no");
 			var $contentCell = $("<div />").addClass("cell cell-content");
@@ -62,6 +115,10 @@ $(document).ready(function() {
 			
 		}
 		
+		function render() {
+		
+		}
+		
 		function createRow(id) {
 			var row = new ListRow(rows.length+1, id);
 			rows.push(row);
@@ -86,55 +143,6 @@ $(document).ready(function() {
 				rows[i].setRowNo(i);
 			}
 		}
-		
-		if (!$container.hasClass("reordable-list")) {
-			$container.addClass("reordable-list");
-		}
-		
-		$listContainer = $("<div />").addClass("list-container");
-		$listTable = $("<div />").addClass("list-table");
-		$listContainer.append($listTable);
-		
-		$listTable.sortable({
-			appendTo: $listTable,
-			axis: "y",
-			containment: $listContainer,
-			cursor: "move",
-			handle: ".handle",
-			items: "> .list-row",
-			helper: function(e, $el) {
-				return $el.clone().attr("data-highlight-state", 2);
-			},
-			stop: function() {
-				updateRowOrder();
-			}
-		});
-		
-		for (var i=0; i<20; i++) {
-			createRow(null);
-		}
-		
-		
-		$container.append($listContainer);
 	};
-	
-	
-	// TODO: TEMPORARY
-	register($(".reordable-list").first(), function(id) {
-		var $el = $("<div />").text("test");
-		var id = -1;
-		
-		this.getEl = function() {
-			return $el;
-		};
-		
-		this.getId = function() {
-			return id;
-		};
-		
-		this.setId = function(idParam) {
-			id = idParam;
-		};
-	});
 	
 });
