@@ -1,7 +1,3 @@
-
-
-
-
 var ReordableList = null;
 
 $(document).ready(function() {
@@ -15,20 +11,27 @@ $(document).ready(function() {
 	*  - getId() return an id representing the chosen option
 	*  - setState(state) set the the chosen option using a state object
 	*  - getState() return the state object for the element
+	*
+	*  - It will get passed the initial state object as the first parameter
 	*/
 	ReordableList = function(state, rowElementBuilder) {
 		
 		var self = this;
 		
 		this.getState = function() {
-			return {
-				// TODO
-			};
+			var state = [];
+			for (var i=0; i<rows.length; i++) {
+				var row = rows[i];
+				state.push(row.getRowElement().getState());
+			}
+			return state;
 		};
 		
 		this.setState = function(state) {
+			deleteAllRows();
 			for(var i=0; i<state.length; i++) {
-				
+				var rowState = state[i];
+				createRow(rowState);
 			}
 			render();
 		};
@@ -63,20 +66,11 @@ $(document).ready(function() {
 			}
 		});
 		
-		
-		// TODO: TMP
-		for (var i=0; i<20; i++) {
-			createRow(null);
-		}
-		
-		
 		$container.append($listContainer);
 		
-		
-		
-		function ListRow(no, id) {
+		function ListRow(no, rowState) {
 			var rowNo = null;
-			var rowElement = rowElementBuilder();
+			var rowElement = rowElementBuilder(rowState);
 			var $listRow = $("<div />").addClass("list-row").attr("data-highlight-state", 0);
 			var $rowNoCell = $("<div />").addClass("cell cell-no");
 			var $contentCell = $("<div />").addClass("cell cell-content");
@@ -109,33 +103,64 @@ $(document).ready(function() {
 			
 			this.getRowElement = function() {
 				return rowElement;
-			}
+			};
+			
+			$(rowElement).on("stateChanged", function() {
+				$(self).triggerHandler("stateChanged");
+			});
 			
 			this.setRowNo(no);
-			
 		}
 		
 		function render() {
 		
 		}
 		
-		function createRow(id) {
-			var row = new ListRow(rows.length+1, id);
+		function createRow(rowState) {
+			var row = new ListRow(rows.length+1, rowState);
 			rows.push(row);
 			updateRowNums();
 			$listTable.append(row.getEl());
 		}
 		
+		function deleteRow(row) {
+			deleteRowImpl(row);
+			updateRowNums();
+			$(self).triggerHandler("stateChanged");
+		}
+		
+		function deleteAllRows() {
+			for (var i=0; i<rows.length; i++) {
+				deleteRowImpl(rows[i]);
+			}
+			updateRowNums();
+			$(self).triggerHandler("stateChanged");
+		}
+		
+		function deleteRowImpl(row) {
+			// TODO: check shift params
+			rows.shift(rows.indexOf(row));
+			$listTable.remove(row.getEl());
+		}
+		
 		function updateRowOrder() {
+			var orderChanged = false;
 			var newRows = [];
 			newRows.length = rows.length;
 			for (var i=0; i<rows.length; i++) {
 				var row = rows[i];
-				var currentRow = $listTable.find(".list-row[data-row]").index(row.getEl());
-				newRows[currentRow] = row;
+				var currentRowNo = $listTable.find(".list-row[data-row]").index(row.getEl());
+				newRows[currentRowNo] = row;
+				if (i !== currentRowNo) {
+					orderChanged = true;
+				}
+			}
+			if (!orderChanged) {
+				return;
 			}
 			rows = newRows;
 			updateRowNums();
+			$(self).triggerHandler("stateChanged");
 		}
 		
 		function updateRowNums() {

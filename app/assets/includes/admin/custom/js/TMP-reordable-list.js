@@ -5,14 +5,20 @@ $(document).ready(function() {
 	$(".tmp-reordable-list").each(function() {
 		var $container = $(this).first();
 		
-		var reordableList = new ReordableList([], function() {
-			return new AjaxSelect("http://127.0.0.1/la1tv/index.php/admin/media/ajaxselect", {
+		var reordableList = new ReordableList([
+			{
 				id: null,
-				chosenText: null
-			});
+				text: null
+			},
+			{
+				id: 5,
+				text: "Sally is annoying."
+			}
+		], function(state) {
+			return new AjaxSelect("http://127.0.0.1/la1tv/index.php/admin/media/ajaxselect", state);
 		});
 		$(reordableList).on("stateChanged", function() {
-			alert("state changed");
+			console.log(reordableList.getState());
 		});
 		$container.append(reordableList.getEl());
 	});
