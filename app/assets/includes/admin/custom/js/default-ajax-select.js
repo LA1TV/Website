@@ -1,4 +1,5 @@
 // will attach an AjaxSelect to elements with .default-ajax-select
+
 $(document).ready(function() {
 
 	$(".default-ajax-select").each(function() {
@@ -10,7 +11,10 @@ $(document).ready(function() {
 		var chosenItemId = $destinationEl.val() !== "" ? parseInt($destinationEl.val()) : null
 		var chosenItemText = $container.attr("data-chosenitemtext");
 	
-		var ajaxSelect = new AjaxSelect(dataSourceUri, chosenItemId, chosenItemText);
+		var ajaxSelect = new AjaxSelect(dataSourceUri, {
+			id: chosenItemId,
+			text: chosenItemText
+		});
 		$(ajaxSelect).on("idChanged", function() {
 			$destinationEl.val(ajaxSelect.getId() !== null ? ajaxSelect.getId() : "");
 		});

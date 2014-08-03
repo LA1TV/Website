@@ -18,7 +18,14 @@ $(document).ready(function() {
 		var processPercentage = $container.attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($container.attr("data-ajaxuploadprocesspercentage"), 10) : null;
 		var processMsg = $container.attr("data-ajaxuploadprocessmsg") !== "" ? $container.attr("data-ajaxuploadprocessmsg") : null;
 		
-		var ajaxUpload = new AjaxUpload(allowedExtensions, uploadPointId, remoteRemove, id, fileName, fileSize, processState, processPercentage, processMsg);
+		var ajaxUpload = new AjaxUpload(allowedExtensions, uploadPointId, remoteRemove, {
+			id: id,
+			fileName: fileName,
+			fileSize: fileSize,
+			processState: processState,
+			processPercentage: processPercentage,
+			processMsg: processMsg
+		});
 		$(ajaxUpload).on("idChanged", function() {
 			$destinationEl.val(ajaxUpload.getId() !== null ? ajaxUpload.getId() : "");
 		});

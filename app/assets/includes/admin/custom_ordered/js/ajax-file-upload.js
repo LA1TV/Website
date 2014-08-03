@@ -5,7 +5,7 @@ $(document).ready(function() {
 	var baseUrl = $("body").attr("data-baseUrl");
 	var noUploads = 0;
 
-	AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, id, fileName, fileSize, processState, processPercentage, processMsg) {
+	AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, stateParam) {
 		
 		var self = this;
 		
@@ -14,7 +14,10 @@ $(document).ready(function() {
 		};
 		
 		this.setState  = function(state) {
-			
+			id = state.id;
+			fileName = state.fileName;
+			fileSize = state.fileSize;
+			processState = state.processState;
 		};
 		
 		this.getEl = function() {
@@ -62,7 +65,9 @@ $(document).ready(function() {
 		var errorMsg = null;
 		var state = 0; // 0=choose file, 1=uploading, 2=uploaded and processed (even if process error), 3=error, 4=uploaded and processing
 		var cancelling = false;
+		this.setState(stateParam);
 		var defaultId = id;
+		
 		
 		// state: 0=hidden, 1=visible and active, 2=visible
 		var updateProgressBar = function(state, progress) {

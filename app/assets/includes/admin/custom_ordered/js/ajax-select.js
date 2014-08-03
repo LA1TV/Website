@@ -5,7 +5,7 @@ $(document).ready(function() {
 	var baseUrl = $("body").attr("data-baseUrl");
 	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 
-	AjaxSelect = function(dataSourceUri, chosenItemId, chosenItemText) {
+	AjaxSelect = function(dataSourceUri, state) {
 		
 		var self = this;
 		
@@ -14,7 +14,14 @@ $(document).ready(function() {
 		};
 		
 		this.setState = function(state) {
-		
+			var item = null;
+			if (state.id !== null) {
+				item = {
+					id: state.id,
+					text: state.text
+				};
+			}	
+			setItem(item); // calls render
 		};
 		
 		this.getEl = function() {
@@ -23,6 +30,9 @@ $(document).ready(function() {
 		
 		$container = $("<div />").addClass("ajax-select");
 		
+		var chosenItemId = null;
+		var chosenItemText = null;
+		var currentChosenItemText = null;
 		var hasResult = null;
 		var changeTimerId = null;
 		var results = [];
@@ -59,8 +69,8 @@ $(document).ready(function() {
 		$searching.append($loading);
 		$searching.append($noResults);
 		$searching.append($results);
-			
-		render();
+
+		this.setState(state); // this calls render()
 		
 		$container.append($hasResult);
 		$container.append($searching);
@@ -125,9 +135,13 @@ $(document).ready(function() {
 		
 		function render() {
 			var localHasResult = chosenItemId !== null;
-			if (hasResult !== localHasResult) {
+			if (hasResult || hasResult !== localHasResult) {
 				hasResult = localHasResult;
 				if (hasResult) {
+					if (currentChosenItemText === chosenItemText) {
+						return;
+					}
+					currentChosenItemText = chosenItemText;
 					loading = false;
 					renderLoading();
 					$searching.hide();
@@ -135,6 +149,7 @@ $(document).ready(function() {
 					$hasResult.show();
 				}
 				else {
+					currentChosenItemText = null;
 					loading = true;
 					renderLoading();
 					term = null;
@@ -273,7 +288,6 @@ $(document).ready(function() {
 				chosenItemText = null;
 			}
 			$(self).triggerHandler("idChanged");
-			$container.attr("data-chosenitemtext", chosenItemText !== null ? chosenItemText : "");
 			render();
 		}
 	};
