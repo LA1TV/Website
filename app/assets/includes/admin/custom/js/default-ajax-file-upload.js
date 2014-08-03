@@ -1,4 +1,5 @@
 // will attach an AjaxFileUpload to elements with .default-ajax-upload
+
 $(document).ready(function() {
 
 	$(".default-ajax-upload").each(function() {

@@ -13,11 +13,21 @@ $(document).ready(function() {
 			return id;
 		};
 		
-		this.setState  = function(state) {
-			id = state.id;
-			fileName = state.fileName;
-			fileSize = state.fileSize;
-			processState = state.processState;
+		this.setState  = function(stateParam) {
+			cancelUpload();
+			removeUpload();
+			id = stateParam.id;
+			$(self).triggerHandler("idChanged");
+			fileName = stateParam.fileName;
+			fileSize = stateParam.fileSize;
+			processState = stateParam.processState;
+			processMsg = stateParam.processMsg;
+			processPercentage = stateParam.processPercentage;
+			if (id !== null) {
+				progress = 100;
+				state = processState !== 0 ? 2 : 4;
+			}
+			update();
 		};
 		
 		this.getEl = function() {
@@ -54,6 +64,12 @@ $(document).ready(function() {
 		
 		var maxFileLength = 50;
 		
+		var id = null;
+		var fileName = null;
+		var fileSize = null;
+		var processState = null;
+		var processMsg;
+		var processPercentage;
 		var jqXHR = null;
 		var progressBarVisible = false;
 		var progressBarActive = false;
@@ -65,12 +81,38 @@ $(document).ready(function() {
 		var errorMsg = null;
 		var state = 0; // 0=choose file, 1=uploading, 2=uploaded and processed (even if process error), 3=error, 4=uploaded and processing
 		var cancelling = false;
-		this.setState(stateParam);
-		var defaultId = id;
+		var defaultId = stateParam.id;
+		if (defaultId !== null) {
+			progress = 100;
+			state = stateParam.processState !== 0 ? 2 : 4;
+		}
 		
+		this.setState(stateParam); // calls update()
+		updateProcessState(); // starts periodic checks
+		
+		$uploadBtn.click(function() {
+			if (state === 0 || state === 3) {
+				// start upload
+				var input = getFileInput();
+				input.click();
+			}
+			else if (state === 1) {
+				if (!confirm("Are you sure you want to cancel this upload?")) {
+					return;
+				}
+				cancelUpload();
+			}
+			else if (state === 2 || state === 4) {
+				if (!confirm("Are you sure you want to remove this upload?")) {
+					return;
+				}
+				removeUpload();
+				update();
+			}
+		});
 		
 		// state: 0=hidden, 1=visible and active, 2=visible
-		var updateProgressBar = function(state, progress) {
+		function updateProgressBar(state, progress) {
 			
 			if (state === 1 || state === 2) { // bar is visible
 				if (progressBarPercent !== progress) {
@@ -110,10 +152,10 @@ $(document).ready(function() {
 					progressBarVisible = true;
 				}
 			}
-		};
+		}
 		
 		// state: 0=normal, 1=success, 2=error, 3=working
-		var updateTxt = function(state, txt) {
+		function updateTxt(state, txt) {
 			
 			if (currentTxt !== txt) {
 				$txt.text(txt);
@@ -137,10 +179,10 @@ $(document).ready(function() {
 				txtState = state;
 			}
 		
-		};
+		}
 		
 		// state: 0=upload, 1=cancel, 2=remove
-		var updateBtn = function(state) {
+		function updateBtn(state) {
 			if (btnState === state) {
 				return;
 			}
@@ -159,12 +201,12 @@ $(document).ready(function() {
 				$uploadBtn.text("Remove");
 				$uploadBtn.addClass("btn-default");
 			}
-		};
+		}
 		
 		// update the process state
 		// this makes an ajax request and updates the processState, processPercentage, and processMsg variables and then calls update
 		// this function will automatically be called at set intervals after the first call. However ajax requests will only be made when necessary
-		var updateProcessState = function() {
+		function updateProcessState() {
 			
 			var startTimer = function() {
 				setTimeout(updateProcessState, 2000);
@@ -203,10 +245,10 @@ $(document).ready(function() {
 				// call this function again in 2 seconds
 				startTimer();
 			});
-		};
+		}
 		
 		// update the dom
-		var update = function() {
+		function update() {
 			
 			var fileStr = "";
 			if (state === 1 || state === 2 || state === 4) {
@@ -267,23 +309,17 @@ $(document).ready(function() {
 				updateBtn(2);
 				updateProgressBar(1, progress);
 			}
-		};
-		
-		if (defaultId !== null) {
-			progress = 100;
-			state = processState !== 0 ? 2 : 4;
 		}
 		
-		updateProcessState(); // starts periodic checks
-		update();
-		
-		var errorOccurred = function() {
+		function errorOccurred() {
 			noUploads--;
-			state = 3;
-			errorMsg = cancelling ? "Upload cancelled." : "An error occurred. Please try again.";
+			if (state === 1) { // this could be an asynchronous callback
+				state = 3;
+				errorMsg = cancelling ? "Upload cancelled." : "An error occurred. Please try again.";
+				update();
+			}
 			cancelling = false;
-			update();
-		};
+		}
 		
 		// Initialize the jQuery File Upload plugin
 		// https://github.com/blueimp/jQuery-File-Upload/
@@ -351,65 +387,58 @@ $(document).ready(function() {
 				noUploads--;
 				
 				id = result.id;
+				$(self).triggerHandler("idChanged");
 				fileName = result.fileName;
 				fileSize = result.fileSize;
 				processState = result.processInfo.state;
 				processPercentage = result.processInfo.percentage;
 				processMsg = result.processInfo.msg;
-				
-				$(self).triggerHandler("idChanged");
 				progress = 100;
 				state = processState !== 0 ? 2 : 4;
 				update();
 			}
 		});
 		
+		function cancelUpload() {
+			if (state !== 1) {
+				return;
+			}
+			cancelling = true;
+			jqXHR.abort(); // this triggers the error callback
+		}
 		
-		$uploadBtn.click(function() {
-			if (state === 0 || state === 3) {
-				// start upload
-				var input = getFileInput();
-				input.click();
+		function removeUpload() {
+			if (state !== 2 && state !== 4) {
+				return;
 			}
-			else if (state === 1) {
-				if (!confirm("Are you sure you want to cancel this upload?")) {
-					return;
-				}
-				// cancel upload
-				cancelling = true;
-				jqXHR.abort(); // this triggers the error callback
+			tmpId = id;
+			id = null;
+			$(self).triggerHandler("idChanged");
+			fileName = null;
+			fileSize = null;
+			processState = null;
+			processPercentage = null;
+			processMsg = null;
+			doRemoteRemove(tmpId);
+			state = 0;
+		}
+		
+		function doRemoteRemove(id) {
+			if (remoteRemove || id !== defaultId) {
+				// make ajax request to server to tell it to remove the temporary file immediately
+				// don't really care if it fails because the file will be removed when the session ends anyway
+				// this will not be made if the user is removing the file that is already saved because remoteRemove should be false and the id should match the one that was there when the page was loaded (because the user could cancel the form and it should still be on the server)
+				jQuery.ajax(baseUrl+"/admin/upload/remove", {
+					cache: false,
+					dataType: "json",
+					data: {
+						id: id,
+						csrf_token: getCsrfToken()
+					},
+					type: "POST"
+				});
 			}
-			else if (state === 2 || state === 4) {
-				if (!confirm("Are you sure you want to remove this upload?")) {
-					return;
-				}
-				// clear current upload
-				tmpId = id;
-				id = null;
-				$(self).triggerHandler("idChanged");
-				fileName = null;
-				fileSize = null;
-				processState = null;
-				processPercentage = null;
-				processMsg = null;
-				if (remoteRemove || tmpId !== defaultId) {
-					// make ajax request to server to tell it to remove the temporary file immediately
-					// don't really care if it fails because the file will be removed when the session ends anyway
-					// this will not be made if the user is removing the file that is already saved because remoteRemove should be false and the id should match the one that was there when the page was loaded (because the user could cancel the form and it should still be on the server)
-					jQuery.ajax(baseUrl+"/admin/upload/remove", {
-						cache: false,
-						dataType: "json",
-						data: {
-							id: tmpId,
-							csrf_token: getCsrfToken()
-						},
-						type: "POST"
-					});
-				}
-				state = 0;
-				update();
-			}
-		});
+		}
 	};
 	
 	AjaxUpload.getNoActiveUploads = function() {

@@ -268,7 +268,8 @@ class FormHelpers {
 			"size"	=> "",
 			"processState"	=> "0",
 			"processPercentage"	=> "",
-			"processMsg"	=> ""
+			"processMsg"	=> "",
+			"inUse"	=> false
 		);
 		if ($fileId === "") {
 			return $info;
@@ -281,6 +282,7 @@ class FormHelpers {
 			$info['processState'] = $file->process_state;
 			$info['processPercentage'] = !is_null($file->process_percentage) ? $file->process_percentage : "";
 			$info['processMsg'] = !is_null($file->msg) ? $file->msg : "";
+			$info['inUse'] = (boolean) $file->in_use;
 		}
 		return $info;
 	}
