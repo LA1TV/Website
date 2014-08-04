@@ -33,8 +33,8 @@
 		
 		<?=FormHelpers::getFormGroupStart("playlist-content", $formErrors);
 		?><label class="control-label">Playlist Content</label><div class="form-control form-playlist-content"></div><?php
-		FormHelpers::getFormHiddenInput(1, "playlist-content", "");
-		FormHelpers::getErrMsgHTML($formErrors, "playlist-content");?></div>
+		echo(FormHelpers::getFormHiddenInput(1, "playlist-content", ""));
+		echo(FormHelpers::getErrMsgHTML($formErrors, "playlist-content"));?></div>
 	</div>
 	<div class="panel-footer clearfix">
 		<div class="pull-left">
