@@ -11,6 +11,7 @@ $(document).ready(function() {
 	*  - getId() return an id representing the chosen option
 	*  - setState(state) set the the chosen option using a state object
 	*  - getState() return the state object for the element
+	*  - destroy() [optional] called when the row containing the RowElement is deleted
 	*
 	*  - It will get passed the initial state object as the first parameter
 	*/
@@ -166,6 +167,9 @@ $(document).ready(function() {
 		function deleteRowImpl(row) {
 			// TODO: check shift params
 			rows.shift(rows.indexOf(row));
+			if (typeof(row.getRowElement().destroy) === "function") {
+				row.getRowElement().destroy();
+			}
 			row.getEl().remove();
 		}
 		

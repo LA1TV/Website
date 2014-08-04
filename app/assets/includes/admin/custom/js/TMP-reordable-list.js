@@ -6,20 +6,17 @@ $(document).ready(function() {
 		var $container = $(this).first();
 		
 		var reordableList = new ReordableList(true, true, function(state) {
-			return new AjaxSelect("http://127.0.0.1/la1tv/index.php/admin/media/ajaxselect", state);
+		//	return new AjaxSelect("http://127.0.0.1/la1tv/index.php/admin/media/ajaxselect", state);
+			
+			return new AjaxUpload(["jpg"], 1, true, state);
 		}, {
 			id: null,
-			text: null
-		}, [
-			{
-				id: null,
-				text: null
-			},
-			{
-				id: 5,
-				text: "Sally is annoying."
-			}
-		]);
+			fileName: null,
+			fileSize: null,
+			processState: null,
+			processPercentage: null,
+			processMsg: null
+		}, []);
 		$(reordableList).on("stateChanged", function() {
 			console.log(reordableList.getState());
 		});

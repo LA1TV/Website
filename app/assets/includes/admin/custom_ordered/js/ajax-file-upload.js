@@ -45,6 +45,13 @@ $(document).ready(function() {
 			return $container;
 		};
 		
+		this.destroy = function() {
+			destroyed = true;
+			cancelUpload();
+			removeUpload();
+			cancelUpdateProcessStateChecks()
+		};
+		
 		var $container = $("<div />").addClass("ajax-upload");
 		
 		// the generated <input type="file">. Note: this gets replaced by jquery file upload after every time files are selected
@@ -81,6 +88,7 @@ $(document).ready(function() {
 		var processState = null;
 		var processMsg;
 		var processPercentage;
+		var updateProcessStateTimerId = null;
 		var jqXHR = null;
 		var progressBarVisible = false;
 		var progressBarActive = false;
@@ -90,6 +98,7 @@ $(document).ready(function() {
 		var btnState = null;
 		var progress = null;
 		var errorMsg = null;
+		var destroyed = false;
 		var state = 0; // 0=choose file, 1=uploading, 2=uploaded and processed (even if process error), 3=error, 4=uploaded and processing
 		var cancelling = false;
 		var defaultId = stateParam.id;
@@ -219,9 +228,13 @@ $(document).ready(function() {
 		// this function will automatically be called at set intervals after the first call. However ajax requests will only be made when necessary
 		function updateProcessState() {
 			
-			var startTimer = function() {
-				setTimeout(updateProcessState, 2000);
-			};
+			function startTimer() {
+				updateProcessStateTimerId = setTimeout(updateProcessState, 2000);
+			}
+			
+			if (destroyed) {
+				return;
+			}
 			
 			if (id === null || processState !== 0) {
 				// no file uploaded or the uploaded file has finished processing.
@@ -256,6 +269,12 @@ $(document).ready(function() {
 				// call this function again in 2 seconds
 				startTimer();
 			});
+		}
+		
+		function cancelUpdateProcessStateChecks() {
+			if (updateProcessStateTimerId !== null) {
+				clearTimeout(updateProcessStateTimerId);
+			}
 		}
 		
 		// update the dom
