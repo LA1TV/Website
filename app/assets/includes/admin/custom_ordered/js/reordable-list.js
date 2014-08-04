@@ -14,7 +14,7 @@ $(document).ready(function() {
 	*
 	*  - It will get passed the initial state object as the first parameter
 	*/
-	ReordableList = function(deleteEnabled, addEnabled, rowElementBuilder, state) {
+	ReordableList = function(deleteEnabled, addEnabled, rowElementBuilder, defaultRowElementState, state) {
 		
 		var self = this;
 		
@@ -47,9 +47,16 @@ $(document).ready(function() {
 		var id = null;
 		var $listContainer = $("<div />").addClass("list-container");
 		var $listTable = $("<div />").addClass("list-table");
+		var $addButtonContainer = $("<div />").addClass("add-button-container");
+		var $addButton = $('<button />').attr("type", "button").addClass("btn btn-block btn-xs btn-info").html("Add");
+		$addButtonContainer.append($addButton);
 		$listContainer.append($listTable);
 		
 		this.setState(state); // calls render()
+		
+		$addButton.click(function() {
+			createRow(defaultRowElementState);
+		});
 		
 		$listTable.sortable({
 			appendTo: $listTable,
@@ -67,6 +74,9 @@ $(document).ready(function() {
 		});
 		
 		$container.append($listContainer);
+		if (addEnabled) {
+			$container.append($addButtonContainer);
+		}
 		
 		function ListRow(no, rowState) {
 			
@@ -78,10 +88,8 @@ $(document).ready(function() {
 			var $rowNoCell = $("<div />").addClass("cell cell-no");
 			var $contentCell = $("<div />").addClass("cell cell-content");
 			var $optionsCell = $("<div />").addClass("cell cell-options");
-			if (deleteEnabled) {
-				var $optionDelete = $("<div />").addClass("option");
-				var $deleteButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-danger").html("&times;");
-			}
+			var $optionDelete = $("<div />").addClass("option");
+			var $deleteButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-danger").html("&times;");
 			var $optionDrag = $("<div />").addClass("option option-drag handle").text("[DRAG]");
 			
 			$listRow.append($rowNoCell);
@@ -134,6 +142,7 @@ $(document).ready(function() {
 		}
 		
 		function createRow(rowState) {
+			console.log(rowState);
 			var row = new ListRow(rows.length+1, rowState);
 			rows.push(row);
 			updateRowNums();
