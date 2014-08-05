@@ -39,6 +39,10 @@ class Playlist extends MyEloquent {
 		return $this->belongsTo(self::$p.'file', 'cover_file_id');
 	}
 	
+	public function coverArtFile() {
+		return $this->belongsTo(self::$p.'File', 'cover_art_file_id');
+	}
+	
 	public function mediaItems() {
 		return $this->belongsToMany(self::$p.'MediaItem', 'media_item_to_playlist', 'playlist_id', 'media_item_id')->withPivot('position', 'from_playlist_id');
 	}

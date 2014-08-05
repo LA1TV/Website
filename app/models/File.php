@@ -27,8 +27,10 @@ class File extends MyEloquent {
 				!EloquentHelpers::getIsForeignNull($model->mediaItemVideoWithFile()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
+				!EloquentHelpers::getIsForeignNull($model->mediaItemVideoWithCoverArt()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
-				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner())
+				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
+				!EloquentHelpers::getIsForeignNull($model->playlistWithCoverArt())
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
@@ -64,6 +66,10 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'MediaItemVideo', 'source_file_id');
 	}
 	
+	public function mediaItemVideoWithCoverArt() {
+		return $this->hasOne(self::$p.'MediaItemVideo', 'cover_art_file_id');
+	}
+	
 	public function mediaItemWithCover() {
 		return $this->hasOne(self::$p.'MediaItem', 'cover_file_id');
 	}
@@ -80,16 +86,16 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'Playlist', 'side_banner_file_id');
 	}
 	
+	public function playlistWithCoverArt() {
+		return $this->hasOne(self::$p.'Playlist', 'cover_art_file_id');
+	}
+	
 	public function videoFile() {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
 	}
 
 	public function imageFile() {
 		return $this->hasOne(self::$p.'ImageFile', 'file_id');
-	}
-	
-	public function coverArtFile() {
-		return $this->hasOne(self::$p.'MediaItemVideo', 'cover_art_file_id');
 	}
 	
 	public function parentFile() {
