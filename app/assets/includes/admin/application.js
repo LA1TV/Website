@@ -9,6 +9,7 @@
 //= require jquery-file-upload/jquery.ui.widget.js
 //= require jquery-file-upload/jquery.iframe-transport.js
 //= require jquery-file-upload/jquery.fileupload.js
+//= require custom_ordered/js/global-vars.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/ajax-select.js
 //= require custom_ordered/js/ajax-file-upload.js

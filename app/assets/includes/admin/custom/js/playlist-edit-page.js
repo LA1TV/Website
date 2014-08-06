@@ -8,7 +8,7 @@ $(document).ready(function() {
 			var $container = $(this).first();
 			
 			var reordableList = new ReordableList(true, true, function(state) {
-				return new AjaxSelect("http://127.0.0.1/la1tv/index.php/admin/media/ajaxselect", state);
+				return new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
 			}, {
 				id: null,
 				text: null

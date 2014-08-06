@@ -1,9 +1,6 @@
 var ReordableList = null;
 
 $(document).ready(function() {
-
-	var baseUrl = $("body").attr("data-baseUrl");
-	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
 	
 	/*
 	*  rowElementBuilder should be a function that returns a class with the following functions:

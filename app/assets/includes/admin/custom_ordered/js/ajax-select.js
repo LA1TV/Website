@@ -2,9 +2,6 @@ var AjaxSelect = null;
 
 $(document).ready(function() {
 
-	var baseUrl = $("body").attr("data-baseUrl");
-	var assetsBaseUrl = $("body").attr("data-assetsbaseurl");
-
 	AjaxSelect = function(dataSourceUri, state) {
 		
 		var self = this;

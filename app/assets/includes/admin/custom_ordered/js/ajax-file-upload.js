@@ -2,7 +2,6 @@ var AjaxUpload = null;
 
 $(document).ready(function() {
 
-	var baseUrl = $("body").attr("data-baseUrl");
 	var noUploads = 0;
 
 	AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, stateParam) {
