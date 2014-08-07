@@ -1,11 +1,13 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use Exception;
+use FormHelpers;
 
 class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
 	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no');
+	protected $appends = array("scheduled_publish_time_for_input", "serialized_playlist_content", "playlist_content_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -45,6 +47,37 @@ class Playlist extends MyEloquent {
 	
 	public function mediaItems() {
 		return $this->belongsToMany(self::$p.'MediaItem', 'media_item_to_playlist', 'playlist_id', 'media_item_id')->withPivot('position', 'from_playlist_id');
+	}
+	
+	public function getScheduledPublishTimeForInputAttribute() {
+		if (is_null($this->scheduled_publish_time)) {
+			return null;
+		}
+		return FormHelpers::formatDateForInput($this->scheduled_publish_time->timestamp);
+	}
+	
+	public function getPlaylistContent() {
+		$data = array();
+		$items = $this->mediaItems()->orderBy("media_item_to_playlist.position", "asc")->get();
+		foreach($items as $a) {
+			$data[] = array(
+				"id"		=> intval($a->id),
+				"name"		=> $a->name
+			);
+		}
+		return $data;
+	}
+	
+	public function getSerializedPlaylistContentAttribute() {
+		return json_encode($this->getPlaylistContent());
+	}
+	
+	public function getPlaylistContentForInputAttribute() {
+		$ids = array();
+		foreach($this->getPlaylistContent() as $a) {
+			$ids[] = $a['id'];
+		}
+		return implode(",", $ids);
 	}
 	
 	public function getDates() {
