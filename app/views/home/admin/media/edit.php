@@ -48,6 +48,7 @@
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "stream-enabled", $form['stream-enabled']==="y", $formErrors);?>
 							<?=FormHelpers::getFormTxtInput(1, "Name (Optional)", "stream-name", $form['stream-name'], $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "stream-description", $form['stream-description'], $formErrors);?>
+							<?=FormHelpers::getFormUploadInput(1, $streamCoverArtUploadPointId, "Cover Art (Optional)", "stream-cover-art-id", $form['stream-cover-art-id'], $formErrors, $additionalForm['streamCoverArtFile']['name'], $additionalForm['streamCoverArtFile']['size'], !$additionalForm['streamCoverArtFile']['inUse'], $additionalForm['streamCoverArtFile']['processState'], $additionalForm['streamCoverArtFile']['processPercentage'], $additionalForm['streamCoverArtFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Scheduled Live Time (Optional)", "stream-live-time", $form['stream-live-time'], $formErrors);?>
 							<?=FormHelpers::getFormSelectInput(1, "Stream", "stream-stream-id", $form['stream-stream-id'], $streamOptions, $formErrors);?>
 						</div>
