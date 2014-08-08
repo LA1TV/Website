@@ -40,6 +40,10 @@ class FormHelpers {
 		return $val === "y";
 	}
 	
+	public function getGenericInvalidMsg() {
+		return "This is invalid.";
+	}
+	
 	public static function getLessThanCharactersMsg($no) {
 		return "This must be less than ".$no." characters.";
 	}

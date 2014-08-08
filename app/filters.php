@@ -10,7 +10,6 @@
 | application. Here you may also register your custom route filters.
 |
 */
-
 App::before(function($request)
 {
 	//
