@@ -65,7 +65,8 @@ class PlaylistsController extends PlaylistsBaseController {
 		$additionalFormData = array(
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
-			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id'])
+			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
+			"playlistContentInitialData"	=> ObjectHelpers::getProp("[]", $playlist, "serialized_playlist_content")
 		);
 		
 		$errors = null;
