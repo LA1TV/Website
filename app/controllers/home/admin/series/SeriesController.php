@@ -8,6 +8,7 @@ use Csrf;
 use DB;
 use Validator;
 use Redirect;
+use Response;
 use uk\co\la1tv\website\models\Series;
 
 class SeriesController extends SeriesBaseController {
