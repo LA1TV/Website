@@ -18,6 +18,7 @@ use EloquentHelpers;
 use Auth;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\File;
 
 class PlaylistsController extends PlaylistsBaseController {
 
@@ -32,8 +33,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$playlist = null;
 		$editing = false;
 		if (!is_null($id)) {
-			//TODO: add with
-			$playlist = Playlist::with("coverFile", "sideBannerFile", "coverArtFile")->find($id);
+			$playlist = Playlist::with("coverFile", "sideBannerFile", "coverArtFile", "mediaItems")->find($id);
 			if (is_null($playlist)) {
 				App::abort(404);
 				return;
@@ -58,7 +58,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			array("side-banners-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $playlist, "coverArtFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $playlist, "scheduled_publish_time_for_input")),
-			array("playlist-content", ObjectHelpers::getProp("", $playlist, "playlist_content_for_input"))
+			array("playlist-content", ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_input"))
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
@@ -66,8 +66,15 @@ class PlaylistsController extends PlaylistsBaseController {
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
-			"playlistContentInitialData"	=> ObjectHelpers::getProp("[]", $playlist, "serialized_playlist_content")
+			"playlistContentInitialData"	=> null
 		);
+		
+		if (!$formSubmitted) {
+			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_orderable_list");
+		}
+		else {
+			$additionalFormData['playlistContentInitialData'] = Playlist::generatePlaylistContentForOrderableList($formData["playlist-content"]);
+		}
 		
 		$errors = null;
 		
@@ -76,14 +83,9 @@ class PlaylistsController extends PlaylistsBaseController {
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
-				$ids = explode(",", $value);
-				if (count($ids) === 0) {
-					return true;
-				}
-				return MediaItem::whereIn("id", $ids)->count() === count($ids);
+				return Playlist::isValidPlaylistDataFromInput($value);
 			});
-			
-			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem, &$errors) {
+			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 			
 				$validator = Validator::make($formData,	array(
 					'name'		=> array('required', 'max:50'),
@@ -127,6 +129,18 @@ class PlaylistsController extends PlaylistsBaseController {
 					$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtFileId, $playlist->coverArtFile);
 					EloquentHelpers::associateOrNull($playlist->coverArtFile(), $file);
 					
+					if ($playlist->save() === false) {
+						throw(new Exception("Error saving Playlist."));
+					}
+					
+					$playlist->mediaItems()->detach(); // detaches all
+					$ids = json_decode($formData['playlist-content'], true);
+					if (count($ids) > 0) {
+						$mediaItems = MediaItem::whereIn("id", $ids)->get();
+						foreach($mediaItems as $a) {
+							$playlist->mediaItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+						}
+					}
 					// the transaction callback result is returned out of the transaction function
 					return true;
 				}

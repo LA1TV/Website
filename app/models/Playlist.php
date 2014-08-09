@@ -7,7 +7,7 @@ class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
 	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no');
-	protected $appends = array("scheduled_publish_time_for_input", "serialized_playlist_content", "playlist_content_for_input");
+	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_select", "playlist_content_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -34,11 +34,11 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function sideBannerFile() {
-		return $this->belongsTo(self::$p.'file', 'side_banner_file_id');
+		return $this->belongsTo(self::$p.'File', 'side_banner_file_id');
 	}
 	
 	public function coverFile() {
-		return $this->belongsTo(self::$p.'file', 'cover_file_id');
+		return $this->belongsTo(self::$p.'File', 'cover_file_id');
 	}
 	
 	public function coverArtFile() {
@@ -68,8 +68,71 @@ class Playlist extends MyEloquent {
 		return $data;
 	}
 	
-	public function getSerializedPlaylistContentAttribute() {
-		return json_encode($this->getPlaylistContent());
+	public function getPlaylistContentForOrderableListAttribute() {
+		$data = array();
+		foreach($this->getPlaylistContent() as $a) {
+			$data[] = array(
+				"id"		=> $a['id'],
+				"text"		=> $a['name']
+			);
+		}
+		return json_encode($data);
+	}
+	
+	public static function isValidPlaylistDataFromInput($stringFromInput) {
+		$data = json_decode($stringFromInput, true);
+		if (!is_array($data)) {
+			return false;
+		}
+		$ids = array();
+		foreach($data as $a) {
+			if (!is_int($a) && !is_null($a)) {
+				return false;
+			}
+			$ids[] = $a;
+		}
+		if (count($ids) === 0) {
+			return true;
+		}
+		return MediaItem::whereIn("id", $ids)->count() === count($ids);
+	}
+	
+	// should be the string from the input
+	public static function generatePlaylistContentForOrderableList($stringFromInput) {
+		$data = json_decode($stringFromInput, true);
+		if (!is_array($data)) {
+			return "[]";
+		}
+		$output = array();
+		$ids = array();
+		foreach($data as $a) {
+			if (is_int($a)) {
+				$ids[] = $a;
+			}
+			$output[] = array(
+				"id"	=> is_int($a) ? $a : null,
+				"text"	=> null
+			);
+		}
+		if (count($ids) > 0) {
+			$mediaItems = MediaItem::whereIn("id", $ids)->get();
+			$mediaItemIds = array();
+			foreach($mediaItems as $a) {
+				$mediaItemIds[] = intval($a->id);
+			}
+			foreach($output as $i=>$a) {
+				if (is_null($a['id'])) {
+					continue;
+				}
+				$mediaItemIndex = array_search($a['id'], $mediaItemIds, true);
+				if ($mediaItemIndex === false) {
+					$output[$i]["id"] = null; // if the media item can't be found anymore make the id null as well.
+					continue;
+				}
+				$output[$i]["text"] = $mediaItems[$mediaItemIndex]->name;
+			}
+		}
+		return json_encode($output);
 	}
 	
 	public function getPlaylistContentForInputAttribute() {
@@ -77,7 +140,7 @@ class Playlist extends MyEloquent {
 		foreach($this->getPlaylistContent() as $a) {
 			$ids[] = $a['id'];
 		}
-		return implode(",", $ids);
+		return json_encode($ids);
 	}
 	
 	public function getDates() {

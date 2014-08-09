@@ -40,7 +40,7 @@ class FormHelpers {
 		return $val === "y";
 	}
 	
-	public function getGenericInvalidMsg() {
+	public static function getGenericInvalidMsg() {
 		return "This is invalid.";
 	}
 	

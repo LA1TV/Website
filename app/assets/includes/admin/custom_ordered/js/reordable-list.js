@@ -34,6 +34,15 @@ $(document).ready(function() {
 			render();
 		};
 		
+		this.getIds = function() {
+			var ids = [];
+			for (var i=0; i<rows.length; i++) {
+				var row = rows[i];
+				ids.push(row.getRowElement().getId());
+			}
+			return ids;
+		};
+		
 		this.getEl = function() {
 			return $container;
 		};
@@ -140,11 +149,11 @@ $(document).ready(function() {
 		}
 		
 		function createRow(rowState) {
-			console.log(rowState);
 			var row = new ListRow(rows.length+1, rowState);
 			rows.push(row);
 			updateRowNums();
 			$listTable.append(row.getEl());
+			$(self).triggerHandler("stateChanged");
 		}
 		
 		function deleteRow(row) {
@@ -162,8 +171,7 @@ $(document).ready(function() {
 		}
 		
 		function deleteRowImpl(row) {
-			// TODO: check shift params
-			rows.shift(rows.indexOf(row));
+			rows.splice(rows.indexOf(row), 1);
 			if (typeof(row.getRowElement().destroy) === "function") {
 				row.getRowElement().destroy();
 			}
