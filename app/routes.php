@@ -21,6 +21,7 @@ Route::post('/admin/media/ajaxselect', $p.'home\admin\media\MediaController@hand
 Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
 	Route::controller('/admin/media', $p.'home\admin\media\MediaController');
+	Route::controller('/admin/series', $p.'home\admin\series\SeriesController');
 	Route::controller('/admin/playlists', $p.'home\admin\playlists\PlaylistsController');
 	Route::controller('/admin/livestreams', $p.'home\admin\livestreams\LiveStreamsController');
 	Route::controller('/admin/comments', $p.'home\admin\comments\CommentsController');

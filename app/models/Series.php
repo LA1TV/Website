@@ -24,4 +24,8 @@ class Series extends MyEloquent {
 		}
 		return false;
 	}
+	
+	public function scopeSearch($q, $value) {
+		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
 }

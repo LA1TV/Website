@@ -1,6 +1,6 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title">Playlists</h3>
+		<h3 class="panel-title">Series</h3>
 	</div>
 	<div class="panel-body">
 		<?=FormHelpers::getSearchBar(); ?>
@@ -10,7 +10,6 @@
 					<th>Enabled</th>
 					<th>Name</th>
 					<th>Description</th>
-					<th>Number Of Items</th>
 					<th>Time Created</th>
 					<th></th>
 				</tr>
@@ -21,13 +20,11 @@
 					<td><span class="<?=e($a['enabledCss']);?>"><?=e($a['enabled']);?></span></td>
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
-					<td><?=e($a['noPlaylistItems']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
 				<tr>
-					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>

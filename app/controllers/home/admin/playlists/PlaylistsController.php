@@ -14,7 +14,6 @@ use Response;
 use Upload;
 use Csrf;
 use EloquentHelpers;
-use Auth;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
@@ -174,7 +173,6 @@ class PlaylistsController extends PlaylistsBaseController {
 						$mediaItems = MediaItem::whereIn("id", $ids)->get();
 						foreach($mediaItems as $a) {
 							$playlist->mediaItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
-							$playlist->mediaItems()->attach($a, array("position"=>99));
 						}
 					}
 					// the transaction callback result is returned out of the transaction function
