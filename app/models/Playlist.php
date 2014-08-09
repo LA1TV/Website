@@ -159,4 +159,8 @@ class Playlist extends MyEloquent {
 		}
 		return $this->scheduled_publish_time->getTimestamp() >= time();
 	}
+	
+	public function scopeSearch($q, $value) {
+		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
 }

@@ -23,8 +23,44 @@ class PlaylistsController extends PlaylistsBaseController {
 
 	public function getIndex() {
 		$view = View::make('home.admin.playlists.index');
+		$tableData = array();
 		
-		$this->setContent($view, "playlists", "playlists");
+		$pageNo = FormHelpers::getPageNo();
+		$searchTerm = FormHelpers::getValue("search", "", false, true);
+		
+		// get shared lock on records so that they can't be deleted before query runs to get specific range
+		// (this doesn't prevent new ones getting added but that doesn't really matter too much)
+		$noPlaylists = Playlist::search($searchTerm)->sharedLock()->count();
+		$noPages = FormHelpers::getNoPages($noPlaylists);
+		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noPlaylists-1) {
+			App::abort(404);
+			return;
+		}
+		
+		$playlists = Playlist::with("mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		
+		foreach($playlists as $a) {
+			$enabled = (boolean) $a->enabled;
+			$enabledStr = $enabled ? "Yes" : "No";
+			$noPlaylistItems = $a->mediaItems->count();
+			
+			$tableData[] = array(
+				"enabled"		=> $enabledStr,
+				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
+				"name"			=> $a->name,
+				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
+				"noPlaylistItems"	=> $noPlaylistItems,
+				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"editUri"		=> Config::get("custom.admin_base_url") . "/playlists/edit/" . $a->id,
+				"id"			=> $a->id
+			);
+		}
+		$view->tableData = $tableData;
+		$view->pageNo = $pageNo;
+		$view->noPages = $noPages;
+		$view->createUri = Config::get("custom.admin_base_url") . "/playlists/edit";
+		$view->deleteUri = Config::get("custom.admin_base_url") . "/playlists/delete";
+		$this->setContent($view, "playlist", "playlist");
 	}
 	
 	public function anyEdit($id=null) {
@@ -164,14 +200,13 @@ class PlaylistsController extends PlaylistsBaseController {
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
-		$view->cancelUri = Config::get("custom.admin_base_url") . "/playlist";
+		$view->cancelUri = Config::get("custom.admin_base_url") . "/playlists";
 	
 		$this->setContent($view, "playlist", "playlist-edit");
 	}
 	
 	public function postDelete() {
 		$resp = array("success"=>false);
-		
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {

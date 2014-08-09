@@ -6,7 +6,8 @@ $(document).ready(function() {
 			var uri = $(this).attr("data-deleteuri");
 			
 			var data = {
-				id: id
+				id: id,
+				csrf_token: getCsrfToken()
 			};
 			
 			var errorOccurred = function() {
