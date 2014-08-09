@@ -97,7 +97,7 @@ $(document).ready(function() {
 			var $optionsCell = $("<div />").addClass("cell cell-options");
 			var $optionDelete = $("<div />").addClass("option");
 			var $deleteButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-danger").html("&times;");
-			var $optionDrag = $("<div />").addClass("option option-drag handle").text("[DRAG]");
+			var $optionDrag = $("<div />").addClass("option option-drag handle").text("Drag");
 			
 			$listRow.append($rowNoCell);
 			$listRow.append($contentCell);
