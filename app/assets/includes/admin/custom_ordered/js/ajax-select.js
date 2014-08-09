@@ -51,6 +51,8 @@ $(document).ready(function() {
 		var loading = true;
 		var loadingVisible = true;
 		var resultsChanged = false;
+		var searchFocused = false;
+		var mouseOverDropdown = false;
 		
 		var $hasResult = $('<div />').addClass("has-result");
 		var $resultTable = $('<div />').addClass("result-table");
@@ -60,6 +62,7 @@ $(document).ready(function() {
 		var $clearButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-default").html("&times;");
 		var $searching = $('<div />').addClass("searching");
 		var $search = $('<input />').prop("type", "text").prop("placeholder", "Search...").addClass("form-control search");
+		var $dropdownContainer = $('<div />').addClass("dropdown-container form-control");
 		var $loading = $('<div />').addClass("loading").html('<img src="'+assetsBaseUrl+'assets/admin/img/loading.gif"> <span class="txt">Loading...</span>');
 		var $results = $('<div />').addClass("results").hide();
 		var $noResults = $('<div />').addClass("no-results").html('No results.').hide();
@@ -74,15 +77,32 @@ $(document).ready(function() {
 		$resultRow.append($buttonContainer);
 		$buttonContainer.append($clearButton);
 		$searching.append($search);
-		$searching.append($loading);
-		$searching.append($noResults);
-		$searching.append($results);
-
+		$searching.append($dropdownContainer);
+		$dropdownContainer.append($loading);
+		$dropdownContainer.append($noResults);
+		$dropdownContainer.append($results);
 		this.setState(state); // this calls render()
 		
 		$container.append($hasResult);
 		$container.append($searching);
 		
+		$dropdownContainer.hover(function() {
+			mouseOverDropdown = true;
+		}, function() {
+			mouseOverDropdown = false;
+		});
+		$search.focusin(function() {
+			searchFocused = true;
+			render();
+		});
+		$search.focusout(function() {
+			if (mouseOverDropdown) {
+				$search.focus();
+				return;
+			}
+			searchFocused = false;
+			render();
+		});
 		$search.keyup(function(e) {
 			
 			if (e.which === 13) { // enter
@@ -142,9 +162,19 @@ $(document).ready(function() {
 		});
 		
 		function render() {
-			var localHasResult = chosenItemId !== null;
-			if (hasResult || hasResult !== localHasResult) {
-				hasResult = localHasResult;
+			var oldHasResult = hasResult;
+			hasResult = chosenItemId !== null;
+			
+			if (!hasResult) {
+				if (searchFocused) {
+					$dropdownContainer.show();
+				}
+				else {
+					$dropdownContainer.hide();
+				}
+			}
+			
+			if (hasResult || hasResult !== oldHasResult) {
 				if (hasResult) {
 					if (currentChosenItemText === chosenItemText) {
 						return;
@@ -166,6 +196,8 @@ $(document).ready(function() {
 					renderHighlighted();
 					$hasResult.hide();
 					$searching.show();
+					$dropdownContainer.outerWidth($search.outerWidth());
+					$search.focus();
 				}
 			}
 		}
