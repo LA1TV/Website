@@ -19,13 +19,13 @@
 			<tbody>
 			<?php foreach($tableData as $a): ?>
 				<tr>
-					<td><span class="<?=e($a['enabled_css']);?>"><?=e($a['enabled']);?></span></td>
+					<td><span class="<?=e($a['enabledCss']);?>"><?=e($a['enabled']);?></span></td>
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
-					<td><span class="<?=e($a['has_vod_css']);?>"><?=e($a['has_vod']);?></span></td>
-					<td><span class="<?=e($a['has_stream_css']);?>"><?=e($a['has_stream']);?></span></td>
-					<td><?=e($a['time_created']);?></td>
-					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['edit_uri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
+					<td><span class="<?=e($a['hasVodCss']);?>"><?=e($a['hasVod']);?></span></td>
+					<td><span class="<?=e($a['hasStreamCss']);?>"><?=e($a['hasStream']);?></span></td>
+					<td><?=e($a['timeCreated']);?></td>
+					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
 				<tr>

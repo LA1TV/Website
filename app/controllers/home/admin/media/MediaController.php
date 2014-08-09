@@ -63,15 +63,15 @@ class MediaController extends MediaBaseController {
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
-				"enabled_css"	=> $enabled ? "text-success" : "text-danger",
+				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
-				"has_vod"		=> $hasVodStr,
-				"has_vod_css"	=> $vodEnabled ? "text-success" : "text-danger",
-				"has_stream"	=> $hasStreamStr,
-				"has_stream_css"	=> $streamEnabled ? "text-success" : "text-danger",
-				"time_created"	=> $a->created_at->toDateTimeString(),
-				"edit_uri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id,
+				"hasVod"		=> $hasVodStr,
+				"hasVodCss"		=> $vodEnabled ? "text-success" : "text-danger",
+				"hasStream"		=> $hasStreamStr,
+				"hasStreamCss"	=> $streamEnabled ? "text-success" : "text-danger",
+				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"editUri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id,
 				"id"			=> $a->id
 			);
 		}
