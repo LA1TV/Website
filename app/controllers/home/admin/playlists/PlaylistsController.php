@@ -100,7 +100,6 @@ class PlaylistsController extends PlaylistsBaseController {
 		// this will contain any additional data which does not get saved anywhere
 		$series = Series::find(intval($formData['series-id']));
 		$additionalFormData = array(
-			"seriesItemText"		=> "TODO",
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
