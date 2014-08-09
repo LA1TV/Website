@@ -7,6 +7,7 @@
 		<table class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
+					<th>Enabled</th>
 					<th>Name</th>
 					<th>Description</th>
 					<th>Has VOD</th>
@@ -18,6 +19,7 @@
 			<tbody>
 			<?php foreach($tableData as $a): ?>
 				<tr>
+					<td><span class="<?=e($a['enabled_css']);?>"><?=e($a['enabled']);?></span></td>
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
 					<td><span class="<?=e($a['has_vod_css']);?>"><?=e($a['has_vod']);?></span></td>
@@ -27,6 +29,7 @@
 				</tr>
 			<?php endforeach; ?>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>

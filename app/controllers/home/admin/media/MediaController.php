@@ -43,6 +43,8 @@ class MediaController extends MediaBaseController {
 		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
+			$enabled = (boolean) $a->enabled;
+			$enabledStr = $enabled ? "Yes" : "No";
 			$hasVod = !is_null($a->videoItem);
 			$vodEnabled = $hasVod ? (boolean) $a->videoItem->enabled : null;
 			$hasStream = !is_null($a->liveStreamItem);
@@ -60,12 +62,14 @@ class MediaController extends MediaBaseController {
 			}
 			
 			$tableData[] = array(
+				"enabled"		=> $enabledStr,
+				"enabled_css"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"has_vod"		=> $hasVodStr,
-				"has_vod_css"	=> $vodEnabled === TRUE ? "text-success" : "text-danger",
+				"has_vod_css"	=> $vodEnabled ? "text-success" : "text-danger",
 				"has_stream"	=> $hasStreamStr,
-				"has_stream_css"	=> $streamEnabled === TRUE ? "text-success" : "text-danger",
+				"has_stream_css"	=> $streamEnabled ? "text-success" : "text-danger",
 				"time_created"	=> $a->created_at->toDateTimeString(),
 				"edit_uri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id,
 				"id"			=> $a->id
