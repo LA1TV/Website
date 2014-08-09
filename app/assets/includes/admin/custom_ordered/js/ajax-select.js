@@ -167,6 +167,7 @@ $(document).ready(function() {
 			
 			if (!hasResult) {
 				if (searchFocused) {
+					$dropdownContainer.outerWidth($search.outerWidth());
 					$dropdownContainer.show();
 				}
 				else {
@@ -196,7 +197,6 @@ $(document).ready(function() {
 					renderHighlighted();
 					$hasResult.hide();
 					$searching.show();
-					$dropdownContainer.outerWidth($search.outerWidth());
 					$search.focus();
 				}
 			}
