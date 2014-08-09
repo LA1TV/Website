@@ -1,6 +1,5 @@
 <?php namespace uk\co\la1tv\website\controllers\home\admin\playlists;
 
-//TODO: update imports
 use View;
 use App;
 use FormHelpers;
@@ -170,26 +169,23 @@ class PlaylistsController extends PlaylistsBaseController {
 		$this->setContent($view, "playlist", "playlist-edit");
 	}
 	
-	// TODO
 	public function postDelete() {
-	return;
 		$resp = array("success"=>false);
 		
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
-				$mediaItem = MediaItem::find($id);
-				if (!is_null($mediaItem)) {
+				$playlist = Playlist::find($id);
+				if (!is_null($playlist)) {
 					// mark any related files as no longer in use (so they will be removed)
 					Upload::delete(array(
-						$mediaItem->sideBannerFile,
-						$mediaItem->coverFile,
-						ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile"),
-						ObjectHelpers::getProp(null, $mediaItem->videoItem, "coverArtFile")
+						$playlist->sideBannerFile,
+						$playlist->coverFile,
+						$playlist->coverArtFile
 					));
 					
-					if ($mediaItem->delete() === false) {
-						throw(new Exception("Error deleting MediaItem."));
+					if ($playlist->delete() === false) {
+						throw(new Exception("Error deleting Playlist."));
 					}
 					$resp['success'] = true;
 				}
