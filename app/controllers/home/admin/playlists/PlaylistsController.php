@@ -60,7 +60,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/playlists/edit";
 		$view->deleteUri = Config::get("custom.admin_base_url") . "/playlists/delete";
-		$this->setContent($view, "playlist", "playlist");
+		$this->setContent($view, "playlists", "playlists");
 	}
 	
 	public function anyEdit($id=null) {
@@ -202,7 +202,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/playlists";
 	
-		$this->setContent($view, "playlist", "playlist-edit");
+		$this->setContent($view, "playlists", "playlists-edit");
 	}
 	
 	public function postDelete() {

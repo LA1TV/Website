@@ -89,7 +89,9 @@ class Playlist extends MyEloquent {
 			if (!is_int($a) && !is_null($a)) {
 				return false;
 			}
-			$ids[] = $a;
+			if (!in_array($a, $ids, true)) {
+				$ids[] = $a;
+			}
 		}
 		if (count($ids) === 0) {
 			return true;
@@ -106,7 +108,7 @@ class Playlist extends MyEloquent {
 		$output = array();
 		$ids = array();
 		foreach($data as $a) {
-			if (is_int($a)) {
+			if (is_int($a) && !in_array($a, $ids, true)) {
 				$ids[] = $a;
 			}
 			$output[] = array(

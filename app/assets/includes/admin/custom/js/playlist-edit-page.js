@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-	$(".page-playlist-edit").first().each(function() {
+	$(".page-playlists-edit").first().each(function() {
 	
 		var $pageContainer = $(this).first();
 	
