@@ -43,12 +43,15 @@ class PlaylistsController extends PlaylistsBaseController {
 			$enabled = (boolean) $a->enabled;
 			$enabledStr = $enabled ? "Yes" : "No";
 			$noPlaylistItems = $a->mediaItems->count();
+			$series = $a->series;
+			$seriesStr = !is_null($series) ? $series->name . " (" . $a->series_no . ")" : "[Not Part Of Series]";
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
+				"series"		=> $seriesStr,
 				"noPlaylistItems"	=> $noPlaylistItems,
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/playlists/edit/" . $a->id,
