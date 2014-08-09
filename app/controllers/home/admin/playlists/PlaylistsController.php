@@ -17,6 +17,7 @@ use EloquentHelpers;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\Series;
 
 class PlaylistsController extends PlaylistsBaseController {
 
@@ -86,6 +87,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		// TODO: series
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $playlist, "enabled")?"y":""),
+			array("series-id", ObjectHelpers::getProp("", $playlist, "series", "id")),
 			array("name", ObjectHelpers::getProp("", $playlist, "name")),
 			array("description", ObjectHelpers::getProp("", $playlist, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $playlist, "coverFile", "id")),
@@ -96,10 +98,13 @@ class PlaylistsController extends PlaylistsBaseController {
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
+		$series = Series::find(intval($formData['series-id']));
 		$additionalFormData = array(
+			"seriesItemText"		=> "TODO",
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
+			"seriesItemText"		=> !is_null($series) ? $series->name : "",
 			"playlistContentInitialData"	=> null
 		);
 		
@@ -116,12 +121,19 @@ class PlaylistsController extends PlaylistsBaseController {
 			// validate input
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
+			Validator::extend('valid_series_id', function($attribute, $value, $parameters) {
+				if ($value === "") {
+					return true;
+				}
+				return !is_null(Series::find(intval($value)));
+			});
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
 				return Playlist::isValidPlaylistDataFromInput($value);
 			});
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 			
 				$validator = Validator::make($formData,	array(
+					'series-id'		=> array('valid_series_id'),
 					'name'		=> array('required', 'max:50'),
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id'),
@@ -131,6 +143,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'publish-time'	=> array('my_date'),
 					'playlist-content'	=> array('valid_playlist_content')
 				), array(
+					'series-id.valid_series_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'name.required'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
@@ -150,6 +163,16 @@ class PlaylistsController extends PlaylistsBaseController {
 					$playlist->name = $formData['name'];
 					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
+					
+					// TODO: temp
+					if ($formData['series-id'] !== "") {
+						$playlist->series_no = 1;
+					}
+					else {
+						$playlist->series_no = null;
+					}
+					
+					EloquentHelpers::associateOrNull($playlist->series(), Series::find(intval($formData['series-id'])));
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $playlist->coverFile);
@@ -200,6 +223,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/playlists";
+		$view->seriesAjaxSelectDataUri = Config::get("custom.admin_base_url") . "/series/ajaxselect";
 	
 		$this->setContent($view, "playlists", "playlists-edit");
 	}

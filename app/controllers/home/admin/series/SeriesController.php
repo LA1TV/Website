@@ -9,6 +9,7 @@ use DB;
 use Validator;
 use Redirect;
 use Response;
+use Auth;
 use uk\co\la1tv\website\models\Series;
 
 class SeriesController extends SeriesBaseController {
@@ -146,6 +147,31 @@ class SeriesController extends SeriesBaseController {
 					$resp['success'] = true;
 				}
 			});
+		}
+		return Response::json($resp);
+	}
+	
+	// json data for ajaxSelect element
+	// route to this in routes.php
+	public function handleAjaxSelect() {
+		$resp = array("success"=>false, "payload"=>null);
+		
+		if (Csrf::hasValidToken() && Auth::isLoggedIn()) {
+			$searchTerm = FormHelpers::getValue("term", "");
+			$series = null;
+			if (!empty($searchTerm)) {
+				$series = Series::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
+			}
+			else {
+				$series = Series::orderBy("created_at", "desc")->take(20)->get();
+			}
+			
+			$results = array();
+			foreach($series as $a) {
+				$results[] = array("id"=>intval($a->id), "text"=>$a->name);
+			}
+			$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
+			$resp['success'] = true;
 		}
 		return Response::json($resp);
 	}
