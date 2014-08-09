@@ -37,7 +37,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			return;
 		}
 		
-		$playlists = Playlist::with("mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$playlists = Playlist::with("series", "mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($playlists as $a) {
 			$enabled = (boolean) $a->enabled;

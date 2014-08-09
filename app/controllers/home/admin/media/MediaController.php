@@ -14,6 +14,7 @@ use Response;
 use Upload;
 use Csrf;
 use EloquentHelpers;
+use Auth;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
