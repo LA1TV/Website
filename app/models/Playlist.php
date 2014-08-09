@@ -89,7 +89,10 @@ class Playlist extends MyEloquent {
 			if (!is_int($a) && !is_null($a)) {
 				return false;
 			}
-			if (!in_array($a, $ids, true)) {
+			if (in_array($a, $ids, true)) {
+				return false;
+			}
+			else {
 				$ids[] = $a;
 			}
 		}
