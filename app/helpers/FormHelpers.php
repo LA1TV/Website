@@ -64,6 +64,10 @@ class FormHelpers {
 		return "This stream is invalid.";
 	}
 	
+	public static function getMustBeIntegerMsg() {
+		return "This must be an integer.";
+	}
+	
 	// checks if the file exists in the database
 	// If the file is not in use it checks that the session id matches the session that created it
 	public static function getValidFileValidatorFunction() {

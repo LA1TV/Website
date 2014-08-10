@@ -5,10 +5,24 @@ $(document).ready(function() {
 		var $pageContainer = $(this).first();
 		
 		$pageContainer.find(".form-series").each(function() {
+			
+			function render() {
+				if (ajaxSelect.getId() !== null) {
+					$seriesNoContainer.show();
+				}
+				else {
+					$seriesNoContainer.hide();
+					$seriesNoInput.val("");
+				}
+			}
+		
 			var ajaxSelect = registerDefaultAjaxSelect($(this).first());
+			var $seriesNoContainer = $pageContainer.find(".series-no-container").first();
+			var $seriesNoInput = $seriesNoContainer.find("input").first();
 			$(ajaxSelect).on("stateChanged", function() {
-				console.log(ajaxSelect.getId());
+				render();
 			});
+			render();
 		});
 		
 		$pageContainer.find(".form-playlist-content").each(function() {

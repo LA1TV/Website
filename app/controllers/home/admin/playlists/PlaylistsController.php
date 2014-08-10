@@ -91,6 +91,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $playlist, "enabled")?"y":""),
 			array("series-id", ObjectHelpers::getProp("", $playlist, "series", "id")),
+			array("series-no", ObjectHelpers::getProp("", $playlist, "series_no")),
 			array("name", ObjectHelpers::getProp("", $playlist, "name")),
 			array("description", ObjectHelpers::getProp("", $playlist, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $playlist, "coverFile", "id")),
@@ -133,9 +134,10 @@ class PlaylistsController extends PlaylistsBaseController {
 				return Playlist::isValidPlaylistDataFromInput($value);
 			});
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
-			
+				
 				$validator = Validator::make($formData,	array(
 					'series-id'		=> array('valid_series_id'),
+					'series-no'		=> array('required_with:series-id', 'integer'),
 					'name'		=> array('required', 'max:50'),
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id'),
@@ -146,6 +148,8 @@ class PlaylistsController extends PlaylistsBaseController {
 					'playlist-content'	=> array('valid_playlist_content')
 				), array(
 					'series-id.valid_series_id'	=> FormHelpers::getGenericInvalidMsg(),
+					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
+					'series-no.integer'	=> FormHelpers::getMustBeIntegerMsg(),
 					'name.required'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
@@ -166,15 +170,9 @@ class PlaylistsController extends PlaylistsBaseController {
 					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
 					
-					// TODO: temp
-					if ($formData['series-id'] !== "") {
-						$playlist->series_no = 1;
-					}
-					else {
-						$playlist->series_no = null;
-					}
-					
-					EloquentHelpers::associateOrNull($playlist->series(), Series::find(intval($formData['series-id'])));
+					$series = Series::find(intval($formData['series-id']));
+					EloquentHelpers::associateOrNull($playlist->series(), $series);
+					$playlist->series_no = !is_null($series) ? intval($formData['series-no']) : null;
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $playlist->coverFile);
