@@ -72,6 +72,10 @@ class FormHelpers {
 		return "This is not a valid domain.";
 	}
 	
+	public static function getInvalidIPOrDomainMsg() {
+		return "This is not a valid domain or IP address.";
+	}
+	
 	public static function getInvalidAlphaDashMsg() {
 		return "This must only contain alpha numeric characters, underscores, and/or dashes.";
 	}
@@ -115,8 +119,34 @@ class FormHelpers {
 			if ($value === "") {
 				return true;
 			}
-			return preg_match("/^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]+)$/", $value) === 1;
+			return self::isValidDomain($value);
 		};
+	}
+	
+	public static function getValidIPValidatorFunction() {
+		return function($attribute, $value, $parameters) {
+			if ($value === "") {
+				return true;
+			}
+			return self::isValidIP($value);
+		};
+	}
+	
+	public static function getValidIPOrDomainFunction() {
+		return function($attribute, $value, $parameters) {
+			if ($value === "") {
+				return true;
+			}
+			return self::isValidIP($value) || self::isValidDomain($value);
+		};
+	}
+	
+	private static function isValidIP($a) {
+		return preg_match("/^([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))$/", $a) === 1;
+	}
+	
+	private static function isValidDomain($a) {
+		return preg_match("/^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]+)$/", $a) === 1;
 	}
 	
 	public static function getErrCSS($errors, $name) {

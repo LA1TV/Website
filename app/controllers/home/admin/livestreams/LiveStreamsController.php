@@ -94,19 +94,19 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		if ($formSubmitted) {
 			$modelCreated = DB::transaction(function() use (&$formData, &$liveStream, &$errors) {
 				
-				Validator::extend("valid_domain", FormHelpers::getValidDomainValidatorFunction());
+				Validator::extend("valid_ip_or_domain", FormHelpers::getValidIPOrDomainFunction());
 				
 				$validator = Validator::make($formData,	array(
 					'name'				=> array('required', 'max:50'),
 					'description'		=> array('max:500'),
-					'server-address'	=> array('required', 'max:50', 'valid_domain'),
+					'server-address'	=> array('required', 'max:50', 'valid_ip_or_domain'),
 					'stream-name'		=> array('required', 'max:50', 'alpha_dash'),
 				), array(
 					'name.required'			=> FormHelpers::getRequiredMsg(),
 					'name.max'				=> FormHelpers::getLessThanCharactersMsg(50),
 					'server-address.required'	=> FormHelpers::getRequiredMsg(),
 					'server-address.max'	=> FormHelpers::getLessThanCharactersMsg(50),
-					'server-address.valid_domain'	=> FormHelpers::getInvalidDomainMsg(),
+					'server-address.valid_ip_or_domain'	=> FormHelpers::getInvalidIPOrDomainMsg(),
 					'stream-name.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
