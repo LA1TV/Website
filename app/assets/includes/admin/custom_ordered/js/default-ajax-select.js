@@ -1,9 +1,15 @@
 // will attach an AjaxSelect to elements with .default-ajax-select
+var registerDefaultAjaxSelect = null;
 
 $(document).ready(function() {
+	
+	registerDefaultAjaxSelect = register;
 
 	$(".default-ajax-select").each(function() {
-		var $container = $(this).first();
+		register($(this).first());
+	});
+	
+	function register($container) {
 		var destinationName = $container.attr("data-destinationname");
 		// the reference to the hidden form element where chosen rows id should be placed
 		var $destinationEl = $container.parent().find('[name="'+destinationName+'"]').first();
@@ -19,5 +25,7 @@ $(document).ready(function() {
 			$destinationEl.val(ajaxSelect.getId() !== null ? ajaxSelect.getId() : "");
 		});
 		$container.append(ajaxSelect.getEl());
-	});
+		
+		return ajaxSelect;
+	};
 });

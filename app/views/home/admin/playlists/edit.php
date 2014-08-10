@@ -4,7 +4,7 @@
 	</div>
 	<div class="panel-body">
 		<?=FormHelpers::getFormCheckInput(1, "Enabled", "enabled", $form['enabled'] === "y", $formErrors);?>	
-		<?=FormHelpers::getAjaxSelectInput(1, "Series (Optional)", "series-id", $form['series-id'], $formErrors, $seriesAjaxSelectDataUri, $additionalForm['seriesItemText']);?>
+		<?=FormHelpers::getAjaxSelectInput(1, "Series (Optional)", "series-id", $form['series-id'], $formErrors, $seriesAjaxSelectDataUri, $additionalForm['seriesItemText'], "form-series");?>
 		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormUploadInput(1, $coverImageUploadPointId, "Cover Image (Optional)", "cover-image-id", $form['cover-image-id'], $formErrors, $additionalForm['coverImageFile']['name'], $additionalForm['coverImageFile']['size'], !$additionalForm['coverImageFile']['inUse'], $additionalForm['coverImageFile']['processState'], $additionalForm['coverImageFile']['processPercentage'], $additionalForm['coverImageFile']['processMsg']);?>

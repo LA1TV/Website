@@ -14,4 +14,5 @@
 //= require custom_ordered/js/ajax-select.js
 //= require custom_ordered/js/ajax-file-upload.js
 //= require custom_ordered/js/reordable-list.js
+//= require custom_ordered/js/default-ajax-select.js
 //= require_tree ./custom

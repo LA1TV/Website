@@ -186,12 +186,12 @@ class FormHelpers {
 		return $a;
 	}
 	
-	public static function getAjaxSelectInput($formId, $txt, $name, $val, $formErrors, $dataUri, $chosenItemText) {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getAjaxSelectElement($formId, $name, $val, $dataUri, $chosenItemText).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	public static function getAjaxSelectInput($formId, $txt, $name, $val, $formErrors, $dataUri, $chosenItemText, $class="default-ajax-select") {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getAjaxSelectElement($formId, $name, $val, $dataUri, $chosenItemText, $class).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getAjaxSelectElement($formId, $formInputName, $value, $dataUri, $chosenItemTxt) {		
-		return '<div class="form-control default-ajax-select" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $value);
+	public static function getAjaxSelectElement($formId, $formInputName, $value, $dataUri, $chosenItemTxt, $class) {
+		return '<div class="form-control '.e($class).'" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $value);
 	}
 	
 	public static function getSearchBar() {

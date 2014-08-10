@@ -3,7 +3,14 @@ $(document).ready(function() {
 	$(".page-playlists-edit").first().each(function() {
 	
 		var $pageContainer = $(this).first();
-	
+		
+		$pageContainer.find(".form-series").each(function() {
+			var ajaxSelect = registerDefaultAjaxSelect($(this).first());
+			$(ajaxSelect).on("stateChanged", function() {
+				console.log(ajaxSelect.getId());
+			});
+		});
+		
 		$pageContainer.find(".form-playlist-content").each(function() {
 			var $container = $(this).first();
 			var $destinationEl = $container.parent().find('[name="playlist-content"]').first();
