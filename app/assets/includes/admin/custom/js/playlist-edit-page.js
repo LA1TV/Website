@@ -31,7 +31,7 @@ $(document).ready(function() {
 			var initialDataStr = $(this).attr("data-initialdata");
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
-			var reordableList = new ReordableList(true, true, function(state) {
+			var reordableList = new ReordableList(true, true, true, function(state) {
 				return new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
 			}, {
 				id: null,

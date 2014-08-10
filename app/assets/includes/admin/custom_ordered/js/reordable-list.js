@@ -12,7 +12,7 @@ $(document).ready(function() {
 	*
 	*  - It will get passed the initial state object as the first parameter
 	*/
-	ReordableList = function(deleteEnabled, addEnabled, rowElementBuilder, defaultRowElementState, state) {
+	ReordableList = function(deleteEnabled, addEnabled, dragEnabled, rowElementBuilder, defaultRowElementState, state) {
 		
 		var self = this;
 		
@@ -105,7 +105,9 @@ $(document).ready(function() {
 				$optionsCell.append($optionDelete);
 				$optionDelete.append($deleteButton);
 			}
-			$optionsCell.append($optionDrag);
+			if (dragEnabled) {
+				$optionsCell.append($optionDrag);
+			}
 			$contentCell.append(rowElement.getEl());
 			$listRow.append($optionsCell);
 			
