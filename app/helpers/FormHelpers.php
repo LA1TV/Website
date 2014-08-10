@@ -68,8 +68,8 @@ class FormHelpers {
 		return "This must be an integer.";
 	}
 	
-	public static function getInvalidUrlMsg() {
-		return "This is not a valid url.";
+	public static function getInvalidDomainMsg() {
+		return "This is not a valid domain.";
 	}
 	
 	public static function getInvalidAlphaDashMsg() {
@@ -107,6 +107,15 @@ class FormHelpers {
 				return true;
 			}
 			return strtotime($value) !== FALSE && preg_match("/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/", $value) === 1;
+		};
+	}
+	
+	public static function getValidDomainValidatorFunction() {
+		return function($attribute, $value, $parameters) {
+			if ($value === "") {
+				return true;
+			}
+			return preg_match("/^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]+)$/", $value) === 1;
 		};
 	}
 	
