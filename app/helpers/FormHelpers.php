@@ -68,6 +68,14 @@ class FormHelpers {
 		return "This must be an integer.";
 	}
 	
+	public static function getInvalidUrlMsg() {
+		return "This is not a valid url.";
+	}
+	
+	public static function getInvalidAlphaDashMsg() {
+		return "This must only contain alpha numeric characters, underscores, and/or dashes.";
+	}
+	
 	// checks if the file exists in the database
 	// If the file is not in use it checks that the session id matches the session that created it
 	public static function getValidFileValidatorFunction() {

@@ -29,4 +29,8 @@ class LiveStream extends MyEloquent {
 	public function liveStreamItems() {
 		return $this->hasMany(self::$p.'MediaItemVideoStream', 'live_stream_id');
 	}
+	
+	public function scopeSearch($q, $value) {
+		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
 }
