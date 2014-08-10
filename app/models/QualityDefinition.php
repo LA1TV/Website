@@ -3,7 +3,7 @@
 class QualityDefinition extends MyEloquent {
 
 	protected $table = 'quality_definitions';
-	protected $fillable = array('id', 'name');
+	protected $fillable = array('id', 'name', 'position');
 	
 	public function videoFile() {
 		return $this->hasOne(self::$p.'VideoFile', 'quality_definition_id');
