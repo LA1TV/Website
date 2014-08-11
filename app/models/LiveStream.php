@@ -18,16 +18,32 @@ class LiveStream extends MyEloquent {
 		});
 	}
 	
-	public function qualities() {
-		return $this->hasMany(self::$p.'LiveStreamQuality', 'live_stream_id');
-	}
-
 	public function scopeUsingLoadBalancer($q, $yes) {
 		return $q->where(self::$p.'load_balancer_server_address', $yes ? 'IS NOT' : 'IS', DB::raw('NULL'));
 	}
 	
 	public function liveStreamItems() {
 		return $this->hasMany(self::$p.'MediaItemVideoStream', 'live_stream_id');
+	}
+	
+	public function getQualitiesContent() {
+		$data = array();
+		$items = $this->qualities()->orderBy("position", "asc")->get();
+		foreach($items as $a) {
+			$data[] = array(
+				"id"		=> intval($a->id),
+				"name"		=> $a->name
+			);
+		}
+		return $data;
+	}
+	
+	public function getQualitiesForInputAttribute() {
+		$ids = array();
+		foreach($this->getPlaylistContent() as $a) {
+			$ids[] = $a['id'];
+		}
+		return json_encode($ids);
 	}
 	
 	public function scopeSearch($q, $value) {

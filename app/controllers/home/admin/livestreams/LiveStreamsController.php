@@ -86,8 +86,20 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			array("server-address", ObjectHelpers::getProp("", $liveStream, "server_address")),
 			array("stream-name", ObjectHelpers::getProp("", $liveStream, "stream_name")),
 			array("dvr-enabled", ObjectHelpers::getProp(false, $liveStream, "dvr_enabled")?"y":""),
+			array("qualities", ObjectHelpers::getProp("[]", $liveStream, "qualities_for_input")),
 		), !$formSubmitted);
 		
+		// this will contain any additional data which does not get saved anywhere
+		$additionalFormData = array(
+			"qualitiesInitialData"	=> null
+		);
+		
+		//if (!$formSubmitted) {
+		//	$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_orderable_list");
+		//}
+		//else {
+			$additionalFormData['qualitiesInitialData'] = QualityDefinition::generateQualityDefinitionsForOrderableList($formData["qualities"]);
+		//}
 		
 		$errors = null;
 		

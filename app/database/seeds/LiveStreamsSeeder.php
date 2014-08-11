@@ -27,47 +27,6 @@ class LiveStreamsSeeder extends Seeder {
 				));
 				$stream->save();
 				
-				$pos = 0;
-				
-				$quality = new LiveStreamQuality(array(
-					"quality_id"	=> "auto",
-					"position"		=> $pos++
-				));
-				$quality->liveStream()->associate($stream);
-				$quality->qualityDefinition()->associate(QualityDefinition::find(7));
-				$quality->save();
-				
-				$quality = new LiveStreamQuality(array(
-					"quality_id"	=> "720p",
-					"position"		=> $pos++
-				));
-				$quality->liveStream()->associate($stream);
-				$quality->qualityDefinition()->associate(QualityDefinition::find(2));
-				$quality->save();
-				
-				$quality = new LiveStreamQuality(array(
-					"quality_id"	=> "360p",
-					"position"		=> $pos++
-				));
-				$quality->liveStream()->associate($stream);
-				$quality->qualityDefinition()->associate(QualityDefinition::find(4));
-				$quality->save();
-				
-				$quality = new LiveStreamQuality(array(
-					"quality_id"	=> "240p",
-					"position"		=> $pos++
-				));
-				$quality->liveStream()->associate($stream);
-				$quality->qualityDefinition()->associate(QualityDefinition::find(5));
-				$quality->save();
-				
-				$quality = new LiveStreamQuality(array(
-					"quality_id"	=> "160p",
-					"position"		=> $pos++
-				));
-				$quality->liveStream()->associate($stream);
-				$quality->qualityDefinition()->associate(QualityDefinition::find(6));
-				$quality->save();
 			});
 		}
 		
