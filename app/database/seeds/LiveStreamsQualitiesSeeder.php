@@ -12,7 +12,6 @@ class LiveStreamsQualitiesSeeder extends Seeder {
 	 */
 	public function run() {
 		
-		// uri template (appended directly after domain domain/ip), quality id in qualities table (which maps to name)
 		$qualities = array(
 			array("http://{domain}:1935/{appName}/ngrp:{streamName}_720", 2),
 			array("http://{domain}:1935/{appName}/{streamName}_360", 4),
