@@ -27,7 +27,6 @@ class TruncateTablesSeeder extends Seeder {
 			
 		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 		LiveStream::truncate();
-		LiveStreamQuality::truncate();
 		MediaItem::truncate();
 		MediaItemComment::truncate();
 		MediaItemLike::truncate();
