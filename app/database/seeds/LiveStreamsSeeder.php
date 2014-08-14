@@ -26,6 +26,8 @@ class LiveStreamsSeeder extends Seeder {
 					"enabled"	=> false
 				));
 				$stream->save();
+				$stream->qualities()->attach(LiveStreamQuality::find(1));
+				$stream->qualities()->attach(LiveStreamQuality::find(2));
 				
 			});
 		}
