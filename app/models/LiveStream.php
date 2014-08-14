@@ -26,6 +26,10 @@ class LiveStream extends MyEloquent {
 		return $this->hasMany(self::$p.'MediaItemVideoStream', 'live_stream_id');
 	}
 	
+	public function qualities() {
+		return $this->belongsToMany(self::$p.'LiveStreamQuality', 'live_stream_qualitiy_to_live_stream', 'live_stream_id', 'live_stream_quality_id');
+	}
+	
 	public function getQualitiesContent() {
 		$data = array();
 		$items = $this->qualities()->orderBy("position", "asc")->get();

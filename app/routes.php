@@ -18,6 +18,7 @@ Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 
 Route::post('/admin/media/ajaxselect', $p.'home\admin\media\MediaController@handleAjaxSelect');
 Route::post('/admin/series/ajaxselect', $p.'home\admin\series\SeriesController@handleAjaxSelect');
+Route::post('/admin/qualities/ajaxselect', $p.'home\admin\qualities\QualitiesController@handleAjaxSelect');
 
 Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');

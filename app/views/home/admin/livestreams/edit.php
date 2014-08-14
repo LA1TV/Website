@@ -9,6 +9,10 @@
 		<?=FormHelpers::getFormTxtInput(1, "Server Address", "server-address", $form['server-address'], $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Stream Name", "stream-name", $form['stream-name'], $formErrors);?>
 		<?=FormHelpers::getFormCheckInput(1, "DVR Enabled", "dvr-enabled", $form['dvr-enabled'] === "y", $formErrors);?>
+		<?=FormHelpers::getFormGroupStart("qualities", $formErrors);
+		?><label class="control-label">Supported Qualities</label><div class="form-control form-qualities" data-initialdata="<?=e($additionalForm['qualities'])?>"></div><?php
+		echo(FormHelpers::getFormHiddenInput(1, "qualities", $form['qualities']));
+		echo(FormHelpers::getErrMsgHTML($formErrors, "qualities"));?></div>
 	</div>
 	<div class="panel-footer clearfix">
 		<div class="pull-left">

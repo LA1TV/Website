@@ -9,6 +9,10 @@ class LiveStreamQuality extends MyEloquent {
 		return $this->belongsTo(self::$p.'LiveStreamQuality', 'quality_definition_id');
 	}
 	
+	public function liveStreams() {
+		return $this->belongsToMany(self::$p.'LiveStream', 'live_stream_qualitiy_to_live_stream', 'live_stream_quality_id', 'live_stream_id');
+	}
+	
 	// the $domain can also be an ip address
 	public function getBuiltUrl($domain, $appName, $streamName) {
 		$url = $this->uri_template;
