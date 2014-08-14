@@ -44,9 +44,9 @@ class LiveStream extends MyEloquent {
 	
 	public function getQualitiesForInputAttribute() {
 		$ids = array();
-		foreach($this->getPlaylistContent() as $a) {
-			$ids[] = $a['id'];
-		}
+		//foreach($this->getPlaylistContent() as $a) {
+		//	$ids[] = $a['id'];
+		//}
 		return json_encode($ids);
 	}
 	

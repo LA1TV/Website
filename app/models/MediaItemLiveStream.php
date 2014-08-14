@@ -16,4 +16,8 @@ class MediaItemLiveStream extends MyEloquent {
 	public function getDates() {
 		return array_merge(parent::getDates(), array('scheduled_live_time'));
 	}
+	
+	public function scopeSearch($q, $value) {
+		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
 }

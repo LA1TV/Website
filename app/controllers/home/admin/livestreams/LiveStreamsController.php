@@ -98,7 +98,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		//	$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_orderable_list");
 		//}
 		//else {
-			$additionalFormData['qualitiesInitialData'] = QualityDefinition::generateQualityDefinitionsForOrderableList($formData["qualities"]);
+		//	$additionalFormData['qualitiesInitialData'] = QualityDefinition::generateQualityDefinitionsForOrderableList($formData["qualities"]);
+			$additionalFormData['qualitiesInitialData'] = "[]";
 		//}
 		
 		$errors = null;
@@ -160,6 +161,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		$view = View::make('home.admin.livestreams.edit');
 		$view->editing = $editing;
 		$view->form = $formData;
+		$view->additionalForm = $additionalFormData;
 		$view->formErrors = $errors;
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/livestreams";
 	

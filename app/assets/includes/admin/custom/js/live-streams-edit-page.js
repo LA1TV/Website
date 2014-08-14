@@ -1,6 +1,8 @@
 $(document).ready(function() {
 	
-	$(".page-live-streams-edit").first().each(function() {
+	$(".page-livestreams-edit").first().each(function() {
+	
+		$pageContainer = $(this).first();
 		
 		$pageContainer.find(".form-qualities").each(function() {
 			var $container = $(this).first();
@@ -9,7 +11,7 @@ $(document).ready(function() {
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
 			var reordableList = new ReordableList(true, true, true, function(state) {
-				return new AjaxSelect(baseUrl+"/admin/qualities/ajaxselect", state);
+				return new AjaxSelect(baseUrl+"/admin/live-stream-qualities/ajaxselect", state);
 			}, {
 				id: null,
 				text: null

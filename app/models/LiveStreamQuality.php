@@ -6,7 +6,7 @@ class LiveStreamQuality extends MyEloquent {
 	protected $fillable = array('id', 'uri_template', 'position');
 
 	public function qualityDefinition() {
-		return $this->belongsTo(self::$p.'LiveStreamQuality', 'quality_definition_id');
+		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
 	
 	public function liveStreams() {
@@ -21,4 +21,8 @@ class LiveStreamQuality extends MyEloquent {
 		$url = str_replace("{streamName}", $streamName, $url);
 		return $url;
 	}
-}	
+	
+	public function scopeSearch($q, $value) {
+		return $q; // TODO
+	}
+}
