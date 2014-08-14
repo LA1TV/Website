@@ -6,7 +6,7 @@ $(document).ready(function() {
 		
 		$pageContainer.find(".form-qualities").each(function() {
 			var $container = $(this).first();
-			var $destinationEl = $container.parent().find('[name="form-qualities"]').first();
+			var $destinationEl = $container.parent().find('[name="qualities"]').first();
 			var initialDataStr = $(this).attr("data-initialdata");
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
