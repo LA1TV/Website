@@ -2,17 +2,20 @@ var pageProtect = null;
 
 (function() {
 	msg = null;
+	window.onbeforeunload = null;
 	
-	window.onbeforeunload = function() {
+	var unloadFunction = function() {
 		return msg;
-	}
+	};
 
 	pageProtect = {
 		enable: function(a) {
 			msg = a;
+			window.onbeforeunload = unloadFunction;
 		},
 		disable: function() {
 			msg = null;
+			window.onbeforeunload = null;
 		}
 	};
 	
