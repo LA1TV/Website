@@ -40,7 +40,7 @@ class MediaController extends MediaBaseController {
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
 			$enabled = (boolean) $a->enabled;
@@ -59,6 +59,10 @@ class MediaController extends MediaBaseController {
 			if ($hasStream) {
 				$hasStreamStr .= $streamEnabled ? "Enabled" : "Disabled";
 				$hasStreamStr .= ")";
+				if ($a->liveStreamItem->liveStream->enabled) {
+					// TODO: when implemented scheduled live time this should take that into consideration as well.
+					$hasStreamStr .= " (LIVE!)";
+				}
 			}
 			
 			$tableData[] = array(
