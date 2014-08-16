@@ -8,9 +8,9 @@
 			<thead>
 				<tr>
 					<th>Name</th>
-					<th>Email</th>
+					<th>E-Mail</th>
 					<th>Banned</th>
-					<th>Time Created</th>
+					<th>Time Joined</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -18,19 +18,12 @@
 			<?php foreach($tableData as $a): ?>
 				<tr>
 					<td><?=e($a['name']);?></td>
-					<td><?=e($a['email']);?></td>
+					<td><a href="mailto:<?=e($a['email']);?>"><?=e($a['email']);?></a></td>
 					<td><span class="<?=e($a['bannedCss']);?>"><?=e($a['banned']);?></span></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td class="action-col"><a type="button" class="btn btn-xs btn-primary" href="<?=e($createUri)?>">Create</a></td>
-				</tr>
 			</tbody>
 		</table>
 		<?= FormHelpers::getFormPageSelectionBar($pageNo, $noPages); ?>

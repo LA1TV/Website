@@ -13,4 +13,7 @@ class SiteUser extends MyEloquent {
 		return $this->hasMany(self::$p.'MediaItemLike', 'site_user_id');
 	}
 
+	public function scopeSearch($q, $value) {
+		return $value === "" ? $q : $q->whereContains(array("name", "first_name", "last_name", "email"), $value);
+	}
 }

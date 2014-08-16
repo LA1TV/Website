@@ -1,4 +1,4 @@
-<?php namespace uk\co\la1tv\website\controllers\home\admin\siteusers;
+<?php namespace uk\co\la1tv\website\controllers\home\admin\siteUsers;
 
 use uk\co\la1tv\website\controllers\home\admin\AdminBaseController;
 

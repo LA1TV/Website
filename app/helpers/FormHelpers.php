@@ -184,6 +184,10 @@ class FormHelpers {
 		return '<div class="form-group '.FormHelpers::getErrCSS($formErrors, $name).'">';
 	}
 	
+	public static function getReadOnlyFormGroupStart() {
+		return '<div class="form-group">';
+	}
+	
 	public static function getFormCheckInput($formId, $txt, $name, $enabled, $formErrors) {
 		$enabledTxt = $enabled ? "checked":"";
 		return self::getFormGroupStart($name, $formErrors).'<div class="checkbox"><label><input type="checkbox" data-virtualform="'.e($formId).'" name="'.e($name).'" value="y" '.$enabledTxt.'> '.e($txt).'</label></div>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
@@ -195,6 +199,10 @@ class FormHelpers {
 			$tmp = " step=60";
 		}
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label><input type="'.$type.'" data-virtualform="'.e($formId).'" class="form-control" name="'.e($name).'" value="'.e($val).'" '.$tmp.'>'.FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getReadOnlyTxtInput($txt, $val) {
+		return self::getReadOnlyFormGroupStart().'<label class="control-label">'.e($txt).'</label><span class="form-control">'.e($val).'</span></div>';
 	}
 	
 	public static function getFormDateInput($formId, $txt, $name, $val, $formErrors) {
