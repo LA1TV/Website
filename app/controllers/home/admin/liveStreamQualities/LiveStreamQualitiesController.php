@@ -6,6 +6,8 @@ use Auth;
 use FormHelpers;
 use uk\co\la1tv\website\models\LiveStreamQuality;
 
+use DB;
+
 class LiveStreamQualitiesController extends LiveStreamQualitiesBaseController {
 
 	// json data for ajaxSelect element
@@ -22,7 +24,6 @@ class LiveStreamQualitiesController extends LiveStreamQualitiesBaseController {
 			else {
 				$qualities = LiveStreamQuality::with("qualityDefinition")->orderBy("position", "asc")->get();
 			}
-			
 			$results = array();
 			foreach($qualities as $a) {
 				$results[] = array("id"=>intval($a->id), "text"=>$a->qualityDefinition->name);

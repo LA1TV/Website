@@ -23,6 +23,6 @@ class LiveStreamQuality extends MyEloquent {
 	}
 	
 	public function scopeSearch($q, $value) {
-		return $q; // TODO
+		return $value === "" ? $q : $q->whereContains(array(array("qualityDefinition", "name")), $value);
 	}
 }

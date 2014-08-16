@@ -26,22 +26,50 @@ class MyEloquent extends Eloquent {
 	}
 	
 	// $column can be a string or an array of strings to search multiple columns
+	// if you want to search on a column in a relation then pass in an array as the column with the first element being the relation name, and the second element being the column
 	public function scopeWhereContains($q, $column, $value, $fromLeft=false, $fromRight=false) {
 		$escapedVal = str_replace("%", "|%", $value);
+		$escapedVal = str_replace("_", "|_", $escapedVal);
 		$leftTmp = !$fromLeft ? "%" : "";
 		$rightTmp = !$fromRight ? "%" : "";
 		
 		$columns = !is_array($column) ? array($column) : $column;
 		
-		foreach($columns as $b=>$a) {
-			$columns[$b] = "`".str_replace("`", "", $a)."`";
+		$currentTableColumns = array(); // array of columns contained on this table
+		$relationTableColumns = array(); // array where key is relation and value is array if columns to be checked on that relation
+		foreach($columns as $a) {
+			if (!is_array($a)) {
+				$currentTableColumns[] = $a;
+			}
+			else {
+				if (!isset($relationTableColumns[$a[0]])) {
+					$relationTableColumns[$a[0]] = array($a[1]);
+				}
+				else {
+					$relationTableColumns[$a[0]][] = $a[1];
+				}
+			}
 		}
 		
-		$q->where(function($q2) use (&$escapedVal, &$leftTmp, &$rightTmp, &$columns) {
-			foreach($columns as $a) {
-				$q2 = $q2->orWhereRaw($a . " LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
+		$q->where(function($q2) use (&$escapedVal, &$leftTmp, &$rightTmp, &$currentTableColumns) {
+			foreach($currentTableColumns as $a) {
+				$q2 = $q2->orWhereRaw("`".str_replace("`", "", $a)."`" . " LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
 			}
 		});
+		
+		// this could be more efficient if it was with a join instead of using laravels relation system, but laravel's relation system makes it easier, and is normally just as efficient.
+		// This method results in an inner query, even if the relation has already been loaded in laravel with 'with', but it's still only one inner query per relation, not column, so it's ok.
+		foreach($relationTableColumns as $relation=>$cols) {
+			$q->orWhereHas($relation, function($q2) use (&$escapedVal, &$leftTmp, &$rightTmp, &$cols) {
+				// this extra where is required because laravel inserts a where caluse for the nested query's foreign key to match the outer one
+				// it doesn't automatically put the rest in brackets so would end up as inner.id = outer.id OR something. This makes sure it's inner.id = outer.id AND (something)
+				$q2->where(function($q3) use (&$escapedVal, &$leftTmp, &$rightTmp, &$cols) {
+					foreach($cols as $a) {
+						$q3 = $q3->orWhereRaw("`".str_replace("`", "", $a)."`" . " LIKE ".DB::connection()->getPdo()->quote($leftTmp . $escapedVal . $rightTmp)." ESCAPE '|'");
+					}
+				});
+			});
+		}
 		return $q;
 	}
 	
