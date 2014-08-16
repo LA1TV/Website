@@ -58,7 +58,7 @@ class Playlist extends MyEloquent {
 	
 	public function getPlaylistContent() {
 		$data = array();
-		$items = $this->mediaItems()->orderBy("media_item_to_playlist.position", "asc")->get();
+		$items = self::mediaItems()->orderBy("media_item_to_playlist.position", "asc")->get();
 		foreach($items as $a) {
 			$data[] = array(
 				"id"		=> intval($a->id),
