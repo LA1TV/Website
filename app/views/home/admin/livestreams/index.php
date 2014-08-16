@@ -7,7 +7,7 @@
 		<table class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
-					<th>Enabled</th>
+					<th>Live Now</th>
 					<th>Name</th>
 					<th>Description</th>
 					<th>Has DVR</th>

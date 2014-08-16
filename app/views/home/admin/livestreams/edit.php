@@ -3,7 +3,7 @@
 		<h3 class="panel-title"><?=$editing?"Edit":"Create"?> Live Stream</h3>
 	</div>
 	<div class="panel-body">
-		<?=FormHelpers::getFormCheckInput(1, "Enabled", "enabled", $form['enabled'] === "y", $formErrors);?>
+		<?=FormHelpers::getFormCheckInput(1, "Live Now", "enabled", $form['enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Server Address", "server-address", $form['server-address'], $formErrors);?>
