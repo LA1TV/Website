@@ -3,7 +3,7 @@
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time', 'is_live');
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
@@ -19,6 +19,11 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('scheduled_live_time'));
+	}
+	
+	public function getIsLiveAttribute() {
+		// TODO: when implemented scheduled live time this should take that into consideration as well.
+		return $this->enabled && $this->liveStream->enabled;
 	}
 	
 	public function scopeSearch($q, $value) {

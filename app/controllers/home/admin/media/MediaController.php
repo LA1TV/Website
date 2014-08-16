@@ -59,8 +59,7 @@ class MediaController extends MediaBaseController {
 			if ($hasStream) {
 				$hasStreamStr .= $streamEnabled ? "Enabled" : "Disabled";
 				$hasStreamStr .= ")";
-				if ($a->liveStreamItem->liveStream->enabled) {
-					// TODO: when implemented scheduled live time this should take that into consideration as well.
+				if ($a->liveStreamItem->is_live) {
 					$hasStreamStr .= " (LIVE!)";
 				}
 			}
