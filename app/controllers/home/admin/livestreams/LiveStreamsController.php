@@ -11,6 +11,7 @@ use Redirect;
 use Response;
 use Auth;
 use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\LiveStreamQuality;
 
 class LiveStreamsController extends LiveStreamsBaseController {
 
@@ -94,13 +95,12 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			"qualitiesInitialData"	=> null
 		);
 		
-		//if (!$formSubmitted) {
-		//	$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_orderable_list");
-		//}
-		//else {
+		if (!$formSubmitted) {
+			$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp("[]", $liveStream, "qualities_for_orderable_list");
+		}
+		else {
 			$additionalFormData['qualitiesInitialData'] = LiveStream::generateQualitiesForOrderableList($formData["qualities"]);
-		//	$additionalFormData['qualitiesInitialData'] = "[]";
-		//}
+		}
 		
 		$errors = null;
 		
@@ -108,12 +108,16 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			$modelCreated = DB::transaction(function() use (&$formData, &$liveStream, &$errors) {
 				
 				Validator::extend("valid_ip_or_domain", FormHelpers::getValidIPOrDomainFunction());
+				Validator::extend('valid_qualities', function($attribute, $value, $parameters) {
+					return LiveStream::isValidQualitiesFromInput($value);
+				});
 				
 				$validator = Validator::make($formData,	array(
 					'name'				=> array('required', 'max:50'),
 					'description'		=> array('max:500'),
 					'server-address'	=> array('required', 'max:50', 'valid_ip_or_domain'),
 					'stream-name'		=> array('required', 'max:50', 'alpha_dash'),
+					'qualities'			=> array('valid_qualities')
 				), array(
 					'name.required'			=> FormHelpers::getRequiredMsg(),
 					'name.max'				=> FormHelpers::getLessThanCharactersMsg(50),
@@ -123,7 +127,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					'stream-name.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
-					'description.max'		=> FormHelpers::getLessThanCharactersMsg(500)
+					'description.max'		=> FormHelpers::getLessThanCharactersMsg(500),
+					'qualities.valid_qualities'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				
 				if (!$validator->fails()) {
@@ -143,6 +148,14 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						throw(new Exception("Error saving LiveStream."));
 					}
 					
+					$liveStream->qualities()->detach(); // detaches all
+					$ids = json_decode($formData['qualities'], true);
+					if (count($ids) > 0) {
+						$qualities = LiveStreamQuality::whereIn("id", $ids)->get();
+						foreach($qualities as $a) {
+							$liveStream->qualities()->attach($a);
+						}
+					}
 					// the transaction callback result is returned out of the transaction function
 					return true;
 				}

@@ -68,6 +68,60 @@ class LiveStream extends MyEloquent {
 		return json_encode($output);
 	}
 	
+	public function getQualities() {
+		$data = array();
+		$items = $this->qualities()->orderBy("position", "asc")->get();
+		foreach($items as $a) {
+			$data[] = array(
+				"id"		=> intval($a->id),
+				"name"		=> $a->qualityDefinition->name
+			);
+		}
+		return $data;
+	}
+	
+	public function getQualitiesForInputAttribute() {
+		$ids = array();
+		foreach($this->getQualities() as $a) {
+			$ids[] = $a['id'];
+		}
+		return json_encode($ids);
+	}
+	
+	public function getQualitiesForOrderableListAttribute() {
+		$data = array();
+		foreach($this->getQualities() as $a) {
+			$data[] = array(
+				"id"		=> $a['id'],
+				"text"		=> $a['name']
+			);
+		}
+		return json_encode($data);
+	}
+	
+	public static function isValidQualitiesFromInput($stringFromInput) {
+		$data = json_decode($stringFromInput, true);
+		if (!is_array($data)) {
+			return false;
+		}
+		$ids = array();
+		foreach($data as $a) {
+			if (!is_int($a) && !is_null($a)) {
+				return false;
+			}
+			if (in_array($a, $ids, true)) {
+				return false;
+			}
+			else {
+				$ids[] = $a;
+			}
+		}
+		if (count($ids) === 0) {
+			return true;
+		}
+		return LiveStreamQuality::whereIn("id", $ids)->count() === count($ids);
+	}
+	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}

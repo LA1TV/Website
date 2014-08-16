@@ -87,7 +87,6 @@ class PlaylistsController extends PlaylistsBaseController {
 		};
 		
 		// populate $formData with default values or received values
-		// TODO: series
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $playlist, "enabled")?"y":""),
 			array("series-id", ObjectHelpers::getProp("", $playlist, "series", "id")),
