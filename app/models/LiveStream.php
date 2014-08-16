@@ -71,7 +71,7 @@ class LiveStream extends MyEloquent {
 	
 	public function getQualities() {
 		$data = array();
-		$items = self::qualities()->orderBy("position", "asc")->get();
+		$items = $this->qualities()->orderBy("position", "asc")->get();
 		foreach($items as $a) {
 			$data[] = array(
 				"id"		=> intval($a->id),
