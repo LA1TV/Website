@@ -33,7 +33,8 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function getIsAccessible() {
 		$liveTime = $this->scheduled_live_time;
-		return $this->mediaItem->getIsAccessible() && $this->enabled && $this->liveStream->enabled && (is_null($liveTime) || $liveTime->isPast());
+		$liveStream = $this->liveStream;
+		return $this->mediaItem->getIsAccessible() && $this->enabled && !is_null($liveStream) && $liveStream->enabled && (is_null($liveTime) || $liveTime->isPast());
 	}
 	
 	public function scopeSearch($q, $value) {
