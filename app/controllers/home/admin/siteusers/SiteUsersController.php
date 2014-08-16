@@ -101,7 +101,7 @@ class SiteUsersController extends SiteUsersBaseController {
 			// if not valid then return form again with errors
 		}
 		
-		$view = View::make('home.admin.siteusers.edit');
+		$view = View::make('home.admin.siteUsers.edit');
 		$view->form = $formData;
 		$view->additionalForm = $additionalFormData;
 		$view->formErrors = $errors;
