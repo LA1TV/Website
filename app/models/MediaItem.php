@@ -39,7 +39,7 @@ class MediaItem extends MyEloquent {
 		}
 		
 		// check that it's in a playlist that is accessible
-		foreach($this->playlists() as $a) {
+		foreach($this->playlists as $a) {
 			if ($a->getIsAccessible()) {
 				return true;
 			}

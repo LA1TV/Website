@@ -158,11 +158,12 @@ class Playlist extends MyEloquent {
 			return false;
 		}
 		if (!is_null($this->series)) {
-			if (!$this->series()->first()->enabled) {
+			if (!$this->series->enabled) {
 				return false;
 			}
 		}
-		return $this->scheduled_publish_time->getTimestamp() >= time();
+		$scheduledPublishTime = $this->scheduled_publish_time;
+		return is_null($scheduledPublishTime) || $scheduledPublishTime->isPast();
 	}
 	
 	public function scopeSearch($q, $value) {

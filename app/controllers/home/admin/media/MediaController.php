@@ -53,6 +53,9 @@ class MediaController extends MediaBaseController {
 			if ($hasVod) {
 				$hasVodStr .= $vodEnabled ? "Enabled" : "Disabled";
 				$hasVodStr .= ")";
+				if ($a->videoItem->getIsAccessible()) {
+					$hasVodStr .= " (LIVE!)";
+				}
 			}
 			
 			$hasStreamStr = $hasStream ? "Yes (" : "No";
