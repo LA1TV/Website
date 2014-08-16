@@ -98,8 +98,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		//	$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_orderable_list");
 		//}
 		//else {
-		//	$additionalFormData['qualitiesInitialData'] = QualityDefinition::generateQualityDefinitionsForOrderableList($formData["qualities"]);
-			$additionalFormData['qualitiesInitialData'] = "[]";
+			$additionalFormData['qualitiesInitialData'] = LiveStream::generateQualitiesForOrderableList($formData["qualities"]);
+		//	$additionalFormData['qualitiesInitialData'] = "[]";
 		//}
 		
 		$errors = null;
