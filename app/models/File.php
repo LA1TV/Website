@@ -28,6 +28,7 @@ class File extends MyEloquent {
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemVideoWithCoverArt()) ||
+				!EloquentHelpers::getIsForeignNull($model->mediaItemLiveStreamWithCoverArt()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCoverArt())
