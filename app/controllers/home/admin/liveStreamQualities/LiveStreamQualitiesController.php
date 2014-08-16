@@ -6,8 +6,6 @@ use Auth;
 use FormHelpers;
 use uk\co\la1tv\website\models\LiveStreamQuality;
 
-use DB;
-
 class LiveStreamQualitiesController extends LiveStreamQualitiesBaseController {
 
 	// json data for ajaxSelect element
