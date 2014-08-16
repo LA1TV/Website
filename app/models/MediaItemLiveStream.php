@@ -1,10 +1,12 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use FormHelpers;
+
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time');
-	protected $appends = array("is_live");
+	protected $appends = array("is_live", "scheduled_live_time_for_input");
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
@@ -18,13 +20,20 @@ class MediaItemLiveStream extends MyEloquent {
 		return $this->belongsTo(self::$p.'LiveStream', 'live_stream_id');
 	}
 	
+	public function getScheduledLiveTimeForInputAttribute() {
+		if (is_null($this->scheduled_live_time)) {
+			return null;
+		}
+		return FormHelpers::formatDateForInput($this->scheduled_live_time->timestamp);
+	}
+	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('scheduled_live_time'));
 	}
 	
 	public function getIsLiveAttribute() {
-		// TODO: when implemented scheduled live time this should take that into consideration as well.
-		return $this->enabled && $this->liveStream->enabled;
+		$liveTime = $this->scheduled_live_time;
+		return $this->enabled && $this->liveStream->enabled && (is_null($liveTime) || $liveTime->isPast());
 	}
 	
 	public function scopeSearch($q, $value) {
