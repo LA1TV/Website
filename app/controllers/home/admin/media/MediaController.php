@@ -40,7 +40,7 @@ class MediaController extends MediaBaseController {
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem", "videoItem.sourceFile")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
 			$enabled = (boolean) $a->enabled;
