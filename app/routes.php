@@ -26,7 +26,6 @@ Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/series', $p.'home\admin\series\SeriesController');
 	Route::controller('/admin/playlists', $p.'home\admin\playlists\PlaylistsController');
 	Route::controller('/admin/livestreams', $p.'home\admin\livestreams\LiveStreamsController');
-	Route::controller('/admin/comments', $p.'home\admin\comments\CommentsController');
 	Route::controller('/admin/siteusers', $p.'home\admin\siteusers\SiteUsersController');
 	Route::controller('/admin/users', $p.'home\admin\users\UsersController');
 	Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');

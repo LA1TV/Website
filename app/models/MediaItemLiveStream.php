@@ -6,7 +6,7 @@ class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time');
-	protected $appends = array("is_live", "scheduled_live_time_for_input");
+	protected $appends = array("scheduled_live_time_for_input");
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
@@ -31,9 +31,9 @@ class MediaItemLiveStream extends MyEloquent {
 		return array_merge(parent::getDates(), array('scheduled_live_time'));
 	}
 	
-	public function getIsLiveAttribute() {
+	public function getIsAccessible() {
 		$liveTime = $this->scheduled_live_time;
-		return $this->enabled && $this->liveStream->enabled && (is_null($liveTime) || $liveTime->isPast());
+		return $this->mediaItem->getIsAccessible() && $this->enabled && $this->liveStream->enabled && (is_null($liveTime) || $liveTime->isPast());
 	}
 	
 	public function scopeSearch($q, $value) {

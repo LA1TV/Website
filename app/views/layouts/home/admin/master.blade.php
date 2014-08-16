@@ -5,7 +5,6 @@ $nav = array(
 	"series"		=> array("Series", Config::get("custom.admin_base_url")."/series", false),
 	"playlists"		=> array("Playlists", Config::get("custom.admin_base_url")."/playlists", false),
 	"livestreams"	=> array("Live Streams", Config::get("custom.admin_base_url")."/livestreams", false),
-	"comments"		=> array("Comments", Config::get("custom.admin_base_url")."/comments", false),
 	"siteusers"		=> array("Site Users", Config::get("custom.admin_base_url")."/siteusers", false),
 	"users"			=> array("CMS Users", Config::get("custom.admin_base_url")."/users", false),
 	"permissions"	=> array("Permissions", Config::get("custom.admin_base_url")."/permissions", false),
@@ -21,7 +20,7 @@ if (isset($nav[$currentNavPage])) {
 @extends('layouts.home.admin.base')
 
 @section('navbarList')
-<?php foreach(array("dashboard", "media", "series", "playlists", "livestreams", "comments") as $b):
+<?php foreach(array("dashboard", "media", "series", "playlists", "livestreams") as $b):
 	$a = $nav[$b];
 ?>
 <li class="<?=$a[2]?"active":""?>"><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>

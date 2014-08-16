@@ -62,7 +62,7 @@ class MediaController extends MediaBaseController {
 			if ($hasStream) {
 				$hasStreamStr .= $streamEnabled ? "Enabled" : "Disabled";
 				$hasStreamStr .= ")";
-				if ($a->liveStreamItem->is_live) {
+				if ($a->liveStreamItem->getIsAccessible()) {
 					$hasStreamStr .= " (LIVE!)";
 				}
 			}
