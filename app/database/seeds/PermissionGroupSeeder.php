@@ -26,9 +26,10 @@ class PermissionGroupSeeder extends Seeder {
 					array(array(1, 1), array(2, 1), array(3, 1), array(4, 1), array(5, 1), array(6, 0), array(7, 1), array(8, 1)))
 		);
 		
-		foreach($groups as $a) {
+		foreach($groups as $i=>$a) {
 			$permissionIdsFlags = $a['permissionIdsFlags'];
 			unset($a['permissionIdsFlags']);
+			$a['position'] = $i;
 			
 			$permissionIds = array();
 			$permissionFlags = array();

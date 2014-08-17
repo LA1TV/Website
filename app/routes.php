@@ -19,6 +19,7 @@ Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 Route::post('/admin/media/ajaxselect', $p.'home\admin\media\MediaController@handleAjaxSelect');
 Route::post('/admin/series/ajaxselect', $p.'home\admin\series\SeriesController@handleAjaxSelect');
 Route::post('/admin/live-stream-qualities/ajaxselect', $p.'home\admin\liveStreamQualities\LiveStreamQualitiesController@handleAjaxSelect');
+Route::post('/admin/permissions/groupsajaxselect', $p.'home\admin\permissions\PermissionsController@handleGroupsAjaxSelect');
 
 Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
@@ -28,7 +29,6 @@ Route::group(array('before' => 'auth'), function() use(&$p) {
 	Route::controller('/admin/livestreams', $p.'home\admin\livestreams\LiveStreamsController');
 	Route::controller('/admin/siteusers', $p.'home\admin\siteUsers\SiteUsersController');
 	Route::controller('/admin/users', $p.'home\admin\users\UsersController');
-	Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');
 	Route::controller('/admin/monitoring', $p.'home\admin\monitoring\MonitoringController');
 	Route::controller('/admin', $p.'home\admin\AdminController');
 });

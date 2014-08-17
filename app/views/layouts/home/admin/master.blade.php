@@ -7,7 +7,6 @@ $nav = array(
 	"livestreams"	=> array("Live Streams", Config::get("custom.admin_base_url")."/livestreams", false),
 	"siteusers"		=> array("Site Users", Config::get("custom.admin_base_url")."/siteusers", false),
 	"users"			=> array("CMS Users", Config::get("custom.admin_base_url")."/users", false),
-	"permissions"	=> array("Permissions", Config::get("custom.admin_base_url")."/permissions", false),
 	"monitoring"	=> array("Monitoring", Config::get("custom.admin_base_url")."/monitoring", false)
 );
 
@@ -28,7 +27,7 @@ if (isset($nav[$currentNavPage])) {
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
 	<ul class="dropdown-menu">
-		<?php foreach(array("siteusers", "users", "permissions", "monitoring") as $b):
+		<?php foreach(array("siteusers", "users", "monitoring") as $b):
 			$a = $nav[$b];
 		?>
 		<li><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>
