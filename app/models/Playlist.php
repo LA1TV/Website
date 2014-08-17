@@ -14,7 +14,7 @@ class Playlist extends MyEloquent {
 		self::saving(function($model) {
 			if ($model->series_id === NULL) {
 				if ($model->name === NULL) {
-					throw(new Exception("A name must be specified"));
+					throw(new Exception("A name must be specified."));
 				}
 				else if ($model->series_no !== NULL) {
 					throw(new Exception("A standard playlist cannot have a series number."));

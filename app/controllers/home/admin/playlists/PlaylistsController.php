@@ -49,7 +49,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
-				"name"			=> $a->name,
+				"name"			=> !is_null($a->name) ? $a->name : "[No Name]",
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"series"		=> $seriesStr,
 				"noPlaylistItems"	=> $noPlaylistItems,
@@ -137,7 +137,7 @@ class PlaylistsController extends PlaylistsBaseController {
 				$validator = Validator::make($formData,	array(
 					'series-id'		=> array('valid_series_id'),
 					'series-no'		=> array('required_with:series-id', 'integer'),
-					'name'		=> array('required', 'max:50'),
+					'name'		=> array('required_without:series-id', 'max:50'),
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id'),
 					'side-banners-image-id'	=> array('valid_file_id'),
@@ -149,7 +149,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'series-id.valid_series_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
 					'series-no.integer'	=> FormHelpers::getMustBeIntegerMsg(),
-					'name.required'		=> FormHelpers::getRequiredMsg(),
+					'name.required_without'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
@@ -165,7 +165,7 @@ class PlaylistsController extends PlaylistsBaseController {
 						$playlist = new Playlist();
 					}
 					
-					$playlist->name = $formData['name'];
+					$playlist->name = FormHelpers::nullIfEmpty($formData['name']);
 					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
 					
