@@ -4,6 +4,11 @@ use View;
 use FormHelpers;
 use ObjectHelpers;
 use Config;
+use Csrf;
+use DB;
+use Validator;
+use Redirect;
+use Hash;
 use uk\co\la1tv\website\models\User;
 
 class UsersController extends UsersBaseController {
@@ -37,7 +42,7 @@ class UsersController extends UsersBaseController {
 			array("enabled", ObjectHelpers::getProp(true, $user, "enabled")?"y":""),
 			array("admin", ObjectHelpers::getProp(false, $user, "admin")?"y":""),
 			array("cosign-user", ObjectHelpers::getProp("", $user, "cosign-user")),
-			array("user", ObjectHelpers::getProp("", $user, "user")),
+			array("user", ObjectHelpers::getProp("", $user, "username")),
 			array("password", ""),
 			array("password-changed", "0"),
 			array("groups", "")
@@ -48,43 +53,81 @@ class UsersController extends UsersBaseController {
 			$passwordToDisplay = $formData['password'];
 		}
 		else {
-			$passwordToDisplay = is_null(ObjectHelpers::getProp(null, $user, "password")) ? "" : null;
+			$passwordToDisplay = is_null(ObjectHelpers::getProp(null, $user, "password_hash")) ? "" : null;
 		}
 		
 		$additionalFormData = array(
 			"passwordInitialData"	=> User::generateContentForPasswordToggleableComponent($passwordToDisplay),
-			"passwordToggleEnabled"	=> !is_null(ObjectHelpers::getProp(null, $user, "password")),
-			"passwordChanged"		=> false,
+			"passwordToggleEnabled"	=> !is_null(ObjectHelpers::getProp(null, $user, "password_hash")),
+			"passwordChanged"		=> !is_null($passwordToDisplay),
 			"groupsInitialData"		=> null
 		);
 		
 		$errors = null;
 		
-		/*if ($formSubmitted) {
+		if ($formSubmitted) {
 		
-			$modelCreated = DB::transaction(function() use (&$formData, &$series, &$errors) {
-			
-				$validator = Validator::make($formData,	array(
-					'name'		=> array('required', 'max:50'),
-					'description'	=> array('max:500')
+			$modelCreated = DB::transaction(function() use (&$formData, &$user, &$errors) {
+				
+				Validator::extend('valid_password_changed_val', function($attribute, $value, $parameters) {
+					return $value === "0" || $value === "1";
+				});
+				
+				Validator::extend('unique_user', function($attribute, $value, $parameters) {
+					return User::where("username", $value)->count() === 0;
+				});
+				
+				Validator::extend('unique_cosign_user', function($attribute, $value, $parameters) {
+					return User::where("cosign_user", $value)->count() === 0;
+				});
+				
+				$validator = Validator::make($formData, array(
+					'password-changed'	=> array('required', 'valid_password_changed_val'),
+					'cosign-user'	=> array('max:32', 'unique_cosign_user'),
+					'user'			=> array('required_with:password', 'alpha_dash', 'unique_user')
 				), array(
-					'name.required'		=> FormHelpers::getRequiredMsg(),
-					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
-					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500)
+					'password-changed.required'	=> "",
+					'password-changed.valid_password_changed_val'	=> "",
+					'cosign-user.max'			=> FormHelpers::getLessThanCharactersMsg(32),
+					'user.required_with'		=> FormHelpers::getRequiredMsg(),
+					'user.required'				=> FormHelpers::getRequiredMsg(),
+					'user.unique_user'			=> "An account with this username already exists.",
+					'user.alpha_dash'			=> FormHelpers::getInvalidAlphaDashMsg(),
+					'user.unique_cosign_user'	=> "There is already another account associated with this username.",
+					'password.required'			=> FormHelpers::getRequiredMsg()
 				));
+				
+				// if user has not chosen to change password, but left user empty, this is not allowed.
+				// user can only be empty when there is no password set.
+				$validator->sometimes("user", "required", function($input) use (&$formData) {
+					return $formData['password-changed'] === "0" && empty($formData['user']);
+				});
+				
+				$validator->sometimes("password", "required", function($input) use (&$formData) {
+					return !empty($formData['user']) && $formData['password-changed'] === "1" && $formData['password'] === "";
+				});
 				
 				if (!$validator->fails()) {
 					// everything is good. save/create model
-					if (is_null($series)) {
-						$series = new Series();
+					if (is_null($user)) {
+						$user = new User();
 					}
 					
-					$series->name = $formData['name'];
-					$series->description = FormHelpers::nullIfEmpty($formData['description']);
-					$series->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$user->disabled = !FormHelpers::toBoolean($formData['enabled']);
+					$user->admin = FormHelpers::toBoolean($formData['admin']);
+					$user->cosign_user = FormHelpers::nullIfEmpty($formData['cosign-user']);
+					$username = FormHelpers::nullIfEmpty($formData['user']);
+					$user->username = $username;
+					if (!is_null($username)) {
+						$password = FormHelpers::nullIfEmpty($formData['password']);
+						$user->password_hash = !is_null($password) ? Hash::make($password) : null;
+					}
+					else {
+						$user->password_hash = null;
+					}
 					
-					if ($series->save() === false) {
-						throw(new Exception("Error saving Series."));
+					if ($user->save() === false) {
+						throw(new Exception("Error saving User."));
 					}
 					
 					// the transaction callback result is returned out of the transaction function
@@ -97,11 +140,11 @@ class UsersController extends UsersBaseController {
 			});
 			
 			if ($modelCreated) {
-				return Redirect::to(Config::get("custom.admin_base_url") . "/series");
+				return Redirect::to(Config::get("custom.admin_base_url") . "/users");
 			}
 			// if not valid then return form again with errors
 		}
-		*/
+		
 		$view = View::make('home.admin.users.edit');
 		$view->editing = $editing;
 		$view->form = $formData;

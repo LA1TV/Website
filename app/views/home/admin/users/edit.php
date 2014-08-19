@@ -10,7 +10,7 @@
 		<?=FormHelpers::getFormGroupStart("password", $formErrors);
 		?><label class="control-label">Password (Required With Username)</label><div class="form-control form-password" data-toggleenabled="<?=$additionalForm['passwordToggleEnabled']?"1":"0"?>" data-initialdata="<?=e($additionalForm['passwordInitialData'])?>"></div><?php
 		echo(FormHelpers::getFormHiddenInput(1, "password", $form['password']));
-		echo(FormHelpers::getFormHiddenInput(1, "password-changed", $additionalForm['passwordChanged']));
+		echo(FormHelpers::getFormHiddenInput(1, "password-changed", $additionalForm['passwordChanged'] ? "1" : "0"));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "password"));?></div>
 		
 		<?=FormHelpers::getFormGroupStart("groups", $formErrors);
