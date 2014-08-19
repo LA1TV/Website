@@ -9,6 +9,7 @@
 
 .ajax-select .has-result .result-container, .ajax-select .has-result .button-container {
 	display: table-cell;
+	vertical-align: middle;
 }
 
 .ajax-select .has-result .result-container {

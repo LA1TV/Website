@@ -55,7 +55,7 @@ $(document).ready(function() {
 		var $listContainer = $("<div />").addClass("list-container");
 		var $listTable = $("<div />").addClass("list-table");
 		var $addButtonContainer = $("<div />").addClass("add-button-container");
-		var $addButton = $('<button />').attr("type", "button").addClass("btn btn-block btn-xs btn-info").html("Add");
+		var $addButton = $('<button />').prop("type", "button").addClass("btn btn-block btn-xs btn-info").html("Add");
 		$addButtonContainer.append($addButton);
 		$listContainer.append($listTable);
 		
