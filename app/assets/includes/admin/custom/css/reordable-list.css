@@ -46,6 +46,7 @@
 
 .reordable-list .list-container .list-table .list-row .cell-content {
 	width: 100%;
+	vertical-align: middle;
 }
 
 .reordable-list .list-container .list-table .list-row .cell-options {
