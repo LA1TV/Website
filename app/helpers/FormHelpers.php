@@ -84,9 +84,6 @@ class FormHelpers {
 	// If the file is not in use it checks that the session id matches the session that created it
 	public static function getValidFileValidatorFunction() {
 		return function($attribute, $value, $parameters) {
-			if ($value === "") {
-				return true;
-			}
 			$value = intval($value, 10);
 			$file = File::find($value);
 			
@@ -96,9 +93,6 @@ class FormHelpers {
 	
 	public static function getValidStreamValidatorFunction() {
 		return function($attribute, $value, $parameters) {
-			if ($value === "") {
-				return true;
-			}
 			$value = intval($value, 10);
 			$liveStream = LiveStream::find($value);
 			return !is_null($liveStream);
@@ -107,36 +101,24 @@ class FormHelpers {
 	
 	public static function getValidDateValidatorFunction() {
 		return function($attribute, $value, $parameters) {
-			if ($value === "") {
-				return true;
-			}
 			return strtotime($value) !== FALSE && preg_match("/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/", $value) === 1;
 		};
 	}
 	
 	public static function getValidDomainValidatorFunction() {
 		return function($attribute, $value, $parameters) {
-			if ($value === "") {
-				return true;
-			}
 			return self::isValidDomain($value);
 		};
 	}
 	
 	public static function getValidIPValidatorFunction() {
 		return function($attribute, $value, $parameters) {
-			if ($value === "") {
-				return true;
-			}
 			return self::isValidIP($value);
 		};
 	}
 	
 	public static function getValidIPOrDomainFunction() {
 		return function($attribute, $value, $parameters) {
-			if ($value === "") {
-				return true;
-			}
 			return self::isValidIP($value) || self::isValidDomain($value);
 		};
 	}

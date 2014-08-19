@@ -53,7 +53,8 @@ class LoginController extends LoginBaseController {
 					}
 					return !is_null(Auth::getUser());
 				});
-			
+				
+				// TODO: this can probably be improved by using 'sometimes'
 				$validator = Validator::make($formData,	array(
 					'user'	=> array('required', 'logged_in'),
 					'pass'	=> array('logged_in')
