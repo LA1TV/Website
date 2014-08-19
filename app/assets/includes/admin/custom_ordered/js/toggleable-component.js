@@ -12,7 +12,7 @@ $(document).ready(function() {
 	*
 	*  - It will get passed the initial state object as the first parameter
 	*/
-	ToggleableComponent = function(componentBuilder, initialComponentState, state) {
+	ToggleableComponent = function(enableToggle, componentBuilder, initialComponentState, state) {
 		
 		var self = this;
 		
@@ -102,8 +102,8 @@ $(document).ready(function() {
 		$row.append($buttonsCol);
 		$buttonsCol.append($buttonsContainer);
 		$buttonsContainer.append($unToggleButton);
+		$unToggleButton.prop("disabled", !enableToggle);
 		$componentUnToggled.append($toggleButton);
-		
 		$componentToggled.hide();
 		
 		$container.append($componentToggled);
