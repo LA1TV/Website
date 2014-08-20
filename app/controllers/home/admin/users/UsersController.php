@@ -110,8 +110,24 @@ class UsersController extends UsersBaseController {
 		
 			$modelCreated = DB::transaction(function() use (&$formData, &$user, &$errors) {
 				
-				// TODO: check always one admin and admin account always enabled and has a method to login with
+				// build the model now. Then validate. Done in this order so that resultsInNoAccessibleAdminLogin() works.
+				// probably should normally be this order anyway
+				if (is_null($user)) {
+					$user = new User();
+				}
 				
+				$user->disabled = !FormHelpers::toBoolean($formData['enabled']);
+				$user->admin = FormHelpers::toBoolean($formData['admin']);
+				$user->cosign_user = FormHelpers::nullIfEmpty($formData['cosign-user']);
+				$username = FormHelpers::nullIfEmpty($formData['user']);
+				$user->username = $username;
+				if (!is_null($username)) {
+					$password = FormHelpers::nullIfEmpty($formData['password']);
+					$user->password_hash = !is_null($password) ? Hash::make($password) : null;
+				}
+				else {
+					$user->password_hash = null;
+				}
 				
 				Validator::extend('valid_password_changed_val', function($attribute, $value, $parameters) {
 					return $value === "0" || $value === "1";
@@ -140,6 +156,7 @@ class UsersController extends UsersBaseController {
 					'cosign-user'	=> array('max:32', 'unique_cosign_user'),
 					'user'			=> array('required_with:password', 'alpha_dash', 'unique_user')
 				), array(
+					'admin.required'			=> "This user must be admin otherwise there is no admin on the system with access.",
 					'password-changed.required'	=> "",
 					'password-changed.valid_password_changed_val'	=> "",
 					'cosign-user.max'			=> FormHelpers::getLessThanCharactersMsg(32),
@@ -157,28 +174,16 @@ class UsersController extends UsersBaseController {
 					return $formData['password-changed'] === "0" && empty($formData['user']);
 				});
 				
-				$validator->sometimes("password", "required", function($input) use (&$formData) {
-					return !empty($formData['user']) && $formData['password-changed'] === "1" && $formData['password'] === "";
+				$validator->sometimes("password", "required", function($input) use (&$user, &$formData) {
+					return ($user->resultsInNoAccessibleAdminLogin() || !empty($formData['user'])) && $formData['password-changed'] === "1" && $formData['password'] === "";
+				});
+				
+				$validator->sometimes(array("admin", "user"), "required", function($input) use (&$user) {
+					return $user->resultsInNoAccessibleAdminLogin();
 				});
 				
 				if (!$validator->fails()) {
-					// everything is good. save/create model
-					if (is_null($user)) {
-						$user = new User();
-					}
-					
-					$user->disabled = !FormHelpers::toBoolean($formData['enabled']);
-					$user->admin = FormHelpers::toBoolean($formData['admin']);
-					$user->cosign_user = FormHelpers::nullIfEmpty($formData['cosign-user']);
-					$username = FormHelpers::nullIfEmpty($formData['user']);
-					$user->username = $username;
-					if (!is_null($username)) {
-						$password = FormHelpers::nullIfEmpty($formData['password']);
-						$user->password_hash = !is_null($password) ? Hash::make($password) : null;
-					}
-					else {
-						$user->password_hash = null;
-					}
+					// everything is good. save model
 					
 					if ($user->save() === false) {
 						throw(new Exception("Error saving User."));

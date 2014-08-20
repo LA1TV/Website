@@ -55,6 +55,10 @@ class FormHelpers {
 	public static function getRequiredMsg() {
 		return "This is required.";
 	}
+	
+	public static function getInvalidMsg() {
+		return "This is invalid.";
+	}
 
 	public static function getInvalidTimeMsg() {
 		return "This time is invalid.";
