@@ -101,7 +101,7 @@ class UsersController extends UsersBaseController {
 			"passwordInitialData"	=> User::generateContentForPasswordToggleableComponent($passwordToDisplay),
 			"passwordToggleEnabled"	=> !is_null(ObjectHelpers::getProp(null, $user, "password_hash")),
 			"passwordChanged"		=> !is_null($passwordToDisplay),
-			"groupsInitialData"		=> null
+			"groupsInitialData"		=> json_encode(array())
 		);
 		
 		$errors = null;
@@ -162,7 +162,6 @@ class UsersController extends UsersBaseController {
 					// everything is good. save model
 					// build the model now. Then validate that there is at least one admin. Done in this order so that resultsInNoAccessibleAdminLogin() works.
 					
-					// probably should normally be this order anyway
 					if (is_null($user)) {
 						$user = new User();
 					}

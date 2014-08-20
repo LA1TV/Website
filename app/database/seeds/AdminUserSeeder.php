@@ -5,7 +5,7 @@ use uk\co\la1tv\website\models\User;
 class AdminUserSeeder extends Seeder {
 
 	/**
-	 * Run the database seeds.
+	 * Use this to create the initial admin account.
 	 *
 	 * @return void
 	 */
