@@ -23,4 +23,8 @@ class User extends MyEloquent {
 	public function getDates() {
 		return array_merge(parent::getDates(), array('last_login_attempt'));
 	}
+	
+	public function scopeSearch($q, $value) {
+		return $value === "" ? $q : $q->whereContains(array("cosign_user", "username"), $value);
+	}
 }

@@ -14,7 +14,48 @@ use uk\co\la1tv\website\models\User;
 class UsersController extends UsersBaseController {
 
 	public function getIndex() {
-		$this->setContent(View::make('home.admin.users.index'), "users", "users");
+		$view = View::make('home.admin.users.index');
+		$tableData = array();
+		
+		$pageNo = FormHelpers::getPageNo();
+		$searchTerm = FormHelpers::getValue("search", "", false, true);
+		
+		// get shared lock on records so that they can't be deleted before query runs to get specific range
+		// (this doesn't prevent new ones getting added but that doesn't really matter too much)
+		$noUsers = User::search($searchTerm)->sharedLock()->count();
+		$noPages = FormHelpers::getNoPages($noUsers);
+		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noUsers-1) {
+			App::abort(404);
+			return;
+		}
+		
+		$users = User::search($searchTerm)->usePagination()->orderBy("disabled", "asc")->orderBy("admin", "desc")->orderBy("cosign_user", "asc")->orderBy("username", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		
+		foreach($users as $a) {
+			$enabled = !((boolean) $a->disabled);
+			$enabledStr = $enabled ? "Yes" : "No";
+			
+			$admin = (boolean) $a->admin;
+			$adminStr = $admin ? "Yes" : "No";
+			
+			$tableData[] = array(
+				"enabled"		=> $enabledStr,
+				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
+				"admin"			=> $adminStr,
+				"adminCss"		=> $admin ? "text-success" : "text-danger",
+				"cosignUser"	=> !is_null($a->cosign_user) ? $a->cosign_user : "[No Cosign User]",
+				"user"			=> !is_null($a->username) ? $a->username : "[No User]",
+				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"editUri"		=> Config::get("custom.admin_base_url") . "/users/edit/" . $a->id,
+				"id"			=> $a->id
+			);
+		}
+		$view->tableData = $tableData;
+		$view->pageNo = $pageNo;
+		$view->noPages = $noPages;
+		$view->createUri = Config::get("custom.admin_base_url") . "/users/edit";
+		$view->deleteUri = Config::get("custom.admin_base_url") . "/users/delete";
+		$this->setContent($view, "users", "users");
 	}
 	
 	public function anyEdit($id=null) {
@@ -41,7 +82,7 @@ class UsersController extends UsersBaseController {
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(true, $user, "enabled")?"y":""),
 			array("admin", ObjectHelpers::getProp(false, $user, "admin")?"y":""),
-			array("cosign-user", ObjectHelpers::getProp("", $user, "cosign-user")),
+			array("cosign-user", ObjectHelpers::getProp("", $user, "cosign_user")),
 			array("user", ObjectHelpers::getProp("", $user, "username")),
 			array("password", ""),
 			array("password-changed", "0"),
@@ -69,16 +110,29 @@ class UsersController extends UsersBaseController {
 		
 			$modelCreated = DB::transaction(function() use (&$formData, &$user, &$errors) {
 				
+				// TODO: check always one admin and admin account always enabled and has a method to login with
+				
+				
 				Validator::extend('valid_password_changed_val', function($attribute, $value, $parameters) {
 					return $value === "0" || $value === "1";
 				});
 				
-				Validator::extend('unique_user', function($attribute, $value, $parameters) {
-					return User::where("username", $value)->count() === 0;
+				Validator::extend('unique_user', function($attribute, $value, $parameters) use (&$user) {
+					$currentId = !is_null($user) ? intval($user->id) : null;
+					$q = User::where("username", $value);
+					if (!is_null($currentId)) {
+						$q = $q->where("id", "!=", $currentId);
+					}
+					return $q->count() === 0;
 				});
 				
-				Validator::extend('unique_cosign_user', function($attribute, $value, $parameters) {
-					return User::where("cosign_user", $value)->count() === 0;
+				Validator::extend('unique_cosign_user', function($attribute, $value, $parameters) use (&$user) {
+					$currentId = !is_null($user) ? intval($user->id) : null;
+					$q = User::where("cosign_user", $value);
+					if (!is_null($currentId)) {
+						$q = $q->where("id", "!=", $currentId);
+					}
+					return $q->count() === 0;
 				});
 				
 				$validator = Validator::make($formData, array(
@@ -89,11 +143,11 @@ class UsersController extends UsersBaseController {
 					'password-changed.required'	=> "",
 					'password-changed.valid_password_changed_val'	=> "",
 					'cosign-user.max'			=> FormHelpers::getLessThanCharactersMsg(32),
+					'cosign-user.unique_cosign_user'	=> "There is already another account associated with this username.",
 					'user.required_with'		=> FormHelpers::getRequiredMsg(),
 					'user.required'				=> FormHelpers::getRequiredMsg(),
 					'user.unique_user'			=> "An account with this username already exists.",
 					'user.alpha_dash'			=> FormHelpers::getInvalidAlphaDashMsg(),
-					'user.unique_cosign_user'	=> "There is already another account associated with this username.",
 					'password.required'			=> FormHelpers::getRequiredMsg()
 				));
 				
@@ -156,16 +210,15 @@ class UsersController extends UsersBaseController {
 	}
 	
 	public function postDelete() {
-		// TODO
-		return;
 		$resp = array("success"=>false);
 		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
-				$series = Series::find($id);
-				if (!is_null($series)) {
-					if ($series->delete() === false) {
-						throw(new Exception("Error deleting Series."));
+				$user = User::find($id);
+				if (!is_null($user)) {
+					// TODO: check not only admin and used in places
+					if ($user->delete() === false) {
+						throw(new Exception("Error deleting User."));
 					}
 					$resp['success'] = true;
 				}
