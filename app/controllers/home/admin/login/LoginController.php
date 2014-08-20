@@ -48,18 +48,15 @@ class LoginController extends LoginBaseController {
 				Auth::login($formData['user'], $formData['pass']);
 			
 				Validator::extend('logged_in', function($attribute, $value, $parameters) {
-					if ($value === "") {
-						return true;
-					}
 					return !is_null(Auth::getUser());
 				});
 				
-				// TODO: this can probably be improved by using 'sometimes'
 				$validator = Validator::make($formData,	array(
 					'user'	=> array('required', 'logged_in'),
-					'pass'	=> array('logged_in')
+					'pass'	=> array('required', 'logged_in')
 				), array(
 					'user.required'		=> FormHelpers::getRequiredMsg(),
+					'pass.required'		=> FormHelpers::getRequiredMsg(),
 					'user.logged_in'	=> "Either this or the password you entered was incorrect.",
 					'pass.logged_in'	=> "Either this or the username you entered was incorrect."
 				));
