@@ -30,7 +30,7 @@ class UsersController extends UsersBaseController {
 			return;
 		}
 		
-		$users = User::search($searchTerm)->usePagination()->orderBy("disabled", "asc")->orderBy("admin", "desc")->orderBy("cosign_user", "asc")->orderBy("username", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$users = User::with("permissionGroups")->search($searchTerm)->usePagination()->orderBy("disabled", "asc")->orderBy("admin", "desc")->orderBy("cosign_user", "asc")->orderBy("username", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($users as $a) {
 			$enabled = !((boolean) $a->disabled);
@@ -38,6 +38,19 @@ class UsersController extends UsersBaseController {
 			
 			$admin = (boolean) $a->admin;
 			$adminStr = $admin ? "Yes" : "No";
+
+			$groupsStr = null;
+			$groups = array();
+			$groupModels = $a->permissionGroups()->orderBy("position", "asc")->get();
+			if (count($groupModels) > 0) {
+				foreach($groupModels as $b) {
+					$groups[] = $b->name;
+				}
+				$groupsStr = implode(", ", $groups);
+			}
+			else {
+				$groupsStr = "[No Groups]";
+			}
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
@@ -46,6 +59,7 @@ class UsersController extends UsersBaseController {
 				"adminCss"		=> $admin ? "text-success" : "text-danger",
 				"cosignUser"	=> !is_null($a->cosign_user) ? $a->cosign_user : "[No Cosign User]",
 				"user"			=> !is_null($a->username) ? $a->username : "[No User]",
+				"groups"		=> $groupsStr,
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/users/edit/" . $a->id,
 				"id"			=> $a->id

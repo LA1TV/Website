@@ -9,8 +9,9 @@
 				<tr>
 					<th>Enabled</th>
 					<th>Admin</th>
-					<th>Cosign User</th>
 					<th>User</th>
+					<th>Cosign User</th>
+					<th>Groups</th>
 					<th>Time Created</th>
 					<th></th>
 				</tr>
@@ -20,13 +21,15 @@
 				<tr>
 					<td><span class="<?=e($a['enabledCss']);?>"><?=e($a['enabled']);?></span></td>
 					<td><span class="<?=e($a['adminCss']);?>"><?=e($a['admin']);?></span></td>
-					<td><?=e($a['cosignUser']);?></td>
 					<td><?=e($a['user']);?></td>
+					<td><?=e($a['cosignUser']);?></td>
+					<td><?=e($a['groups']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
