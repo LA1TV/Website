@@ -9,7 +9,6 @@ class Series extends MyEloquent {
 		return $this->hasMany(self::$p.'Playlist', 'series_id');
 	}
 	
-	
 	// returns true if this series should be accessible now. I.e enabled and has a playlist that is accessible
 	public function getIsAccessible() {
 		
@@ -27,5 +26,9 @@ class Series extends MyEloquent {
 	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
+	
+	public function isDeletable() {
+		return $this->playlists()->count() === 0;
 	}
 }

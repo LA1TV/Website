@@ -141,10 +141,15 @@ class SeriesController extends SeriesBaseController {
 			DB::transaction(function() use (&$id, &$resp) {
 				$series = Series::find($id);
 				if (!is_null($series)) {
-					if ($series->delete() === false) {
-						throw(new Exception("Error deleting Series."));
+					if ($series->isDeletable()) {
+						if ($series->delete() === false) {
+							throw(new Exception("Error deleting Series."));
+						}
+						$resp['success'] = true;
 					}
-					$resp['success'] = true;
+					else {
+						$resp['msg'] = "This series cannot be deleted at the moment as it is being used in other places.";
+					}
 				}
 			});
 		}
