@@ -196,7 +196,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						$resp['success'] = true;
 					}
 					else {
-						$resp['msg'] = "This live stream cannot be deleted at the moment as it is being used in other places.";
+						$resp['msg'] = "This live stream cannot be deleted at the moment as it is being used in other places, or it's marked as currently being live.";
 					}
 				}
 			});

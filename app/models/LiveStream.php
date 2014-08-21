@@ -128,6 +128,6 @@ class LiveStream extends MyEloquent {
 	}
 	
 	public function isDeletable() {
-		return $this->liveStreamItems()->count() === 0;
+		return !$this->enabled && $this->liveStreamItems()->count() === 0;
 	}
 }
