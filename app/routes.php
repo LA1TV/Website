@@ -17,7 +17,13 @@ Route::controller('/admin/login', $p.'home\admin\login\LoginController');
 Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 
 Route::post('/admin/media/ajaxselect', $p.'home\admin\media\MediaController@handleAjaxSelect');
+Route::post('/admin/media/delete', $p.'home\admin\media\MediaController@handleDelete');
 Route::post('/admin/series/ajaxselect', $p.'home\admin\series\SeriesController@handleAjaxSelect');
+Route::post('/admin/series/delete', $p.'home\admin\series\SeriesController@handleDelete');
+Route::post('/admin/playlists/delete', $p.'home\admin\playlists\PlaylistsController@handleDelete');
+Route::post('/admin/livestreams/delete', $p.'home\admin\livestreams\LiveStreamsController@handleDelete');
+Route::post('/admin/siteusers/delete', $p.'home\admin\siteUsers\SiteUsersController@handleDelete');
+Route::post('/admin/users/delete', $p.'home\admin\users\UsersController@handleDelete');
 Route::post('/admin/live-stream-qualities/ajaxselect', $p.'home\admin\liveStreamQualities\LiveStreamQualitiesController@handleAjaxSelect');
 Route::post('/admin/permissions/groupsajaxselect', $p.'home\admin\permissions\PermissionsController@handleGroupsAjaxSelect');
 

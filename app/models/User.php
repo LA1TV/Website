@@ -17,6 +17,13 @@ class User extends MyEloquent {
 			}
 			return true;
 		});
+		
+		self::deleting(function($model) {
+			if ($model->resultsInNoAccessibleAdminLogin(true)) {
+				throw(new Exception("Cannot delete this user as it would result in there being no admin with access to the system."));
+			}
+			return true;
+		});
 	}
 
 	public function permissionGroups() {
@@ -36,8 +43,9 @@ class User extends MyEloquent {
 	
 	// returns true if saving the current model would result in no accessible admin.
 	// Must be an admin that can login with a username and password. Don't want to end up relying on just cosign.
-	public function resultsInNoAccessibleAdminLogin() {
-		if ($this->admin && $this->isAccessible(true)) {
+	// if $ignoreCurrentUser is TRUE the current user will not be taken into consideration.
+	public function resultsInNoAccessibleAdminLogin($ignoreCurrentUser=false) {
+		if (!$ignoreCurrentUser && $this->admin && $this->isAccessible(true)) {
 			return false;
 		}
 		$q = self::where("admin", true)->accessible(true);

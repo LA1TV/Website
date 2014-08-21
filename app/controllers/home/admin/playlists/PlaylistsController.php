@@ -14,6 +14,7 @@ use Response;
 use Upload;
 use Csrf;
 use EloquentHelpers;
+use Auth;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
@@ -228,9 +229,9 @@ class PlaylistsController extends PlaylistsBaseController {
 		$this->setContent($view, "playlists", "playlists-edit");
 	}
 	
-	public function postDelete() {
+	public function handleDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && Auth::isLoggedIn() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$playlist = Playlist::find($id);

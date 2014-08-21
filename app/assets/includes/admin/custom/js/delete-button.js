@@ -10,8 +10,8 @@ $(document).ready(function() {
 				csrf_token: getCsrfToken()
 			};
 			
-			var errorOccurred = function() {
-				alert("Sorry there was an error deleting.");
+			var errorOccurred = function(msg) {
+				alert(!msg ? "Sorry there was an error deleting." : msg);
 			};
 			
 			jQuery.ajax({
@@ -23,7 +23,7 @@ $(document).ready(function() {
 				type: "POST"
 			}).done(function(data) {
 				if (!data.success) {
-					errorOccurred();
+					errorOccurred(data.hasOwnProperty("msg") ? data.msg : null);
 					return;
 				}
 				// success. reload page

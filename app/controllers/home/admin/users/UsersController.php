@@ -9,6 +9,8 @@ use DB;
 use Validator;
 use Redirect;
 use Hash;
+use Auth;
+use Response;
 use uk\co\la1tv\website\models\User;
 use uk\co\la1tv\website\models\PermissionGroup;
 
@@ -271,18 +273,22 @@ class UsersController extends UsersBaseController {
 		$this->setContent($view, "users", "users-edit");
 	}
 	
-	public function postDelete() {
+	public function handleDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && Auth::isLoggedIn() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$user = User::find($id);
 				if (!is_null($user)) {
-					// TODO: check not only admin and used in places
-					if ($user->delete() === false) {
-						throw(new Exception("Error deleting User."));
+					if (!$user->resultsInNoAccessibleAdminLogin(true)) {
+						if ($user->delete() === false) {
+							throw(new Exception("Error deleting User."));
+						}
+						$resp['success'] = true;
 					}
-					$resp['success'] = true;
+					else {
+						$resp['msg'] = "This user cannot be deleted at the moment as it would result in no admin with access to the system.";
+					}
 				}
 			});
 		}

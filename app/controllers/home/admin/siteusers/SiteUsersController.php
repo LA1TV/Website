@@ -110,9 +110,9 @@ class SiteUsersController extends SiteUsersBaseController {
 		$this->setContent($view, "siteusers", "siteusers-edit");
 	}
 	
-	public function postDelete() {
+	public function handleDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && Auth::isLoggedIn() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$siteUser = SiteUser::find($id);

@@ -343,10 +343,10 @@ class MediaController extends MediaBaseController {
 		$this->setContent($view, "media", "media-edit");
 	}
 	
-	public function postDelete() {
+	public function handleDelete() {
 		$resp = array("success"=>false);
 		
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && Auth::isLoggedIn() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$mediaItem = MediaItem::find($id);

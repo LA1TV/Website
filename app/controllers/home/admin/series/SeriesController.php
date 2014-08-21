@@ -134,9 +134,9 @@ class SeriesController extends SeriesBaseController {
 		$this->setContent($view, "series", "series-edit");
 	}
 	
-	public function postDelete() {
+	public function handleDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && Auth::isLoggedIn() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$series = Series::find($id);
