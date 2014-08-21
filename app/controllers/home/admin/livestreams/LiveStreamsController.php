@@ -189,10 +189,15 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			DB::transaction(function() use (&$id, &$resp) {
 				$liveStream = LiveStream::find($id);
 				if (!is_null($liveStream)) {
-					if ($liveStream->delete() === false) {
-						throw(new Exception("Error deleting LiveStream."));
+					if ($liveStream->isDeletable()) {
+						if ($liveStream->delete() === false) {
+							throw(new Exception("Error deleting LiveStream."));
+						}
+						$resp['success'] = true;
 					}
-					$resp['success'] = true;
+					else {
+						$resp['msg'] = "This live stream cannot be deleted at the moment as it is being used in other places.";
+					}
 				}
 			});
 		}
