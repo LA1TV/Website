@@ -216,12 +216,13 @@ class UsersController extends UsersBaseController {
 					// validate that there is at least one admin with access.
 					$validator = Validator::make($formData, array(
 					), array(
+						'enabled.required'			=> "This user must be enabled otherwise there is no admin on the system with access.",
 						'admin.required'			=> "This user must be admin otherwise there is no admin on the system with access.",
 						'user.required'				=> "A user is required because there must be at least one admin in the system with a username and password.",
 						'password.required'			=> "A password is required because there must be at least one admin in the system with a username and password."
 					));
 					
-					$validator->sometimes(array("admin", "user"), "required", function($input) use (&$user) {
+					$validator->sometimes(array("enabled", "admin", "user"), "required", function($input) use (&$user) {
 						return $user->resultsInNoAccessibleAdminLogin();
 					});
 					
