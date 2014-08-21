@@ -50,4 +50,10 @@ class MediaItem extends MyEloquent {
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
+	
+	public function isDeletable() {
+		// there is currently no condition that should prevent a media item being deleted.
+		// the database relation foreign key constraints should handle deletion of related records
+		return true;
+	}
 }

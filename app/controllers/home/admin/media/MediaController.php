@@ -351,18 +351,23 @@ class MediaController extends MediaBaseController {
 			DB::transaction(function() use (&$id, &$resp) {
 				$mediaItem = MediaItem::find($id);
 				if (!is_null($mediaItem)) {
-					// mark any related files as no longer in use (so they will be removed)
-					Upload::delete(array(
-						$mediaItem->sideBannerFile,
-						$mediaItem->coverFile,
-						ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile"),
-						ObjectHelpers::getProp(null, $mediaItem->videoItem, "coverArtFile")
-					));
-					
-					if ($mediaItem->delete() === false) {
-						throw(new Exception("Error deleting MediaItem."));
+					if ($mediaItem->isDeletable()) {
+						// mark any related files as no longer in use (so they will be removed)
+						Upload::delete(array(
+							$mediaItem->sideBannerFile,
+							$mediaItem->coverFile,
+							ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile"),
+							ObjectHelpers::getProp(null, $mediaItem->videoItem, "coverArtFile")
+						));
+						
+						if ($mediaItem->delete() === false) {
+							throw(new Exception("Error deleting MediaItem."));
+						}
+						$resp['success'] = true;
 					}
-					$resp['success'] = true;
+					else {
+						$resp['msg'] = "This media item cannot be deleted at the moment as it is being used in other places.";
+					}
 				}
 			});
 		}
