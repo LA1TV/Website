@@ -1,5 +1,7 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use Exception;
+
 class LiveStream extends MyEloquent {
 
 	protected $table = 'live_streams';
