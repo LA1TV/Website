@@ -144,7 +144,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'description'	=> array('max:500'),
 					'cover-art-id'	=> array('valid_file_id'),
 					'publish-time'	=> array('my_date'),
-					'playlist-content'	=> array('valid_playlist_content')
+					'playlist-content'	=> array('required', 'valid_playlist_content')
 				), array(
 					'series-id.valid_series_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
@@ -156,6 +156,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
+					'playlist-content.required'	=> FormHelpers::getGenericInvalidMsg(),
 					'playlist-content.valid_playlist_content'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				

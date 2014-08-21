@@ -117,7 +117,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					'description'		=> array('max:500'),
 					'server-address'	=> array('required', 'max:50', 'valid_ip_or_domain'),
 					'stream-name'		=> array('required', 'max:50', 'alpha_dash'),
-					'qualities'			=> array('valid_qualities')
+					'qualities'			=> array('required', 'valid_qualities')
 				), array(
 					'name.required'			=> FormHelpers::getRequiredMsg(),
 					'name.max'				=> FormHelpers::getLessThanCharactersMsg(50),
@@ -128,6 +128,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					'stream-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
 					'description.max'		=> FormHelpers::getLessThanCharactersMsg(500),
+					'qualities.required'	=> FormHelpers::getGenericInvalidMsg(),
 					'qualities.valid_qualities'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				

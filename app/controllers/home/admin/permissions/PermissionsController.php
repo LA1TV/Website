@@ -24,11 +24,7 @@ class PermissionsController extends PermissionsBaseController {
 			}
 			$results = array();
 			foreach($groups as $a) {
-				$text = $a->name;
-				if (!is_null($a->description)) {
-					$text .= " (".$a->description.")";
-				}
-				$results[] = array("id"=>intval($a->id), "text"=>$text);
+				$results[] = array("id"=>intval($a->id), "text"=>$a->getNameAndDescription());
 			}
 			$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
 			$resp['success'] = true;

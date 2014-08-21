@@ -10,6 +10,7 @@ use Validator;
 use Redirect;
 use Hash;
 use uk\co\la1tv\website\models\User;
+use uk\co\la1tv\website\models\PermissionGroup;
 
 class UsersController extends UsersBaseController {
 
@@ -63,7 +64,7 @@ class UsersController extends UsersBaseController {
 		$user = null;
 		$editing = false;
 		if (!is_null($id)) {
-			$user = User::find($id);
+			$user = User::with("permissionGroups")->find($id);
 			if (is_null($user)) {
 				App::abort(404);
 				return;
@@ -86,7 +87,7 @@ class UsersController extends UsersBaseController {
 			array("user", ObjectHelpers::getProp("", $user, "username")),
 			array("password", ""),
 			array("password-changed", "0"),
-			array("groups", "")
+			array("groups", ObjectHelpers::getProp("[]", $user, "groups_for_input")),
 		), !$formSubmitted);
 		
 		$passwordToDisplay = null;
@@ -101,8 +102,15 @@ class UsersController extends UsersBaseController {
 			"passwordInitialData"	=> User::generateContentForPasswordToggleableComponent($passwordToDisplay),
 			"passwordToggleEnabled"	=> !is_null(ObjectHelpers::getProp(null, $user, "password_hash")),
 			"passwordChanged"		=> !is_null($passwordToDisplay),
-			"groupsInitialData"		=> json_encode(array())
+			"groupsInitialData"		=> null
 		);
+		
+		if (!$formSubmitted) {
+			$additionalFormData['groupsInitialData'] = ObjectHelpers::getProp("[]", $user, "groups_for_orderable_list");
+		}
+		else {
+			$additionalFormData['groupsInitialData'] = User::generateGroupsForOrderableList($formData['groups']);
+		}
 		
 		$errors = null;
 		
@@ -132,10 +140,15 @@ class UsersController extends UsersBaseController {
 					return $q->count() === 0;
 				});
 				
+				Validator::extend('valid_groups', function($attribute, $value, $parameters) {
+					return User::isValidGroupsFromInput($value);
+				});
+				
 				$validator = Validator::make($formData, array(
 					'password-changed'	=> array('required', 'valid_password_changed_val'),
 					'cosign-user'	=> array('max:32', 'unique_cosign_user'),
-					'user'			=> array('required_with:password', 'alpha_dash', 'unique_user')
+					'user'			=> array('required_with:password', 'alpha_dash', 'unique_user'),
+					'groups'		=> array('required', 'valid_groups')
 				), array(
 					'password-changed.required'	=> "",
 					'password-changed.valid_password_changed_val'	=> "",
@@ -145,7 +158,9 @@ class UsersController extends UsersBaseController {
 					'user.required'				=> FormHelpers::getRequiredMsg(),
 					'user.unique_user'			=> "An account with this username already exists.",
 					'user.alpha_dash'			=> FormHelpers::getInvalidAlphaDashMsg(),
-					'password.required'			=> FormHelpers::getRequiredMsg()
+					'password.required'			=> FormHelpers::getRequiredMsg(),
+					'groups.required'			=> FormHelpers::getGenericInvalidMsg(),
+					'groups.valid_groups'		=> FormHelpers::getGenericInvalidMsg()
 				));
 				
 				// if user has not chosen to change password, but left user empty, this is not allowed.
@@ -172,8 +187,10 @@ class UsersController extends UsersBaseController {
 					$username = FormHelpers::nullIfEmpty($formData['user']);
 					$user->username = $username;
 					if (!is_null($username)) {
-						$password = FormHelpers::nullIfEmpty($formData['password']);
-						$user->password_hash = !is_null($password) ? Hash::make($password) : null;
+						if ($formData['password-changed'] === "1") {
+							$password = FormHelpers::nullIfEmpty($formData['password']);
+							$user->password_hash = !is_null($password) ? Hash::make($password) : null;
+						}
 					}
 					else {
 						$user->password_hash = null;
@@ -201,6 +218,15 @@ class UsersController extends UsersBaseController {
 							throw(new Exception("Error saving User."));
 						}
 						
+						$user->permissionGroups()->detach(); // detaches all
+						$ids = json_decode($formData['groups'], true);
+						if (count($ids) > 0) {
+							$groups = PermissionGroup::whereIn("id", $ids)->get();
+							foreach($groups as $a) {
+								$user->permissionGroups()->attach($a);
+							}
+						}
+							
 						// the transaction callback result is returned out of the transaction function
 						return true;
 					}

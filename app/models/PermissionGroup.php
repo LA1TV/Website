@@ -13,6 +13,14 @@ class PermissionGroup extends MyEloquent {
 		return $this->belongsToMany(self::$p.'Permission', 'permission_to_group', 'group_id', 'permission_id')->withPivot('permission_flag');
 	}
 	
+	public function getNameAndDescription() {
+		$text = $this->name;
+		if (!is_null($this->description)) {
+			$text .= " (".$this->description.")";
+		}
+		return $text;
+	}
+	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
