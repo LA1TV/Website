@@ -12,6 +12,7 @@
 					<th>Description</th>
 					<th>Has VOD</th>
 					<th>Has Live Stream</th>
+					<th>Live Stream State</th>
 					<th>Time Created</th>
 					<th></th>
 				</tr>
@@ -24,11 +25,13 @@
 					<td><?=e($a['description']);?></td>
 					<td><span class="<?=e($a['hasVodCss']);?>"><?=e($a['hasVod']);?></span></td>
 					<td><span class="<?=e($a['hasStreamCss']);?>"><?=e($a['hasStream']);?></span></td>
+					<td><?=e($a['streamState']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
 				</tr>
 			<?php endforeach; ?>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>

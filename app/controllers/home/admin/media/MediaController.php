@@ -41,7 +41,7 @@ class MediaController extends MediaBaseController {
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem", "videoItem.sourceFile")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "liveStreamItem.stateDefinition", "videoItem", "videoItem.sourceFile")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
 			$enabled = (boolean) $a->enabled;
@@ -59,6 +59,7 @@ class MediaController extends MediaBaseController {
 				}
 			}
 			
+			$streamState = null;
 			$hasStreamStr = $hasStream ? "Yes (" : "No";
 			if ($hasStream) {
 				$hasStreamStr .= $streamEnabled ? "Enabled" : "Disabled";
@@ -66,6 +67,10 @@ class MediaController extends MediaBaseController {
 				if ($a->liveStreamItem->getIsAccessible()) {
 					$hasStreamStr .= " (LIVE!)";
 				}
+				$streamState = $a->liveStreamItem->stateDefinition->name;
+			}
+			else {
+				$streamState = "[N/A]";
 			}
 			
 			$tableData[] = array(
@@ -77,6 +82,7 @@ class MediaController extends MediaBaseController {
 				"hasVodCss"		=> $vodEnabled ? "text-success" : "text-danger",
 				"hasStream"		=> $hasStreamStr,
 				"hasStreamCss"	=> $streamEnabled ? "text-success" : "text-danger",
+				"streamState"	=> $streamState,
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id,
 				"id"			=> $a->id
