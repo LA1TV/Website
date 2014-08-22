@@ -9,6 +9,7 @@ use DB;
 use Redirect;
 use Response;
 use Auth;
+use App;
 use uk\co\la1tv\website\models\SiteUser;
 
 class SiteUsersController extends SiteUsersBaseController {

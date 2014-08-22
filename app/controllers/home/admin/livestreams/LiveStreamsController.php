@@ -10,6 +10,7 @@ use Validator;
 use Redirect;
 use Response;
 use Auth;
+use App;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\LiveStreamQuality;
 

@@ -11,6 +11,7 @@ use Redirect;
 use Hash;
 use Auth;
 use Response;
+use App;
 use uk\co\la1tv\website\models\User;
 use uk\co\la1tv\website\models\PermissionGroup;
 
