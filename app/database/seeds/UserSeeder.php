@@ -14,6 +14,14 @@ class UserSeeder extends Seeder {
 		
 		// this relies on the permission groups getting the same autoincremented ids each time which should happen
 		
+		if (App::environment() !== 'production' || $this->command->confirm('Do you want to create the user "test" with password "password" with admin permissions? [y|n]:', false)) {
+			$user = User::create(array(
+				"username"		=>	"test",
+				"password_hash"	=>	Hash::make("password"),
+				"admin"			=> true
+			));
+		}
+		
 		
 		DB::transaction(function() {
 			$user = User::create(array(
@@ -42,15 +50,6 @@ class UserSeeder extends Seeder {
 			PermissionGroup::find(3)->users()->attach($user);
 			PermissionGroup::find(4)->users()->attach($user);
 		});
-	
-		if (App::environment() !== 'production' || $this->command->confirm('Do you want to create the user "test" with password "password" with admin permissions? [y|n]:', false)) {
-			$user = User::create(array(
-				"username"		=>	"test",
-				"password_hash"	=>	Hash::make("password"),
-				"admin"			=> true
-			));
-		}
-		
 		
 		$this->command->info('CMS users created and attached to groups!');
 	}
