@@ -231,8 +231,16 @@ class FormHelpers {
 		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getAjaxSelectElement($formId, $name, $val, $dataUri, $chosenItemText, $class).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getAjaxSelectElement($formId, $formInputName, $value, $dataUri, $chosenItemTxt, $class) {
-		return '<div class="form-control '.e($class).'" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $value);
+	public static function getAjaxSelectElement($formId, $formInputName, $val, $dataUri, $chosenItemTxt, $class) {
+		return '<div class="form-control '.e($class).'" data-datasourceuri="'.e($dataUri).'" data-destinationname="'.e($formInputName).'" data-chosenitemtext="'.e($chosenItemTxt).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $val);
+	}
+	
+	public static function getButtonGroupInput($formId, $txt, $name, $val, $formErrors, $optionRequired, $buttonsData) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getButtonGroupElement($formId, $name, $val, $optionRequired, $buttonsData).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	}
+	
+	public static function getButtonGroupElement($formId, $formInputName, $val, $optionRequired, $buttonsData) {
+		return '<div class="form-control default-button-group" data-buttonsdata="'.e(json_encode($buttonsData)).'" data-destinationname="'.e($formInputName).'" data-optionrequired="'.($optionRequired?"1":"0").'"></div>'.self::getFormHiddenInput($formId, $formInputName, $val);
 	}
 	
 	public static function getSearchBar() {

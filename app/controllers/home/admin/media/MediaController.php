@@ -127,6 +127,7 @@ class MediaController extends MediaBaseController {
 			array("vod-live-recording", ObjectHelpers::getProp("", $mediaItem, "videoItem", "is_live_recording")),
 			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem"))?"1":"0"),
 			array("stream-enabled", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "enabled")?"y":""),
+			array("stream-state", 0),
 			array("stream-name", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "name")),
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-cover-art-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "coverArtFile", "id")),
@@ -140,7 +141,12 @@ class MediaController extends MediaBaseController {
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
 			"vodCoverArtFile"		=> FormHelpers::getFileInfo($formData['vod-cover-art-id']),
-			"streamCoverArtFile"	=> FormHelpers::getFileInfo($formData['stream-cover-art-id'])
+			"streamCoverArtFile"	=> FormHelpers::getFileInfo($formData['stream-cover-art-id']),
+			"streamStateButtonsData"	=> array(
+				array("id"=>0, "text"=>"Not Live"),
+				array("id"=>1, "text"=>"Live Now"),
+				array("id"=>2, "text"=>"Show Over")
+			)
 		);
 		
 		$errors = null;

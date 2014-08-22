@@ -46,6 +46,7 @@
 						<div class="enabled-container">
 							<button class="btn btn-default disable-button">Remove Live Stream</button>
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "stream-enabled", $form['stream-enabled']==="y", $formErrors);?>
+							<?=FormHelpers::getButtonGroupInput(1, "Current Status", "stream-state", $form['stream-state'], $formErrors, true, $additionalForm['streamStateButtonsData']);?>
 							<?=FormHelpers::getFormTxtInput(1, "Name (Optional)", "stream-name", $form['stream-name'], $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "stream-description", $form['stream-description'], $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $streamCoverArtUploadPointId, "Cover Art (Optional)", "stream-cover-art-id", $form['stream-cover-art-id'], $formErrors, $additionalForm['streamCoverArtFile']['name'], $additionalForm['streamCoverArtFile']['size'], !$additionalForm['streamCoverArtFile']['inUse'], $additionalForm['streamCoverArtFile']['processState'], $additionalForm['streamCoverArtFile']['processPercentage'], $additionalForm['streamCoverArtFile']['processMsg']);?>
