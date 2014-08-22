@@ -5,7 +5,7 @@ use FormHelpers;
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time', 'state');
 	protected $appends = array("scheduled_live_time_for_input");
 	
 	public function mediaItem() {
@@ -25,6 +25,14 @@ class MediaItemLiveStream extends MyEloquent {
 			return null;
 		}
 		return FormHelpers::formatDateForInput($this->scheduled_live_time->timestamp);
+	}
+	
+	public function setStateAttribute($state) {
+		$stateInt = intval($state, 10);
+		if ($stateInt < 0 || $stateInt > 2) {
+			throw(new Exception("Invalid state."));
+		}
+		$this->attributes['state'] = $stateInt;
 	}
 	
 	public function getDates() {
