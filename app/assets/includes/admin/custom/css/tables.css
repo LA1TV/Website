@@ -1,5 +1,6 @@
 .table .action-col {
 	text-align: center;
+	white-space: nowrap;
 }
 
 .table td, .table th {
