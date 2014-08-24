@@ -24,7 +24,6 @@
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "vod-enabled", $form['vod-enabled']==="y", $formErrors);?>
 							<?=FormHelpers::getFormTxtInput(1, "Name (Optional)", "vod-name", $form['vod-name'], $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "vod-description", $form['vod-description'], $formErrors);?>
-							<?=FormHelpers::getFormTxtAreaInput(1, "Information Message (Optional)", "vod-info-msg", $form['vod-info-msg'], $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodCoverArtUploadPointId, "Cover Art (Optional)", "vod-cover-art-id", $form['vod-cover-art-id'], $formErrors, $additionalForm['vodCoverArtFile']['name'], $additionalForm['vodCoverArtFile']['size'], !$additionalForm['vodCoverArtFile']['inUse'], $additionalForm['vodCoverArtFile']['processState'], $additionalForm['vodCoverArtFile']['processPercentage'], $additionalForm['vodCoverArtFile']['processMsg']);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $additionalForm['vodVideoFile']['name'], $additionalForm['vodVideoFile']['size'], !$additionalForm['vodVideoFile']['inUse'], $additionalForm['vodVideoFile']['processState'], $additionalForm['vodVideoFile']['processPercentage'], $additionalForm['vodVideoFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
@@ -49,6 +48,7 @@
 							<?=FormHelpers::getButtonGroupInput(1, "Current Status", "stream-state", $form['stream-state'], $formErrors, true, $additionalForm['streamStateButtonsData']);?>
 							<?=FormHelpers::getFormTxtInput(1, "Name (Optional)", "stream-name", $form['stream-name'], $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "stream-description", $form['stream-description'], $formErrors);?>
+							<?=FormHelpers::getFormTxtAreaInput(1, "Information Message (Shown When Not Live) (Optional)", "stream-info-msg", $form['stream-info-msg'], $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $streamCoverArtUploadPointId, "Cover Art (Optional)", "stream-cover-art-id", $form['stream-cover-art-id'], $formErrors, $additionalForm['streamCoverArtFile']['name'], $additionalForm['streamCoverArtFile']['size'], !$additionalForm['streamCoverArtFile']['inUse'], $additionalForm['streamCoverArtFile']['processState'], $additionalForm['streamCoverArtFile']['processPercentage'], $additionalForm['streamCoverArtFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Scheduled Live Time (Optional)", "stream-live-time", $form['stream-live-time'], $formErrors);?>
 							<?=FormHelpers::getFormSelectInput(1, "Stream", "stream-stream-id", $form['stream-stream-id'], $streamOptions, $formErrors);?>

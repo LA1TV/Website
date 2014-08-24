@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddInformationMsgToMediaItemsVideo extends Migration {
+class AddInformationMsgToMediaItemsLiveStream extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,7 +12,7 @@ class AddInformationMsgToMediaItemsVideo extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('media_items_video', function(Blueprint $table)
+		Schema::table('media_items_live_stream', function(Blueprint $table)
 		{
 			$table->text("information_msg")->nullable();
 		});
@@ -25,7 +25,7 @@ class AddInformationMsgToMediaItemsVideo extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('media_items_video', function(Blueprint $table)
+		Schema::table('media_items_live_stream', function(Blueprint $table)
 		{
 			$table->dropColumn("information_msg");
 		});

@@ -5,7 +5,7 @@ use FormHelpers;
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time', 'state_id');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time', 'state_id', 'information_msg');
 	protected $appends = array("scheduled_live_time_for_input");
 	
 	public function mediaItem() {
