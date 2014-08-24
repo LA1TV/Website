@@ -134,6 +134,7 @@ class MediaController extends MediaBaseController {
 			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem"))?"1":"0"),
 			array("stream-enabled", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "enabled")?"y":""),
 			array("stream-state", ObjectHelpers::getProp(LiveStreamStateDefinition::first()->id, $mediaItem, "liveStreamItem", "stateDefinition", "id")),
+			array("stream-being-recorded", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "being_recorded")?"y":""),
 			array("stream-name", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "name")),
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-info-msg", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "information_msg")),
@@ -308,10 +309,12 @@ class MediaController extends MediaBaseController {
 						$mediaItemLiveStream->name = FormHelpers::nullIfEmpty($formData['stream-name']);
 						$mediaItemLiveStream->description = FormHelpers::nullIfEmpty($formData['stream-description']);
 						$mediaItemLiveStream->information_msg = FormHelpers::nullIfEmpty($formData['stream-info-msg']);
+						$mediaItemLiveStream->being_recorded = FormHelpers::toBoolean($formData['stream-being-recorded']);
 						$mediaItemLiveStream->enabled = FormHelpers::toBoolean($formData['stream-enabled']);
 						$mediaItemLiveStream->scheduled_live_time = FormHelpers::nullIfEmpty(strtotime($formData['stream-live-time']));
 						$mediaItemLiveStream->stateDefinition()->associate(LiveStreamStateDefinition::find($formData['stream-state']));
 						
+
 						$streamCoverArtId = FormHelpers::nullIfEmpty($formData['stream-cover-art-id']);
 						$file = Upload::register(Config::get("uploadPoints.streamCoverArt"), $streamCoverArtId, $mediaItemLiveStream->coverArtFile);
 						EloquentHelpers::associateOrNull($mediaItemLiveStream->coverArtFile(), $file);
