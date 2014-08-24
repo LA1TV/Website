@@ -5,7 +5,7 @@ use FormHelpers;
 class MediaItemVideo extends MyEloquent {
 
 	protected $table = 'media_items_video';
-	protected $fillable = array('time_recorded', 'scheduled_publish_time', 'enabled', 'name', 'description');
+	protected $fillable = array('time_recorded', 'scheduled_publish_time', 'enabled', 'name', 'description', 'information_msg');
 	protected $appends = array("time_recorded_for_input", "scheduled_publish_time_for_input");
 	
 	public function mediaItem() {
