@@ -18,7 +18,7 @@ class ObjectHelpers {
 				// treat as function
 				// strip off !
 				$a = substr($a, 1);
-				$value = $value[$a]();
+				$value = $value->$a();
 			}
 			else {
 				// treat as property
