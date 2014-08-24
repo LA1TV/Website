@@ -101,7 +101,7 @@ class MediaController extends MediaBaseController {
 		$mediaItem = null;
 		$editing = false;
 		if (!is_null($id)) {
-			$mediaItem = MediaItem::with("coverFile", "sideBannerFile", "videoItem", "liveStreamItem", "liveStreamItem.liveStream")->find($id);
+			$mediaItem = MediaItem::with("coverFile", "sideBannerFile", "videoItem", "liveStreamItem", "liveStreamItem.liveStream", "relatedItems")->find($id);
 			if (is_null($mediaItem)) {
 				App::abort(404);
 				return;
@@ -138,7 +138,8 @@ class MediaController extends MediaBaseController {
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-cover-art-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "coverArtFile", "id")),
 			array("stream-live-time", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "scheduled_live_time_for_input")),
-			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id"))
+			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id")),
+			array("related-items", ObjectHelpers::getProp("[]", $mediaItem, "related_items_for_input"))
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
@@ -148,8 +149,15 @@ class MediaController extends MediaBaseController {
 			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
 			"vodCoverArtFile"		=> FormHelpers::getFileInfo($formData['vod-cover-art-id']),
 			"streamCoverArtFile"	=> FormHelpers::getFileInfo($formData['stream-cover-art-id']),
-			"streamStateButtonsData"	=> null
+			"relatedItemsInitialData"	=> null
 		);
+		
+		if (!$formSubmitted) {
+			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp("[]", $mediaItem, "related_items_for_orderable_list");
+		}
+		else {
+			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateRelatedItemsForOrderableList($formData["related-items"]);
+		}
 		
 		$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
 		$additionalFormData['streamStateButtonsData'] = array();
@@ -167,6 +175,9 @@ class MediaController extends MediaBaseController {
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
+			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
+				return MediaItem::isValidRelatedItemsFromInput($value);
+			});
 			
 			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem, &$errors) {
 			
@@ -185,7 +196,8 @@ class MediaController extends MediaBaseController {
 					'stream-description'	=> array('max:500'),
 					'stream-cover-art-id'	=> array('valid_file_id'),
 					'stream-live-time'	=> array('my_date'),
-					'stream-stream-id'	=> array('valid_stream_id')
+					'stream-stream-id'	=> array('valid_stream_id'),
+					'related-items'	=> array('required', 'valid_related_items')
 				), array(
 					'name.required'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
@@ -203,7 +215,8 @@ class MediaController extends MediaBaseController {
 					'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'stream-live-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
-					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg()
+					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg(),
+					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				
 				if (!$validator->fails()) {
@@ -223,6 +236,15 @@ class MediaController extends MediaBaseController {
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.sideBannersImage"), $sideBannerFileId, $mediaItem->sideBannerFile);
 					EloquentHelpers::associateOrNull($mediaItem->sideBannerFile(), $file);
+					
+					$mediaItem->relatedItems()->detach(); // detaches all
+					$ids = json_decode($formData['related-items'], true);
+					if (count($ids) > 0) {
+						$mediaItems = MediaItem::whereIn("id", $ids)->get();
+						foreach($mediaItems as $a) {
+							$mediaItem->relatedItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+						}
+					}
 					
 					// vod
 					$mediaItemVideo = null;
@@ -261,7 +283,6 @@ class MediaController extends MediaBaseController {
 							}
 						}
 					}
-					
 					
 					// stream
 					$mediaItemLiveStream = null;
