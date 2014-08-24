@@ -237,7 +237,6 @@ class MediaController extends MediaBaseController {
 							$mediaItemVideo = new MediaItemVideo();
 						}
 						
-						$mediaItemVideo->is_live_recording = FormHelpers::toBoolean($formData['vod-live-recording']);
 						$mediaItemVideo->time_recorded = FormHelpers::nullIfEmpty(strtotime($formData['vod-time-recorded']));
 						$mediaItemVideo->name = FormHelpers::nullIfEmpty($formData['vod-name']);
 						$mediaItemVideo->description = FormHelpers::nullIfEmpty($formData['vod-description']);

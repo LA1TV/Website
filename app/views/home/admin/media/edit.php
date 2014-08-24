@@ -28,7 +28,6 @@
 							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $additionalForm['vodVideoFile']['name'], $additionalForm['vodVideoFile']['size'], !$additionalForm['vodVideoFile']['inUse'], $additionalForm['vodVideoFile']['processState'], $additionalForm['vodVideoFile']['processPercentage'], $additionalForm['vodVideoFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
 							<?=FormHelpers::getFormDateInput(1, "Scheduled Publish Time (Optional)", "vod-publish-time", $form['vod-publish-time'], $formErrors);?>
-							<?=FormHelpers::getFormCheckInput(1, "Live Recording", "vod-live-recording", $form['vod-live-recording']==="y", $formErrors);?>
 						</div>
 					</div>
 				</div>
