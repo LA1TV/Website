@@ -1,4 +1,4 @@
-var ReordableList = null;
+var ReorderableList = null;
 
 $(document).ready(function() {
 	
@@ -12,7 +12,7 @@ $(document).ready(function() {
 	*
 	*  - It will get passed the initial state object as the first parameter
 	*/
-	ReordableList = function(deleteEnabled, addEnabled, dragEnabled, rowElementBuilder, defaultRowElementState, state) {
+	ReorderableList = function(deleteEnabled, addEnabled, dragEnabled, rowElementBuilder, defaultRowElementState, state) {
 		
 		var self = this;
 		
@@ -48,7 +48,7 @@ $(document).ready(function() {
 		};
 		
 		
-		var $container = $("<div />").addClass("reordable-list");
+		var $container = $("<div />").addClass("reorderable-list");
 		// contains ListRow's
 		var rows = [];
 		var id = null;

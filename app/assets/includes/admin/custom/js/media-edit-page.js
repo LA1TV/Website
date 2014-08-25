@@ -53,16 +53,16 @@ $(document).ready(function() {
 			var initialDataStr = $(this).attr("data-initialdata");
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
-			var reordableList = new ReordableList(true, true, true, function(state) {
+			var reorderableList = new ReorderableList(true, true, true, function(state) {
 				return new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
 			}, {
 				id: null,
 				text: null
 			}, initialData);
-			$(reordableList).on("stateChanged", function() {
-				$destinationEl.val(JSON.stringify(reordableList.getIds()));
+			$(reorderableList).on("stateChanged", function() {
+				$destinationEl.val(JSON.stringify(reorderableList.getIds()));
 			});
-			$container.append(reordableList.getEl());
+			$container.append(reorderableList.getEl());
 		});
 	});
 });
