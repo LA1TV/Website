@@ -33,7 +33,7 @@ class LiveStream extends MyEloquent {
 		return $this->belongsToMany(self::$p.'LiveStreamQuality', 'live_stream_qualitiy_to_live_stream', 'live_stream_id', 'live_stream_quality_id');
 	}
 	
-	public function getQualityIdsForOrderableList() {
+	private function getQualityIdsForOrderableList() {
 		$ids = array();
 		$items = $this->qualities()->orderBy("position", "asc")->get();
 		foreach($items as $a) {
