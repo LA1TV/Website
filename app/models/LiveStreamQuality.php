@@ -30,7 +30,7 @@ class LiveStreamQuality extends MyEloquent {
 	
 	public static function isValidIdsFromAjaxSelectOrderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
-			return new LiveStreamQuality();
+			return LiveStreamQuality::with("qualityDefinition");
 		}, function($model) {
 			return $model->qualityDefinition->name;
 		});
@@ -39,7 +39,7 @@ class LiveStreamQuality extends MyEloquent {
 	
 	public static function generateInitialDataForAjaxSelectOrderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
-			return new LiveStreamQuality();
+			return LiveStreamQuality::with("qualityDefinition");
 		}, function($model) {
 			return $model->qualityDefinition->name;
 		});
@@ -48,7 +48,7 @@ class LiveStreamQuality extends MyEloquent {
 	
 	public static function generateInputValueForAjaxSelectOrderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
-			return new LiveStreamQuality();
+			return LiveStreamQuality::with("qualityDefinition");
 		}, function($model) {
 			return $model->qualityDefinition->name;
 		});
