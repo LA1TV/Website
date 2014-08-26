@@ -1,5 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use JsonHelpers;
 use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
 
 class MediaItem extends MyEloquent {
@@ -44,7 +45,7 @@ class MediaItem extends MyEloquent {
 		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_media_item', 'related_media_item_id', 'media_item_id')->withPivot('position');
 	}
 	
-	public function getRelatedItemIdsForReorderableList() {
+	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
 		$items = $this->relatedItems()->orderBy("related_item_to_media_item.position", "asc")->get();
 		foreach($items as $a) {
@@ -54,16 +55,15 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function getRelatedItemsForOrderableListAttribute() {
-		$reorderableList = new AjaxSelectReorderableList($this->getRelatedItemIdsForReorderableList(), function() {
-			return new MediaItem();
-		}, function($model) {
-			return $model->name;
-		});
-		return $reorderableList->getStringForReorderableList();
+		return self::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemIdsForReorderableList());
 	}
 	
-	public static function isValidRelatedItemsFromInput($stringFromInput) {
-		$reorderableList = new AjaxSelectReorderableList(json_decode($stringFromInput, true), function() {
+	public function getRelatedItemsForInputAttribute() {
+		return self::generateInputValueForAjaxSelectOrderableList($this->getRelatedItemIdsForReorderableList());
+	}
+	
+	public static function isValidIdsFromAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
 			return $model->name;
@@ -71,25 +71,23 @@ class MediaItem extends MyEloquent {
 		return $reorderableList->isValid();
 	}
 	
-	// should be the string from the input
-	public static function generateRelatedItemsForOrderableList($stringFromInput) {
-		$reorderableList = new AjaxSelectReorderableList(json_decode($stringFromInput, true), function() {
+	public static function generateInitialDataForAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
 			return $model->name;
 		});
-		return $reorderableList->getStringForReorderableList();
+		return $reorderableList->getInitialDataString();
 	}
 	
-	public function getRelatedItemsForInputAttribute() {
-		$reorderableList = new AjaxSelectReorderableList($this->getRelatedItemIdsForReorderableList(), function() {
+	public static function generateInputValueForAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
 			return $model->name;
 		});
 		return $reorderableList->getStringForInput();
 	}
-	
 	
 	public function getIsAccessible() {
 		if (!$this->enabled) {

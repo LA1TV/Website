@@ -17,7 +17,7 @@
 		
 		<?=FormHelpers::getFormGroupStart("playlist-content", $formErrors);
 		?><label class="control-label">Playlist Content</label><div class="form-control form-playlist-content" data-initialdata="<?=e($additionalForm['playlistContentInitialData'])?>"></div><?php
-		echo(FormHelpers::getFormHiddenInput(1, "playlist-content", $form['playlist-content']));
+		echo(FormHelpers::getFormHiddenInput(1, "playlist-content", $additionalForm['playlistContentInput']));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "playlist-content"));?></div>
 	</div>
 	<div class="panel-footer clearfix">

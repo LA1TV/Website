@@ -6,7 +6,7 @@ interface ReorderableList {
 	public function isValid();
 	
 	// should return the string that should be used as the initial data to populate the orderable list.
-	public function getStringForReorderableList();
+	public function getInitialDataString();
 	
 	// should return the string that should be the initial value in the result input field.
 	public function getStringForInput();

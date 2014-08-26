@@ -15,6 +15,7 @@ use Upload;
 use Csrf;
 use EloquentHelpers;
 use Auth;
+use JsonHelpers;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -141,7 +142,7 @@ class MediaController extends MediaBaseController {
 			array("stream-cover-art-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "coverArtFile", "id")),
 			array("stream-live-time", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "scheduled_live_time_for_input")),
 			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id")),
-			array("related-items", ObjectHelpers::getProp("[]", $mediaItem, "related_items_for_input"))
+			array("related-items", json_encode(array()))
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
@@ -151,14 +152,18 @@ class MediaController extends MediaBaseController {
 			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
 			"vodCoverArtFile"		=> FormHelpers::getFileInfo($formData['vod-cover-art-id']),
 			"streamCoverArtFile"	=> FormHelpers::getFileInfo($formData['stream-cover-art-id']),
+			"relatedItemsInput"		=> null,
 			"relatedItemsInitialData"	=> null
 		);
 		
+		
 		if (!$formSubmitted) {
+			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp("[]", $mediaItem, "related_items_for_input");
 			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp("[]", $mediaItem, "related_items_for_orderable_list");
 		}
 		else {
-			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateRelatedItemsForOrderableList($formData["related-items"]);
+			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
+			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
 		}
 		
 		$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
@@ -178,7 +183,7 @@ class MediaController extends MediaBaseController {
 			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
-				return MediaItem::isValidRelatedItemsFromInput($value);
+				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('valid_stream_state_id', function($attribute, $value, $parameters) {
 				return !is_null(LiveStreamStateDefinition::find(intval($value)));

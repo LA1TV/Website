@@ -61,7 +61,7 @@
 		
 		<?=FormHelpers::getFormGroupStart("related-items", $formErrors);
 		?><label class="control-label">Related Media Items</label><div class="form-control form-related-items" data-initialdata="<?=e($additionalForm['relatedItemsInitialData'])?>"></div><?php
-		echo(FormHelpers::getFormHiddenInput(1, "related-items", $form['related-items']));
+		echo(FormHelpers::getFormHiddenInput(1, "related-items", $additionalForm['relatedItemsInput']));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "related-items"));?></div>
 		
 	</div>

@@ -15,6 +15,7 @@ use Upload;
 use Csrf;
 use EloquentHelpers;
 use Auth;
+use JsonHelpers;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
@@ -98,7 +99,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			array("side-banners-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $playlist, "coverArtFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $playlist, "scheduled_publish_time_for_input")),
-			array("playlist-content", ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_input"))
+			array("playlist-content", json_encode(array()))
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
@@ -108,14 +109,17 @@ class PlaylistsController extends PlaylistsBaseController {
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"seriesItemText"		=> !is_null($series) ? $series->name : "",
+			"playlistContentInput"	=> null,
 			"playlistContentInitialData"	=> null
 		);
 		
 		if (!$formSubmitted) {
+			$additionalFormData['playlistContentInput'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_input");
 			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp("[]", $playlist, "playlist_content_for_orderable_list");
 		}
 		else {
-			$additionalFormData['playlistContentInitialData'] = Playlist::generatePlaylistContentForOrderableList($formData["playlist-content"]);
+			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
+			$additionalFormData['playlistContentInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
 		}
 		
 		$errors = null;
@@ -125,13 +129,10 @@ class PlaylistsController extends PlaylistsBaseController {
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			Validator::extend('valid_series_id', function($attribute, $value, $parameters) {
-				if ($value === "") {
-					return true;
-				}
 				return !is_null(Series::find(intval($value)));
 			});
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
-				return Playlist::isValidPlaylistDataFromInput($value);
+				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 				

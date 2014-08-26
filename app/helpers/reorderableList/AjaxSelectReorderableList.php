@@ -3,7 +3,7 @@
 class AjaxSelectReorderableList implements ReorderableList {
 	
 	private $valid = null;
-	private $stringForReordableList = null;
+	private $initialDataString = null;
 	private $stringForInput = null;
 	
 	// $data should be the an array of ids
@@ -14,7 +14,7 @@ class AjaxSelectReorderableList implements ReorderableList {
 		$foundDuplicates = false;
 		if (!is_array($data)) {
 			$this->valid = false;
-			$this->stringForReordableList = json_encode(array());
+			$this->initialDataString = json_encode(array());
 			$this->stringForInput = json_encode(array());
 			return;
 		}
@@ -39,6 +39,7 @@ class AjaxSelectReorderableList implements ReorderableList {
 				"text"	=> null
 			);
 		}
+		$finalIds = array();
 		if (count($ids) > 0) {
 			// the queryBuilder callback should select the correct table.
 			$models = $queryBuilder()->whereIn("id", $ids)->get();
@@ -47,20 +48,21 @@ class AjaxSelectReorderableList implements ReorderableList {
 				$modelIds[] = intval($a->id);
 			}
 			foreach($output as $i=>$a) {
-				if (is_null($a['id'])) {
-					continue;
+				if (!is_null($a['id'])) {
+					$modelIndex = array_search($a['id'], $modelIds, true);
+					if ($modelIndex === false) {
+						$output[$i]["id"] = null; // if the model can't be found anymore make the id null as well.
+						$this->valid = false;
+					}
+					else {
+						$output[$i]["text"] = $getTextCallback($models[$modelIndex]);
+					}
 				}
-				$modelIndex = array_search($a['id'], $modelIds, true);
-				if ($modelIndex === false) {
-					$output[$i]["id"] = null; // if the model can't be found anymore make the id null as well.
-					$this->valid = false;
-					continue;
-				}
-				$output[$i]["text"] = $getTextCallback($models[$modelIndex]);
+				$finalIds[] = $output[$i]["id"];
 			}
 		}
-		$this->stringForReordableList = json_encode($output);
-		$this->stringForInput = json_encode($modelIds);
+		$this->initialDataString = json_encode($output);
+		$this->stringForInput = json_encode($finalIds);
 	}
 	
 	// returns true if the $data is valid and all related models exist.
@@ -69,8 +71,8 @@ class AjaxSelectReorderableList implements ReorderableList {
 	}
 	
 	// if there is invalid data in $data this will be handled.
-	public function getStringForReorderableList() {
-		return $this->stringForReordableList;
+	public function getInitialDataString() {
+		return $this->initialDataString;
 	}
 	
 	// if there is invalid data in $data this will be handled.
