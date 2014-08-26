@@ -11,7 +11,7 @@
 		<?=FormHelpers::getFormCheckInput(1, "DVR Enabled", "dvr-enabled", $form['dvr-enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormGroupStart("qualities", $formErrors);
 		?><label class="control-label">Supported Qualities</label><div class="form-control form-qualities" data-initialdata="<?=e($additionalForm['qualitiesInitialData'])?>"></div><?php
-		echo(FormHelpers::getFormHiddenInput(1, "qualities", $form['qualities']));
+		echo(FormHelpers::getFormHiddenInput(1, "qualities", $additionalForm['qualitiesInput']));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "qualities"));?></div>
 	</div>
 	<div class="panel-footer clearfix">

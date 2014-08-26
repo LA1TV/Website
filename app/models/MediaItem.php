@@ -1,6 +1,5 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use JsonHelpers;
 use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
 
 class MediaItem extends MyEloquent {

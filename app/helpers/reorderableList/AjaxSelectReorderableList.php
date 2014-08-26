@@ -43,7 +43,7 @@ class AjaxSelectReorderableList implements ReorderableList {
 		if (count($ids) > 0) {
 			// the queryBuilder callback should select the correct table.
 			$models = $queryBuilder()->whereIn("id", $ids)->get();
-			$modelsIds = array();
+			$modelIds = array();
 			foreach($models as $a) {
 				$modelIds[] = intval($a->id);
 			}

@@ -11,6 +11,7 @@ use Redirect;
 use Response;
 use Auth;
 use App;
+use JsonHelpers;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\LiveStreamQuality;
 
@@ -88,19 +89,22 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			array("server-address", ObjectHelpers::getProp("", $liveStream, "server_address")),
 			array("stream-name", ObjectHelpers::getProp("", $liveStream, "stream_name")),
 			array("dvr-enabled", ObjectHelpers::getProp(false, $liveStream, "dvr_enabled")?"y":""),
-			array("qualities", ObjectHelpers::getProp("[]", $liveStream, "qualities_for_input")),
+			array("qualities", json_encode(array())),
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
 		$additionalFormData = array(
+			"qualitiesInput"		=> null,
 			"qualitiesInitialData"	=> null
 		);
 		
 		if (!$formSubmitted) {
-			$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp("[]", $liveStream, "qualities_for_orderable_list");
+			$additionalFormData['qualitiesInput'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "qualities_for_input");
+			$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "qualities_for_orderable_list");
 		}
 		else {
-			$additionalFormData['qualitiesInitialData'] = LiveStream::generateQualitiesForOrderableList($formData["qualities"]);
+			$additionalFormData['qualitiesInput'] = LiveStreamQuality::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['qualities'], true));
+			$additionalFormData['qualitiesInitialData'] = LiveStreamQuality::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["qualities"], true));
 		}
 		
 		$errors = null;
@@ -110,7 +114,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				
 				Validator::extend("valid_ip_or_domain", FormHelpers::getValidIPOrDomainFunction());
 				Validator::extend('valid_qualities', function($attribute, $value, $parameters) {
-					return LiveStream::isValidQualitiesFromInput($value);
+					return LiveStreamQuality::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 				});
 				
 				$validator = Validator::make($formData,	array(

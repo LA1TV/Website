@@ -1,5 +1,7 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
+
 class LiveStreamQuality extends MyEloquent {
 	
 	protected $table = 'live_streams_qualities';
@@ -24,5 +26,32 @@ class LiveStreamQuality extends MyEloquent {
 	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array(array("qualityDefinition", "name")), $value);
+	}
+	
+	public static function isValidIdsFromAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
+			return new LiveStreamQuality();
+		}, function($model) {
+			return $model->qualityDefinition->name;
+		});
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
+			return new LiveStreamQuality();
+		}, function($model) {
+			return $model->qualityDefinition->name;
+		});
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
+			return new LiveStreamQuality();
+		}, function($model) {
+			return $model->qualityDefinition->name;
+		});
+		return $reorderableList->getStringForInput();
 	}
 }
