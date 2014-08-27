@@ -1,5 +1,7 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
+
 class PermissionGroup extends MyEloquent {
 
 	protected $table = 'permission_groups';
@@ -23,5 +25,32 @@ class PermissionGroup extends MyEloquent {
 	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
+	
+	public static function isValidIdsFromAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
+			return new PermissionGroup();
+		}, function($model) {
+			return $model->getNameAndDescription();
+		});
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
+			return new PermissionGroup();
+		}, function($model) {
+			return $model->getNameAndDescription();
+		});
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForAjaxSelectOrderableList($ids) {
+		$reorderableList = new AjaxSelectReorderableList($ids, function() {
+			return new PermissionGroup();
+		}, function($model) {
+			return $model->getNameAndDescription();
+		});
+		return $reorderableList->getStringForInput();
 	}
 }

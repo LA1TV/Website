@@ -425,7 +425,7 @@ class MediaController extends MediaBaseController {
 	}
 	
 	// json data for ajaxSelect element
-	public function postAjaxSelect() {
+	public function postAjaxselect() {
 		$resp = array("success"=>false, "payload"=>null);
 		
 		$searchTerm = FormHelpers::getValue("term", "");

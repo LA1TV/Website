@@ -69,97 +69,22 @@ class User extends MyEloquent {
 	public function isAccessible($ignoreCosign=false) {
 		return !$this->disabled && (!is_null($this->username) || (!$ignoreCosign && !is_null($this->cosign_user)));
 	}
-	
-	// should be the string from the input
-	public static function generateGroupsForOrderableList($stringFromInput) {
-		$data = json_decode($stringFromInput, true);
-		if (!is_array($data)) {
-			return "[]";
-		}
-		$output = array();
+
+	private function getGroupsIdsForReorderableList() {
 		$ids = array();
-		foreach($data as $a) {
-			if (is_int($a) && !in_array($a, $ids, true)) {
-				$ids[] = $a;
-			}
-			$output[] = array(
-				"id"	=> is_int($a) ? $a : null,
-				"text"	=> null
-			);
+		$items = $this->permissionGroups()->orderBy("position", "asc")->get();
+		foreach($items as $a) {
+			$ids[] = intval($a->id);
 		}
-		if (count($ids) > 0) {
-			$groups = PermissionGroup::whereIn("id", $ids)->get();
-			$groupIds = array();
-			foreach($groups as $a) {
-				$groupIds[] = intval($a->id);
-			}
-			foreach($output as $i=>$a) {
-				if (is_null($a['id'])) {
-					continue;
-				}
-				$groupIndex = array_search($a['id'], $groupIds, true);
-				if ($groupIndex === false) {
-					$output[$i]["id"] = null; // if the quality can't be found anymore make the id null as well.
-					continue;
-				}
-				$output[$i]["text"] = $groups[$groupIndex]->getNameAndDescription();
-			}
-		}
-		return json_encode($output);
-	}
-	
-	public static function isValidGroupsFromInput($stringFromInput) {
-		$data = json_decode($stringFromInput, true);
-		if (!is_array($data)) {
-			return false;
-		}
-		$ids = array();
-		foreach($data as $a) {
-			if (!is_int($a) && !is_null($a)) {
-				return false;
-			}
-			if (in_array($a, $ids, true)) {
-				return false;
-			}
-			else {
-				$ids[] = $a;
-			}
-		}
-		if (count($ids) === 0) {
-			return true;
-		}
-		return PermissionGroup::whereIn("id", $ids)->count() === count($ids);
+		return $ids;
 	}
 	
 	public function getGroupsForInputAttribute() {
-		$ids = array();
-		foreach($this->getGroups() as $a) {
-			$ids[] = $a['id'];
-		}
-		return json_encode($ids);
+		return PermissionGroup::generateInputValueForAjaxSelectOrderableList($this->getGroupsIdsForReorderableList());
 	}
 	
 	public function getGroupsForOrderableListAttribute() {
-		$data = array();
-		foreach($this->getGroups() as $a) {
-			$data[] = array(
-				"id"		=> $a['id'],
-				"text"		=> $a['name']
-			);
-		}
-		return json_encode($data);
-	}
-	
-	public function getGroups() {
-		$data = array();
-		$items = $this->permissionGroups()->orderBy("position", "asc")->get();
-		foreach($items as $a) {
-			$data[] = array(
-				"id"		=> intval($a->id),
-				"name"		=> $a->getNameAndDescription()
-			);
-		}
-		return $data;
+		return PermissionGroup::generateInitialDataForAjaxSelectOrderableList($this->getGroupsIdsForReorderableList());
 	}
 	
 	public function getDates() {

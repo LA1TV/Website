@@ -15,7 +15,7 @@
 		
 		<?=FormHelpers::getFormGroupStart("groups", $formErrors);
 		?><label class="control-label">Groups</label><div class="form-control form-groups" data-initialdata="<?=e($additionalForm['groupsInitialData'])?>"></div><?php
-		echo(FormHelpers::getFormHiddenInput(1, "groups", $form['groups']));
+		echo(FormHelpers::getFormHiddenInput(1, "groups", $additionalForm['groupsInput']));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "groups"));?></div>
 	</div>
 	<div class="panel-footer clearfix">

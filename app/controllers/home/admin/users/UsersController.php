@@ -11,6 +11,7 @@ use Hash;
 use Auth;
 use Response;
 use App;
+use JsonHelpers;
 use uk\co\la1tv\website\models\User;
 use uk\co\la1tv\website\models\PermissionGroup;
 
@@ -98,7 +99,7 @@ class UsersController extends UsersBaseController {
 			array("user", ObjectHelpers::getProp("", $user, "username")),
 			array("password", ""),
 			array("password-changed", "0"),
-			array("groups", ObjectHelpers::getProp("[]", $user, "groups_for_input")),
+			array("groups", json_encode(array()))
 		), !$formSubmitted);
 		
 		$passwordToDisplay = null;
@@ -117,10 +118,12 @@ class UsersController extends UsersBaseController {
 		);
 		
 		if (!$formSubmitted) {
-			$additionalFormData['groupsInitialData'] = ObjectHelpers::getProp("[]", $user, "groups_for_orderable_list");
+			$additionalFormData['groupsInput'] = ObjectHelpers::getProp(json_encode(array()), $user, "groups_for_input");
+			$additionalFormData['groupsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $user, "groups_for_orderable_list");
 		}
 		else {
-			$additionalFormData['groupsInitialData'] = User::generateGroupsForOrderableList($formData['groups']);
+			$additionalFormData['groupsInput'] = PermissionGroup::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['groups'], true));
+			$additionalFormData['groupsInitialData'] = PermissionGroup::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['groups'], true));
 		}
 		
 		$errors = null;
@@ -152,7 +155,7 @@ class UsersController extends UsersBaseController {
 				});
 				
 				Validator::extend('valid_groups', function($attribute, $value, $parameters) {
-					return User::isValidGroupsFromInput($value);
+					return PermissionGroup::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 				});
 				
 				$validator = Validator::make($formData, array(
