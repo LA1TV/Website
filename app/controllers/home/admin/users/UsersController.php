@@ -93,7 +93,7 @@ class UsersController extends UsersBaseController {
 		
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
-			array("enabled", ObjectHelpers::getProp(true, $user, "enabled")?"y":""),
+			array("enabled", ObjectHelpers::getProp(false, $user, "disabled")?"":"y"),
 			array("admin", ObjectHelpers::getProp(false, $user, "admin")?"y":""),
 			array("cosign-user", ObjectHelpers::getProp("", $user, "cosign_user")),
 			array("user", ObjectHelpers::getProp("", $user, "username")),
