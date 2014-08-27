@@ -291,8 +291,8 @@ $(document).ready(function() {
 					csrf_token: getCsrfToken()
 				},
 				type: "POST"
-			}).done(function(data) {
-				if (data.success) {
+			}).done(function(data, textStatus, jqXHR) {
+				if (jqXHR.status === 200 && data.success) {
 					var payload = data.payload;
 					resultsChanged = true;
 					results = payload.results;
