@@ -230,9 +230,9 @@ class PlaylistsController extends PlaylistsBaseController {
 		$this->setContent($view, "playlists", "playlists-edit");
 	}
 	
-	public function handleDelete() {
+	public function postDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && Auth::isLoggedIn() && FormHelpers::hasPost("id")) {
+		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$playlist = Playlist::find($id);

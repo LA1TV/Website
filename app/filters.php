@@ -31,7 +31,13 @@ App::after(function($request, $response)
 Route::filter('auth', function()
 {
 	if (is_null(Auth::getUser()) || Auth::getUserState() !== 0) {
-		return Redirect::to("/admin/login")->with("authRequestFromFilter", true);
+		if (Request::wantsJson()) {
+			App::abort(401); // unauthorized
+			return;
+		}
+		else {
+			return Redirect::to("/admin/login")->with("authRequestFromFilter", true);
+		}
 	}
 });
 
