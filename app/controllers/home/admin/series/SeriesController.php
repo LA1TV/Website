@@ -4,7 +4,6 @@ use View;
 use FormHelpers;
 use ObjectHelpers;
 use Config;
-use Csrf;
 use DB;
 use Validator;
 use Redirect;
@@ -69,11 +68,6 @@ class SeriesController extends SeriesBaseController {
 		}
 		
 		$formSubmitted = isset($_POST['form-submitted']) && $_POST['form-submitted'] === "1"; // has id 1
-	
-		if ($formSubmitted) {
-			// throws exception if token invalid
-			Csrf::check();
-		};
 		
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
@@ -137,7 +131,7 @@ class SeriesController extends SeriesBaseController {
 	
 	public function postDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$series = Series::find($id);
@@ -161,23 +155,21 @@ class SeriesController extends SeriesBaseController {
 	public function postAjaxSelect() {
 		$resp = array("success"=>false, "payload"=>null);
 		
-		if (Csrf::hasValidToken()) {
-			$searchTerm = FormHelpers::getValue("term", "");
-			$series = null;
-			if (!empty($searchTerm)) {
-				$series = Series::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
-			}
-			else {
-				$series = Series::orderBy("created_at", "desc")->take(20)->get();
-			}
-			
-			$results = array();
-			foreach($series as $a) {
-				$results[] = array("id"=>intval($a->id), "text"=>$a->name);
-			}
-			$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
-			$resp['success'] = true;
+		$searchTerm = FormHelpers::getValue("term", "");
+		$series = null;
+		if (!empty($searchTerm)) {
+			$series = Series::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
 		}
+		else {
+			$series = Series::orderBy("created_at", "desc")->take(20)->get();
+		}
+		
+		$results = array();
+		foreach($series as $a) {
+			$results[] = array("id"=>intval($a->id), "text"=>$a->name);
+		}
+		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
+		$resp['success'] = true;
 		return Response::json($resp);
 	}
 }

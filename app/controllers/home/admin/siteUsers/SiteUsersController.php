@@ -4,7 +4,6 @@ use View;
 use FormHelpers;
 use ObjectHelpers;
 use Config;
-use Csrf;
 use DB;
 use Redirect;
 use Response;
@@ -63,11 +62,6 @@ class SiteUsersController extends SiteUsersBaseController {
 		}
 		
 		$formSubmitted = isset($_POST['form-submitted']) && $_POST['form-submitted'] === "1"; // has id 1
-	
-		if ($formSubmitted) {
-			// throws exception if token invalid
-			Csrf::check();
-		};
 		
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
@@ -113,7 +107,7 @@ class SiteUsersController extends SiteUsersBaseController {
 	
 	public function postDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$siteUser = SiteUser::find($id);

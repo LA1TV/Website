@@ -12,7 +12,6 @@ use Redirect;
 use Config;
 use Response;
 use Upload;
-use Csrf;
 use EloquentHelpers;
 use Auth;
 use JsonHelpers;
@@ -83,11 +82,6 @@ class PlaylistsController extends PlaylistsBaseController {
 		
 		$formSubmitted = isset($_POST['form-submitted']) && $_POST['form-submitted'] === "1"; // has id 1
 	
-		if ($formSubmitted) {
-			// throws exception if token invalid
-			Csrf::check();
-		};
-		
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $playlist, "enabled")?"y":""),
@@ -232,7 +226,7 @@ class PlaylistsController extends PlaylistsBaseController {
 	
 	public function postDelete() {
 		$resp = array("success"=>false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$playlist = Playlist::find($id);

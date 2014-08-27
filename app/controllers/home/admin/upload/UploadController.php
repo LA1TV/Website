@@ -8,7 +8,6 @@ use DB;
 use Input;
 use FormHelpers;
 use Upload;
-use Csrf;
 use Auth;
 use uk\co\la1tv\website\models\File;
 
@@ -31,7 +30,7 @@ class UploadController extends UploadBaseController {
 		Auth::loggedInOr403();
 	
 		$resp = array("success"=> false, "payload"=>null);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			// TODO: the info should only be returned if the file should be accessible to the public so a check is needed here
 			$file = File::find($id);
@@ -49,7 +48,7 @@ class UploadController extends UploadBaseController {
 		Auth::loggedInOr403();
 	
 		$resp = array("success"=> false);
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			$file = $this->getFile($id);
 			if (!is_null($file)) {

@@ -55,6 +55,10 @@ Route::filter('auth', function()
 
 Route::filter('csrf', function()
 {
+	if (Request::isMethod('get')) {
+		return;
+	}
+	
 	// throws exception if token invalid
 	Csrf::check();
 });

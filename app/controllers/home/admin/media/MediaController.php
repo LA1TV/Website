@@ -12,7 +12,6 @@ use Redirect;
 use Config;
 use Response;
 use Upload;
-use Csrf;
 use EloquentHelpers;
 use Auth;
 use JsonHelpers;
@@ -111,12 +110,7 @@ class MediaController extends MediaBaseController {
 		}
 		
 		$formSubmitted = isset($_POST['form-submitted']) && $_POST['form-submitted'] === "1"; // has id 1
-	
-		if ($formSubmitted) {
-			// throws exception if token invalid
-			Csrf::check();
-		};
-		
+
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $mediaItem, "enabled")?"y":""),
@@ -402,7 +396,7 @@ class MediaController extends MediaBaseController {
 	public function postDelete() {
 		$resp = array("success"=>false);
 		
-		if (Csrf::hasValidToken() && FormHelpers::hasPost("id")) {
+		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
 				$mediaItem = MediaItem::find($id);
@@ -434,23 +428,21 @@ class MediaController extends MediaBaseController {
 	public function postAjaxSelect() {
 		$resp = array("success"=>false, "payload"=>null);
 		
-		if (Csrf::hasValidToken()) {
-			$searchTerm = FormHelpers::getValue("term", "");
-			$mediaItems = null;
-			if (!empty($searchTerm)) {
-				$mediaItems = MediaItem::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
-			}
-			else {
-				$mediaItems = MediaItem::orderBy("created_at", "desc")->take(20)->get();
-			}
-			
-			$results = array();
-			foreach($mediaItems as $a) {
-				$results[] = array("id"=>intval($a->id), "text"=>$a->name);
-			}
-			$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
-			$resp['success'] = true;
+		$searchTerm = FormHelpers::getValue("term", "");
+		$mediaItems = null;
+		if (!empty($searchTerm)) {
+			$mediaItems = MediaItem::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
 		}
+		else {
+			$mediaItems = MediaItem::orderBy("created_at", "desc")->take(20)->get();
+		}
+		
+		$results = array();
+		foreach($mediaItems as $a) {
+			$results[] = array("id"=>intval($a->id), "text"=>$a->name);
+		}
+		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
+		$resp['success'] = true;
 		return Response::json($resp);
 	}
 }

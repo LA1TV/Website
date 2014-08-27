@@ -2,7 +2,6 @@
 
 use View;
 use FormHelpers;
-use Csrf;
 use Validator;
 use Auth;
 use App;
@@ -101,11 +100,6 @@ class LoginController extends LoginBaseController {
 		// id of the form that's been submitted
 		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
 	
-		if ($formSubmitted) {
-			// throws exception if token invalid
-			Csrf::check();
-		};
-		
 		// logout
 		if ($formSubmitted === 1) {
 			if (Auth::isLoggedIn()) {
