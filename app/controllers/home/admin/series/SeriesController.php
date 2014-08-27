@@ -156,13 +156,12 @@ class SeriesController extends SeriesBaseController {
 		}
 		return Response::json($resp);
 	}
-	
-	// json data for ajaxSelect element
+
 	// route to this in routes.php
-	public function handleAjaxSelect() {
+	public function postAjaxSelect() {
 		$resp = array("success"=>false, "payload"=>null);
 		
-		if (Csrf::hasValidToken() && Auth::isLoggedIn()) {
+		if (Csrf::hasValidToken()) {
 			$searchTerm = FormHelpers::getValue("term", "");
 			$series = null;
 			if (!empty($searchTerm)) {

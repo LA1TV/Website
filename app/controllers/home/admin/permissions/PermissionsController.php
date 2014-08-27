@@ -9,11 +9,10 @@ use uk\co\la1tv\website\models\PermissionGroup;
 class PermissionsController extends PermissionsBaseController {
 
 	// json data for ajaxSelect element
-	// route to this in routes.php
-	public function handleGroupsAjaxSelect() {
+	public function postGroupsAjaxSelect() {
 		$resp = array("success"=>false, "payload"=>null);
 		
-		if (Csrf::hasValidToken() && Auth::isLoggedIn()) {
+		if (Csrf::hasValidToken()) {
 			$searchTerm = FormHelpers::getValue("term", "");
 			$groups = null;
 			if (!empty($searchTerm)) {
