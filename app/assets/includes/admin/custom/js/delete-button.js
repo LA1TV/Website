@@ -21,8 +21,12 @@ $(document).ready(function() {
 				dataType: "json",
 				timeout: 5000,
 				type: "POST"
-			}).done(function(data) {
-				if (!data.success) {
+			}).done(function(data, textStatus, jqXHR) {
+				if (jqXHR.status !== 200) {
+					errorOccurred();
+					return;
+				}
+				else if (!data.success) {
 					errorOccurred(data.hasOwnProperty("msg") ? data.msg : null);
 					return;
 				}
