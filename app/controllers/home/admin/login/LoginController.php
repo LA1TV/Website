@@ -19,11 +19,6 @@ class LoginController extends LoginBaseController {
 		// id of the form that's been submitted
 		$formSubmitted = isset($_POST['form-submitted']) ? intval($_POST['form-submitted']) : false;
 	
-		if ($formSubmitted) {
-			// throws exception if token invalid
-			Csrf::check();
-		};
-		
 		// logout cosign button if logged in as unknown user
 		if ($formSubmitted === 3) {
 			if (Auth::isLoggedIntoCosign()) {
