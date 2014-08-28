@@ -161,7 +161,7 @@ class SeriesController extends SeriesBaseController {
 	}
 
 	// route to this in routes.php
-	public function postAjaxSelect() {
+	public function postAjaxselect() {
 	
 		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 0);
 		

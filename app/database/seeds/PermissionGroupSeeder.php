@@ -19,7 +19,7 @@ class PermissionGroupSeeder extends Seeder {
 			array("name"=>"Series Management", "description"=>"Allows managing series.", "permissionIdsFlags"=>
 					array(array(2, 1))),
 			array("name"=>"Playlist Management", "description"=>"Allows managing playlists.",  "permissionIdsFlags"=>
-					array(array(3, 1))),
+					array(array(3, 1), array(2, 0), array(1, 0))),
 			array("name"=>"Stream Management", "description"=>"Allows managing live streams.", "permissionIdsFlags"=>
 					array(array(4, 1))),
 			array("name"=>"Site Users Management", "description"=>"Allows managing site users.", "permissionIdsFlags"=>
@@ -36,21 +36,19 @@ class PermissionGroupSeeder extends Seeder {
 			$a['position'] = $i;
 			
 			$permissionIds = array();
-			$permissionFlags = array();
 			foreach($permissionIdsFlags as $b) {
 				$permissionIds[] = $b[0];
-				$permissionFlags[] = $b[1];
 			}
-			
 			
 			$permissions = Permission::whereIn("id", $permissionIds)->get();
 			
 			$group = new PermissionGroup($a);
-			db::transaction(function() use(&$group, &$permissions, &$permissionFlags) {
+			DB::transaction(function() use(&$group, &$permissions, &$permissionIdsFlags) {
 				$group->save();
-				foreach ($permissions as $c=>$b) {
-					$flag = $permissionFlags[$c];
-					$group->permissions()->attach($b, array("permission_flag"=>$flag));
+				foreach ($permissionIdsFlags as $b) {
+					$flag = $b[1];
+					$permissionId = $b[0];
+					$group->permissions()->attach($permissions->find($permissionId), array("permission_flag"=>$flag));
 				}
 			});
 		}
