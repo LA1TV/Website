@@ -28,12 +28,10 @@ App::after(function($request, $response)
 */
 
 // redirect to login page if not logged in
-Route::filter('auth', function()
-{
+Route::filter('auth', function() {
 	if (is_null(Auth::getUser()) || Auth::getUserState() !== 0) {
 		if (Request::wantsJson()) {
-			App::abort(401); // unauthorized
-			return;
+			return Response::make("", 401); // unauthorized
 		}
 		else {
 			return Redirect::to("/admin/login")->with("authRequestFromFilter", true);
@@ -53,12 +51,21 @@ Route::filter('auth', function()
 |
 */
 
-Route::filter('csrf', function()
-{
+Route::filter('csrf', function() {
 	if (Request::isMethod('get')) {
 		return;
 	}
 	
 	// throws exception if token invalid
 	Csrf::check();
+});
+
+/*
+|--------------------------------------------------------------------------
+| CSRF Protection Filter
+|--------------------------------------------------------------------------
+*/
+
+Route::filter("permission", function() {
+
 });

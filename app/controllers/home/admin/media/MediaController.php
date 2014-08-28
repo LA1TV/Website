@@ -24,8 +24,11 @@ use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\LiveStreamStateDefinition;
 
 class MediaController extends MediaBaseController {
-
+	
 	public function getIndex() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 0);
+	
 		$view = View::make('home.admin.media.index');
 		$tableData = array();
 		
@@ -97,6 +100,8 @@ class MediaController extends MediaBaseController {
 	}
 	
 	public function anyEdit($id=null) {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 1);
 		
 		$mediaItem = null;
 		$editing = false;
@@ -394,6 +399,9 @@ class MediaController extends MediaBaseController {
 	}
 	
 	public function postDelete() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 1);
+	
 		$resp = array("success"=>false);
 		
 		if (FormHelpers::hasPost("id")) {
@@ -426,6 +434,9 @@ class MediaController extends MediaBaseController {
 	
 	// json data for ajaxSelect element
 	public function postAjaxselect() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 0);
+	
 		$resp = array("success"=>false, "payload"=>null);
 		
 		$searchTerm = FormHelpers::getValue("term", "");

@@ -27,9 +27,7 @@ class PermissionGroupSeeder extends Seeder {
 			array("name"=>"CMS Users Management", "description"=>"Allows managing the CMS users.", "permissionIdsFlags"=>
 					array(array(6, 1))),
 			array("name"=>"Comments Management", "description"=>"Allows managing site comments and commenting as station.", "permissionIdsFlags"=>
-					array(array(7, 0))),
-			array("name"=>"Full Access", "description"=>"Allows full access to the cms.",  "permissionIdsFlags"=>
-					array(array(1, 1), array(2, 1), array(3, 1), array(4, 1), array(5, 1), array(6, 1), array(7, 0)))
+					array(array(7, 0)))
 		);
 		
 		foreach($groups as $i=>$a) {
@@ -58,6 +56,4 @@ class PermissionGroupSeeder extends Seeder {
 		}
 		$this->command->info('Permissions groups created and permissions assigned to groups!');
 	}
-
-
 }

@@ -1,6 +1,7 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use Exception;
+use App;
 
 class User extends MyEloquent {
 
@@ -85,6 +86,32 @@ class User extends MyEloquent {
 	
 	public function getGroupsForOrderableListAttribute() {
 		return PermissionGroup::generateInitialDataForAjaxSelectOrderableList($this->getGroupsIdsForReorderableList());
+	}
+	
+	public function hasPermission($permissionId, $permissionFlag=0) {
+		// if the user is an admin then they will always have permission
+		if ($this->admin) {
+			return true;
+		}
+		
+		$this->load("permissionGroups", "permissionGroups.permissions");
+		$permission = null;
+		foreach($this->permissionGroups as $group) {
+			$currentPermission = $group->permissions->find($permissionId);
+			if (!is_null($currentPermission)) {
+				if (is_null($permission) || int_val($permission->pivot->permission_flag) < int_val($currentPermission->pivot->permission_flag)) {
+					$permission = $currentPermission;
+				}
+			}
+		}
+		return !is_null($permission) && intval($permissionFlag) <= intval($permission->pivot->permission_flag);
+	}
+	
+	public function hasPermissionOr401($permissionId, $permissionFlag=0) {
+		if (!$this->hasPermission($permissionId, $permissionFlag)) {
+			App::abort(401); // unauthorized
+			return;
+		}
 	}
 	
 	public function getDates() {

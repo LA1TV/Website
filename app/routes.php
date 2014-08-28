@@ -12,13 +12,14 @@
 */
 
 $p = "uk\\co\\la1tv\\website\\controllers\\";
+$fP = "uk\\co\\la1tv\\website\\filters\\";
 
-Route::group(array('before' => 'csrf'), function() use(&$p) {
+Route::group(array('before' => 'csrf'), function() use(&$p, &$fP) {
 
 	Route::controller('/admin/login', $p.'home\admin\login\LoginController');
 	Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
 
-	Route::group(array('before' => 'auth'), function() use(&$p) {
+	Route::group(array('before' => 'auth'), function() use(&$p, &$fP) {
 		Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
 		Route::controller('/admin/media', $p.'home\admin\media\MediaController');
 		Route::controller('/admin/series', $p.'home\admin\series\SeriesController');
