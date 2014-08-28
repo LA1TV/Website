@@ -4,6 +4,8 @@ use uk\co\la1tv\website\controllers\BaseController;
 use View;
 use URL;
 use Csrf;
+use Auth;
+use Config;
 
 class AdminBaseController extends BaseController {
 
@@ -19,14 +21,14 @@ class AdminBaseController extends BaseController {
 		
 		$this->layout->mainMenuItems = array();
 		$this->layout->mainMenuItems[] = "dashboard";
-		$this->layout->mainMenuItems[] = "media";
-		$this->layout->mainMenuItems[] = "series";
-		$this->layout->mainMenuItems[] = "playlists";
-		$this->layout->mainMenuItems[] = "livestreams";
+		if (Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) $this->layout->mainMenuItems[] = "media";
+		if (Auth::getUser()->hasPermission(Config::get("permissions.series"), 0)) $this->layout->mainMenuItems[] = "series";
+		if (Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) $this->layout->mainMenuItems[] = "playlists";
+		if (Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0)) $this->layout->mainMenuItems[] = "livestreams";
 				
 		$this->layout->moreMenuItems = array();
-		$this->layout->moreMenuItems[] = "siteusers";
-		$this->layout->moreMenuItems[] = "users";
+		if (Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 0)) $this->layout->moreMenuItems[] = "siteusers";
+		if (Auth::getUser()->hasPermission(Config::get("permissions.users"), 0)) $this->layout->moreMenuItems[] = "users";
 		$this->layout->moreMenuItems[] = "monitoring";
 	}
 
