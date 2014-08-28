@@ -24,6 +24,7 @@ if (isset($nav[$currentNavPage])) {
 ?>
 <li class="<?=$a[2]?"active":""?>"><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>
 <?php endforeach; ?>
+<?php if (count($moreMenuItems) > 0): ?>
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
 	<ul class="dropdown-menu">
@@ -34,6 +35,7 @@ if (isset($nav[$currentNavPage])) {
 		<?php endforeach; ?>
 	</ul>
 </li>
+<?php endif; ?>
 @stop
 
 @section('content')
