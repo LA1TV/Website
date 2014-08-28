@@ -42,5 +42,23 @@ $(document).ready(function() {
 			});
 			$container.append(reorderableList.getEl());
 		});
+		
+		$pageContainer.find(".form-related-items").each(function() {
+			var $container = $(this).first();
+			var $destinationEl = $container.parent().find('[name="related-items"]').first();
+			var initialDataStr = $(this).attr("data-initialdata");
+			var initialData = jQuery.parseJSON(initialDataStr);
+			
+			var reorderableList = new ReorderableList(true, true, true, function(state) {
+				return new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
+			}, {
+				id: null,
+				text: null
+			}, initialData);
+			$(reorderableList).on("stateChanged", function() {
+				$destinationEl.val(JSON.stringify(reorderableList.getIds()));
+			});
+			$container.append(reorderableList.getEl());
+		});
 	});
 });

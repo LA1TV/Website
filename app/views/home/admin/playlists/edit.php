@@ -19,6 +19,11 @@
 		?><label class="control-label">Playlist Content</label><div class="form-control form-playlist-content" data-initialdata="<?=e($additionalForm['playlistContentInitialData'])?>"></div><?php
 		echo(FormHelpers::getFormHiddenInput(1, "playlist-content", $additionalForm['playlistContentInput']));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "playlist-content"));?></div>
+	
+		<?=FormHelpers::getFormGroupStart("related-items", $formErrors);
+		?><label class="control-label">Related Media Items</label><div class="form-control form-related-items" data-initialdata="<?=e($additionalForm['relatedItemsInitialData'])?>"></div><?php
+		echo(FormHelpers::getFormHiddenInput(1, "related-items", $additionalForm['relatedItemsInput']));
+		echo(FormHelpers::getErrMsgHTML($formErrors, "related-items"));?></div>
 	</div>
 	<div class="panel-footer clearfix">
 		<div class="pull-left">

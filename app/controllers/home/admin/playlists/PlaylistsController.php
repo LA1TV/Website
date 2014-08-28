@@ -93,7 +93,8 @@ class PlaylistsController extends PlaylistsBaseController {
 			array("side-banners-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $playlist, "coverArtFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $playlist, "scheduled_publish_time_for_input")),
-			array("playlist-content", json_encode(array()))
+			array("playlist-content", json_encode(array())),
+			array("related-items", json_encode(array())),
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
@@ -104,16 +105,23 @@ class PlaylistsController extends PlaylistsBaseController {
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"seriesItemText"		=> !is_null($series) ? $series->name : "",
 			"playlistContentInput"	=> null,
-			"playlistContentInitialData"	=> null
+			"playlistContentInitialData"	=> null,
+			"relatedItemsInput"		=> null,
+			"relatedItemsInitialData"	=> null
 		);
 		
 		if (!$formSubmitted) {
 			$additionalFormData['playlistContentInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_input");
 			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_orderable_list");
+			// TODO in model
+			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_input");
+			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_orderable_list");
 		}
 		else {
 			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
 			$additionalFormData['playlistContentInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
+			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
+			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
 		}
 		
 		$errors = null;
@@ -128,6 +136,9 @@ class PlaylistsController extends PlaylistsBaseController {
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
+			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
+				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+			});
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 				
 				$validator = Validator::make($formData,	array(
@@ -140,7 +151,8 @@ class PlaylistsController extends PlaylistsBaseController {
 					'description'	=> array('max:500'),
 					'cover-art-id'	=> array('valid_file_id'),
 					'publish-time'	=> array('my_date'),
-					'playlist-content'	=> array('required', 'valid_playlist_content')
+					'playlist-content'	=> array('required', 'valid_playlist_content'),
+					'related-items'	=> array('required', 'valid_related_items')
 				), array(
 					'series-id.valid_series_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
@@ -153,7 +165,9 @@ class PlaylistsController extends PlaylistsBaseController {
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'playlist-content.required'	=> FormHelpers::getGenericInvalidMsg(),
-					'playlist-content.valid_playlist_content'	=> FormHelpers::getGenericInvalidMsg()
+					'playlist-content.valid_playlist_content'	=> FormHelpers::getGenericInvalidMsg(),
+					'related-items.required'	=> FormHelpers::getGenericInvalidMsg(),
+					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				
 				if (!$validator->fails()) {
@@ -194,6 +208,16 @@ class PlaylistsController extends PlaylistsBaseController {
 							$playlist->mediaItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
 						}
 					}
+					
+					$playlist->relatedItems()->detach(); // detaches all
+					$ids = json_decode($formData['related-items'], true);
+					if (count($ids) > 0) {
+						$mediaItems = MediaItem::whereIn("id", $ids)->get();
+						foreach($mediaItems as $a) {
+							$playlist->relatedItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+						}
+					}
+
 					// the transaction callback result is returned out of the transaction function
 					return true;
 				}

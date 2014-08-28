@@ -49,6 +49,14 @@ class Playlist extends MyEloquent {
 		return $this->belongsToMany(self::$p.'MediaItem', 'media_item_to_playlist', 'playlist_id', 'media_item_id')->withPivot('position', 'from_playlist_id');
 	}
 	
+	public function relatedItems() {
+		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_playlist', 'media_item_id', 'related_media_item_id')->withPivot('position');
+	}
+	
+	public function itemsRelatedTo() {
+		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_playlist', 'related_media_item_id', 'media_item_id')->withPivot('position');
+	}
+	
 	public function getScheduledPublishTimeForInputAttribute() {
 		if (is_null($this->scheduled_publish_time)) {
 			return null;
@@ -71,6 +79,23 @@ class Playlist extends MyEloquent {
 	
 	public function getPlaylistContentForOrderableListAttribute() {
 		return MediaItem::generateInitialDataForAjaxSelectOrderableList($this->getPlaylistContentIdsForOrderableList());
+	}
+	
+	private function getRelatedItemsIdsForOrderableList() {
+		$ids = array();
+		$items = $this->relatedItems()->orderBy("related_item_to_playlist.position", "asc")->get();
+		foreach($items as $a) {
+			$ids[] = intval($a->id);
+		}
+		return $ids;
+	}
+	
+	public function getRelatedItemsForInputAttribute() {
+		return MediaItem::generateInputValueForAjaxSelectOrderableList($this->getRelatedItemsIdsForOrderableList());
+	}
+	
+	public function getRelatedItemsForOrderableListAttribute() {
+		return MediaItem::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemsIdsForOrderableList());
 	}
 	
 	public function getDates() {
