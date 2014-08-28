@@ -16,6 +16,18 @@ class AdminBaseController extends BaseController {
 		$this->layout->title = !is_null($title) ? $title : "LA1:TV CMS";
 		$this->layout->csrfToken = Csrf::getToken();
 		$this->layout->content = $content;
+		
+		$this->layout->mainMenuItems = array();
+		$this->layout->mainMenuItems[] = "dashboard";
+		$this->layout->mainMenuItems[] = "media";
+		$this->layout->mainMenuItems[] = "series";
+		$this->layout->mainMenuItems[] = "playlists";
+		$this->layout->mainMenuItems[] = "livestreams";
+				
+		$this->layout->moreMenuItems = array();
+		$this->layout->moreMenuItems[] = "siteusers";
+		$this->layout->moreMenuItems[] = "users";
+		$this->layout->moreMenuItems[] = "monitoring";
 	}
 
 }

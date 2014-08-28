@@ -19,7 +19,7 @@ if (isset($nav[$currentNavPage])) {
 @extends('layouts.home.admin.base')
 
 @section('navbarList')
-<?php foreach(array("dashboard", "media", "series", "playlists", "livestreams") as $b):
+<?php foreach($mainMenuItems as $b):
 	$a = $nav[$b];
 ?>
 <li class="<?=$a[2]?"active":""?>"><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>
@@ -27,7 +27,7 @@ if (isset($nav[$currentNavPage])) {
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
 	<ul class="dropdown-menu">
-		<?php foreach(array("siteusers", "users", "monitoring") as $b):
+		<?php foreach($moreMenuItems as $b):
 			$a = $nav[$b];
 		?>
 		<li><a href="<?=e(URL::to($a[1]))?>"><?=e($a[0])?></a></li>
