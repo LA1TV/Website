@@ -15,6 +15,9 @@ use uk\co\la1tv\website\models\Series;
 class SeriesController extends SeriesBaseController {
 
 	public function getIndex() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 0);
+	
 		$view = View::make('home.admin.series.index');
 		$tableData = array();
 		
@@ -47,6 +50,7 @@ class SeriesController extends SeriesBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.series"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/series/edit";
@@ -55,6 +59,8 @@ class SeriesController extends SeriesBaseController {
 	}
 	
 	public function anyEdit($id=null) {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 1);
 		
 		$series = null;
 		$editing = false;
@@ -130,6 +136,9 @@ class SeriesController extends SeriesBaseController {
 	}
 	
 	public function postDelete() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 1);
+	
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
@@ -153,6 +162,9 @@ class SeriesController extends SeriesBaseController {
 
 	// route to this in routes.php
 	public function postAjaxSelect() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 0);
+		
 		$resp = array("success"=>false, "payload"=>null);
 		
 		$searchTerm = FormHelpers::getValue("term", "");

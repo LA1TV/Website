@@ -6,6 +6,6 @@ return array(
 	"playlists"		=> 3,
 	"liveStreams"	=> 4,
 	"siteUsers"		=> 5,
-	"cmsUsers"		=> 6,
+	"users"			=> 6,
 	"siteComments"	=> 7
 );

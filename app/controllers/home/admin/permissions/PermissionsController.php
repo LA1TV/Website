@@ -3,12 +3,16 @@
 use Response;
 use Auth;
 use FormHelpers;
+use Config;
 use uk\co\la1tv\website\models\PermissionGroup;
 
 class PermissionsController extends PermissionsBaseController {
 
 	// json data for ajaxSelect element
 	public function postGroupsajaxselect() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.users"), 0);
+	
 		$resp = array("success"=>false, "payload"=>null);
 		
 		$searchTerm = FormHelpers::getValue("term", "");

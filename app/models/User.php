@@ -99,7 +99,7 @@ class User extends MyEloquent {
 		foreach($this->permissionGroups as $group) {
 			$currentPermission = $group->permissions->find($permissionId);
 			if (!is_null($currentPermission)) {
-				if (is_null($permission) || int_val($permission->pivot->permission_flag) < int_val($currentPermission->pivot->permission_flag)) {
+				if (is_null($permission) || intval($permission->pivot->permission_flag) < intval($currentPermission->pivot->permission_flag)) {
 					$permission = $currentPermission;
 				}
 			}

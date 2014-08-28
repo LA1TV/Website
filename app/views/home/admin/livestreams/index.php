@@ -12,7 +12,9 @@
 					<th>Description</th>
 					<th>Has DVR</th>
 					<th>Time Created</th>
+					<?php if ($editEnabled): ?>
 					<th></th>
+					<?php endif; ?>
 				</tr>
 			</thead>
 			<tbody>
@@ -23,9 +25,12 @@
 					<td><?=e($a['description']);?></td>
 					<td><span class="<?=e($a['hasDvrCss']);?>"><?=e($a['hasDvr']);?></span></td>
 					<td><?=e($a['timeCreated']);?></td>
+					<?php if ($editEnabled): ?>
 					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
+					<?php endif; ?>
 				</tr>
 			<?php endforeach; ?>
+				<?php if ($editEnabled): ?>
 				<tr>
 					<td></td>
 					<td></td>
@@ -34,6 +39,7 @@
 					<td></td>
 					<td class="action-col"><a type="button" class="btn btn-xs btn-primary" href="<?=e($createUri)?>">Create</a></td>
 				</tr>
+				<?php endif; ?>
 			</tbody>
 		</table>
 		<?= FormHelpers::getFormPageSelectionBar($pageNo, $noPages); ?>

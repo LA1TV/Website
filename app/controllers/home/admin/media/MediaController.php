@@ -92,6 +92,7 @@ class MediaController extends MediaBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/media/edit";

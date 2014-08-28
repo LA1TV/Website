@@ -17,6 +17,9 @@ use uk\co\la1tv\website\models\LiveStreamQuality;
 class LiveStreamsController extends LiveStreamsBaseController {
 
 	public function getIndex() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 0);
+	
 		$view = View::make('home.admin.livestreams.index');
 		$tableData = array();
 		
@@ -53,6 +56,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/livestreams/edit";
@@ -61,6 +65,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 	}
 	
 	public function anyEdit($id=null) {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 1);
 		
 		$liveStream = null;
 		$editing = false;
@@ -182,6 +188,9 @@ class LiveStreamsController extends LiveStreamsBaseController {
 	}
 	
 	public function postDelete() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 1);
+	
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);

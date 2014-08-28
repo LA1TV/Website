@@ -23,6 +23,9 @@ use uk\co\la1tv\website\models\Series;
 class PlaylistsController extends PlaylistsBaseController {
 
 	public function getIndex() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.playlists"), 0);
+	
 		$view = View::make('home.admin.playlists.index');
 		$tableData = array();
 		
@@ -60,6 +63,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/playlists/edit";
@@ -68,6 +72,8 @@ class PlaylistsController extends PlaylistsBaseController {
 	}
 	
 	public function anyEdit($id=null) {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.playlists"), 1);
 		
 		$playlist = null;
 		$editing = false;
@@ -113,7 +119,6 @@ class PlaylistsController extends PlaylistsBaseController {
 		if (!$formSubmitted) {
 			$additionalFormData['playlistContentInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_input");
 			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_orderable_list");
-			// TODO in model
 			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_input");
 			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_orderable_list");
 		}
@@ -249,6 +254,9 @@ class PlaylistsController extends PlaylistsBaseController {
 	}
 	
 	public function postDelete() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.playlists"), 1);
+		
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);

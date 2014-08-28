@@ -2,6 +2,7 @@
 
 use Response;
 use Auth;
+use Config;
 use FormHelpers;
 use uk\co\la1tv\website\models\LiveStreamQuality;
 
@@ -9,6 +10,9 @@ class LiveStreamQualitiesController extends LiveStreamQualitiesBaseController {
 
 	// json data for ajaxSelect element
 	public function postAjaxselect() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 0);
+	
 		$resp = array("success"=>false, "payload"=>null);
 		
 		$searchTerm = FormHelpers::getValue("term", "");

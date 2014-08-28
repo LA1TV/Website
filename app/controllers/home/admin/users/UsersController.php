@@ -18,6 +18,9 @@ use uk\co\la1tv\website\models\PermissionGroup;
 class UsersController extends UsersBaseController {
 
 	public function getIndex() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.users"), 0);
+		
 		$view = View::make('home.admin.users.index');
 		$tableData = array();
 		
@@ -69,6 +72,7 @@ class UsersController extends UsersBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.users"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/users/edit";
@@ -77,6 +81,8 @@ class UsersController extends UsersBaseController {
 	}
 	
 	public function anyEdit($id=null) {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.users"), 1);
 		
 		$user = null;
 		$editing = false;
@@ -273,6 +279,9 @@ class UsersController extends UsersBaseController {
 	}
 	
 	public function postDelete() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.users"), 1);
+		
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);

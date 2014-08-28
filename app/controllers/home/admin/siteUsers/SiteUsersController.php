@@ -14,6 +14,9 @@ use uk\co\la1tv\website\models\SiteUser;
 class SiteUsersController extends SiteUsersBaseController {
 
 	public function getIndex() {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.siteUsers"), 0);
+	
 		$view = View::make('home.admin.siteUsers.index');
 		$tableData = array();
 		
@@ -46,6 +49,7 @@ class SiteUsersController extends SiteUsersBaseController {
 			);
 		}
 		$view->tableData = $tableData;
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
 		$view->createUri = Config::get("custom.admin_base_url") . "/siteusers/edit";
@@ -54,6 +58,8 @@ class SiteUsersController extends SiteUsersBaseController {
 	}
 	
 	public function anyEdit($id) {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.siteUsers"), 1);
 		
 		$siteUser = SiteUser::find($id);
 		if (is_null($siteUser)) {
@@ -106,6 +112,9 @@ class SiteUsersController extends SiteUsersBaseController {
 	}
 	
 	public function postDelete() {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.siteUsers"), 1);
+		
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
