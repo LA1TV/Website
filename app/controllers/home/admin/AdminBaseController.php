@@ -19,17 +19,16 @@ class AdminBaseController extends BaseController {
 		$this->layout->csrfToken = Csrf::getToken();
 		$this->layout->content = $content;
 		
-		// TODO: temporary fix. Maybe scrap different login layout
+		$this->layout->mainMenuItems = array();
+		$this->layout->moreMenuItems = array();
 		if (Auth::isLoggedIn()) {
 			
-			$this->layout->mainMenuItems = array();
 			$this->layout->mainMenuItems[] = "dashboard";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) $this->layout->mainMenuItems[] = "media";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.series"), 0)) $this->layout->mainMenuItems[] = "series";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) $this->layout->mainMenuItems[] = "playlists";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0)) $this->layout->mainMenuItems[] = "livestreams";
 					
-			$this->layout->moreMenuItems = array();
 			if (Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 0)) $this->layout->moreMenuItems[] = "siteusers";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.users"), 0)) $this->layout->moreMenuItems[] = "users";
 			$this->layout->moreMenuItems[] = "monitoring";
