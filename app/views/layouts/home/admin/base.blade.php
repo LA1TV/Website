@@ -33,7 +33,7 @@
 		@yield('content')
 		<div id="footer">
 			<div class="container">
-				<p class="text-muted footer-txt">Developed by Tom Jenkinson, Ben Freke and Jack Croft for LA1:TV.</p>
+				<p class="text-muted footer-txt">The custom built CMS for LA1:TV.</p>
 			</div>
 		</div>
 	</body>
