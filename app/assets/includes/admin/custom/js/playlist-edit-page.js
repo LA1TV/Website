@@ -32,7 +32,11 @@ $(document).ready(function() {
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
 			var reorderableList = new ReorderableList(true, true, true, function(state) {
-				return new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
+				var ajaxSelect = new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
+				$(ajaxSelect).on("dropdownOpened", function() {
+					reorderableList.scrollToComponent(ajaxSelect);
+				});
+				return ajaxSelect;
 			}, {
 				id: null,
 				text: null
@@ -50,7 +54,11 @@ $(document).ready(function() {
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
 			var reorderableList = new ReorderableList(true, true, true, function(state) {
-				return new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
+				var ajaxSelect = new AjaxSelect(baseUrl+"/admin/media/ajaxselect", state);
+				$(ajaxSelect).on("dropdownOpened", function() {
+					reorderableList.scrollToComponent(ajaxSelect);
+				});
+				return ajaxSelect;
 			}, {
 				id: null,
 				text: null

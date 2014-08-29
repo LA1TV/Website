@@ -167,11 +167,12 @@ $(document).ready(function() {
 			
 			if (!hasResult) {
 				if (searchFocused) {
-					$dropdownContainer.outerWidth($search.outerWidth());
 					$dropdownContainer.show();
+					$(self).triggerHandler("dropdownOpened");
 				}
 				else {
 					$dropdownContainer.hide();
+					$(self).triggerHandler("dropdownClosed");
 				}
 			}
 			

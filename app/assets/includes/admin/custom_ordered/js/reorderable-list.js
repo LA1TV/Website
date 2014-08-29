@@ -47,6 +47,13 @@ $(document).ready(function() {
 			return $container;
 		};
 		
+		this.scrollToComponent = function(component) {
+			var $el = component.getEl();
+			$listContainer.animate({
+				scrollTop: $el.offset().top - $listContainer.offset().top + $listContainer.scrollTop()
+			});
+		};
+		
 		
 		var $container = $("<div />").addClass("reorderable-list");
 		// contains ListRow's
@@ -62,7 +69,8 @@ $(document).ready(function() {
 		this.setState(state); // calls render()
 		
 		$addButton.click(function() {
-			createRow(defaultRowElementState);
+			var row = createRow(defaultRowElementState);
+			self.scrollToComponent(row);
 		});
 		
 		$listTable.sortable({
@@ -156,6 +164,7 @@ $(document).ready(function() {
 			updateRowNums();
 			$listTable.append(row.getEl());
 			$(self).triggerHandler("stateChanged");
+			return row;
 		}
 		
 		function deleteRow(row) {

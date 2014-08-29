@@ -3,7 +3,7 @@
 }
 
 .reorderable-list .list-container {
-	max-height: 200px;
+	max-height: 280px;
 	overflow: auto;
 }
 
