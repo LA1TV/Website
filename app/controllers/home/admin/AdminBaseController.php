@@ -31,7 +31,6 @@ class AdminBaseController extends BaseController {
 					
 			if (Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 0)) $this->layout->moreMenuItems[] = "siteusers";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.users"), 0)) $this->layout->moreMenuItems[] = "users";
-			$this->layout->moreMenuItems[] = "monitoring";
 		}
 	}
 
