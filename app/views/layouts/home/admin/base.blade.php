@@ -33,7 +33,7 @@
 		@yield('content')
 		<div id="footer">
 			<div class="container">
-				<p class="text-muted footer-txt">The custom built CMS for LA1:TV.</p>
+				<p class="text-muted footer-txt">The custom built content management system for LA1:TV.</p>
 			</div>
 		</div>
 	</body>
