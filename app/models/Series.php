@@ -16,7 +16,7 @@ class Series extends MyEloquent {
 			return false;
 		}
 		
-		foreach($this->playlists() as $a) {
+		foreach($this->playlists as $a) {
 			if ($a->getIsAccessible()) {
 				return true;
 			}
