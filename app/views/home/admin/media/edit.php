@@ -26,7 +26,7 @@
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "vod-description", $form['vod-description'], $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodCoverArtUploadPointId, "Cover Art (Optional)", "vod-cover-art-id", $form['vod-cover-art-id'], $formErrors, $additionalForm['vodCoverArtFile']['name'], $additionalForm['vodCoverArtFile']['size'], !$additionalForm['vodCoverArtFile']['inUse'], $additionalForm['vodCoverArtFile']['processState'], $additionalForm['vodCoverArtFile']['processPercentage'], $additionalForm['vodCoverArtFile']['processMsg']);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $additionalForm['vodVideoFile']['name'], $additionalForm['vodVideoFile']['size'], !$additionalForm['vodVideoFile']['inUse'], $additionalForm['vodVideoFile']['processState'], $additionalForm['vodVideoFile']['processPercentage'], $additionalForm['vodVideoFile']['processMsg']);?>
-							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
+							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional) (Must Be Empty When Recording Of Live Stream)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
 							<?=FormHelpers::getFormDateInput(1, "Scheduled Publish Time (Optional)", "vod-publish-time", $form['vod-publish-time'], $formErrors);?>
 						</div>
 					</div>

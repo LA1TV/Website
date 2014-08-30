@@ -7,7 +7,7 @@ class MediaItem extends MyEloquent {
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'enabled');
 	protected $appends = array("related_items_for_orderable_select", "related_items_for_input");
-
+	
 	public function comments() {
 		return $this->hasMany(self::$p.'MediaItemComment', 'media_item_id');
 	}

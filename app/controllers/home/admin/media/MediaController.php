@@ -188,6 +188,9 @@ class MediaController extends MediaBaseController {
 			Validator::extend('valid_stream_state_id', function($attribute, $value, $parameters) {
 				return !is_null(LiveStreamStateDefinition::find(intval($value)));
 			});
+			Validator::extend('not_specified', function($attribute, $value, $parameters) {
+				return false;
+			});
 			
 			$modelCreated = DB::transaction(function() use (&$formData, &$mediaItem, &$errors) {
 			
@@ -222,6 +225,7 @@ class MediaController extends MediaBaseController {
 					'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(),
 					'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
+					'vod-time-recorded.not_specified'	=> "This cannot be set if this is a recording of a live stream. The time will be inferred from the scheduled live time.",
 					'vod-publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'stream-state.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-state.valid_stream_state_id'	=> FormHelpers::getGenericInvalidMsg(),
@@ -233,6 +237,10 @@ class MediaController extends MediaBaseController {
 					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg(),
 					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
 				));
+				
+				$validator->sometimes("vod-time-recorded", "not_specified", function($input) use (&$formData) {
+					return $formData['stream-added'] === "1";
+				});
 				
 				if (!$validator->fails()) {
 					// everything is good. save/create model
