@@ -184,6 +184,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					$playlist->name = FormHelpers::nullIfEmpty($formData['name']);
 					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$playlist->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
 					
 					$show = Show::find(intval($formData['show-id']));
 					EloquentHelpers::associateOrNull($playlist->show(), $show);
