@@ -2,12 +2,13 @@
 
 use Exception;
 use FormHelpers;
+use Carbon;
 
 class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
 	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no');
-	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_select", "playlist_content_for_input");
+	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_list", "playlist_content_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -114,6 +115,19 @@ class Playlist extends MyEloquent {
 		}
 		$scheduledPublishTime = $this->scheduled_publish_time;
 		return is_null($scheduledPublishTime) || $scheduledPublishTime->isPast();
+	}
+	
+	public function scopeAccessible($q) {
+		return $q->where("enabled", true)->where(function($q2) {
+			$q2->has("show", "=", 0)
+			->orWhereHas("show", function($q3) {
+				$q3->accessible();
+			});
+		})
+		->where(function($q2) {
+			$q2->whereNull("scheduled_publish_time")
+			->orWhere("scheduled_publish_time", "<", Carbon::now());
+		});
 	}
 	
 	public function scopeSearch($q, $value) {
