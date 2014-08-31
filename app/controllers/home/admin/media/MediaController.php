@@ -124,6 +124,7 @@ class MediaController extends MediaBaseController {
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFile", "id")),
+			array("publish-time", ObjectHelpers::getProp("", $mediaItem, "scheduled_publish_time_for_input")),
 			array("vod-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "videoItem"))?"1":"0"),
 			array("vod-enabled", ObjectHelpers::getProp(false, $mediaItem, "videoItem", "enabled")?"y":""),
 			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
@@ -131,7 +132,6 @@ class MediaController extends MediaBaseController {
 			array("vod-cover-art-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "coverArtFile", "id")),
 			array("vod-video-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "sourceFile", "id")),
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded_for_input")),
-			array("vod-publish-time", ObjectHelpers::getProp("", $mediaItem, "videoItem", "scheduled_publish_time_for_input")),
 			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem"))?"1":"0"),
 			array("stream-enabled", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "enabled")?"y":""),
 			array("stream-state", ObjectHelpers::getProp(LiveStreamStateDefinition::first()->id, $mediaItem, "liveStreamItem", "stateDefinition", "id")),
@@ -140,7 +140,6 @@ class MediaController extends MediaBaseController {
 			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-info-msg", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "information_msg")),
 			array("stream-cover-art-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "coverArtFile", "id")),
-			array("stream-live-time", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "scheduled_live_time_for_input")),
 			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id")),
 			array("related-items", json_encode(array()))
 		), !$formSubmitted);
@@ -199,18 +198,17 @@ class MediaController extends MediaBaseController {
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id'),
 					'side-banners-image-id'	=> array('valid_file_id'),
+					'publish-time'	=> array('my_date'),
 					'vod-name'	=> array('max:50'),
 					'vod-description'	=> array('max:500'),
 					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
 					'vod-cover-art-id'	=> array('valid_file_id'),
 					'vod-time-recorded'	=> array('my_date'),
-					'vod-publish-time'	=> array('my_date'),
 					'stream-state'	=> array('required', 'valid_stream_state_id'),
 					'stream-name'	=> array('max:50'),
 					'stream-description'	=> array('max:500'),
 					'stream-info-msg'	=> array('max:500'),
 					'stream-cover-art-id'	=> array('valid_file_id'),
-					'stream-live-time'	=> array('my_date'),
 					'stream-stream-id'	=> array('valid_stream_id'),
 					'related-items'	=> array('required', 'valid_related_items')
 				), array(
@@ -219,6 +217,7 @@ class MediaController extends MediaBaseController {
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'vod-cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
@@ -226,14 +225,12 @@ class MediaController extends MediaBaseController {
 					'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'vod-time-recorded.not_specified'	=> "This cannot be set if this is a recording of a live stream. The time will be inferred from the scheduled live time.",
-					'vod-publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'stream-state.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-state.valid_stream_state_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-info-msg.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
-					'stream-live-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg(),
 					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
 				));
@@ -251,6 +248,7 @@ class MediaController extends MediaBaseController {
 					$mediaItem->name = $formData['name'];
 					$mediaItem->description = FormHelpers::nullIfEmpty($formData['description']);
 					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$mediaItem->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $mediaItem->coverFile);
@@ -285,7 +283,6 @@ class MediaController extends MediaBaseController {
 						$mediaItemVideo->name = FormHelpers::nullIfEmpty($formData['vod-name']);
 						$mediaItemVideo->description = FormHelpers::nullIfEmpty($formData['vod-description']);
 						$mediaItemVideo->enabled = FormHelpers::toBoolean($formData['vod-enabled']);
-						$mediaItemVideo->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['vod-publish-time']));
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
 						$file = Upload::register(Config::get("uploadPoints.vodVideo"), $vodVideoId, $mediaItemVideo->sourceFile);
@@ -324,7 +321,6 @@ class MediaController extends MediaBaseController {
 						$mediaItemLiveStream->information_msg = FormHelpers::nullIfEmpty($formData['stream-info-msg']);
 						$mediaItemLiveStream->being_recorded = FormHelpers::toBoolean($formData['stream-being-recorded']);
 						$mediaItemLiveStream->enabled = FormHelpers::toBoolean($formData['stream-enabled']);
-						$mediaItemLiveStream->scheduled_live_time = FormHelpers::nullIfEmpty(strtotime($formData['stream-live-time']));
 						$mediaItemLiveStream->stateDefinition()->associate(LiveStreamStateDefinition::find($formData['stream-state']));
 						
 

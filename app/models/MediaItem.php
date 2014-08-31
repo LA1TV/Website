@@ -1,12 +1,13 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
+use FormHelpers;
 
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
-	protected $fillable = array('name', 'description', 'enabled');
-	protected $appends = array("related_items_for_orderable_select", "related_items_for_input");
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time');
+	protected $appends = array("related_items_for_orderable_select", "related_items_for_input", "scheduled_publish_time_for_input");
 	
 	public function comments() {
 		return $this->hasMany(self::$p.'MediaItemComment', 'media_item_id');
@@ -88,6 +89,13 @@ class MediaItem extends MyEloquent {
 		return $reorderableList->getStringForInput();
 	}
 	
+	public function getScheduledPublishTimeForInputAttribute() {
+		if (is_null($this->scheduled_publish_time)) {
+			return null;
+		}
+		return FormHelpers::formatDateForInput($this->scheduled_publish_time->timestamp);
+	}
+	
 	public function getIsAccessible() {
 		if (!$this->enabled) {
 			return false;
@@ -104,6 +112,10 @@ class MediaItem extends MyEloquent {
 	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
+	
+	public function getDates() {
+		return array_merge(parent::getDates(), array('scheduled_publish_time'));
 	}
 	
 	public function isDeletable() {

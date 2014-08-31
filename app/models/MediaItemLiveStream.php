@@ -1,12 +1,9 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use FormHelpers;
-
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_live_time', 'state_id', 'information_msg', 'being_recorded');
-	protected $appends = array("scheduled_live_time_for_input");
+	protected $fillable = array('name', 'description', 'enabled', 'state_id', 'information_msg', 'being_recorded');
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
@@ -22,17 +19,6 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function stateDefinition() {
 		return $this->belongsTo(self::$p.'LiveStreamStateDefinition', 'state_id');
-	}
-	
-	public function getScheduledLiveTimeForInputAttribute() {
-		if (is_null($this->scheduled_live_time)) {
-			return null;
-		}
-		return FormHelpers::formatDateForInput($this->scheduled_live_time->timestamp);
-	}
-	
-	public function getDates() {
-		return array_merge(parent::getDates(), array('scheduled_live_time'));
 	}
 	
 	public function getIsAccessible() {

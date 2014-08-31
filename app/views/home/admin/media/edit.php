@@ -8,6 +8,7 @@
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormUploadInput(1, $coverImageUploadPointId, "Cover Image (Optional)", "cover-image-id", $form['cover-image-id'], $formErrors, $additionalForm['coverImageFile']['name'], $additionalForm['coverImageFile']['size'], !$additionalForm['coverImageFile']['inUse'], $additionalForm['coverImageFile']['processState'], $additionalForm['coverImageFile']['processPercentage'], $additionalForm['coverImageFile']['processMsg']);?>
 		<?=FormHelpers::getFormUploadInput(1, $sideBannersImageUploadPointId, "Side Banners Image (Optional)", "side-banners-image-id", $form['side-banners-image-id'], $formErrors, $additionalForm['sideBannersImageFile']['name'], $additionalForm['sideBannersImageFile']['size'], !$additionalForm['sideBannersImageFile']['inUse'], $additionalForm['sideBannersImageFile']['processState'], $additionalForm['sideBannersImageFile']['processPercentage'], $additionalForm['sideBannersImageFile']['processMsg']);?>
+		<?=FormHelpers::getFormDateInput(1, "Scheduled Publish/Live Time (Optional)", "publish-time", $form['publish-time'], $formErrors);?>
 		<div class="panel-group custom-accordian" data-grouptogether="0">
 			<div class="panel panel-default vod-panel">
 				<div class="panel-heading">
@@ -27,7 +28,6 @@
 							<?=FormHelpers::getFormUploadInput(1, $vodCoverArtUploadPointId, "Cover Art (Optional)", "vod-cover-art-id", $form['vod-cover-art-id'], $formErrors, $additionalForm['vodCoverArtFile']['name'], $additionalForm['vodCoverArtFile']['size'], !$additionalForm['vodCoverArtFile']['inUse'], $additionalForm['vodCoverArtFile']['processState'], $additionalForm['vodCoverArtFile']['processPercentage'], $additionalForm['vodCoverArtFile']['processMsg']);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $additionalForm['vodVideoFile']['name'], $additionalForm['vodVideoFile']['size'], !$additionalForm['vodVideoFile']['inUse'], $additionalForm['vodVideoFile']['processState'], $additionalForm['vodVideoFile']['processPercentage'], $additionalForm['vodVideoFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional) (Must Be Empty When Recording Of Live Stream)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
-							<?=FormHelpers::getFormDateInput(1, "Scheduled Publish Time (Optional)", "vod-publish-time", $form['vod-publish-time'], $formErrors);?>
 						</div>
 					</div>
 				</div>
@@ -51,7 +51,6 @@
 							<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "stream-description", $form['stream-description'], $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Information Message (Shown When Not Live) (Optional)", "stream-info-msg", $form['stream-info-msg'], $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $streamCoverArtUploadPointId, "Cover Art (Optional)", "stream-cover-art-id", $form['stream-cover-art-id'], $formErrors, $additionalForm['streamCoverArtFile']['name'], $additionalForm['streamCoverArtFile']['size'], !$additionalForm['streamCoverArtFile']['inUse'], $additionalForm['streamCoverArtFile']['processState'], $additionalForm['streamCoverArtFile']['processPercentage'], $additionalForm['streamCoverArtFile']['processMsg']);?>
-							<?=FormHelpers::getFormDateInput(1, "Scheduled Live Time (Optional)", "stream-live-time", $form['stream-live-time'], $formErrors);?>
 							<?=FormHelpers::getFormSelectInput(1, "Stream", "stream-stream-id", $form['stream-stream-id'], $streamOptions, $formErrors);?>
 						</div>
 					</div>
