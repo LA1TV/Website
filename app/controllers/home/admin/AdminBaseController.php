@@ -1,7 +1,6 @@
 <?php namespace uk\co\la1tv\website\controllers\home\admin;
 
 use uk\co\la1tv\website\controllers\BaseController;
-use View;
 use URL;
 use Csrf;
 use Auth;

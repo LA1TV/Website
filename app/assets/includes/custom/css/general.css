@@ -1,0 +1,10 @@
+body {
+	/* space for nav bar */
+	padding-top: 50px;
+	background-color: #ffffff;
+}
+
+#main-content {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
