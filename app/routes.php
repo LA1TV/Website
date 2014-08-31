@@ -21,7 +21,7 @@ Route::group(array('before' => 'csrf'), function() use(&$p) {
 	Route::group(array('before' => 'auth'), function() use(&$p) {
 		Route::controller('/admin/dashboard', $p.'home\admin\dashboard\DashboardController');
 		Route::controller('/admin/media', $p.'home\admin\media\MediaController');
-		Route::controller('/admin/series', $p.'home\admin\series\SeriesController');
+		Route::controller('/admin/shows', $p.'home\admin\shows\ShowsController');
 		Route::controller('/admin/playlists', $p.'home\admin\playlists\PlaylistsController');
 		Route::controller('/admin/livestreams', $p.'home\admin\livestreams\LiveStreamsController');
 		Route::controller('/admin/live-stream-qualities', $p.'home\admin\liveStreamQualities\LiveStreamQualitiesController');

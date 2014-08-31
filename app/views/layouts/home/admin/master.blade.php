@@ -2,7 +2,7 @@
 $nav = array(
 	"dashboard"		=> array("Dashboard", Config::get("custom.admin_base_url")."/dashboard", false),
 	"media"			=> array("Media", Config::get("custom.admin_base_url")."/media", false),
-	"series"		=> array("Series", Config::get("custom.admin_base_url")."/series", false),
+	"shows"			=> array("Shows", Config::get("custom.admin_base_url")."/shows", false),
 	"playlists"		=> array("Playlists", Config::get("custom.admin_base_url")."/playlists", false),
 	"livestreams"	=> array("Live Streams", Config::get("custom.admin_base_url")."/livestreams", false),
 	"siteusers"		=> array("Site Users", Config::get("custom.admin_base_url")."/siteusers", false),

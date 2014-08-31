@@ -12,7 +12,7 @@ class PermissionSeeder extends Seeder {
 	public function run() {
 		$permissions = array(
 			array("id"=>1, "name"=>"Media Items", "description"=>"Allows managing media items."),
-			array("id"=>2, "name"=>"Series", "description"=>"Allows managing series."),
+			array("id"=>2, "name"=>"Shows", "description"=>"Allows managing shows."),
 			array("id"=>3, "name"=>"Playlists", "description"=>"Allows managing playlists."),
 			array("id"=>4, "name"=>"Live Streams", "description"=>"Allows configuration of live streams."),
 			array("id"=>5, "name"=>"Site Users", "description"=>"Allows managing of registered site users."),

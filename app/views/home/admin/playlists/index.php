@@ -8,7 +8,7 @@
 			<thead>
 				<tr>
 					<th>Enabled</th>
-					<th>Series</th>
+					<th>Show</th>
 					<th>Name</th>
 					<th>Description</th>
 					<th>Number Of Items</th>
@@ -22,7 +22,7 @@
 			<?php foreach($tableData as $a): ?>
 				<tr>
 					<td><span class="<?=e($a['enabledCss']);?>"><?=e($a['enabled']);?></span></td>
-					<td><?=e($a['series']);?></td>
+					<td><?=e($a['show']);?></td>
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
 					<td><?=e($a['noPlaylistItems']);?></td>

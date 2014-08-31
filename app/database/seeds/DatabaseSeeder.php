@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder {
 		$this->call('MediaItemSeeder');
 		$this->call('FileSeeder');
 		$this->call('VideoFilesSeeder');
-		$this->call('SeriesSeeder');
+		$this->call('ShowsSeeder');
 		$this->call('PlaylistsSeeder');
 	}
 

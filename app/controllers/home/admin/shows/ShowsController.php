@@ -1,4 +1,4 @@
-<?php namespace uk\co\la1tv\website\controllers\home\admin\series;
+<?php namespace uk\co\la1tv\website\controllers\home\admin\shows;
 
 use View;
 use FormHelpers;
@@ -10,15 +10,15 @@ use Redirect;
 use Response;
 use Auth;
 use App;
-use uk\co\la1tv\website\models\Series;
+use uk\co\la1tv\website\models\Show;
 
-class SeriesController extends SeriesBaseController {
+class ShowsController extends ShowsBaseController {
 
 	public function getIndex() {
 		
-		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 0);
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.shows"), 0);
 	
-		$view = View::make('home.admin.series.index');
+		$view = View::make('home.admin.shows.index');
 		$tableData = array();
 		
 		$pageNo = FormHelpers::getPageNo();
@@ -26,16 +26,16 @@ class SeriesController extends SeriesBaseController {
 		
 		// get shared lock on records so that they can't be deleted before query runs to get specific range
 		// (this doesn't prevent new ones getting added but that doesn't really matter too much)
-		$noSeries = Series::search($searchTerm)->sharedLock()->count();
-		$noPages = FormHelpers::getNoPages($noSeries);
-		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noPlaylists-1) {
+		$noShows = Show::search($searchTerm)->sharedLock()->count();
+		$noPages = FormHelpers::getNoPages($noShows);
+		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noShows-1) {
 			App::abort(404);
 			return;
 		}
 		
-		$series = Series::search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$shows = Show::search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
-		foreach($series as $a) {
+		foreach($shows as $a) {
 			$enabled = (boolean) $a->enabled;
 			$enabledStr = $enabled ? "Yes" : "No";
 			
@@ -45,28 +45,28 @@ class SeriesController extends SeriesBaseController {
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
-				"editUri"		=> Config::get("custom.admin_base_url") . "/series/edit/" . $a->id,
+				"editUri"		=> Config::get("custom.admin_base_url") . "/shows/edit/" . $a->id,
 				"id"			=> $a->id
 			);
 		}
 		$view->tableData = $tableData;
-		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.series"), 1);
+		$view->editEnabled = Auth::getUser()->hasPermission(Config::get("permissions.shows"), 1);
 		$view->pageNo = $pageNo;
 		$view->noPages = $noPages;
-		$view->createUri = Config::get("custom.admin_base_url") . "/series/edit";
-		$view->deleteUri = Config::get("custom.admin_base_url") . "/series/delete";
-		$this->setContent($view, "series", "series");
+		$view->createUri = Config::get("custom.admin_base_url") . "/shows/edit";
+		$view->deleteUri = Config::get("custom.admin_base_url") . "/shows/delete";
+		$this->setContent($view, "shows", "shows");
 	}
 	
 	public function anyEdit($id=null) {
 		
-		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 1);
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.shows"), 1);
 		
-		$series = null;
+		$show = null;
 		$editing = false;
 		if (!is_null($id)) {
-			$series = Series::find($id);
-			if (is_null($series)) {
+			$show = Show::find($id);
+			if (is_null($show)) {
 				App::abort(404);
 				return;
 			}
@@ -77,16 +77,16 @@ class SeriesController extends SeriesBaseController {
 		
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
-			array("enabled", ObjectHelpers::getProp(false, $series, "enabled")?"y":""),
-			array("name", ObjectHelpers::getProp("", $series, "name")),
-			array("description", ObjectHelpers::getProp("", $series, "description"))
+			array("enabled", ObjectHelpers::getProp(false, $show, "enabled")?"y":""),
+			array("name", ObjectHelpers::getProp("", $show, "name")),
+			array("description", ObjectHelpers::getProp("", $show, "description"))
 		), !$formSubmitted);
 		
 		
 		$errors = null;
 		
 		if ($formSubmitted) {
-			$modelCreated = DB::transaction(function() use (&$formData, &$series, &$errors) {
+			$modelCreated = DB::transaction(function() use (&$formData, &$show, &$errors) {
 			
 				$validator = Validator::make($formData,	array(
 					'name'		=> array('required', 'max:50'),
@@ -99,16 +99,16 @@ class SeriesController extends SeriesBaseController {
 				
 				if (!$validator->fails()) {
 					// everything is good. save/create model
-					if (is_null($series)) {
-						$series = new Series();
+					if (is_null($show)) {
+						$show = new Show();
 					}
 					
-					$series->name = $formData['name'];
-					$series->description = FormHelpers::nullIfEmpty($formData['description']);
-					$series->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$show->name = $formData['name'];
+					$show->description = FormHelpers::nullIfEmpty($formData['description']);
+					$show->enabled = FormHelpers::toBoolean($formData['enabled']);
 					
-					if ($series->save() === false) {
-						throw(new Exception("Error saving Series."));
+					if ($show->save() === false) {
+						throw(new Exception("Error saving Show."));
 					}
 					
 					// the transaction callback result is returned out of the transaction function
@@ -121,38 +121,38 @@ class SeriesController extends SeriesBaseController {
 			});
 			
 			if ($modelCreated) {
-				return Redirect::to(Config::get("custom.admin_base_url") . "/series");
+				return Redirect::to(Config::get("custom.admin_base_url") . "/shows");
 			}
 			// if not valid then return form again with errors
 		}
 		
-		$view = View::make('home.admin.series.edit');
+		$view = View::make('home.admin.shows.edit');
 		$view->editing = $editing;
 		$view->form = $formData;
 		$view->formErrors = $errors;
-		$view->cancelUri = Config::get("custom.admin_base_url") . "/series";
+		$view->cancelUri = Config::get("custom.admin_base_url") . "/shows";
 	
-		$this->setContent($view, "series", "series-edit");
+		$this->setContent($view, "shows", "shows-edit");
 	}
 	
 	public function postDelete() {
 	
-		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 1);
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.shows"), 1);
 	
 		$resp = array("success"=>false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
 			DB::transaction(function() use (&$id, &$resp) {
-				$series = Series::find($id);
-				if (!is_null($series)) {
-					if ($series->isDeletable()) {
-						if ($series->delete() === false) {
-							throw(new Exception("Error deleting Series."));
+				$show = Show::find($id);
+				if (!is_null($show)) {
+					if ($show->isDeletable()) {
+						if ($show->delete() === false) {
+							throw(new Exception("Error deleting Show."));
 						}
 						$resp['success'] = true;
 					}
 					else {
-						$resp['msg'] = "This series cannot be deleted at the moment as it is being used in other places.";
+						$resp['msg'] = "This show cannot be deleted at the moment as it is being used in other places.";
 					}
 				}
 			});
@@ -163,21 +163,21 @@ class SeriesController extends SeriesBaseController {
 	// route to this in routes.php
 	public function postAjaxselect() {
 	
-		Auth::getUser()->hasPermissionOr401(Config::get("permissions.series"), 0);
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.shows"), 0);
 		
 		$resp = array("success"=>false, "payload"=>null);
 		
 		$searchTerm = FormHelpers::getValue("term", "");
-		$series = null;
+		$shows = null;
 		if (!empty($searchTerm)) {
-			$series = Series::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
+			$shows = Show::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
 		}
 		else {
-			$series = Series::orderBy("created_at", "desc")->take(20)->get();
+			$shows = Show::orderBy("created_at", "desc")->take(20)->get();
 		}
 		
 		$results = array();
-		foreach($series as $a) {
+		foreach($shows as $a) {
 			$results[] = array("id"=>intval($a->id), "text"=>$a->name);
 		}
 		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);

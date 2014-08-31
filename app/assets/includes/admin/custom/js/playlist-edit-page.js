@@ -4,7 +4,7 @@ $(document).ready(function() {
 	
 		var $pageContainer = $(this).first();
 		
-		$pageContainer.find(".form-series").each(function() {
+		$pageContainer.find(".form-show").each(function() {
 			
 			function render() {
 				if (ajaxSelect.getId() !== null) {

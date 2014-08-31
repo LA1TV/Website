@@ -30,7 +30,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		// (this doesn't prevent new ones getting added but that doesn't really matter too much)
 		$noLiveStreams = LiveStream::search($searchTerm)->sharedLock()->count();
 		$noPages = FormHelpers::getNoPages($noLiveStreams);
-		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noPlaylists-1) {
+		if ($pageNo > 0 && FormHelpers::getPageStartIndex() > $noLiveStreams-1) {
 			App::abort(404);
 			return;
 		}

@@ -18,7 +18,7 @@ use JsonHelpers;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
-use uk\co\la1tv\website\models\Series;
+use uk\co\la1tv\website\models\Show;
 
 class PlaylistsController extends PlaylistsBaseController {
 
@@ -41,21 +41,21 @@ class PlaylistsController extends PlaylistsBaseController {
 			return;
 		}
 		
-		$playlists = Playlist::with("series", "mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$playlists = Playlist::with("show", "mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($playlists as $a) {
 			$enabled = (boolean) $a->enabled;
 			$enabledStr = $enabled ? "Yes" : "No";
 			$noPlaylistItems = $a->mediaItems->count();
-			$series = $a->series;
-			$seriesStr = !is_null($series) ? $series->name . " (" . $a->series_no . ")" : "[Not Part Of Series]";
+			$show = $a->show;
+			$showStr = !is_null($show) ? $show->name . " (" . $a->series_no . ")" : "[Not Part Of Show]";
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> !is_null($a->name) ? $a->name : "[No Name]",
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
-				"series"		=> $seriesStr,
+				"show"			=> $showStr,
 				"noPlaylistItems"	=> $noPlaylistItems,
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/playlists/edit/" . $a->id,
@@ -91,7 +91,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $playlist, "enabled")?"y":""),
-			array("series-id", ObjectHelpers::getProp("", $playlist, "series", "id")),
+			array("show-id", ObjectHelpers::getProp("", $playlist, "show", "id")),
 			array("series-no", ObjectHelpers::getProp("", $playlist, "series_no")),
 			array("name", ObjectHelpers::getProp("", $playlist, "name")),
 			array("description", ObjectHelpers::getProp("", $playlist, "description")),
@@ -104,12 +104,12 @@ class PlaylistsController extends PlaylistsBaseController {
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
-		$series = Series::find(intval($formData['series-id']));
+		$show = Show::find(intval($formData['show-id']));
 		$additionalFormData = array(
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
-			"seriesItemText"		=> !is_null($series) ? $series->name : "",
+			"showItemText"			=> !is_null($show) ? $show->name : "",
 			"playlistContentInput"	=> null,
 			"playlistContentInitialData"	=> null,
 			"relatedItemsInput"		=> null,
@@ -135,8 +135,8 @@ class PlaylistsController extends PlaylistsBaseController {
 			// validate input
 			Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
-			Validator::extend('valid_series_id', function($attribute, $value, $parameters) {
-				return !is_null(Series::find(intval($value)));
+			Validator::extend('valid_show_id', function($attribute, $value, $parameters) {
+				return !is_null(Show::find(intval($value)));
 			});
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
@@ -147,9 +147,9 @@ class PlaylistsController extends PlaylistsBaseController {
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 				
 				$validator = Validator::make($formData,	array(
-					'series-id'		=> array('valid_series_id'),
-					'series-no'		=> array('required_with:series-id', 'integer'),
-					'name'		=> array('required_without:series-id', 'max:50'),
+					'show-id'		=> array('valid_show_id'),
+					'series-no'		=> array('required_with:show-id', 'integer'),
+					'name'		=> array('required_without:show-id', 'max:50'),
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id'),
 					'side-banners-image-id'	=> array('valid_file_id'),
@@ -159,7 +159,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'playlist-content'	=> array('required', 'valid_playlist_content'),
 					'related-items'	=> array('required', 'valid_related_items')
 				), array(
-					'series-id.valid_series_id'	=> FormHelpers::getGenericInvalidMsg(),
+					'show-id.valid_show_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
 					'series-no.integer'	=> FormHelpers::getMustBeIntegerMsg(),
 					'name.required_without'		=> FormHelpers::getRequiredMsg(),
@@ -185,9 +185,9 @@ class PlaylistsController extends PlaylistsBaseController {
 					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
 					
-					$series = Series::find(intval($formData['series-id']));
-					EloquentHelpers::associateOrNull($playlist->series(), $series);
-					$playlist->series_no = !is_null($series) ? intval($formData['series-no']) : null;
+					$show = Show::find(intval($formData['show-id']));
+					EloquentHelpers::associateOrNull($playlist->show(), $show);
+					$playlist->series_no = !is_null($show) ? intval($formData['series-no']) : null;
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $playlist->coverFile);
@@ -248,7 +248,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/playlists";
-		$view->seriesAjaxSelectDataUri = Config::get("custom.admin_base_url") . "/series/ajaxselect";
+		$view->seriesAjaxSelectDataUri = Config::get("custom.admin_base_url") . "/shows/ajaxselect";
 	
 		$this->setContent($view, "playlists", "playlists-edit");
 	}

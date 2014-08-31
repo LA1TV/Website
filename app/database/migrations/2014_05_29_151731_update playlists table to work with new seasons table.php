@@ -20,13 +20,13 @@ class UpdatePlaylistsTableToWorkWithNewSeasonsTable extends Migration {
 		
 		Schema::table('playlists', function(Blueprint $table)
 		{
-			$table->integer("series_id")->unsigned()->nullable();
+			$table->integer("show_id")->unsigned()->nullable();
 			$table->tinyInteger("series_no")->unsigned()->nullable();
 			$table->string("name", 50)->nullable();
 			
-			$table->index("series_id");
+			$table->index("show_id");
 			
-			$table->foreign("series_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('restrict');
+			$table->foreign("show_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('restrict');
 		});
 	}
 
@@ -39,8 +39,8 @@ class UpdatePlaylistsTableToWorkWithNewSeasonsTable extends Migration {
 	{
 		Schema::table('playlists', function(Blueprint $table)
 		{
-			$table->dropForeign('playlists_series_id_foreign');
-			$table->dropColumn("series_id");
+			$table->dropForeign('playlists_show_id_foreign');
+			$table->dropColumn("show_id");
 			$table->dropColumn("series_no");
 			$table->dropColumn("name");
 		});

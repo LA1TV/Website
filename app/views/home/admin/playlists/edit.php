@@ -4,7 +4,7 @@
 	</div>
 	<div class="panel-body">
 		<?=FormHelpers::getFormCheckInput(1, "Enabled", "enabled", $form['enabled'] === "y", $formErrors);?>	
-		<?=FormHelpers::getAjaxSelectInput(1, "Series (Optional)", "series-id", $form['series-id'], $formErrors, $seriesAjaxSelectDataUri, $additionalForm['seriesItemText'], "form-series");?>
+		<?=FormHelpers::getAjaxSelectInput(1, "Show (Optional)", "show-id", $form['show-id'], $formErrors, $seriesAjaxSelectDataUri, $additionalForm['showItemText'], "form-show");?>
 		<div class="series-no-container">
 			<?=FormHelpers::getFormTxtInput(1, "Series Number", "series-no", $form['series-no'], $formErrors, "number");?>
 		</div>

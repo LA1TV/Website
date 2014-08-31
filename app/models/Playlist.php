@@ -12,7 +12,7 @@ class Playlist extends MyEloquent {
 	protected static function boot() {
 		parent::boot();
 		self::saving(function($model) {
-			if ($model->series_id === NULL) {
+			if ($model->show_id === NULL) {
 				if ($model->name === NULL) {
 					throw(new Exception("A name must be specified."));
 				}
@@ -29,8 +29,8 @@ class Playlist extends MyEloquent {
 		});
 	}
 	
-	public function series() {
-		return $this->belongsTo(self::$p.'Series', 'series_id');
+	public function show() {
+		return $this->belongsTo(self::$p.'Show', 'show_id');
 	}
 	
 	public function sideBannerFile() {
@@ -102,13 +102,13 @@ class Playlist extends MyEloquent {
 		return array_merge(parent::getDates(), array('scheduled_publish_time'));
 	}
 	
-	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and series enabled if part of series etc
+	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc
 	public function getIsAccessible() {
 		if (!$this->enabled) {
 			return false;
 		}
-		if (!is_null($this->series)) {
-			if (!$this->series->enabled) {
+		if (!is_null($this->show)) {
+			if (!$this->show->enabled) {
 				return false;
 			}
 		}

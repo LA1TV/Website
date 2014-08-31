@@ -16,7 +16,7 @@ class PermissionGroupSeeder extends Seeder {
 					array(array(1, 0), array(2, 0), array(3, 0), array(4, 0), array(5, 0), array(6, 0))),
 			array("name"=>"Content Management", "description"=>"Allows managing media items.", "permissionIdsFlags"=>
 					array(array(1, 1))),
-			array("name"=>"Series Management", "description"=>"Allows managing series.", "permissionIdsFlags"=>
+			array("name"=>"Shows Management", "description"=>"Allows managing shows.", "permissionIdsFlags"=>
 					array(array(2, 1))),
 			array("name"=>"Playlist Management", "description"=>"Allows managing playlists.",  "permissionIdsFlags"=>
 					array(array(3, 1), array(2, 0), array(1, 0))),

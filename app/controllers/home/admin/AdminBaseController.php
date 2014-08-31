@@ -22,10 +22,9 @@ class AdminBaseController extends BaseController {
 		$this->layout->mainMenuItems = array();
 		$this->layout->moreMenuItems = array();
 		if (Auth::isLoggedIn()) {
-			
 			$this->layout->mainMenuItems[] = "dashboard";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) $this->layout->mainMenuItems[] = "media";
-			if (Auth::getUser()->hasPermission(Config::get("permissions.series"), 0)) $this->layout->mainMenuItems[] = "series";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.shows"), 0)) $this->layout->mainMenuItems[] = "shows";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) $this->layout->mainMenuItems[] = "playlists";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0)) $this->layout->mainMenuItems[] = "livestreams";
 					
