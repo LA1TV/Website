@@ -26,7 +26,7 @@
 						<ul class="nav navbar-nav">
 							@yield('navbarList', '')
 						</ul>
-						<a class="btn btn-info navbar-btn navbar-right" href="<?=e(URL::to(Auth::isLoggedIn()?"/admin/login/logout":"/admin/login"))?>"><?=!Auth::isLoggedIn()?"Login":"Log Out"?></a>
+						<a class="btn btn-default navbar-btn navbar-right" href="">Login With Facebook</a>
 					</div>
 				</div>
 			</nav>
