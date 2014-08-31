@@ -15,20 +15,6 @@ $p = "uk\\co\\la1tv\\website\\controllers\\";
 
 Route::group(array('before' => 'csrf'), function() use(&$p) {
 	
-	// HOME
-	
-	// make upload controller also accessible at /file
-	Route::controller('/file', $p.'home\admin\upload\UploadController');
-
-	Route::controller('/about', $p.'home\about\AboutController');
-	Route::controller('/contact', $p.'home\contact\ContactController');
-	Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
-	Route::controller('/playlist', $p.'home\playlist\PlaylistController');
-	Route::controller('/shows', $p.'home\shows\ShowsController');
-	Route::controller('/show', $p.'home\show\ShowController');
-	Route::controller('/guide', $p.'home\guide\GuideController');
-	Route::controller('/', $p.'home\HomeController');
-	
 	// ADMIN
 	Route::controller('/admin/login', $p.'home\admin\login\LoginController');
 	Route::controller('/admin/upload', $p.'home\admin\upload\UploadController');
@@ -45,4 +31,18 @@ Route::group(array('before' => 'csrf'), function() use(&$p) {
 		Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');
 		Route::controller('/admin', $p.'home\admin\AdminController');
 	});
+	
+	// HOME
+	
+	// make upload controller also accessible at /file
+	Route::controller('/file', $p.'home\admin\upload\UploadController');
+
+	Route::controller('/about', $p.'home\about\AboutController');
+	Route::controller('/contact', $p.'home\contact\ContactController');
+	Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
+	Route::controller('/playlist', $p.'home\playlist\PlaylistController');
+	Route::controller('/shows', $p.'home\shows\ShowsController');
+	Route::controller('/show', $p.'home\show\ShowController');
+	Route::controller('/guide', $p.'home\guide\GuideController');
+	Route::controller('/', $p.'home\HomeController');
 });
