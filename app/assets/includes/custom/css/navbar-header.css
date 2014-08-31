@@ -1,5 +1,6 @@
 .navbar {
 	border-color: #ff0000;
+	margin-bottom: 0;
 }
 
 .navbar .navbar-nav > li > a {
