@@ -2,6 +2,7 @@
 
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
+use App;
 
 class ShowController extends HomeBaseController {
 
