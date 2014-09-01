@@ -3,6 +3,7 @@
 use Exception;
 use FormHelpers;
 use Carbon;
+use Config;
 
 class Playlist extends MyEloquent {
 
@@ -101,6 +102,16 @@ class Playlist extends MyEloquent {
 	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('scheduled_publish_time'));
+	}
+	
+	// A playlist is active when: 
+	//						there is an upcoming scheduled publish time
+	//						the latest scheduled publish time is not too old (configured in config)
+	//						the scheduled publish time is automatically set if not specified the first time a media item is enabled.
+	// This will not filter out items that should be unaccessible. You should also use scopeAccessible to do this.
+	public function scopeActive($q) {
+		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
+		return $q->where("scheduled_publish_time", ">=", $startTime);
 	}
 	
 	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc

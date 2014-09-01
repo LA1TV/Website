@@ -119,6 +119,10 @@ class File extends MyEloquent {
 		return intval($this->process_state) === 1;
 	}
 	
+	public function scopeFinishedProcessing($q) {
+		return $q->where("process_state", 1);
+	}
+	
 	// THIS SHOULD NOT BE CALLED DIRECTLY. This should be managed from the Upload service provider
 	public function markReadyForDelete() {
 		$this->in_use = false;

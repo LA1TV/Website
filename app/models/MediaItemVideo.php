@@ -31,11 +31,16 @@ class MediaItemVideo extends MyEloquent {
 		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
 	}
 	
-	// returns true if this video should be accessible now. I.e mediaitem enabled and this enabled and scheduled_publish_time passed etc
+	// returns true if this video should be accessible now. I.e mediaitem enabled and this enabled etc
 	public function getIsAccessible() {
-		$scheduledPublishTime = $this->scheduled_publish_time;
 		$sourceFile = $this->sourceFile;
-		return $this->mediaItem->getIsAccessible() && $this->enabled && (is_null($scheduledPublishTime) || $scheduledPublishTime->isPast()) && !is_null($sourceFile) && $sourceFile->getFinishedProcessing();
+		return $this->enabled && $this->mediaItem->getIsAccessible() && !is_null($sourceFile) && $sourceFile->getFinishedProcessing();
+	}
+	
+	public function scopeAccessible($q) {
+		return $q->where("enabled", true)->whereHas("sourceFile", function($q2) {
+			$q2->finishedProcessing();
+		});
 	}
 	
 }

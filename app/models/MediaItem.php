@@ -2,12 +2,25 @@
 
 use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
 use FormHelpers;
+use Carbon;
+use Exception;
 
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time');
 	protected $appends = array("related_items_for_orderable_select", "related_items_for_input", "scheduled_publish_time_for_input");
+	
+	protected static function boot() {
+		parent::boot();
+		self::saving(function($model) {
+			
+			if ($model->enabled && is_null($model->scheduled_publish_time)) {
+				throw(new Exception("A MediaItem which is enabled must have a scheduled publish time."));
+			}
+			return true;
+		});
+	}
 	
 	public function comments() {
 		return $this->hasMany(self::$p.'MediaItemComment', 'media_item_id');
@@ -101,6 +114,11 @@ class MediaItem extends MyEloquent {
 			return false;
 		}
 		
+		$scheduledPublishTime = $this->scheduled_publish_time;
+		if (!is_null($scheduledPublishTime) && !$scheduledPublishTime->isPast()) {
+			return false;
+		}
+		
 		// check that it's in a playlist that is accessible
 		foreach($this->playlists as $a) {
 			if ($a->getIsAccessible()) {
@@ -108,6 +126,16 @@ class MediaItem extends MyEloquent {
 			}
 		}
 		return false;
+	}
+	
+	public function scopeAccessible($q) {
+		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
+			$q2->accessible();
+		})
+		->where(function($q2) {
+			$q2->whereNull("scheduled_publish_time")
+			->orWhere("scheduled_publish_time", "<", Carbon::now());
+		});
 	}
 	
 	public function scopeSearch($q, $value) {

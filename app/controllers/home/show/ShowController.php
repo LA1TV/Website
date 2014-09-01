@@ -16,7 +16,7 @@ class ShowController extends HomeBaseController {
 			call_user_func_array(array($this, "getIndex"), $parameters);
 		}
 		else {
-			App::abort(404);
+			return parent::missingMethod($parameters);
 		}
 	}
 }

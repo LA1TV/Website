@@ -50,6 +50,14 @@ class LiveStream extends MyEloquent {
 		return LiveStreamQuality::generateInitialDataForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
 	}
 	
+	public function getIsAccessible() {
+		return $this->enabled;
+	}
+	
+	public function scopeAccessible($q) {
+		return $q->where("enabled", true);
+	}
+	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}

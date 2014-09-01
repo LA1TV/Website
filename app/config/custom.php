@@ -5,5 +5,7 @@ return array(
 	"pending_files_location"	=> storage_path() . DIRECTORY_SEPARATOR ."pending_files",
 	"items_per_page"	=> 12,
 	"base_url"			=> URL::to("/"),
-	"admin_base_url"	=> URL::to("/") . "/admin"
+	"admin_base_url"	=> URL::to("/") . "/admin",
+	// the number of days an item can be considered active for
+	"num_days_active"	=> 7
 );

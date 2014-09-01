@@ -15,6 +15,7 @@ use Upload;
 use EloquentHelpers;
 use Auth;
 use JsonHelpers;
+use Carbon;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
@@ -248,7 +249,10 @@ class MediaController extends MediaBaseController {
 					$mediaItem->name = $formData['name'];
 					$mediaItem->description = FormHelpers::nullIfEmpty($formData['description']);
 					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
-					$mediaItem->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
+					// if the scheduled publish time is empty and this item is enabled, set it to the cuurent time.
+					// an enabled media item should always have a published time.
+					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
+					$mediaItem->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $mediaItem->coverFile);

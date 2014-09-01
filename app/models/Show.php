@@ -19,9 +19,13 @@ class Show extends MyEloquent {
 	}
 	
 	// scopes to contain shows that are considered as active.
+	// A show is active when: 
+	//						it is linked to a playlist that is active
+	// This will not filter out items that should be unaccessible. You should also use scopeAccessible to do this.
 	public function scopeActive($q) {
-		// TODO
-		return $q;
+		return $q->whereHas("playlists", function($q2) {
+			$q2->active();
+		});
 	}
 	
 	public function scopeAccessible($q) {
