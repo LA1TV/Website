@@ -4,12 +4,13 @@ use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
 use FormHelpers;
 use Carbon;
 use Exception;
+use Config;
 
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time');
-	protected $appends = array("related_items_for_orderable_select", "related_items_for_input", "scheduled_publish_time_for_input");
+	protected $appends = array("related_items_for_orderable_list", "related_items_for_input", "scheduled_publish_time_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -126,6 +127,15 @@ class MediaItem extends MyEloquent {
 			}
 		}
 		return false;
+	}
+	
+	// A media item is active when:
+	//						it's scheduled publish time is not too old (configured in config)
+	//						the scheduled publish time is automatically set if not specified the first time a media item is enabled.
+	public function scopeActive($q) {
+		$currentTime = Carbon::now();
+		$startTime = $currentTime->subDays(Config::get("custom.num_days_active"));
+		return $q->where("scheduled_publish_time", ">=", $startTime);
 	}
 	
 	public function scopeAccessible($q) {

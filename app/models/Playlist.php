@@ -107,16 +107,20 @@ class Playlist extends MyEloquent {
 		return array_merge(parent::getDates(), array('scheduled_publish_time'));
 	}
 	
-	// TODO: check media items
 	// A playlist is active when:
-	//						it's scheduled publish time has passed or is not too old (configured in config).
-	//						it contains a media item with an upcoming scheduled publish time
-	//						the latest scheduled publish time is not too old (configured in config)
-	//						the scheduled publish time is automatically set if not specified the first time a media item is enabled.
+	//						it's scheduled publish time has passed
+	//						it's scheduled publish time is not too old (configured in config), or one of the following is true
+	//						it contains an active media item.
 	// This will not filter out items that should be unaccessible. You should also use scopeAccessible to do this.
 	public function scopeActive($q) {
-		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
-		return $q->where("scheduled_publish_time", ">=", $startTime);
+		$currentTime = Carbon::now();
+		$startTime = $currentTime->subDays(Config::get("custom.num_days_active"));
+		return $q->where("scheduled_publish_time", ">=", $currentTime)->where(function($q2) use (&$startTime) {
+			$q2->where("scheduled_publish_time", ">=", $startTime)
+			->orWhereHas("mediaItems", function($q3) {
+				$q3->active();
+			});
+		});
 	}
 	
 	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc
