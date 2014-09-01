@@ -34,6 +34,7 @@ Route::group(array('before' => 'csrf'), function() use(&$p) {
 	
 	// HOME
 	
+	Route::controller('/facebook', $p.'home\facebook\FacebookController');
 	// make upload controller also accessible at /file
 	Route::controller('/file', $p.'home\admin\upload\UploadController');
 

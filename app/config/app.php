@@ -126,6 +126,7 @@ return array(
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		
 		'uk\co\la1tv\website\serviceProviders\auth\AuthServiceProvider',
+		'uk\co\la1tv\website\serviceProviders\facebook\FacebookServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\upload\UploadServiceProvider',
 	),
@@ -196,6 +197,7 @@ return array(
 		'View'            => 'Illuminate\Support\Facades\View',
 		
 		'Auth'            => 'uk\co\la1tv\website\serviceProviders\auth\AuthFacade',
+		'Facebook'        => 'uk\co\la1tv\website\serviceProviders\facebook\FacebookFacade',
 		'Csrf'            => 'uk\co\la1tv\website\serviceProviders\csrf\CsrfFacade',
 		'Upload'          => 'uk\co\la1tv\website\serviceProviders\upload\UploadFacade',
 
