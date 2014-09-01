@@ -6,6 +6,10 @@ use Csrf;
 use Auth;
 use Config;
 
+
+use uk\co\la1tv\website\models\Show;
+use DB; //TODO remove
+
 class HomeBaseController extends BaseController {
 
 	protected $layout = "layouts.home.master";
@@ -18,6 +22,13 @@ class HomeBaseController extends BaseController {
 		$this->layout->csrfToken = Csrf::getToken();
 		$this->layout->description = ""; // TODO
 		$this->layout->content = $content;
+		
+		// recent shows in dropdown
+		dd(Show::accessible()->active()->orderBy("name", "asc")->get()->toArray());
+		dd(DB::getQueryLog()[1]);
+	
+		// recent playlists dropdown
+		
 	}
 
 }
