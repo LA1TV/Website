@@ -14,7 +14,10 @@ class Playlist extends MyEloquent {
 	protected static function boot() {
 		parent::boot();
 		self::saving(function($model) {
-			if ($model->show_id === NULL) {
+			if ($model->enabled && is_null($model->scheduled_publish_time)) {
+				throw(new Exception("A Playlist which is enabled must have a scheduled publish time."));
+			}
+			else if ($model->show_id === NULL) {
 				if ($model->name === NULL) {
 					throw(new Exception("A name must be specified."));
 				}
@@ -104,8 +107,10 @@ class Playlist extends MyEloquent {
 		return array_merge(parent::getDates(), array('scheduled_publish_time'));
 	}
 	
-	// A playlist is active when: 
-	//						there is an upcoming scheduled publish time
+	// TODO: check media items
+	// A playlist is active when:
+	//						it's scheduled publish time has passed or is not too old (configured in config).
+	//						it contains a media item with an upcoming scheduled publish time
 	//						the latest scheduled publish time is not too old (configured in config)
 	//						the scheduled publish time is automatically set if not specified the first time a media item is enabled.
 	// This will not filter out items that should be unaccessible. You should also use scopeAccessible to do this.

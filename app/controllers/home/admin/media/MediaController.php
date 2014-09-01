@@ -249,7 +249,7 @@ class MediaController extends MediaBaseController {
 					$mediaItem->name = $formData['name'];
 					$mediaItem->description = FormHelpers::nullIfEmpty($formData['description']);
 					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
-					// if the scheduled publish time is empty and this item is enabled, set it to the cuurent time.
+					// if the scheduled publish time is empty and this item is enabled, set it to the current time.
 					// an enabled media item should always have a published time.
 					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
 					$mediaItem->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();

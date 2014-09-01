@@ -15,6 +15,7 @@ use Upload;
 use EloquentHelpers;
 use Auth;
 use JsonHelpers;
+use Carbon;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
@@ -184,7 +185,12 @@ class PlaylistsController extends PlaylistsBaseController {
 					$playlist->name = FormHelpers::nullIfEmpty($formData['name']);
 					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
-					$playlist->scheduled_publish_time = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
+					
+					// if the scheduled publish time is empty and this playlist is enabled, set it to the current time.
+					// an enabled playlist should always have a published time.
+					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
+					$playlist->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();
+					
 					
 					$show = Show::find(intval($formData['show-id']));
 					EloquentHelpers::associateOrNull($playlist->show(), $show);

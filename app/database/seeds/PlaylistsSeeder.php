@@ -19,7 +19,8 @@ class PlaylistsSeeder extends Seeder {
 					"name"	=>	"Roses 2014!",
 					"enabled"	=> true,
 					"description"	=> "Description about roses 2014 series.",
-					"series_no"		=> 1
+					"series_no"		=> 1,
+					"scheduled_publish_time"	=> Carbon::now()
 			));
 			$playlist->show()->associate(Show::find(1));
 			$playlist->save();
@@ -31,7 +32,8 @@ class PlaylistsSeeder extends Seeder {
 			$playlist = Playlist::create(array(
 					"name"	=>	"Top Shows",
 					"enabled"	=> true,
-					"description"	=> "LA1:TV's top shows for 2014."
+					"description"	=> "LA1:TV's top shows for 2014.",
+					"scheduled_publish_time"	=> Carbon::now()
 			));
 			$playlist->mediaItems()->attach(MediaItem::find(2), array("position"=>0));
 		});

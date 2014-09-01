@@ -53,6 +53,7 @@ class MediaItemSeeder extends Seeder {
 				"name"	=>	$a[0],
 				"description"	=>	count($a) >= 2 ? $a[1] : null,
 				"enabled"	=>	rand(0, 1) ? true : false,
+				"scheduled_publish_time"	=> Carbon::now()
 			));
 			DB::transaction(function() use (&$mediaItem, &$mediaItemVideo) {
 				$mediaItem->save();
@@ -69,7 +70,8 @@ class MediaItemSeeder extends Seeder {
 		$mediaItem = new MediaItem(array(
 			"name"	=>	"Lunchtime Show!",
 			"description"	=>	"This is the lunchtime show description.",
-			"enabled"	=>	true
+			"enabled"	=>	true,
+			"scheduled_publish_time"	=> Carbon::now()
 		));
 		DB::transaction(function() use (&$mediaItem, &$mediaItemLiveStream) {
 			$mediaItem->save();
