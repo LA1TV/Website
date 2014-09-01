@@ -26,7 +26,7 @@
 						<ul class="nav navbar-nav">
 							@yield('navbarList', '')
 						</ul>
-						<a class="btn btn-default navbar-btn navbar-right" href="">Login With Facebook</a>
+						<a class="btn btn-default navbar-btn navbar-right" href="<?=e($loggedIn ? $logoutUri : $loginUri);?>"><?=e($loggedIn ? "Logout" : "Login With Facebook");?></a>
 					</div>
 				</div>
 			</nav>

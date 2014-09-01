@@ -14,9 +14,6 @@ App::before(function($request)
 {
 	// required for facebook sdk
 	session_start();
-	
-	// TODO remove
-	Facebook::getUser();
 });
 
 

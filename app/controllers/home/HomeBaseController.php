@@ -7,9 +7,7 @@ use Auth;
 use Config;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
-
-
-use DB; //TODO remove
+use Facebook;
 
 class HomeBaseController extends BaseController {
 
@@ -23,7 +21,10 @@ class HomeBaseController extends BaseController {
 		$this->layout->csrfToken = Csrf::getToken();
 		$this->layout->description = ""; // TODO
 		$this->layout->content = $content;
+		$this->layout->loggedIn = Facebook::isLoggedIn();
 		
+		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login";
+		$this->layout->logoutUri = Config::get("custom.base_url") . "/facebook/logout";
 		$this->layout->homeUri = Config::get("custom.base_url");
 		$this->layout->guideUri = Config::get("custom.base_url") . "/guide";
 		$this->layout->blogUri = Config::get("custom.blog_url");
