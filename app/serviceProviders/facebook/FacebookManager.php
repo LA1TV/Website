@@ -93,12 +93,13 @@ class FacebookManager {
 			return null;
 		}
 		
-		// check that the token is still valid and hasn't expired
+		// check that the token is still valid and hasn't expired. This checks with facebook and fails if user has removed app.
 		$session = new FacebookSession($tokenStr);
 		$token = $session->getAccessToken();
+		
 		if (!$token->isValid()) {
 			// token now invalid. Logout user
-			$this->logout();
+			$this->doLogout();
 			return null;
 		}
 		
@@ -128,10 +129,14 @@ class FacebookManager {
 		if (!$this->isLoggedIn()) {
 			return false;
 		}
+		$this->doLogout();
+		return true;
+	}
+	
+	private function doLogout() {
 		Session::forget("facebookAccessToken");
 		Session::forget("loggedInSiteUserId");
 		$this->siteUser = null;
 		$this->siteUserCached = false;
-		return true;
 	}
 }
