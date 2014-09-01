@@ -24,6 +24,13 @@ class HomeBaseController extends BaseController {
 		$this->layout->description = ""; // TODO
 		$this->layout->content = $content;
 		
+		$this->layout->homeUri = Config::get("custom.base_url");
+		$this->layout->guideUri = Config::get("custom.base_url") . "/guide";
+		$this->layout->blogUri = Config::get("custom.blog_url");
+		$this->layout->contactUri = Config::get("custom.base_url") . "/contact";
+		$this->layout->aboutUri = Config::get("custom.base_url") . "/about";
+
+		
 		// recent shows in dropdown
 		$shows = Show::getCachedActiveShows();
 		$this->layout->showsDropdown = array();

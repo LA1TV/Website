@@ -9,5 +9,6 @@ return array(
 	// the number of days an item can be considered active for
 	"num_days_active"	=> 7,
 	// the time in minutes to cache certain query results. E.g the active shows and active playlists list.
-	"cache_time"		=> 1
+	"cache_time"		=> 1,
+	"blog_url"			=> "http://blog.la1tv.co.uk/"
 );
