@@ -4,13 +4,25 @@
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Shows <b class="caret"></b></a>
 	<ul class="dropdown-menu">
-		<li><a href="">Item 1</a></li>
+	<?php foreach($showsDropdown as $a): ?>
+		<li><a href="<?=e($a['uri']);?>"><?=e($a['text']);?></a></li>
+	<?php endforeach; ?>
+	<?php if (count($showsDropdown) > 0): ?>
+		<li class="divider"></li>
+	<?php endif; ?>
+		<li><a href="<?=e($showsUri);?>">View All</a></li>
 	</ul>
 </li>
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Playlists <b class="caret"></b></a>
 	<ul class="dropdown-menu">
-		<li><a href="">Item 1</a></li>
+		<?php foreach($playlistsDropdown as $a): ?>
+		<li><a href="<?=e($a['uri']);?>"><?=e($a['text']);?></a></li>
+	<?php endforeach; ?>
+	<?php if (count($playlistsDropdown) > 0): ?>
+		<li class="divider"></li>
+	<?php endif; ?>
+		<li><a href="<?=e($playlistsUri);?>">View All</a></li>
 	</ul>
 </li>
 <li><a href="">Live Guide</a></li>

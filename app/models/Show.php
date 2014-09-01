@@ -1,5 +1,8 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use Config;
+use Cache;
+
 class Show extends MyEloquent {
 
 	protected $table = 'shows';
@@ -21,10 +24,15 @@ class Show extends MyEloquent {
 	// scopes to contain shows that are considered as active.
 	// A show is active when: 
 	//						it is linked to a playlist that is active
-	// This will not filter out items that should be unaccessible. You should also use scopeAccessible to do this.
 	public function scopeActive($q) {
-		return $q->whereHas("playlists", function($q2) {
-			$q2->active();
+		return $q->accessible()->whereHas("playlists", function($q2) {
+			$q2->accessible()->active();
+		});
+	}
+	
+	public static function getCachedActiveShows() {
+		return Cache::remember('activeShows', Config::get("custom.cache_time"), function() {
+			return self::active()->orderBy("name", "asc")->get();
 		});
 	}
 	

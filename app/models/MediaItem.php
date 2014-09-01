@@ -133,19 +133,15 @@ class MediaItem extends MyEloquent {
 	//						it's scheduled publish time is not too old (configured in config)
 	//						the scheduled publish time is automatically set if not specified the first time a media item is enabled.
 	public function scopeActive($q) {
-		$currentTime = Carbon::now();
-		$startTime = $currentTime->subDays(Config::get("custom.num_days_active"));
-		return $q->where("scheduled_publish_time", ">=", $startTime);
+		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
+		return $q->accessible()->where("scheduled_publish_time", ">=", $startTime);
 	}
 	
 	public function scopeAccessible($q) {
 		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
 			$q2->accessible();
 		})
-		->where(function($q2) {
-			$q2->whereNull("scheduled_publish_time")
-			->orWhere("scheduled_publish_time", "<", Carbon::now());
-		});
+		->where("scheduled_publish_time", "<", Carbon::now());
 	}
 	
 	public function scopeSearch($q, $value) {

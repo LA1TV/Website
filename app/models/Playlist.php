@@ -4,6 +4,7 @@ use Exception;
 use FormHelpers;
 use Carbon;
 use Config;
+use Cache;
 
 class Playlist extends MyEloquent {
 
@@ -107,20 +108,34 @@ class Playlist extends MyEloquent {
 		return array_merge(parent::getDates(), array('scheduled_publish_time'));
 	}
 	
+	public static function getCachedActivePlaylists($includingShows) {
+		if ($includingShows) {
+			return Cache::remember('activePlaylists', Config::get("custom.cache_time"), function() {
+				return self::active()->orderBy("name", "asc")->get();
+			});
+		}
+		else {
+			return Cache::remember('activePlaylistsExcludingShows', Config::get("custom.cache_time"), function() {
+				return self::belongsToShow(false)->active()->orderBy("name", "asc")->get();
+			});
+		}
+	}
+	
 	// A playlist is active when:
-	//						it's scheduled publish time has passed
 	//						it's scheduled publish time is not too old (configured in config), or one of the following is true
 	//						it contains an active media item.
-	// This will not filter out items that should be unaccessible. You should also use scopeAccessible to do this.
 	public function scopeActive($q) {
-		$currentTime = Carbon::now();
-		$startTime = $currentTime->subDays(Config::get("custom.num_days_active"));
-		return $q->where("scheduled_publish_time", ">=", $currentTime)->where(function($q2) use (&$startTime) {
+		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
+		return $q->accessible()->where(function($q2) use (&$startTime) {
 			$q2->where("scheduled_publish_time", ">=", $startTime)
 			->orWhereHas("mediaItems", function($q3) {
-				$q3->active();
+				$q3->accessible()->active();
 			});
 		});
+	}
+	
+	public function scopeBelongsToShow($q, $yes=true) {
+		return $q->has("show", $yes ? "!=" : "=", 0);
 	}
 	
 	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc
@@ -144,10 +159,7 @@ class Playlist extends MyEloquent {
 				$q3->accessible();
 			});
 		})
-		->where(function($q2) {
-			$q2->whereNull("scheduled_publish_time")
-			->orWhere("scheduled_publish_time", "<", Carbon::now());
-		});
+		->where("scheduled_publish_time", "<", Carbon::now());
 	}
 	
 	public function scopeSearch($q, $value) {

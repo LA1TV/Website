@@ -5,9 +5,10 @@ use URL;
 use Csrf;
 use Auth;
 use Config;
-
-
 use uk\co\la1tv\website\models\Show;
+use uk\co\la1tv\website\models\Playlist;
+
+
 use DB; //TODO remove
 
 class HomeBaseController extends BaseController {
@@ -24,11 +25,20 @@ class HomeBaseController extends BaseController {
 		$this->layout->content = $content;
 		
 		// recent shows in dropdown
-		dd(Show::accessible()->active()->orderBy("name", "asc")->get()->toArray());
-		dd(DB::getQueryLog()[1]);
-	
-		// recent playlists dropdown
+		$shows = Show::getCachedActiveShows();
+		$this->layout->showsDropdown = array();
+		foreach($shows as $a) {
+			$this->layout->showsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/show/".$a->id, "text"=>$a->name);
+		}
+		$this->layout->showsUri = Config::get("custom.base_url") . "/shows";
 		
+		// recent playlists dropdown
+		$playlists = Playlist::getCachedActivePlaylists(false);
+		$this->layout->playlistsDropdown = array();
+		foreach($playlists as $a) {
+			$this->layout->playlistsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/playlist/".$a->id, "text"=>$a->name);
+		}
+		$this->layout->playlistsUri = Config::get("custom.base_url") . "/playlists";
 	}
 
 }
