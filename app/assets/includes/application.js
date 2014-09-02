@@ -5,4 +5,5 @@
 //
 //= require_tree jquery
 //= require bootstrap/js/bootstrap.min.js
+//= require video-js/video.dev.js
 //= require_tree ./custom

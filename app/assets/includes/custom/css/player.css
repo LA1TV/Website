@@ -1,0 +1,24 @@
+.player-container .player {
+	background-color: #000000;
+	color: #ffffff;
+	text-align: center;
+}
+
+.player-container .top-spacer {
+	height: 10%;
+}
+
+.player-container .spacer {
+	height: 5%;
+}
+
+.player-container .player .logo {
+	display: inline-block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 50%;
+}
+
+.player-container .player .live-at-header {
+	font-size: 30px;
+}

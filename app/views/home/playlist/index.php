@@ -1,5 +1,18 @@
-<div class="container">
-	<h1>The Player Page Which Contains The Playlist</h1>
-	<p>This is the player page which contains the playlist.</p>
-	<p>/playlist/[playlist id]/[optional media item id]</p>
+<h1>The Player Page Which Contains The Playlist</h1>
+<div class="row">
+	<div class="col-md-7">
+		<div class="player-container embed-responsive embed-responsive-16by9">
+			<div class="player embed-responsive-item">
+				<div class="top-spacer"></div>
+				<div>
+					<div class="logo"><img class="img-responsive" src="<?=asset("assets/img/logo.png");?>"/></div>
+				</div>
+				<div class="spacer"></div>
+				<div class="live-at-header">Live At</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-5">
+		[Playlist Here]
+	</div>
 </div>
