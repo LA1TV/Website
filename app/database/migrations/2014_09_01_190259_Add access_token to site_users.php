@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class SetDefaultLastSeenTime extends Migration {
+class AddAccessTokenToSiteUsers extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -14,11 +14,7 @@ class SetDefaultLastSeenTime extends Migration {
 	{
 		Schema::table('site_users', function(Blueprint $table)
 		{
-			$table->dropColumn("last_seen");
-		});
-		Schema::table('site_users', function(Blueprint $table)
-		{
-			$table->timestamp('last_seen')->default(DB::raw('CURRENT_TIMESTAMP'));
+			$table->text("fb_access_token");
 		});
 	}
 
@@ -31,11 +27,7 @@ class SetDefaultLastSeenTime extends Migration {
 	{
 		Schema::table('site_users', function(Blueprint $table)
 		{
-			$table->dropColumn("last_seen");
-		});
-		Schema::table('site_users', function(Blueprint $table)
-		{
-			$table->timestamp('last_seen');
+			$table->dropColumn("fb_access_token");
 		});
 	}
 

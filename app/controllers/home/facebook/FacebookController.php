@@ -13,14 +13,14 @@ class FacebookController extends BaseController {
 		return Facebook::getLoginRedirect(URL::to("/facebook/auth"));
 	}
 	
-	public function getLogout() {
-		Facebook::logout();
-		return Redirect::to(Config::get("custom.base_url"));
-	}
-	
 	// User bounced back to here from facebook.
 	public function anyAuth() {	
 		Facebook::authorize();
+		return Redirect::to(Config::get("custom.base_url"));
+	}
+	
+	public function getLogout() {
+		Facebook::logout();
 		return Redirect::to(Config::get("custom.base_url"));
 	}
 }
