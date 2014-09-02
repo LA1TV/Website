@@ -1,8 +1,8 @@
-<h1>The Player Page Which Contains The Playlist</h1>
+<h1><?=e($title);?></h1>
 <div class="row">
 	<div class="col-md-7">
 		<div class="player-container embed-responsive embed-responsive-16by9">
-			<div class="player embed-responsive-item" data-coveruri="<?=asset("assets/tmp/cover.png");?>" data-autoplay="0">
+			<div class="player embed-responsive-item" data-coveruri="<?=asset("assets/tmp/cover.png");?>" data-autoplay="">
 				<video class="video-js vjs-default-skin ">
 					<source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />
 					<source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />

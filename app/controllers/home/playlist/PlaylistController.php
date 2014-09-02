@@ -3,11 +3,37 @@
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use App;
+use uk\co\la1tv\website\models\Playlist;
 
 class PlaylistController extends HomeBaseController {
 
 	public function getIndex($id, $mediaItemId=null) {
-		$this->setContent(View::make("home.playlist.index"), "playlist", "playlist");
+		
+		$playlist = Playlist::with("show", "mediaItems")->find(intval($id));
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		if ($playlist->mediaItems->count() === 0) {
+			// TODO: no playlist items
+			dd("No playlist items. TODO");
+		}
+		
+		$currentMediaItem = null;
+		if (!is_null($mediaItemId)) {
+			$currentMediaItem = $playlist->mediaItems->find(intval($mediaItemId));
+			if (is_null($currentMediaItem)) {
+				App:abort(404);
+			}
+		}
+		else {
+			$currentMediaItem = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->first();
+		}
+		
+		$view = View::make("home.playlist.index");
+		$view->title = $currentMediaItem->name;
+		
+		$this->setContent($view, "playlist", "playlist");
 	}
 	
 	public function missingMethod($parameters=array()) {
