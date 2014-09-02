@@ -1,17 +1,17 @@
-.player-container .player {
+.player-container .ad {
 	background-color: #000000;
 	color: #ffffff;
 	text-align: center;
 }
 
-.player-container .player .logo {
+.player-container .ad .logo {
 	display: inline-block;
 	margin-left: auto;
 	margin-right: auto;
 	width: 50%;
 }
 
-.player-container .player .bg, .player-container .player .blanket {
+.player-container .ad .bg, .player-container .ad .blanket {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -19,7 +19,7 @@
 	height: 100%;
 }
 
-.player-container .player .overlay {
+.player-container .ad .overlay {
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -30,6 +30,11 @@
 	padding: 5px 0;
 }
 
-.player-container .player .bg {
+.player-container .ad .bg {
 	overflow: hidden;
+}
+
+.vjs-default-skin .vjs-big-play-button {
+	bottom: .5em;
+	top: inherit;
 }

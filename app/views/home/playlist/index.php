@@ -2,7 +2,18 @@
 <div class="row">
 	<div class="col-md-7">
 		<div class="player-container embed-responsive embed-responsive-16by9">
-			<div class="player embed-responsive-item">
+			<div class="player embed-responsive-item" data-coveruri="<?=asset("assets/tmp/cover.png");?>" data-autoplay="0">
+				<video class="video-js vjs-default-skin ">
+					<source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />
+					<source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />
+					<source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />
+					<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+				</video>
+			</div>
+			
+			
+			<?php /*
+			<div class="ad embed-responsive-item">
 				<div class="bg">
 					<!--<img class="img-responsive" src="<?=asset("assets/img/default-cover.png");?>"/>-->
 					<img class="img-responsive" src="<?=asset("assets/tmp/cover.png");?>"/>
@@ -14,6 +25,7 @@
 					<!--<div class="custom-msg fit-text txt-shadow" data-compressor="2.8">The world is ending.</div>-->
 				</div>
 			</div>
+			*/ ?>
 		</div>
 	</div>
 	<div class="col-md-5">
