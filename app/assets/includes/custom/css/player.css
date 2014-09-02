@@ -1,15 +1,7 @@
 .player-container .player {
-	background-color: #000000;
+	background-color: #444444;
 	color: #ffffff;
 	text-align: center;
-}
-
-.player-container .top-spacer {
-	height: 10%;
-}
-
-.player-container .spacer {
-	height: 5%;
 }
 
 .player-container .player .logo {
@@ -19,6 +11,25 @@
 	width: 50%;
 }
 
-.player-container .player .live-at-header {
-	font-size: 30px;
+.player-container .player .bg, .player-container .player .blanket {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.player-container .player .overlay {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.65);
+	overflow: auto;
+	max-height: 100%;
+	padding: 5px 0;
+}
+
+.player-container .player .bg {
+	overflow: hidden;
 }
