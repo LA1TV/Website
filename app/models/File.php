@@ -135,16 +135,27 @@ class File extends MyEloquent {
 		return null;
 	}
 	
+	// returns an array of form array("uri", "width", "height", "qualityDefinition")
+	// returned in predefined qualities order
 	public function getVideoFiles() {
 		$renders = $this->renderFiles;
 		$videoFiles = array();
+		$positions = array();
 		if (count($renders) === 0) {
 			// presuming that there must always be at least one video render from the source
 			throw(new Exception("The current file is not a video."));
 		}
 		foreach($renders as $a) {
-			$videoFiles[] = $a->videoFile;
+			$positions[] = intval($a->videoFile->qualityDefinition->position);
+			$videoFiles[] = array(
+				"uri"					=> $a->getUri(),
+				"width"					=> $a->videoFile->width,
+				"height"				=> $a->videoFile->height,
+				"qualityDefinition"		=> $a->videoFile->qualityDefinition
+			);
 		}
+		// reorder so in qualities order
+		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $videoFiles);
 		return $videoFiles;
 	}
 	

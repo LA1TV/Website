@@ -36,11 +36,7 @@ class PlaylistController extends HomeBaseController {
 		$view->episodeDescription = $currentMediaItem->description;
 		$coverArtFile = $currentMediaItem->videoItem->coverArtFile->getImageFileWithResolution(1920, 1080);
 		$view->episodeCoverArtUri = is_null($coverArtFile) ? Config::get("custom.default_cover_uri") : $coverArtFile->getUri();
-		$videoUris = array();
-		foreach($currentMediaItem->videoItem->sourceFile->getVideoFiles() as $a) {
-			$videoUris[] = $a->file->getUri();
-		}
-		$view->episodeUris = $videoUris;
+		$view->episodeUri = $currentMediaItem->videoItem->sourceFile->getVideoFiles()[0]['uri'];
 		$view->playlistTitle = $playlist->name;
 		$this->setContent($view, "playlist", "playlist");
 	}
