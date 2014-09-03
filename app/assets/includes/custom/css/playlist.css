@@ -1,0 +1,51 @@
+.playlist .playlist-table .button-row {
+	background-color: #f5f5f5;
+}
+
+.playlist .playlist-table .button-row .buttons {
+	display: inline-block;
+	float: right;
+	margin-left: 12px;
+	margin-bottom: 6px;
+	font-size: 8px;
+}
+
+.playlist .playlist-table .button-row .playlist-title {
+	display: inline;
+	padding: 0;
+	margin: 0;
+	font-size: 25px;
+}
+
+.playlist .playlist-table tbody {
+	display: block;
+	overflow: auto;
+	max-height: 250px;
+}
+
+.playlist .playlist-table tbody tr {
+	cursor: pointer;
+}
+
+.playlist .playlist-table .chosen td {
+	background-color: #9C0000;
+	color: #ffffff;
+}
+
+.playlist .playlist-table td {
+	vertical-align: middle;
+	font-size: 17px;
+}
+
+.playlist .playlist-table .col-episode-no {
+	text-align: right;
+}
+
+.playlist .playlist-table .col-thumbnail {
+	width: 25%;
+	padding: 0;
+}
+
+.playlist .playlist-table .col-title {
+	width: 100%;
+}

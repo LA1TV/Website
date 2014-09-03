@@ -1,4 +1,4 @@
-<h1><?=e($title);?></h1>
+<h1><?=e($episodeTitle);?></h1>
 <div class="row">
 	<div class="col-md-7">
 		<div class="player-container embed-responsive embed-responsive-16by9">
@@ -29,6 +29,27 @@
 		</div>
 	</div>
 	<div class="col-md-5">
-		[Playlist Here]
+		<div class="playlist">
+			<table class="playlist-table table table-bordered table-hover">
+				<thead>
+					<tr class="button-row">
+						<th class="clearfix" colspan="3">
+							<div class="buttons">
+								<button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-backward"></span></button> <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-forward"></span></button>
+							</div>
+							<h2 class="playlist-title"><?=e($playlistTitle);?></h2>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php for($i=0; $i<20; $i++):?>
+					<tr class="<?=$i===1 ? "chosen" : ""?>">
+						<td class="col-episode-no"><?=$i+1?>.</td>
+						<td class="col-thumbnail"><img class="img-responsive" src="<?=asset("assets/tmp/cover.png");?>"/></td>
+						<td class="col-title">Episode Title</td>
+					</tr>
+					<?php endfor; ?>
+			</table>
+		</div>
 	</div>
 </div>

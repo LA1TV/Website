@@ -79,6 +79,20 @@ class Playlist extends MyEloquent {
 		return $ids;
 	}
 	
+	// returns the media items name with an episode number if this playlist is a series in a show
+	public function generateEpisodeTitle($mediaItemParam) {
+		$mediaItem = $this->mediaItems->find($mediaItemParam->id);
+		if (is_null($mediaItem)) {
+			throw(new Exception("Playlist does not contain MediaItem."));
+		}
+		
+		if (is_null($this->show)) {
+			return $mediaItem->name;
+		}
+		
+		return ($mediaItem->pivot->position + 1) . ". " . $mediaItem->name;
+	}
+	
 	public function getPlaylistContentForInputAttribute() {
 		return MediaItem::generateInputValueForAjaxSelectOrderableList($this->getPlaylistContentIdsForOrderableList());
 	}
