@@ -20,17 +20,32 @@ class PlaylistController extends HomeBaseController {
 			dd("No playlist items. TODO");
 		}
 		
+		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
+		
 		$currentMediaItem = null;
 		if (!is_null($mediaItemId)) {
-			$currentMediaItem = $playlist->mediaItems->find(intval($mediaItemId));
+			$currentMediaItem = $playlistMediaItems->find(intval($mediaItemId));
 			if (is_null($currentMediaItem)) {
 				App:abort(404);
 			}
 		}
 		else {
-			$currentMediaItem = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->first();
+			$currentMediaItem = $playlistMediaItems[0];
 		}
 		
+		$playlistTableData = array();
+		foreach($playlistMediaItems as $item) {
+			//$coverArtFile = $item->videoItem->coverArtFile->getImageFileWithResolution(1920, 1080);
+			$coverArtFile = null;
+			$playlistTableData[] = array(
+				"id"			=> $item->id,
+				"active"		=> intval($item->id) === intval($currentMediaItem->id),
+				"title"			=> $item->name,
+				"episodeNo"		=> intval($item->pivot->position) + 1,
+				"thumbnailUri"	=> is_null($coverArtFile) ? Config::get("custom.default_cover_uri") : $coverArtFile->getUri()
+			);
+		}
+
 		$view = View::make("home.playlist.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
@@ -38,6 +53,10 @@ class PlaylistController extends HomeBaseController {
 		$view->episodeCoverArtUri = is_null($coverArtFile) ? Config::get("custom.default_cover_uri") : $coverArtFile->getUri();
 		$view->episodeUri = $currentMediaItem->videoItem->sourceFile->getVideoFiles()[0]['uri'];
 		$view->playlistTitle = $playlist->name;
+		
+		$view->playlistTableData = $playlistTableData;
+		
+		
 		$this->setContent($view, "playlist", "playlist");
 	}
 	

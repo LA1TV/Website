@@ -51,13 +51,13 @@
 					</tr>
 				</thead>
 				<tbody>
-					<?php for($i=0; $i<20; $i++):?>
-					<tr class="<?=$i===1 ? "chosen" : ""?>">
-						<td class="col-episode-no"><?=$i+1?>.</td>
-						<td class="col-thumbnail"><img class="img-responsive" src="<?=asset("assets/tmp/cover.png");?>"/></td>
-						<td class="col-title">Episode Title</td>
+					<?php foreach($playlistTableData as $row):?>
+					<tr class="<?=$row['active'] ? "chosen" : ""?>">
+						<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
+						<td class="col-thumbnail"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></td>
+						<td class="col-title"><?=e($row['title']);?></td>
 					</tr>
-					<?php endfor; ?>
+					<?php endforeach; ?>
 			</table>
 		</div>
 	</div>
