@@ -168,12 +168,12 @@ class FacebookManager {
 	private function storeAccessToken($token) {
 		Session::set("facebookAccessToken", (String) $token);
 		// set in a cookie as well as session so if not found in session this can be checked first.
-		Cookie::forever('facebookAccessToken', (String) $token);
+		Cookie::queue(Cookie::forever('facebookAccessToken', (String) $token));
 	}
 	
 	private function clearStoredAccessToken() {
 		Session::forget("facebookAccessToken");
-		Cookie::forget("facebookAccessToken");
+		Cookie::queue(Cookie::forget("facebookAccessToken"));
 		$this->siteUser = null;
 		$this->siteUserCached = false;
 	}
