@@ -1,6 +1,6 @@
-<h1><?=e($episodeTitle);?></h1>
 <div class="row">
 	<div class="col-md-7">
+		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
 		<div class="player-container embed-responsive embed-responsive-16by9">
 			<div class="player embed-responsive-item" data-coveruri="<?=asset("assets/tmp/cover.png");?>" data-autoplay="">
 				<video class="video-js vjs-default-skin ">
@@ -27,6 +27,17 @@
 			</div>
 			*/ ?>
 		</div>
+		<div class="bottom-info-container clearfix">
+			<div class="view-count">127 views</div>
+			<div class="buttons">
+				<div class="button-container">
+					<button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-thumbs-up"></span> Like!</button>
+				</div>
+			</div>
+		</div>
+		<div class="description-container"><?=e($episodeDescription);?></div>
+		<h2>Comments</h2>
+		<p>Blah</p>
 	</div>
 	<div class="col-md-5">
 		<div class="playlist">
@@ -35,7 +46,7 @@
 					<tr class="button-row">
 						<th class="clearfix" colspan="3">
 							<div class="buttons">
-								<button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-backward"></span></button> <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-forward"></span></button>
+								<button class="btn btn-default btn-xs" type="button">View All Series</button> <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-backward"></span></button> <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-forward"></span></button>
 							</div>
 							<h2 class="playlist-title"><?=e($playlistTitle);?></h2>
 						</th>
@@ -53,3 +64,4 @@
 		</div>
 	</div>
 </div>
+

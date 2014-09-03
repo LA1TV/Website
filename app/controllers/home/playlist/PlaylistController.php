@@ -32,6 +32,7 @@ class PlaylistController extends HomeBaseController {
 		
 		$view = View::make("home.playlist.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
+		$view->episodeDescription = $currentMediaItem->description;
 		$view->playlistTitle = $playlist->name;
 		$this->setContent($view, "playlist", "playlist");
 	}
