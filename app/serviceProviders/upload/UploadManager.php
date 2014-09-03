@@ -191,7 +191,20 @@ class UploadManager {
 	// returns the File object for a file if the security checks pass.
 	// returns the File model or null
 	public static function getFile($fileId) {
-		$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover", "mediaItemVideoWithFile.mediaItem")->where("process_state", 1)->find($fileId);
+		
+		// if the file is a file that has been generated from a parent file then perform the security checks on the parent file.
+		
+		// TODO: this needs improving
+		
+		$file = File::with("parentFile", "parentFile.mediaItemWithBanner", "parentFile.mediaItemWithCover", "parentFile.playlistWithBanner", "parentFile.playlistWithCover", "parentFile.mediaItemVideoWithFile.mediaItem", "parentFile.mediaItemVideoWithCoverArt.mediaItem")->finishedProcessing()->find($fileId);
+		$actualFile = $file;
+		
+		if (!is_null($file->parentFile)) {
+			$file = $file->parentFile;
+		}
+		else {
+			$file = File::with("mediaItemWithBanner", "mediaItemWithCover", "playlistWithBanner", "playlistWithCover", "mediaItemVideoWithFile.mediaItem", "mediaItemVideoWithCoverArt.mediaItem")->finishedProcessing()->find($fileId);
+		}
 		
 		if (is_null($file)) {
 			return null;
@@ -199,30 +212,38 @@ class UploadManager {
 		
 		$accessAllowed = false;
 		
-		// file should be accessible if not used yet and session matches users session
-		// this necessary in order for a preview of the file to be shown
-		if (Auth::isLoggedIn() && !$file->in_use && $file->session_id === Session::getId()) {
-			$accessAllowed = true;
-		}
-		else {
-			// see if the file should be accessible
-			if (!is_null($file->mediaItemWithBanner) && $file->mediaItemWithBanner->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->mediaItemWithCover) && $file->mediaItemWithCover->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->mediaItemVideoWithFile) && $file->mediaItemVideoWithFile->mediaItem->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->playlistWithBanner) && $file->playlistWithBanner->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-			else if (!is_null($file->playlistWithCover) && $file->playlistWithCover->getIsAccessible()) {
+		// see if the file should be accessible
+		if (!is_null($file->mediaItemWithBanner)) {
+			if ($file->mediaItemWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
 				$accessAllowed = true;
 			}
 		}
-		return $accessAllowed ? $file : null;
+		else if (!is_null($file->mediaItemWithCover)) {
+			if ($file->mediaItemWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+				$accessAllowed = true;
+			}
+		}
+		else if (!is_null($file->mediaItemVideoWithCoverArt)) {
+			if ($file->mediaItemVideoWithCoverArt->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+				$accessAllowed = true;
+			}
+		}
+		else if (!is_null($file->mediaItemVideoWithFile)) {
+			if ($file->mediaItemVideoWithFile->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+				$accessAllowed = true;
+			}
+		}
+		else if (!is_null($file->playlistWithBanner)) {
+			if ($file->playlistWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
+				$accessAllowed = true;
+			}
+		}
+		else if (!is_null($file->playlistWithCover)) {
+			if ($file->playlistWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
+				$accessAllowed = true;
+			}
+		}
+		return $accessAllowed ? $actualFile : null;
 	}
 	
 	// helper that returns true if the current user should have access to this file

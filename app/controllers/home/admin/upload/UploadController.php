@@ -25,6 +25,7 @@ class UploadController extends UploadBaseController {
 	}
 	
 	// get process info about a file
+	// should only be available to a user logged into the cms
 	public function postProcessinfo() {
 		
 		Auth::loggedInOr403();
@@ -32,7 +33,6 @@ class UploadController extends UploadBaseController {
 		$resp = array("success"=> false, "payload"=>null);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
-			// TODO: the info should only be returned if the file should be accessible to the public so a check is needed here
 			$file = File::find($id);
 			if (!is_null($file)) {
 				$resp['payload'] = $file->getProcessInfo();
@@ -50,8 +50,8 @@ class UploadController extends UploadBaseController {
 		$resp = array("success"=> false);
 		if (FormHelpers::hasPost("id")) {
 			$id = intval($_POST["id"], 10);
-			$file = $this->getFile($id);
-			if (!is_null($file)) {
+			$file = File::find($id);
+			if (!is_null($file) && $file->isTemporaryFromCurrentSession()) {
 				Upload::delete($file);
 				$resp['success'] = true;
 			}
@@ -59,16 +59,13 @@ class UploadController extends UploadBaseController {
 		return Response::json($resp);
 	}
 	
-	// get file model from id if security checks pass
-	private function getFile($id) {
-		$file = File::find($id);
-		if (!is_null($file)) {
-		
-			// check that the file isn't in_use (so temporary) and the session_id matches this users session
-			if (!$file->in_use && $file->session_id === Session::getId()) {
-				return $file;
-			}
+	public function missingMethod($parameters=array()) {
+		// redirect /[integer]/[anything] to /index/[integer]/[anything]
+		if (count($parameters) >= 1 && ctype_digit($parameters[0])) {
+			return call_user_func_array(array($this, "getIndex"), $parameters);
 		}
-		return null;
+		else {
+			return parent::missingMethod($parameters);
+		}
 	}
 }

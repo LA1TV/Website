@@ -4,6 +4,7 @@ use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use App;
 use uk\co\la1tv\website\models\Playlist;
+use Config;
 
 class PlaylistController extends HomeBaseController {
 
@@ -33,6 +34,13 @@ class PlaylistController extends HomeBaseController {
 		$view = View::make("home.playlist.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
+		$coverArtFile = $currentMediaItem->videoItem->coverArtFile->getImageFileWithResolution(1920, 1080);
+		$view->episodeCoverArtUri = is_null($coverArtFile) ? Config::get("custom.default_cover_uri") : $coverArtFile->getUri();
+		$videoUris = array();
+		foreach($currentMediaItem->videoItem->sourceFile->getVideoFiles() as $a) {
+			$videoUris[] = $a->file->getUri();
+		}
+		$view->episodeUris = $videoUris;
 		$view->playlistTitle = $playlist->name;
 		$this->setContent($view, "playlist", "playlist");
 	}
@@ -40,7 +48,7 @@ class PlaylistController extends HomeBaseController {
 	public function missingMethod($parameters=array()) {
 		// redirect /[integer]/[anything] to /index/[integer]/[anything]
 		if (count($parameters) >= 1 && ctype_digit($parameters[0])) {
-			call_user_func_array(array($this, "getIndex"), $parameters);
+			return call_user_func_array(array($this, "getIndex"), $parameters);
 		}
 		else {
 			return parent::missingMethod($parameters);

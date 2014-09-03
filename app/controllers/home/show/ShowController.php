@@ -13,7 +13,7 @@ class ShowController extends HomeBaseController {
 	public function missingMethod($parameters=array()) {
 		// redirect /[integer]/[anything] to /index/[integer]/[anything]
 		if (count($parameters) >= 1 && ctype_digit($parameters[0])) {
-			call_user_func_array(array($this, "getIndex"), $parameters);
+			return call_user_func_array(array($this, "getIndex"), $parameters);
 		}
 		else {
 			return parent::missingMethod($parameters);

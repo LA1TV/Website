@@ -2,6 +2,8 @@
 
 use EloquentHelpers;
 use Exception;
+use Session;
+use Config;
 
 // FILE MODELS SHOULD NOT BE CREATED MANUALLY. They should be created and managed using the Upload service provider.
 
@@ -111,8 +113,47 @@ class File extends MyEloquent {
 		return $this->hasMany(self::$p.'File', 'source_file_id');
 	}
 	
+	// gets the File model which represents this source image file at that resolution
+	// if that resolution is not available null is returned.
+	// if this file model does not represent an image then an exception is thrown
+	public function getImageFileWithResolution($w, $h) {
+		$imageRenders = $this->sourceFiles;
+		if (count($imageRenders) === 0) {
+			// presuming that there must always be at least one image generated from the source image
+			throw(new Exception("The current file is not an image."));
+		}
+		foreach($imageRenders as $a) {
+			$imageFile = $a->imageFile;
+			if (is_null($imageFile)) {
+				// if this is an image render it will always have an entry in the image_files table.
+				throw(new Exception("The current file is not an image."));
+			}
+			if (intval($imageFile->width) === $w && intval($imageFile->height) === $h) {
+				return $a;
+			}
+		}
+		return null;
+	}
+	
+	public function getVideoFiles() {
+		$renders = $this->sourceFiles;
+		$videoFiles = array();
+		if (count($renders) === 0) {
+			// presuming that there must always be at least one video render from the source
+			throw(new Exception("The current file is not a video."));
+		}
+		foreach($renders as $a) {
+			$videoFiles[] = $a->videoFile;
+		}
+		return $videoFiles;
+	}
+	
 	public function getExtension() {
 		return strtolower(pathinfo($this->filename, PATHINFO_EXTENSION));
+	}
+	
+	public function isTemporaryFromCurrentSession() {
+		return !$this->in_use && $this->session_id === Session::getId();
 	}
 	
 	public function getFinishedProcessing() {
@@ -121,6 +162,15 @@ class File extends MyEloquent {
 	
 	public function scopeFinishedProcessing($q) {
 		return $q->where("process_state", 1);
+	}
+	
+	// returns a uri to the file if the file has finished processing and is in_use
+	// returns null otherwise
+	public function getUri() {
+		if (!$this->getFinishedProcessing() || !$this->in_use) {
+			return null;
+		}
+		return Config::get("custom.base_url") . "/" . Config::get("uploads.retrieve_base_uri") . "/" . $this->id;
 	}
 	
 	// THIS SHOULD NOT BE CALLED DIRECTLY. This should be managed from the Upload service provider

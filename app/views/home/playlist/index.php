@@ -2,11 +2,11 @@
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
 		<div class="player-container embed-responsive embed-responsive-16by9">
-			<div class="player embed-responsive-item" data-coveruri="<?=asset("assets/tmp/cover.png");?>" data-autoplay="">
-				<video class="video-js vjs-default-skin ">
-					<source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />
-					<source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />
-					<source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />
+			<div class="player embed-responsive-item" data-coveruri="<?=e($episodeCoverArtUri);?>" data-autoplay="">
+				<video class="video-js vjs-default-skin">
+					<?php foreach($episodeUris as $a): ?>
+					<source src="<?=e($a);?>" type='video/mp4'/>
+					<?php endforeach; ?>
 					<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 				</video>
 			</div>
@@ -41,7 +41,7 @@
 	</div>
 	<div class="col-md-5">
 		<div class="playlist">
-			<table class="playlist-table table table-bordered table-hover">
+			<table class="playlist-table table table-bordered table-striped table-hover">
 				<thead>
 					<tr class="button-row">
 						<th class="clearfix" colspan="3">
