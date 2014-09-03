@@ -192,16 +192,16 @@ class UploadManager {
 	// returns the File model or null
 	public static function getFile($fileId) {
 		
-		// the file must have a parent file to be valid. Then the security checks are performed on the parent source file.
+		// the file must be a render (ie have a source file) file to be valid. Then the security checks are performed on the source file.
 
 		$relationsToLoad = array(
-			"parentFile",
-			"parentFile.mediaItemWithBanner",
-			"parentFile.mediaItemWithCover",
-			"parentFile.playlistWithBanner",
-			"parentFile.playlistWithCover",
-			"parentFile.mediaItemVideoWithFile.mediaItem",
-			"parentFile.mediaItemVideoWithCoverArt.mediaItem"
+			"sourceFile",
+			"sourceFile.mediaItemWithBanner",
+			"sourceFile.mediaItemWithCover",
+			"sourceFile.playlistWithBanner",
+			"sourceFile.playlistWithCover",
+			"sourceFile.mediaItemVideoWithFile.mediaItem",
+			"sourceFile.mediaItemVideoWithCoverArt.mediaItem"
 		);
 
 		$requestedFile = File::with($relationsToLoad)->finishedProcessing()->find($fileId);
@@ -209,41 +209,41 @@ class UploadManager {
 			return null;
 		}
 		
-		$parentFile = $requestedFile->parentFile;
-		if (is_null($parentFile)) {
+		$sourceFile = $requestedFile->sourceFile;
+		if (is_null($sourceFile)) {
 			return null;
 		}
 		
 		$accessAllowed = false;
 		
 		// see if the file should be accessible
-		if (!is_null($parentFile->mediaItemWithBanner)) {
-			if ($parentFile->mediaItemWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+		if (!is_null($sourceFile->mediaItemWithBanner)) {
+			if ($sourceFile->mediaItemWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($parentFile->mediaItemWithCover)) {
-			if ($parentFile->mediaItemWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+		else if (!is_null($sourceFile->mediaItemWithCover)) {
+			if ($sourceFile->mediaItemWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($parentFile->mediaItemVideoWithCoverArt)) {
-			if ($parentFile->mediaItemVideoWithCoverArt->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+		else if (!is_null($sourceFile->mediaItemVideoWithCoverArt)) {
+			if ($sourceFile->mediaItemVideoWithCoverArt->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($parentFile->mediaItemVideoWithFile)) {
-			if ($parentFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+		else if (!is_null($sourceFile->mediaItemVideoWithFile)) {
+			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($parentFile->playlistWithBanner)) {
-			if ($parentFile->playlistWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
+		else if (!is_null($sourceFile->playlistWithBanner)) {
+			if ($sourceFile->playlistWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($parentFile->playlistWithCover)) {
-			if ($parentFile->playlistWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
+		else if (!is_null($sourceFile->playlistWithCover)) {
+			if ($sourceFile->playlistWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
 				$accessAllowed = true;
 			}
 		}

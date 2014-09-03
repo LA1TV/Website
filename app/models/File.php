@@ -16,7 +16,7 @@ class File extends MyEloquent {
 		parent::boot();
 		self::saving(function($model) {
 			
-			$parentFileForeignKey = $model->parentFile()->getForeignKey();
+			$sourceFileForeignKey = $model->sourceFile()->getForeignKey();
 			$uploadPointForeignKey = $model->uploadPoint()->getForeignKey();
 			
 			if ($model->exists && $model->original["in_use"] && !$model->in_use && !$model->ready_for_delete) {
@@ -37,10 +37,10 @@ class File extends MyEloquent {
 				)) {
 				throw(new Exception("File must be marked as in use before it can belong to anything."));
 			}
-			else if (	($model->exists && $model->original[$parentFileForeignKey] !== $model->$parentFileForeignKey) ||
-						(!$model->exists && !is_null($model->$parentFileForeignKey))
+			else if (	($model->exists && $model->original[$sourceFileForeignKey] !== $model->$sourceFileForeignKey) ||
+						(!$model->exists && !is_null($model->$sourceFileForeignKey))
 					) {
-				throw(new Exception("The parent file should only be set externally."));
+				throw(new Exception("The source file should only be set externally."));
 			}
 			else if ($model->exists && $model->original[$uploadPointForeignKey] !== $model->$uploadPointForeignKey) {
 				throw(new Exception("The upload point can only be set on creation."));
@@ -105,11 +105,11 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'ImageFile', 'file_id');
 	}
 	
-	public function parentFile() {
+	public function sourceFile() {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}
 	
-	public function sourceFiles() {
+	public function renderFiles() {
 		return $this->hasMany(self::$p.'File', 'source_file_id');
 	}
 	
@@ -117,7 +117,7 @@ class File extends MyEloquent {
 	// if that resolution is not available null is returned.
 	// if this file model does not represent an image then an exception is thrown
 	public function getImageFileWithResolution($w, $h) {
-		$imageRenders = $this->sourceFiles;
+		$imageRenders = $this->renderFiles;
 		if (count($imageRenders) === 0) {
 			// presuming that there must always be at least one image generated from the source image
 			throw(new Exception("The current file is not an image."));
@@ -136,7 +136,7 @@ class File extends MyEloquent {
 	}
 	
 	public function getVideoFiles() {
-		$renders = $this->sourceFiles;
+		$renders = $this->renderFiles;
 		$videoFiles = array();
 		if (count($renders) === 0) {
 			// presuming that there must always be at least one video render from the source
