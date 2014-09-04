@@ -59,7 +59,7 @@
 					<?php foreach($playlistTableData as $row):?>
 					<tr class="<?=$row['active'] ? "chosen" : ""?>">
 						<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
-						<td class="col-thumbnail"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></td>
+						<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
 						<td class="col-title"><?=e($row['title']);?></td>
 					</tr>
 					<?php endforeach; ?>
