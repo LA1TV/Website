@@ -13,6 +13,9 @@
 App::before(function($request)
 {
 	// required for facebook sdk
+	// http://stackoverflow.com/a/681584/1048589
+	// prevent session_start from setting any headers
+	session_cache_limiter("");
 	session_start();
 });
 
