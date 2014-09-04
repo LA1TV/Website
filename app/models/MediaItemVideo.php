@@ -23,6 +23,30 @@ class MediaItemVideo extends MyEloquent {
 		return FormHelpers::formatDateForInput($this->time_recorded->timestamp);
 	}
 	
+	// returns the uris to the different renders of the video
+	public function getUrisWithQualities() {
+		
+		$sourceFile = $this->sourceFile;
+		
+		if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
+			return array();
+		}
+	
+		$renders = $sourceFile->renderFiles;
+		$uris = array();
+		$positions = array();
+		foreach($renders as $a) {
+			$positions[] = intval($a->videoFile->qualityDefinition->position);
+			$uris[] = array(
+				"uri"					=> $a->getUri(),
+				"qualityDefinition"		=> $a->videoFile->qualityDefinition
+			);
+		}
+		// reorder so in qualities order
+		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $uris);
+		return $uris;
+	}
+	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
 	}

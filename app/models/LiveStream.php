@@ -42,6 +42,24 @@ class LiveStream extends MyEloquent {
 		return $ids;
 	}
 	
+	public function getUrisWithQualities() {
+		$this->load("qualities", "qualities.qualityDefinition");
+		
+		$uris = array();
+		$positions = array();
+		foreach($this->qualities as $a) {
+			$qualityDefinition = $a->qualityDefinition;
+			$positions[] = intval($qualityDefinition->position);
+			$uris[] = array(
+				"uri"				=> $a->getBuiltUrl($this->server_address, "live", $this->stream_name),
+				"qualityDefinition"	=> $a->qualityDefinition
+			);
+		}
+		// reorder so in qualities order
+		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $uris);
+		return $uris;
+	}
+	
 	public function getQualitiesForInputAttribute() {
 		return LiveStreamQuality::generateInputValueForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
 	}

@@ -331,6 +331,9 @@ class MediaController extends MediaBaseController {
 							}
 							$mediaItemLiveStream->liveStream()->associate($liveStream);
 						}
+						else {
+							EloquentHelpers::setForeignKeyNull($mediaItemLiveStream->liveStream());
+						}
 					}
 					else {
 						// remove livestream model if there is one

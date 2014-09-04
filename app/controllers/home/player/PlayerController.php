@@ -70,55 +70,60 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$mediaItem = MediaItem::with("liveStreamItem", "videoItem")->find($mediaItemId);
+		$mediaItem = $playlist->mediaItems()->find($mediaItemId);
 		if (is_null($mediaItem)) {
 			App::abort(404);
 		}
 		
-		$playlist->getMediaItemCoverArtUri($mediaItem);
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "liveStreamItem.liveStream", "videoItem");
+		
+		$liveStreamItem = $mediaItem->liveStreamItem;
+		$liveStream = !is_null($liveStreamItem) ? $liveStreamItem->liveStream : null;
+		$videoItem = $mediaItem->videoItem;
 		
 		$publishTime = $mediaItem->scheduled_publish_time;
 		if (!is_null($publishTime)) {
 			$publishTime = $publishTime->timestamp;
 		}
+		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem);
+		$hasStream = !is_null($liveStreamItem);
+		$streamInfoMsg = $hasStream ? $liveStreamItem->information_msg : null;
+		$streamState = $hasStream ? $liveStreamItem->stateDefinition->id : null;
+		$availableOnDemand = $hasStream ? (boolean) $liveStreamItem->being_recorded : null;
+		$hasVod = !is_null($videoItem);
+		$vodLive = $hasVod ? $videoItem->getIsAccessible() : null;
+		
+		$streamUris = array();
+		if (!is_null($liveStream) && $liveStream->enabled) {
+			foreach($liveStream->getUrisWithQualities() as $uriWithQuality) {
+				$streamUris[] = array(
+					"quality"	=> $uriWithQuality['qualityDefinition']->name,
+					"uri"		=> $uriWithQuality['uri']
+				);
+			}
+		}
+		
+		$videoUris = array();
+		if (!is_null($videoItem)) {
+			foreach($videoItem->getUrisWithQualities() as $uriWithQuality) {
+				$videoUris[] = array(
+					"quality"	=> $uriWithQuality['qualityDefinition']->name,
+					"uris"		=> array($uriWithQuality['uri']) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
+				);
+			}
+		}
 		
 		$data = array(
 			"scheduledPublishTime"	=> $publishTime,
-			"coverUri"				=> null,
-			"streamEnabled"			=> true,
-			"streamInfoMsg"			=> null,
-			"streamState"			=> 2,
-			"streamUris"			=> array(
-				array(
-					"quality"		=> "Auto",
-					"uri"			=> "la1tv.co.uk",
-					"streamName"	=> "something"
-				),
-				array(
-					"quality"		=> "720p",
-					"uri"			=> "la1tv.co.uk",
-					"streamName"	=> "something"
-				)
-			),
-			"availableOnDemand"		=> false,
-			"vodEnabled"			=> false,
-			"vodLive"				=> false,
-			"videoUris"			=> array(
-				array(
-					"quality"	=> "Auto",
-					"uris"		=> array(
-						"google.com",
-						"something.com"
-					)
-				),
-				array(
-					"quality"	=> "720p",
-					"uris"		=> array(
-						"google.com",
-						"something.com"
-					)
-				)
-			)
+			"coverUri"				=> $coverArtUri,
+			"hasStream"				=> $hasStream, // true if this media item has a live stream
+			"streamInfoMsg"			=> $streamInfoMsg,
+			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over
+			"streamUris"			=> $streamUris,
+			"availableOnDemand"		=> $availableOnDemand, // true if the stream is being recorded
+			"hasVod"				=> $hasVod, // true if this media item has a video.
+			"vodLive"				=> $vodLive, // true when the video should be live to the public
+			"videoUris"				=> $videoUris
 		);
 		
 		return Response::json($data);

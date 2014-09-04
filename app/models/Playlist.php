@@ -154,14 +154,73 @@ class Playlist extends MyEloquent {
 	
 	// get the uri that should be used as the media items cover art.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
-	// returns null if there isn't one.
+	// if there isn't one it returns the uri to the default cover
 	public function getMediaItemCoverArtUri($mediaItemParam) {
 		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
 		if (is_null($mediaItem)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
+		
+		// check on media item
 		$coverArtFile = $mediaItem->coverArtFile;
-		dd($coverArtFile);
+		if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
+			return $coverArtFile->getUri();
+		}
+		
+		// check on playlist
+		$coverArtFile = $this->coverArtFile;
+		if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
+			return $coverArtFile->getUri();
+		}
+		
+		// return default cover
+		return Config::get("custom.default_cover_uri");
+	}
+	
+	// get the uri that should be used for the media item side banners.
+	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
+	// if there isn't one it returns null
+	public function getMediaItemSideBannerUri($mediaItemParam) {
+		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
+		if (is_null($mediaItem)) {
+			throw(new Exception("The media item is not part of the playlist."));
+		}
+		
+		// check on media item
+		$sideBannerFile = $mediaItem->sideBannerFile;
+		if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
+			return $sideBannerFile->getUri();
+		}
+		
+		// check on playlist
+		$sideBannerFile = $this->sideBannerFile;
+		if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
+			return $sideBannerFile->getUri();
+		}
+		return null;
+	}
+	
+	// get the uri that should be used for the media item cover.
+	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
+	// if there isn't one it returns null
+	public function getMediaItemCoverUri($mediaItemParam) {
+		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
+		if (is_null($mediaItem)) {
+			throw(new Exception("The media item is not part of the playlist."));
+		}
+		
+		// check on media item
+		$coverFile = $mediaItem->coverFile;
+		if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
+			return $coverFile->getUri();
+		}
+		
+		// check on playlist
+		$coverFile = $this->coverFile;
+		if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
+			return $coverFile->getUri();
+		}
+		return null;
 	}
 	
 	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc

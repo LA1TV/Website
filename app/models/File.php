@@ -134,36 +134,6 @@ class File extends MyEloquent {
 		return null;
 	}
 	
-	// returns an array of form array("uri", "width", "height", "qualityDefinition")
-	// returns null if processing hasn't finished yet or the file should not be available for some reason
-	// returned in predefined qualities order
-	public function getVideoFiles() {
-		
-		if (!$this->getShouldBeAccessible()) {
-			return null;
-		}
-	
-		$renders = $this->renderFiles;
-		$videoFiles = array();
-		$positions = array();
-		if (count($renders) === 0) {
-			// presuming that there must always be at least one video render from the source
-			throw(new Exception("The current file is not a video."));
-		}
-		foreach($renders as $a) {
-			$positions[] = intval($a->videoFile->qualityDefinition->position);
-			$videoFiles[] = array(
-				"uri"					=> $a->getUri(),
-				"width"					=> $a->videoFile->width,
-				"height"				=> $a->videoFile->height,
-				"qualityDefinition"		=> $a->videoFile->qualityDefinition
-			);
-		}
-		// reorder so in qualities order
-		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $videoFiles);
-		return $videoFiles;
-	}
-	
 	public function getExtension() {
 		return strtolower(pathinfo($this->filename, PATHINFO_EXTENSION));
 	}
