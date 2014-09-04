@@ -215,8 +215,8 @@ class UploadManager {
 		}
 		
 		$user = Auth::getUser();
-		$hasMediaItemsPermission = null;
-		$hasPlaylistsPermission = null;
+		$hasMediaItemsPermission = false;
+		$hasPlaylistsPermission = false;
 		if (!is_null($user)) {
 			$hasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
 			$hasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
