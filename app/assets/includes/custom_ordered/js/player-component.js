@@ -12,45 +12,55 @@ $(document).ready(function() {
 		
 		this.setStartTime = function(startTime) {
 			queuedStartTime = startTime;
+			return this;
 		};
 		
 		this.setCustomMsg = function(msg) {
 			queuedCustomMsg = msg;
+			return this;
 		};
 		
 		this.showStreamOver = function(show, vodAvailable) {
 			queuedShowStreamOver = show;
+			return this;
 		};
 		
 		this.showVodAvailableShortly = function(show) {
 			queuedShowVodAvailableShortly = show;
+			return this;
 		};
 		
 		this.setPlayerType = function(playerType) {
 			queuedPlayerType = playerType;
+			return this;
 		};
 		
 		this.setPlayerUris = function(uris) {
 			playerUris = uris;
 			playerUrisChanged = true;
+			return this;
 		};
 		
 		this.setPlayerPreload = function(preload) {
 			queuedPlayerPreload = preload;
+			return this;
 		};
 		
 		this.setPlayerAutoPlay = function(autoPlay) {
 			queuedPlayerAutoPlay = autoPlay;
+			return this;
 		};
 		
 		this.showPlayer = function(show) {
 			queuedShowAd = !show;
 			queuedShowPlayer = show;
+			return this;
 		};
 		
 		this.render = function() {
 			updateAd();
 			updatePlayer();
+			return this;
 		};
 		
 		var showAd = null;
