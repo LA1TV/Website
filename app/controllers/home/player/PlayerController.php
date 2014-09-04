@@ -4,6 +4,8 @@ use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use App;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\MediaItem;
+use Response;
 use Config;
 
 class PlayerController extends HomeBaseController {
@@ -58,6 +60,68 @@ class PlayerController extends HomeBaseController {
 		
 		
 		$this->setContent($view, "player", "player");
+	}
+	
+	// should return ajax response with information for the player.
+	// TODO: change to post
+	public function anyGetPlayerInfo($playlistId, $mediaItemId) {
+		$playlist = Playlist::find($playlistId);
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		$mediaItem = MediaItem::with("liveStreamItem", "videoItem")->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		$playlist->getMediaItemCoverArtUri($mediaItem);
+		
+		$publishTime = $mediaItem->scheduled_publish_time;
+		if (!is_null($publishTime)) {
+			$publishTime = $publishTime->timestamp;
+		}
+		
+		$data = array(
+			"scheduledPublishTime"	=> $publishTime,
+			"coverUri"				=> null,
+			"streamEnabled"			=> true,
+			"streamInfoMsg"			=> null,
+			"streamState"			=> 2,
+			"streamUris"			=> array(
+				array(
+					"quality"		=> "Auto",
+					"uri"			=> "la1tv.co.uk",
+					"streamName"	=> "something"
+				),
+				array(
+					"quality"		=> "720p",
+					"uri"			=> "la1tv.co.uk",
+					"streamName"	=> "something"
+				)
+			),
+			"availableOnDemand"		=> false,
+			"vodEnabled"			=> false,
+			"vodLive"				=> false,
+			"videoUris"			=> array(
+				array(
+					"quality"	=> "Auto",
+					"uris"		=> array(
+						"google.com",
+						"something.com"
+					)
+				),
+				array(
+					"quality"	=> "720p",
+					"uris"		=> array(
+						"google.com",
+						"something.com"
+					)
+				)
+			)
+		);
+		
+		return Response::json($data);
 	}
 	
 	public function missingMethod($parameters=array()) {

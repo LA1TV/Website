@@ -16,10 +16,6 @@ class MediaItemVideo extends MyEloquent {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}
 	
-	public function coverArtFile() {
-		return $this->belongsTo(self::$p.'File', 'cover_art_file_id');
-	}
-	
 	public function getTimeRecordedForInputAttribute() {
 		if (is_null($this->time_recorded)) {
 			return null;

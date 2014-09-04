@@ -9,10 +9,6 @@ class MediaItemLiveStream extends MyEloquent {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
 	}
 	
-	public function coverArtFile() {
-		return $this->belongsTo(self::$p.'File', 'cover_art_file_id');
-	}
-	
 	public function liveStream() {
 		return $this->belongsTo(self::$p.'LiveStream', 'live_stream_id');
 	}

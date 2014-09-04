@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCoverArtFileIdToMediaItemLiveStreams extends Migration {
+class AddCoverArtFileIdToMediaItems extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,14 @@ class AddCoverArtFileIdToMediaItemLiveStreams extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('media_items_live_stream', function(Blueprint $table)
+		Schema::table('media_items', function(Blueprint $table)
 		{
 			$table->integer("cover_art_file_id")->unsigned()->nullable();
 			
 			$table->index("cover_art_file_id");
 			
-			$table->foreign("cover_art_file_id", "live_streams_cover_art_file_id_frn")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
+			$table->foreign("cover_art_file_id", "media_items_cover_art_file_id_frn")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
+		
 		});
 	}
 
@@ -29,9 +30,9 @@ class AddCoverArtFileIdToMediaItemLiveStreams extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('media_items_live_stream', function(Blueprint $table)
+		Schema::table('media_items', function(Blueprint $table)
 		{
-			$table->dropForeign("live_streams_cover_art_file_id_frn");
+			$table->dropForeign("media_items_cover_art_file_id_frn");
 			$table->dropColumn("cover_art_file_id");
 		});
 	}

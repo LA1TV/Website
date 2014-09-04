@@ -152,6 +152,18 @@ class Playlist extends MyEloquent {
 		return $q->has("show", $yes ? "!=" : "=", 0);
 	}
 	
+	// get the uri that should be used as the media items cover art.
+	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
+	// returns null if there isn't one.
+	public function getMediaItemCoverArtUri($mediaItemParam) {
+		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
+		if (is_null($mediaItem)) {
+			throw(new Exception("The media item is not part of the playlist."));
+		}
+		$coverArtFile = $mediaItem->coverArtFile;
+		dd($coverArtFile);
+	}
+	
 	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc
 	public function getIsAccessible() {
 		if (!$this->enabled) {

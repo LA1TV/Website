@@ -29,8 +29,7 @@ class File extends MyEloquent {
 				!EloquentHelpers::getIsForeignNull($model->mediaItemVideoWithFile()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->mediaItemWithBanner()) ||
-				!EloquentHelpers::getIsForeignNull($model->mediaItemVideoWithCoverArt()) ||
-				!EloquentHelpers::getIsForeignNull($model->mediaItemLiveStreamWithCoverArt()) ||
+				!EloquentHelpers::getIsForeignNull($model->mediaItemWithCoverArt()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCover()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithBanner()) ||
 				!EloquentHelpers::getIsForeignNull($model->playlistWithCoverArt())
@@ -69,12 +68,8 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'MediaItemVideo', 'source_file_id');
 	}
 	
-	public function mediaItemVideoWithCoverArt() {
-		return $this->hasOne(self::$p.'MediaItemVideo', 'cover_art_file_id');
-	}
-	
-	public function mediaItemLiveStreamWithCoverArt() {
-		return $this->hasOne(self::$p.'MediaItemLiveStream', 'cover_art_file_id');
+	public function mediaItemWithCoverArt() {
+		return $this->hasOne(self::$p.'MediaItem', 'cover_art_file_id');
 	}
 	
 	public function mediaItemWithCover() {

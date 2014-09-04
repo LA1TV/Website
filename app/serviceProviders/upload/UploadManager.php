@@ -198,10 +198,10 @@ class UploadManager {
 			"sourceFile",
 			"sourceFile.mediaItemWithBanner",
 			"sourceFile.mediaItemWithCover",
+			"sourceFile.mediaItemWithCoverArt",
 			"sourceFile.playlistWithBanner",
 			"sourceFile.playlistWithCover",
-			"sourceFile.mediaItemVideoWithFile.mediaItem",
-			"sourceFile.mediaItemVideoWithCoverArt.mediaItem"
+			"sourceFile.mediaItemVideoWithFile.mediaItem"
 		);
 
 		$requestedFile = File::with($relationsToLoad)->finishedProcessing()->find($fileId);
@@ -235,8 +235,8 @@ class UploadManager {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->mediaItemVideoWithCoverArt)) {
-			if ($sourceFile->mediaItemVideoWithCoverArt->mediaItem->getIsAccessible() || $hasMediaItemsPermission) {
+		else if (!is_null($sourceFile->mediaItemWithCoverArt)) {
+			if ($sourceFile->mediaItemWithCoverArt->mediaItem->getIsAccessible() || $hasMediaItemsPermission) {
 				$accessAllowed = true;
 			}
 		}
