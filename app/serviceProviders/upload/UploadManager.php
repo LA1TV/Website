@@ -236,7 +236,7 @@ class UploadManager {
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemWithCoverArt)) {
-			if ($sourceFile->mediaItemWithCoverArt->mediaItem->getIsAccessible() || $hasMediaItemsPermission) {
+			if ($sourceFile->mediaItemWithCoverArt->getIsAccessible() || $hasMediaItemsPermission) {
 				$accessAllowed = true;
 			}
 		}

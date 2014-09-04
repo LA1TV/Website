@@ -10,61 +10,43 @@ use Config;
 
 class PlayerController extends HomeBaseController {
 
-	public function getIndex($id, $mediaItemId=null) {
+	public function getIndex($playlistId, $mediaItemId) {
 		
-		$playlist = Playlist::with("show", "mediaItems")->find(intval($id));
+		$playlist = Playlist::with("show", "mediaItems")->find(intval($playlistId));
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
 		
-		if ($playlist->mediaItems->count() === 0) {
-			// TODO: no playlist items
-			dd("No playlist items. TODO");
+		$currentMediaItem = $playlist->mediaItems()->find($mediaItemId);
+		if (is_null($currentMediaItem)) {
+			App::abort(404);
 		}
 		
 		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
 		
-		$currentMediaItem = null;
-		if (!is_null($mediaItemId)) {
-			$currentMediaItem = $playlistMediaItems->find(intval($mediaItemId));
-			if (is_null($currentMediaItem)) {
-				App:abort(404);
-			}
-		}
-		else {
-			$currentMediaItem = $playlistMediaItems[0];
-		}
-		
 		$playlistTableData = array();
 		foreach($playlistMediaItems as $item) {
-			//$coverArtFile = $item->videoItem->coverArtFile->getImageFileWithResolution(1920, 1080);
-			$coverArtFile = null;
+			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, 1920, 1080);
 			$playlistTableData[] = array(
 				"id"			=> $item->id,
 				"active"		=> intval($item->id) === intval($currentMediaItem->id),
 				"title"			=> $item->name,
 				"episodeNo"		=> intval($item->pivot->position) + 1,
-				"thumbnailUri"	=> is_null($coverArtFile) ? Config::get("custom.default_cover_uri") : $coverArtFile->getUri()
+				"thumbnailUri"	=> $thumbnailUri
 			);
 		}
 
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
-		$coverArtFile = $currentMediaItem->videoItem->coverArtFile->getImageFileWithResolution(1920, 1080);
-		$view->episodeCoverArtUri = is_null($coverArtFile) ? Config::get("custom.default_cover_uri") : $coverArtFile->getUri();
-		$view->episodeUri = $currentMediaItem->videoItem->sourceFile->getVideoFiles()[0]['uri'];
 		$view->playlistTitle = $playlist->name;
-		
 		$view->playlistTableData = $playlistTableData;
-		
-		
+		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$this->setContent($view, "player", "player");
 	}
 	
 	// should return ajax response with information for the player.
-	// TODO: change to post
-	public function anyGetPlayerInfo($playlistId, $mediaItemId) {
+	public function postPlayerInfo($playlistId, $mediaItemId) {
 		$playlist = Playlist::find($playlistId);
 		if (is_null($playlist)) {
 			App::abort(404);
@@ -127,6 +109,10 @@ class PlayerController extends HomeBaseController {
 		);
 		
 		return Response::json($data);
+	}
+	
+	private function getInfoUri($playlistId, $mediaItemId) {
+		return Config::get("custom.player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	public function missingMethod($parameters=array()) {

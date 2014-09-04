@@ -2,9 +2,7 @@
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
 		
-		<div class="tmp">
-		
-		</div>
+		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>"></div>
 		
 		<?php /*
 		<div class="player-container embed-responsive embed-responsive-16by9">

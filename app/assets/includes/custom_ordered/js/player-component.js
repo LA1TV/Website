@@ -123,10 +123,13 @@ $(document).ready(function() {
 			if ((startTime === null || startTime.getTime()) !== (queuedStartTime === null || queuedStartTime.getTime())) {
 				// TODO
 				if (queuedStartTime === null) {
+					$adLiveAt.hide();
 					$adTime.hide().text("");
 				}
 				else {
+					$adLiveAt.show();
 					$adTime.text("[Date or countdown]").show();
+					registerFitText($adLiveAt);
 					registerFitText($adTime);
 				}
 				startTime = queuedStartTime;
@@ -283,17 +286,5 @@ $(document).ready(function() {
 				}
 			});
 		}
-	}
-	
-	
-	// TODO: remove
-	
-	$(".tmp").each(function() {
-		
-		playerComponent = new PlayerComponent("http://local.www.la1tv.co.uk:8000/assets/img/default-cover.png");
-		$(this).append(playerComponent.getEl());
-		
-		playerComponent.render();
-	});
-	
+	};
 });

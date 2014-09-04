@@ -162,15 +162,21 @@ class Playlist extends MyEloquent {
 		}
 		
 		// check on media item
-		$coverArtFile = $mediaItem->coverArtFile->getImageFileWithResolution($width, $height);
-		if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
-			return $coverArtFile->getUri();
+		$coverArtFile = $mediaItem->coverArtFile;
+		if (!is_null($coverArtFile)) {
+			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
+				return $coverArtImageFile->getUri();
+			}
 		}
 		
 		// check on playlist
-		$coverArtFile = $this->coverArtFile->getImageFileWithResolution($width, $height);
-		if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
-			return $coverArtFile->getUri();
+		$coverArtFile = $this->coverArtFile;
+		if (!is_null($coverArtFile)) {
+			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
+				return $coverArtImageFile->getUri();
+			}
 		}
 		
 		// return default cover
@@ -187,15 +193,21 @@ class Playlist extends MyEloquent {
 		}
 		
 		// check on media item
-		$sideBannerFile = $mediaItem->sideBannerFile->getImageFileWithResolution($width, $height);
-		if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
-			return $sideBannerFile->getUri();
+		$sideBannerFile = $mediaItem->sideBannerFile;
+		if (!is_null($sideBannerFile)) {
+			$sideBannerImageFile = $sideBannerFile->getImageFileWithResolution($width, $height);
+			if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
+				return $sideBannerFile->getUri();
+			}
 		}
 		
 		// check on playlist
-		$sideBannerFile = $this->sideBannerFile->getImageFileWithResolution($width, $height);
-		if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
-			return $sideBannerFile->getUri();
+		$sideBannerFile = $this->sideBannerFile;
+		if (!is_null($sideBannerFile)) {
+			$sideBannerImageFile = $sideBannerFile->getImageFileWithResolution($width, $height);
+			if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
+				return $sideBannerFile->getUri();
+			}
 		}
 		return null;
 	}
@@ -210,15 +222,21 @@ class Playlist extends MyEloquent {
 		}
 		
 		// check on media item
-		$coverFile = $mediaItem->coverFile->getImageFileWithResolution($width, $height);
-		if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
-			return $coverFile->getUri();
+		$coverFile = $mediaItem->coverFile;
+		if (!is_null($coverFile)) {
+			$coverFileImageFile = $coverFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverFileImageFile) && $coverFileImageFile->getShouldBeAccessible()) {
+				return $coverFileImageFile->getUri();
+			}
 		}
 		
 		// check on playlist
-		$coverFile = $this->coverFile->getImageFileWithResolution($width, $height);
-		if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
-			return $coverFile->getUri();
+		$coverFile = $this->coverFile;
+		if (!is_null($coverFile)) {
+			$coverFileImageFile = $coverFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverFileImageFile) && $coverFileImageFile->getShouldBeAccessible()) {
+				return $coverFileImageFile->getUri();
+			}
 		}
 		return null;
 	}
