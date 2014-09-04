@@ -39,6 +39,21 @@ $(document).ready(function() {
 		};
 		
 		this.setPlayerUris = function(uris) {
+			if (playerUris !== null) {
+				// see if changed.
+				if (playerUris.length === uris.length) {
+					var changed = false;
+					for (var i=0; i<uris.length; i++) {
+						if (uris[i] !== playerUris[i]) {
+							changed = true;
+							break;
+						}
+					}
+					if (!changed) {
+						return;
+					}
+				}
+			}
 			playerUris = uris;
 			playerUrisChanged = true;
 			return this;
