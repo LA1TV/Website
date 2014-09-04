@@ -256,13 +256,15 @@ class UploadManager {
 	}
 	
 	// returns the file laravel response that should be returned to the user.
-	// this will either be the file, or a 404
+	// this will either be the file (with cache header to cache for a year), or a 404
 	public static function getFileResponse($fileId) {
 		$file = self::getFile($fileId);
 		if (is_null($file)) {
 			// return 404 response
 			return Response::make("", 404);
 		}
-		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);
+		$response = Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);
+		$response->header("Cache-Control", "max-age=31556926"); // cache for a year
+		return $response;
 	}
 }
