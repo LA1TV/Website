@@ -2,9 +2,9 @@
 
 use uk\co\la1tv\website\models\SiteUser;
 use Facebook\FacebookSession;
-use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;
+use MyFacebookRedirectLoginHelper;
 use Session;
 use Config;
 use Redirect;
@@ -21,7 +21,7 @@ class FacebookManager {
 	
 	public function getLoginRedirect($authUri) {
 		$this->initFacebookSession();
-		$loginHelper = new FacebookRedirectLoginHelper($authUri);
+		$loginHelper = new MyFacebookRedirectLoginHelper($authUri);
 		return Redirect::to($loginHelper->getLoginUrl());
 	}
 	
@@ -31,7 +31,7 @@ class FacebookManager {
 	public function authorize() {
 		$this->initFacebookSession();
 		
-		$helper = new FacebookRedirectLoginHelper(Request::url());
+		$helper = new MyFacebookRedirectLoginHelper(Request::url());
 		$fbSession = null;
 		try {
 			$fbSession = $helper->getSessionFromRedirect();
