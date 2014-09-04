@@ -7,6 +7,7 @@ $(document).ready(function() {
 		var playerComponent = null;
 		
 		update();
+		// TODO: wait for previous request response before trying again
 		setInterval(update, 15000);
 		
 		function update() {
