@@ -18,8 +18,12 @@ $(document).ready(function() {
 			queuedCustomMsg = msg;
 		};
 		
+		this.showStreamOver = function(show, vodAvailable) {
+			queuedShowStreamOver = show;
+		};
+		
 		this.showVodAvailableShortly = function(show) {
-			queuedShowVodAvailable = show;
+			queuedShowVodAvailableShortly = show;
 		};
 		
 		this.setPlayerType = function(playerType) {
@@ -55,8 +59,10 @@ $(document).ready(function() {
 		var queuedStartTime = null;
 		var customMsg = null;
 		var queuedCustomMsg = null;
-		var showVodAvailable = null;
-		var queuedShowVodAvailable = false;
+		var showStreamOver = null;
+		var queuedShowStreamOver = false;
+		var showVodAvailableShortly = null;
+		var queuedShowVodAvailableShortly = false;
 		var playerType = null;
 		var queuedPlayerType = null;
 		var playerPreload = null;
@@ -74,7 +80,8 @@ $(document).ready(function() {
 		// reference to dom element which holds the ad
 		var $ad = null;
 		var $adTitle = null;
-		var $adVodShortlyMsg = null;
+		var $adStreamOver = null;
+		var $adVodAvailableShortly = null;
 		var $adCustomMsg = null;
 		var $adLiveAt = null;
 		var $adLiveIn = null;
@@ -124,15 +131,25 @@ $(document).ready(function() {
 				}
 				customMsg = queuedCustomMsg;
 			}
-			if (showVodAvailable !== queuedShowVodAvailable) {
-				if (queuedShowVodAvailable) {
-					$adVodShortly.show();
-					registerFitText($adVodShortly);
+			if (showStreamOver !== queuedShowStreamOver) {
+				if (queuedShowStreamOver) {
+					$adStreamOver.show();
+					registerFitText($adStreamOver);
 				}
 				else {
-					$adVodShortly.hide();
+					$adStreamOver.hide();
 				}
-				showVodAvailable = queuedShowVodAvailable;
+				showStreamOver = queuedShowStreamOver;
+			}
+			if (showVodAvailableShortly !== queuedShowVodAvailableShortly) {
+				if (queuedShowVodAvailableShortly) {
+					$adVodAvailableShortly.show();
+					registerFitText($adVodAvailableShortly);
+				}
+				else {
+					$adVodAvailableShortly.hide();
+				}
+				showVodAvailableShortly = queuedShowVodAvailableShortly;
 			}
 		}
 		
@@ -147,12 +164,14 @@ $(document).ready(function() {
 			var $overlay = $("<div />").addClass("overlay");
 			$adLiveAt = $("<div />").addClass("live-at-header fit-text txt-shadow").attr("data-compressor", "1.5").text("Live At").hide();
 			$adLiveIn = $("<div />").addClass("live-in-header fit-text txt-shadow").attr("data-compressor", "1.5").text("Live In").hide();
-			$adVodShortly = $("<div />").addClass("on-demand-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("Available To Watch On Demand Shortly").hide();
+			$adStreamOver = $("<div />").addClass("stream-over-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Stream Has Now Finished").hide();
+			$adVodAvailableShortly = $("<div />").addClass("vod-available-shortly-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Video Will Be Available To Watch On Demand Shortly").hide();
 			$adTime = $("<div />").addClass("live-time fit-text txt-shadow").attr("data-compressor", "2.1").hide();
 			$adCustomMsg = $("<div />").addClass("custom-msg fit-text txt-shadow").attr("data-compressor", "2.8").hide();
 			$overlay.append($adLiveAt);
 			$overlay.append($adLiveIn);
-			$overlay.append($adVodShortly);
+			$overlay.append($adStreamOver);
+			$overlay.append($adVodAvailableShortly);
 			$overlay.append($adTime);
 			$overlay.append($adCustomMsg);
 			$ad.append($bg);
