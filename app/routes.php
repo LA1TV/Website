@@ -41,7 +41,7 @@ Route::group(array('before' => 'csrf'), function() use(&$p) {
 	Route::controller('/about', $p.'home\about\AboutController');
 	Route::controller('/contact', $p.'home\contact\ContactController');
 	Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
-	Route::controller('/playlist', $p.'home\playlist\PlaylistController');
+	Route::controller('/player', $p.'home\player\PlayerController');
 	Route::controller('/shows', $p.'home\shows\ShowsController');
 	Route::controller('/show', $p.'home\show\ShowController');
 	Route::controller('/guide', $p.'home\guide\GuideController');

@@ -1,5 +1,15 @@
+var registerFitText = null;
+
 $(document).ready(function() {
 	$(".fit-text").each(function() {
-		$(this).fitText($(this).attr("data-compressor"));
+		registerFitText($(this).first());
 	});
+	
+	registerFitText = function($el) {
+		if ($el.attr("data-fittextregistered") === "1") {
+			return;
+		}
+		$el.attr("data-fittextregistered", "1");
+		$el.fitText($el.attr("data-compressor"));
+	};
 });

@@ -1,4 +1,4 @@
-<?php namespace uk\co\la1tv\website\controllers\home\playlist;
+<?php namespace uk\co\la1tv\website\controllers\home\player;
 
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
@@ -6,7 +6,7 @@ use App;
 use uk\co\la1tv\website\models\Playlist;
 use Config;
 
-class PlaylistController extends HomeBaseController {
+class PlayerController extends HomeBaseController {
 
 	public function getIndex($id, $mediaItemId=null) {
 		
@@ -46,7 +46,7 @@ class PlaylistController extends HomeBaseController {
 			);
 		}
 
-		$view = View::make("home.playlist.index");
+		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
 		$coverArtFile = $currentMediaItem->videoItem->coverArtFile->getImageFileWithResolution(1920, 1080);
@@ -57,7 +57,7 @@ class PlaylistController extends HomeBaseController {
 		$view->playlistTableData = $playlistTableData;
 		
 		
-		$this->setContent($view, "playlist", "playlist");
+		$this->setContent($view, "player", "player");
 	}
 	
 	public function missingMethod($parameters=array()) {

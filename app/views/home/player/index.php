@@ -1,6 +1,12 @@
 <div class="row">
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
+		
+		<div class="tmp">
+		
+		</div>
+		
+		<?php /*
 		<div class="player-container embed-responsive embed-responsive-16by9">
 			<div class="player embed-responsive-item" data-coveruri="<?=e($episodeCoverArtUri);?>" data-autoplay="">
 				<video class="video-js vjs-default-skin">
@@ -8,7 +14,7 @@
 					<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 				</video>
 			</div>
-			
+		*/ ?>	
 			
 			<?php /*
 			<div class="ad embed-responsive-item">
@@ -23,8 +29,9 @@
 					<!--<div class="custom-msg fit-text txt-shadow" data-compressor="2.8">The world is ending.</div>-->
 				</div>
 			</div>
-			*/ ?>
 		</div>
+		*/ ?>
+		
 		<div class="bottom-info-container clearfix">
 			<div class="view-count">127 views</div>
 			<div class="buttons">

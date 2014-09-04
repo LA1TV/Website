@@ -1,0 +1,25 @@
+.page-player .bottom-info-container {
+	margin-top: 4px;
+	margin-bottom: 10px;
+}
+
+.page-player .bottom-info-container .view-count {
+	display: inline-block;
+	font-weight: bold;
+}
+
+.page-player .bottom-info-container .buttons {
+	display: inline-block;
+	float: right;
+	margin-left: 15px;
+}
+
+.page-player .bottom-info-container .buttons .button-container {
+	display: inline-block;
+}
+
+.page-player .description-container {
+	max-height: 130px;
+	overflow: auto;
+	margin-bottom: 10px;
+}
