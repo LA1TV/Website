@@ -155,20 +155,20 @@ class Playlist extends MyEloquent {
 	// get the uri that should be used as the media items cover art.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns the uri to the default cover
-	public function getMediaItemCoverArtUri($mediaItemParam) {
+	public function getMediaItemCoverArtUri($mediaItemParam, $width, $height) {
 		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
 		if (is_null($mediaItem)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
 		
 		// check on media item
-		$coverArtFile = $mediaItem->coverArtFile;
+		$coverArtFile = $mediaItem->coverArtFile->getImageFileWithResolution($width, $height);
 		if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
 			return $coverArtFile->getUri();
 		}
 		
 		// check on playlist
-		$coverArtFile = $this->coverArtFile;
+		$coverArtFile = $this->coverArtFile->getImageFileWithResolution($width, $height);
 		if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
 			return $coverArtFile->getUri();
 		}
@@ -180,20 +180,20 @@ class Playlist extends MyEloquent {
 	// get the uri that should be used for the media item side banners.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
-	public function getMediaItemSideBannerUri($mediaItemParam) {
+	public function getMediaItemSideBannerUri($mediaItemParam, $width, $height) {
 		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
 		if (is_null($mediaItem)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
 		
 		// check on media item
-		$sideBannerFile = $mediaItem->sideBannerFile;
+		$sideBannerFile = $mediaItem->sideBannerFile->getImageFileWithResolution($width, $height);
 		if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
 			return $sideBannerFile->getUri();
 		}
 		
 		// check on playlist
-		$sideBannerFile = $this->sideBannerFile;
+		$sideBannerFile = $this->sideBannerFile->getImageFileWithResolution($width, $height);
 		if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
 			return $sideBannerFile->getUri();
 		}
@@ -203,20 +203,20 @@ class Playlist extends MyEloquent {
 	// get the uri that should be used for the media item cover.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
-	public function getMediaItemCoverUri($mediaItemParam) {
+	public function getMediaItemCoverUri($mediaItemParam, $width, $height) {
 		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
 		if (is_null($mediaItem)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
 		
 		// check on media item
-		$coverFile = $mediaItem->coverFile;
+		$coverFile = $mediaItem->coverFile->getImageFileWithResolution($width, $height);
 		if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
 			return $coverFile->getUri();
 		}
 		
 		// check on playlist
-		$coverFile = $this->coverFile;
+		$coverFile = $this->coverFile->getImageFileWithResolution($width, $height);
 		if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
 			return $coverFile->getUri();
 		}

@@ -85,7 +85,7 @@ class PlayerController extends HomeBaseController {
 		if (!is_null($publishTime)) {
 			$publishTime = $publishTime->timestamp;
 		}
-		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem);
+		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, 1920, 1080);
 		$hasStream = !is_null($liveStreamItem);
 		$streamInfoMsg = $hasStream ? $liveStreamItem->information_msg : null;
 		$streamState = $hasStream ? $liveStreamItem->stateDefinition->id : null;
