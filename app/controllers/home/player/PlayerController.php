@@ -70,7 +70,7 @@ class PlayerController extends HomeBaseController {
 		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, 1920, 1080);
 		$hasStream = !is_null($liveStreamItem);
 		$streamInfoMsg = $hasStream ? $liveStreamItem->information_msg : null;
-		$streamState = $hasStream ? $liveStreamItem->stateDefinition->id : null;
+		$streamState = $hasStream ? ($liveStreamItem->enabled ? $liveStreamItem->stateDefinition->id: null) : null;
 		$availableOnDemand = $hasStream ? (boolean) $liveStreamItem->being_recorded : null;
 		$hasVod = !is_null($videoItem);
 		$vodLive = $hasVod ? $videoItem->getIsAccessible() : null;
@@ -100,7 +100,7 @@ class PlayerController extends HomeBaseController {
 			"coverUri"				=> $coverArtUri,
 			"hasStream"				=> $hasStream, // true if this media item has a live stream
 			"streamInfoMsg"			=> $streamInfoMsg,
-			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over
+			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
 			"streamUris"			=> $streamUris,
 			"availableOnDemand"		=> $availableOnDemand, // true if the stream is being recorded
 			"hasVod"				=> $hasVod, // true if this media item has a video.

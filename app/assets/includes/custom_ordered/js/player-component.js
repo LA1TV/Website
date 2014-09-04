@@ -31,6 +31,9 @@ $(document).ready(function() {
 		};
 		
 		this.setPlayerType = function(playerType) {
+			if (playerType !== "live" && playerType !== "vod") {
+				throw 'PlayerType must be "live" or "vod".';
+			}
 			queuedPlayerType = playerType;
 			return this;
 		};
