@@ -263,8 +263,7 @@ class UploadManager {
 			// return 404 response
 			return Response::make("", 404);
 		}
-		$response = Response::make(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id);
-		$response->header("Cache-Control", "max-age=31556926"); // cache for a year
-		return $response;
+		$headers = array("Cache-Control: max-age=31556926"); //cache for year
+		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id, $headers);
 	}
 }
