@@ -114,9 +114,13 @@ class File extends MyEloquent {
 	}
 	
 	// gets the File model which represents this source image file at that resolution
-	// if that resolution is not available null is returned.
+	// if that resolution is not available, or the file should not be availabel yet null is returned.
 	// if this file model does not represent an image then an exception is thrown
 	public function getImageFileWithResolution($w, $h) {
+		if (!$this->getShouldBeAccessible()) {
+			return null;
+		}
+		
 		$imageRenders = $this->renderFiles;
 		if (count($imageRenders) === 0) {
 			// presuming that there must always be at least one image generated from the source image
@@ -136,8 +140,14 @@ class File extends MyEloquent {
 	}
 	
 	// returns an array of form array("uri", "width", "height", "qualityDefinition")
+	// returns null if processing hasn't finished yet or the file should not be available for some reason
 	// returned in predefined qualities order
 	public function getVideoFiles() {
+		
+		if (!$this->getShouldBeAccessible()) {
+			return null;
+		}
+	
 		$renders = $this->renderFiles;
 		$videoFiles = array();
 		$positions = array();
@@ -171,6 +181,11 @@ class File extends MyEloquent {
 		return intval($this->process_state) === 1;
 	}
 	
+	// returns true if this file is ready for public 
+	public function getShouldBeAccessible() {
+		return $this->in_use && $this->getFinishedProcessing();
+	}
+	
 	public function scopeFinishedProcessing($q) {
 		return $q->where("process_state", 1);
 	}
@@ -178,7 +193,7 @@ class File extends MyEloquent {
 	// returns a uri to the file if the file has finished processing and is in_use
 	// returns null otherwise
 	public function getUri() {
-		if (!$this->getFinishedProcessing() || !$this->in_use) {
+		if (!$this->getShouldBeAccessible()) {
 			return null;
 		}
 		return Config::get("custom.base_url") . "/" . Config::get("uploads.retrieve_base_uri") . "/" . $this->id;

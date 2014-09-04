@@ -214,36 +214,44 @@ class UploadManager {
 			return null;
 		}
 		
+		$user = Auth::getUser();
+		$hasMediaItemsPermission = null;
+		$hasPlaylistsPermission = null;
+		if (!is_null($user)) {
+			$hasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
+			$hasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
+		}
+		
 		$accessAllowed = false;
 		
 		// see if the file should be accessible
 		if (!is_null($sourceFile->mediaItemWithBanner)) {
-			if ($sourceFile->mediaItemWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+			if ($sourceFile->mediaItemWithBanner->getIsAccessible() || $hasMediaItemsPermission) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemWithCover)) {
-			if ($sourceFile->mediaItemWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+			if ($sourceFile->mediaItemWithCover->getIsAccessible() || $hasMediaItemsPermission) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemVideoWithCoverArt)) {
-			if ($sourceFile->mediaItemVideoWithCoverArt->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+			if ($sourceFile->mediaItemVideoWithCoverArt->mediaItem->getIsAccessible() || $hasMediaItemsPermission) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemVideoWithFile)) {
-			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) {
+			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() || $hasMediaItemsPermission) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->playlistWithBanner)) {
-			if ($sourceFile->playlistWithBanner->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
+			if ($sourceFile->playlistWithBanner->getIsAccessible() || $hasPlaylistsPermission) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->playlistWithCover)) {
-			if ($sourceFile->playlistWithCover->getIsAccessible() || Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) {
+			if ($sourceFile->playlistWithCover->getIsAccessible() || $hasPlaylistsPermission) {
 				$accessAllowed = true;
 			}
 		}
