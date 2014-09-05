@@ -72,8 +72,10 @@ class PlayerController extends HomeBaseController {
 		$streamInfoMsg = $hasStream ? $liveStreamItem->information_msg : null;
 		$streamState = $hasStream ? ($liveStreamItem->enabled ? $liveStreamItem->stateDefinition->id: null) : null;
 		$availableOnDemand = $hasStream ? (boolean) $liveStreamItem->being_recorded : null;
+		$streamViewCount = $hasStream ? intval($liveStreamItem->view_count) : null;
 		$hasVod = !is_null($videoItem);
 		$vodLive = $hasVod ? $videoItem->getIsAccessible() : null;
+		$vodViewCount = $hasVod ? intval($videoItem->view_count) : null;
 		
 		$streamUris = array();
 		if (!is_null($liveStream) && $liveStream->enabled) {
@@ -109,11 +111,11 @@ class PlayerController extends HomeBaseController {
 			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
 			"streamUris"			=> $streamUris,
 			"availableOnDemand"		=> $availableOnDemand, // true if the stream is being recorded
-			"streamViewCount"		=> 999,
+			"streamViewCount"		=> $streamViewCount,
 			"hasVod"				=> $hasVod, // true if this media item has a video.
 			"vodLive"				=> $vodLive, // true when the video should be live to the public
 			"videoUris"				=> $videoUris,
-			"vodViewCount"			=> 999,
+			"vodViewCount"			=> $vodViewCount,
 			"numLikes"				=> 20
 		);
 		
