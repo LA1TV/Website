@@ -2,7 +2,7 @@
 // has knowledge of the requests to the server and the responses returned
 
 // communicates with a PlayerControllerQualitiesHander to manage quality selection.
-// also manages likes, view count, and comments
+// also manages likes and view count
 
 var PlayerController = null;
 
@@ -21,7 +21,6 @@ $(document).ready(function() {
 		
 		// destroys the controller and player and prevents any future requests
 		this.destroy = function() {
-			// TODO
 			destroyed = true;
 			if (timerId !== null) {
 				clearTimeout(timerId);
@@ -44,12 +43,34 @@ $(document).ready(function() {
 			
 		};
 		
-		this.getViewCount = function() {
-		
+		this.getStreamViewCount = function() {
+			if (cachedData !== null) {
+				return cachedData.streamViewCount;
+			}
+			return null;
 		};
 		
-		// TODO: comments stuff
+		this.getVodViewCount = function() {
+			if (cachedData !== null) {
+				return cachedData.vodViewCount;
+			}
+			return null;
+		};
 		
+		this.getViewCount = function() {
+			if (cachedData !== null) {
+				var count = 0;
+				if (self.getStreamViewCount() !== null) {
+					count += self.getStreamViewCount();
+				}
+				if (self.getVodViewCount() !== null) {
+					count += self.getVodViewCount();
+				}
+				return count;
+			}
+			return null;
+		}
+
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;

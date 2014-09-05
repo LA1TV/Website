@@ -109,9 +109,12 @@ class PlayerController extends HomeBaseController {
 			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
 			"streamUris"			=> $streamUris,
 			"availableOnDemand"		=> $availableOnDemand, // true if the stream is being recorded
+			"streamViewCount"		=> 999,
 			"hasVod"				=> $hasVod, // true if this media item has a video.
 			"vodLive"				=> $vodLive, // true when the video should be live to the public
-			"videoUris"				=> $videoUris
+			"videoUris"				=> $videoUris,
+			"vodViewCount"			=> 999,
+			"numLikes"				=> 20
 		);
 		
 		return Response::json($data);
