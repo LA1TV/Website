@@ -116,6 +116,7 @@ class PlayerController extends HomeBaseController {
 			"vodLive"				=> $vodLive, // true when the video should be live to the public
 			"videoUris"				=> $videoUris,
 			"vodViewCount"			=> $vodViewCount,
+			// TODO
 			"numLikes"				=> 20
 		);
 		

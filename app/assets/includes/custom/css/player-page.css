@@ -24,3 +24,16 @@
 	overflow: auto;
 	margin-bottom: 10px;
 }
+
+.page-player .player-container .loading-container {
+	background-color: #000000;
+	color: #202020;
+	text-align: center;
+	overflow: hidden;
+}
+
+.page-player .player-container .loading-container .msg {
+	margin-top: 40px;
+	font-size: 20px;
+	font-weight: bold;
+}

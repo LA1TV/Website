@@ -32,6 +32,7 @@ $(document).ready(function() {
 			
 			var playerController = new PlayerController(playerInfoUri, qualitySelectionComponent);
 			$(playerController).on("playerComponentElAvailable", function() {
+				$(self).empty(); // will contain loading message initially
 				$(self).append(playerController.getPlayerComponentEl());
 				$(self).append($bottomContainer);
 			});

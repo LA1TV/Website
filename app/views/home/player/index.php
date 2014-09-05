@@ -2,30 +2,14 @@
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
 		
-		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>"></div>
-		
-		<?php /*
-		
-		<div class="bottom-container clearfix">
-			<div class="view-count">127 views</div>
-			<div class="right-container">
-				<div class="button-container">
-				</div>
-					<button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-thumbs-up"></span> Like!</button>
-				<div class="button-container">
-					<div class="quality-selection-component">
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">Quality: 720p <span class="caret"></span></button>
-							<ul class="dropdown-menu" role="menu">
-								<li><span class="item">Action</span></li>
-							</ul>
-						</div>
-					</div>
+		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>">
+			<div class="embed-responsive embed-responsive-16by9">
+				<div class="embed-responsive-item loading-container">
+					<div class="msg">Player Loading</div>
 				</div>
 			</div>
 		</div>
 		
-		*/ ?>
 		<div class="description-container"><?=e($episodeDescription);?></div>
 		<h2>Comments</h2>
 		<p>Blah</p>
