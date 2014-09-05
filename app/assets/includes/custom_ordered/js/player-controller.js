@@ -44,17 +44,11 @@ $(document).ready(function() {
 		};
 		
 		this.getStreamViewCount = function() {
-			if (cachedData !== null) {
-				return cachedData.streamViewCount;
-			}
-			return null;
+			return streamViewCount;
 		};
 		
 		this.getVodViewCount = function() {
-			if (cachedData !== null) {
-				return cachedData.vodViewCount;
-			}
-			return null;
+			return vodViewCount;
 		};
 		
 		this.getViewCount = function() {
@@ -69,12 +63,19 @@ $(document).ready(function() {
 				return count;
 			}
 			return null;
+		};
+		
+		this.getPlayerType = function() {
+			return currentPlayerType;
 		}
 
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
+		var currentPlayerType = null;
 		var cachedData = null;
+		var vodViewCount = null;
+		var streamViewCount = null;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			updatePlayer();
@@ -95,6 +96,7 @@ $(document).ready(function() {
 				if (jqXHR.status === 200) {
 					cachedData = data;
 					updatePlayer();
+					updateViewCounts();
 				}
 				
 				if (!destroyed) {
@@ -119,11 +121,11 @@ $(document).ready(function() {
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
 			if (data.streamState === 2) {
 				// stream should be live
-				playerComponent.setPlayerType("live").showPlayer(true);
+				setPlayerType("live");
 			}
 			else if (data.vodLive) {
 				// video should be live
-				playerComponent.setPlayerType("vod").showPlayer(true);
+				setPlayerType("vod");
 				var qualities = [];
 				var qualityIds = [];
 				for (var i=0; i<data.videoUris.length; i++) {
@@ -140,10 +142,49 @@ $(document).ready(function() {
 				playerComponent.setPlayerUris(videoUri.uris);
 			}
 			else {
-				playerComponent.showPlayer(false);
+				setPlayerType("ad");
 			}
 			
 			playerComponent.render();
+		}
+		
+		function setPlayerType(type) {
+			if (type !== "live" && type !== "vod" && type !== "ad") {
+				throw "Type must be either 'live', 'vod' or 'ad'.";
+			}
+			
+			if (currentPlayerType === type) {
+				// not changed
+				return;
+			}
+			currentPlayerType = type;
+			
+			if (type === "ad") {
+				playerComponent.showPlayer(false);
+			}
+			else {
+				playerComponent.setPlayerType(type).showPlayer(true);
+			}
+			$(self).triggerHandler("playerTypeChanged");
+		}
+		
+		function updateViewCounts() {
+			var changed = false;
+			var vodCountChanged = false;
+			var streamCountChanged = false;
+			vodCountChanged = vodViewCount !== cachedData.vodViewCount;
+			vodViewCount = cachedData.vodViewCount;
+			streamCountChanged = streamViewCount !== cachedData.streamViewCount;
+			streamViewCount = cachedData.streamViewCount;
+			if (vodCountChanged) {
+				$(self).triggerHandler("vodViewCountChanged");
+			}
+			if (streamCountChanged) {
+				$(self).triggerHandler("streamViewCountChanged");
+			}
+			if (vodCountChanged || streamCountChanged) {
+				$(self).triggerHandler("viewCountChanged");
+			}
 		}
 		
 	};

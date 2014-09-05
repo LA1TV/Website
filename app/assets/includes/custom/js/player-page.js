@@ -10,7 +10,7 @@ $(document).ready(function() {
 			var playerInfoUri = $(this).attr("data-info-uri");
 			
 			var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
-			var $viewCount = $("<div />").addClass("view-count").text("9999 views");
+			var $viewCount = $("<div />").addClass("view-count").css("display", "none");
 			var $rightSection = $("<div />").addClass("right-section");
 			var $likeButtonItemContainer = $("<div />").addClass("item-container");
 			var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs").html('<span class="glyphicon glyphicon-thumbs-up"></span> Like!');
@@ -37,12 +37,28 @@ $(document).ready(function() {
 				$(self).append($bottomContainer);
 			});
 			
+			$(playerController).on("viewCountChanged playerTypeChanged", function() {
+				renderViewCount();
+			});
+			
+			renderViewCount();
+			
 			function renderQualitySelectionComponent() {
 				if (qualitySelectionComponent.hasQualities()) {
 					$qualitySelectionItemContainer.css("display", "inline-block");
 				}
 				else {
 					$qualitySelectionItemContainer.css("display", "none");
+				}
+			}
+			
+			function renderViewCount() {
+				var viewCount = playerController.getViewCount();
+				if (viewCount !== null && (playerController.getPlayerType() !== "ad" || viewCount > 0)) {
+					$viewCount.text(viewCount+" view"+(viewCount !== 1 ? "s":"")).css("display", "inline-block");
+				}
+				else {
+					$viewCount.text("").css("display", "none");
 				}
 			}
 		});

@@ -5,6 +5,7 @@
 
 .page-player .player-container .bottom-container .view-count {
 	display: inline-block;
+	float: left;
 	font-weight: bold;
 }
 
