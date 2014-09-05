@@ -25,6 +25,10 @@ $(document).ready(function() {
 			if (requestedQuality === null) {
 				throw "The requested quality could not be found.";
 			}
+			if (chosenQuality !== null && requestedQuality.id === chosenQuality.id) {
+				// quality hasn't changed
+				return;
+			}
 			chosenQuality = requestedQuality;
 			if (userChosen) {
 				setActivelyChosenQuality(requestedQuality);

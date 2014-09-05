@@ -29,16 +29,8 @@ $(document).ready(function() {
 			renderQualitySelectionComponent();
 			$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 			
-			// TODO: tmp
-			qualitySelectionComponent.setAvailableQualities([
-				{id: 1, name: "1080p"},
-				{id: 2, name: "720p"},
-				{id: 3, name: "360p"},
-				{id: 4, name: "Auto"}
-			]);
 			
-			
-			var playerController = new PlayerController(playerInfoUri, null);
+			var playerController = new PlayerController(playerInfoUri, qualitySelectionComponent);
 			$(playerController).on("playerComponentElAvailable", function() {
 				$(self).append(playerController.getPlayerComponentEl());
 				$(self).append($bottomContainer);

@@ -53,6 +53,11 @@ $(document).ready(function() {
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
+		var cachedData = null;
+		
+		$(qualitiesHandler).on("chosenQualityChanged", function() {
+			updatePlayer();
+		});
 		
 		// kick it off
 		update();
@@ -67,7 +72,8 @@ $(document).ready(function() {
 				type: "POST"
 			}).done(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
-					updatePlayer(data);
+					cachedData = data;
+					updatePlayer();
 				}
 				
 				if (!destroyed) {
@@ -77,7 +83,11 @@ $(document).ready(function() {
 			});
 		}
 		
-		function updatePlayer(data) {
+		function updatePlayer() {
+			if (cachedData === null) {
+				return;
+			}
+			data = cachedData;
 			if (playerComponent === null) {
 				playerComponent = new PlayerComponent(data.coverUri);
 				$(self).triggerHandler("playerComponentElAvailable");
@@ -93,8 +103,19 @@ $(document).ready(function() {
 			else if (data.vodLive) {
 				// video should be live
 				playerComponent.setPlayerType("vod").showPlayer(true);
-				// TODO: this needs changing to support qualities
-				var videoUri = data.videoUris[0];
+				var qualities = [];
+				var qualityIds = [];
+				for (var i=0; i<data.videoUris.length; i++) {
+					var videoUri = data.videoUris[i];
+					qualities.push({
+						id:		videoUri.quality.id,
+						name:	videoUri.quality.name
+					});
+					qualityIds.push(videoUri.quality.id);
+				}
+				qualitiesHandler.setAvailableQualities(qualities);
+				var chosenQualityId = qualitiesHandler.getChosenQualityId();
+				var videoUri = data.videoUris[qualityIds.indexOf(chosenQualityId)];
 				playerComponent.setPlayerUris(videoUri.uris);
 			}
 			else {
@@ -103,7 +124,6 @@ $(document).ready(function() {
 			
 			playerComponent.render();
 		}
-		
 		
 	};
 });
