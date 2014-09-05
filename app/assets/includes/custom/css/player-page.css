@@ -33,7 +33,10 @@
 }
 
 .page-player .player-container .loading-container .msg {
-	margin-top: 40px;
+	position: absolute;
+	left: 0;
+	bottom: 10px;
+	width: 100%;
 	font-size: 20px;
 	font-weight: bold;
 }
