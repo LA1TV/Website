@@ -87,6 +87,13 @@ $(document).ready(function() {
 			$container.remove();
 		};
 		
+		this.getCurrentTime = function() {
+			if (videoJsPlayer !== null) {
+				return videoJsPlayer.currentTime();
+			}
+			return null;
+		};
+		
 		var showAd = null;
 		var queuedShowAd = true;
 		var startTime = null;
@@ -309,6 +316,19 @@ $(document).ready(function() {
 					videoJsPlayer.play();
 				}
 			});
+			videoJsPlayer.on("play", function() {
+				$(self).triggerHandler("play");
+			});
+			videoJsPlayer.on("pause", function() {
+				$(self).triggerHandler("pause");
+			});
+			videoJsPlayer.on("timeupdate", function() {
+				$(self).triggerHandler("timeUpdate");
+			});
+			videoJsPlayer.on("ended", function() {
+				$(self).triggerHandler("ended");
+			});
 		}
+		
 	};
 });

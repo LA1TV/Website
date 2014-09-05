@@ -8,6 +8,7 @@ $(document).ready(function() {
 			var self = this;
 			
 			var playerInfoUri = $(this).attr("data-info-uri");
+			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			
 			var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
 			var $viewCount = $("<div />").addClass("view-count").css("display", "none");
@@ -30,7 +31,7 @@ $(document).ready(function() {
 			$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 			
 			
-			var playerController = new PlayerController(playerInfoUri, qualitySelectionComponent);
+			var playerController = new PlayerController(playerInfoUri, registerViewCountUri, qualitySelectionComponent);
 			$(playerController).on("playerComponentElAvailable", function() {
 				$(self).empty(); // will contain loading message initially
 				$(self).append(playerController.getPlayerComponentEl());

@@ -1,6 +1,10 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use FormHelpers;
+use DB;
+use Session;
+use Carbon;
+use Config;
 
 class MediaItemVideo extends MyEloquent {
 
@@ -45,6 +49,26 @@ class MediaItemVideo extends MyEloquent {
 		// reorder so in qualities order
 		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $uris);
 		return $uris;
+	}
+	
+	public function registerViewCount() {
+	
+		if (!$this->getIsAccessible()) {
+			return;
+		}
+		
+		$sessionKey = "viewCount-".$this->id;
+		$lastTimeRegistered = Session::get($sessionKey, null);
+		if (!is_null($lastTimeRegistered) && $lastTimeRegistered >= Carbon::now()->subMinutes(Config::get("custom.interval_between_registering_view_counts"))->timestamp) {
+			// already registered view not that long ago.
+			return;
+		}
+		
+		DB::transaction(function() {
+			$this->view_count++;
+			$this->save();
+		});
+		Session::set($sessionKey, Carbon::now()->timestamp);
 	}
 	
 	public function getDates() {

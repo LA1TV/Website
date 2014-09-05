@@ -15,7 +15,7 @@ $(document).ready(function() {
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, qualitiesHandler) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, qualitiesHandler) {
 		
 		var self = this;
 		
@@ -114,6 +114,9 @@ $(document).ready(function() {
 			if (playerComponent === null) {
 				playerComponent = new PlayerComponent(data.coverUri);
 				$(self).triggerHandler("playerComponentElAvailable");
+				$(playerComponent).on("play", function() {
+					registerViewCount();
+				});
 			}
 			playerComponent.setStartTime(data.scheduledPublishTime !== null ? new Date(data.scheduledPublishTime) : null);
 			playerComponent.setCustomMsg(data.streamInfoMsg);
@@ -185,6 +188,18 @@ $(document).ready(function() {
 			if (vodCountChanged || streamCountChanged) {
 				$(self).triggerHandler("viewCountChanged");
 			}
+		}
+		
+		function registerViewCount() {
+			jQuery.ajax(registerViewCountUri, {
+				cache: false,
+				dataType: "json",
+				data: {
+					csrf_token: getCsrfToken(),
+					type: self.getPlayerType()
+				},
+				type: "POST"
+			});
 		}
 		
 	};

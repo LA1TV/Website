@@ -44,3 +44,7 @@
 	bottom: .5em;
 	top: inherit;
 }
+
+.vjs-default-skin .vjs-play-progress, .vjs-default-skin .vjs-volume-level {
+	background-color: #9C0000;
+}
