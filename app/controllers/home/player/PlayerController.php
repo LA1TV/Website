@@ -79,7 +79,10 @@ class PlayerController extends HomeBaseController {
 		if (!is_null($liveStream) && $liveStream->enabled) {
 			foreach($liveStream->getUrisWithQualities() as $uriWithQuality) {
 				$streamUris[] = array(
-					"quality"	=> $uriWithQuality['qualityDefinition']->name,
+					"quality"	=> array(
+						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
+						"name"	=> $uriWithQuality['qualityDefinition']->name
+					),
 					"uri"		=> $uriWithQuality['uri']
 				);
 			}
@@ -89,7 +92,10 @@ class PlayerController extends HomeBaseController {
 		if (!is_null($videoItem)) {
 			foreach($videoItem->getUrisWithQualities() as $uriWithQuality) {
 				$videoUris[] = array(
-					"quality"	=> $uriWithQuality['qualityDefinition']->name,
+					"quality"	=> array(
+						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
+						"name"	=> $uriWithQuality['qualityDefinition']->name
+					),
 					"uris"		=> array($uriWithQuality['uri']) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
 				);
 			}

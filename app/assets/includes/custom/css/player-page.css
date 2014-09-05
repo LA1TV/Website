@@ -1,21 +1,22 @@
-.page-player .bottom-info-container {
+.page-player .player-container .bottom-container {
 	margin-top: 4px;
 	margin-bottom: 10px;
 }
 
-.page-player .bottom-info-container .view-count {
+.page-player .player-container .bottom-container .view-count {
 	display: inline-block;
 	font-weight: bold;
 }
 
-.page-player .bottom-info-container .buttons {
+.page-player .player-container .bottom-container .right-section {
 	display: inline-block;
 	float: right;
 	margin-left: 15px;
 }
 
-.page-player .bottom-info-container .buttons .button-container {
+.page-player .player-container .bottom-container .right-section .item-container {
 	display: inline-block;
+	margin-left: 5px;
 }
 
 .page-player .description-container {

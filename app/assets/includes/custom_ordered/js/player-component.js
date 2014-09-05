@@ -81,6 +81,12 @@ $(document).ready(function() {
 			return this;
 		};
 		
+		this.destroy = function() {
+			destroyAd();
+			destroyPlayer();
+			$container.remove();
+		};
+		
 		var showAd = null;
 		var queuedShowAd = true;
 		var startTime = null;

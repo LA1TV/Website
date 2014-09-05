@@ -5,39 +5,27 @@
 		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>"></div>
 		
 		<?php /*
-		<div class="player-container embed-responsive embed-responsive-16by9">
-			<div class="player embed-responsive-item" data-coveruri="<?=e($episodeCoverArtUri);?>" data-autoplay="">
-				<video class="video-js vjs-default-skin">
-					<source src="<?=e($episodeUri);?>" type='video/mp4'/>
-					<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-				</video>
-			</div>
-		*/ ?>	
-			
-			<?php /*
-			<div class="ad embed-responsive-item">
-				<div class="bg">
-					<!--<img class="img-responsive" src="<?=asset("assets/img/default-cover.png");?>"/>-->
-					<img class="img-responsive" src="<?=asset("assets/tmp/cover.png");?>"/>
-				</div>
-				<div class="overlay">
-					<div class="live-at-header fit-text txt-shadow" data-compressor="1.5">Live In</div>
-					<!--<div class="live-at-header fit-text txt-shadow" data-compressor="2.8">Available To Watch On Demand Shortly</div>-->
-					<div class="live-time fit-text txt-shadow" data-compressor="2.1">10 min 15 sec</div>
-					<!--<div class="custom-msg fit-text txt-shadow" data-compressor="2.8">The world is ending.</div>-->
-				</div>
-			</div>
-		</div>
-		*/ ?>
 		
-		<div class="bottom-info-container clearfix">
+		<div class="bottom-container clearfix">
 			<div class="view-count">127 views</div>
-			<div class="buttons">
+			<div class="right-container">
 				<div class="button-container">
+				</div>
 					<button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-thumbs-up"></span> Like!</button>
+				<div class="button-container">
+					<div class="quality-selection-component">
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">Quality: 720p <span class="caret"></span></button>
+							<ul class="dropdown-menu" role="menu">
+								<li><span class="item">Action</span></li>
+							</ul>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
+		
+		*/ ?>
 		<div class="description-container"><?=e($episodeDescription);?></div>
 		<h2>Comments</h2>
 		<p>Blah</p>
