@@ -26,15 +26,26 @@ class PlayerController extends HomeBaseController {
 		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
 		
 		$playlistTableData = array();
+		$activeItemIndex = null;
 		foreach($playlistMediaItems as $item) {
 			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$active = intval($item->id) === intval($currentMediaItem->id);
 			$playlistTableData[] = array(
 				"uri"			=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
-				"active"		=> intval($item->id) === intval($currentMediaItem->id),
+				"active"		=> $active,
 				"title"			=> $item->name,
 				"episodeNo"		=> intval($item->pivot->position) + 1,
 				"thumbnailUri"	=> $thumbnailUri
 			);
+		}
+		
+		$playlistPreviousItemUri = null;
+		$playlistNextItemUri = null;
+		if ($activeItemIndex > 0) {
+			$playlistPreviousItemUri = $playlistTableData[$activeItemIndex-1]['uri'];
+		}
+		if ($activeItemIndex < count($playlistTableData)-1) {
+			$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
 		}
 
 		$view = View::make("home.player.index");
@@ -42,6 +53,8 @@ class PlayerController extends HomeBaseController {
 		$view->episodeDescription = $currentMediaItem->description;
 		$view->playlistTitle = $playlist->name;
 		$view->playlistTableData = $playlistTableData;
+		$view->playlistNextItemUri = $playlistNextItemUri;
+		$view->playlistPreviousItemUri = $playlistPreviousItemUri;
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);

@@ -14,6 +14,10 @@
 	font-size: 8px;
 }
 
+.playlist .playlist-table .button-row .buttons .item {
+	display: inline-block;
+}
+
 .playlist .playlist-table .button-row .playlist-title {
 	display: inline;
 	padding: 0;

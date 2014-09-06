@@ -21,7 +21,23 @@
 					<tr class="button-row">
 						<th class="clearfix" colspan="3">
 							<div class="buttons">
-								<button class="btn btn-default btn-xs" type="button">View All Series</button> <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-backward"></span></button> <button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-fast-forward"></span></button>
+								<div class="item">
+									<button class="btn btn-default btn-xs" type="button">View All Series</button>
+								</div>
+								<div class="item">
+									<?php if (!is_null($playlistPreviousItemUri)): ?>
+									<a href="<?=e($playlistPreviousItemUri);?>" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-backward"></span></a>
+									<?php else: ?>
+									<button disabled type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-backward"></span></button>
+									<?php endif; ?>
+								</div>
+								<div class="item">
+									<?php if (!is_null($playlistNextItemUri)): ?>
+									<a href="<?=e($playlistNextItemUri);?>" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-forward"></span></a>
+									<?php else: ?>
+									<button disabled type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-forward"></span></button>
+									<?php endif; ?>
+								</div>
 							</div>
 							<h2 class="playlist-title"><?=e($playlistTitle);?></h2>
 						</th>
