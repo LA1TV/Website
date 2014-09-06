@@ -263,7 +263,7 @@ class PlayerController extends HomeBaseController {
 				$mediaItemVideo = $mediaItem->videoItem;
 				$mediaItemLiveStream = $mediaItem->liveStreamItem;
 				
-				$mediaItemVideoAccessible = !is_null($mediaItemVideo) && $mediaItemVideo->getIsAccessible();
+				$mediaItemVideoAccessible = !is_null($mediaItemVideo) && $mediaItemVideo->getIsLive();
 				$mediaItemLiveStreamValidState = !is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible() && intval($mediaItemLiveStream->getResolvedStateDefinition()->id) !== 1;
 				
 				if ($mediaItemVideoAccessible || $mediaItemLiveStreamValidState) {
