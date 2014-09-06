@@ -17,9 +17,8 @@ class PlayerController extends HomeBaseController {
 		
 		// true if a user is logged into the cms and has permission to view media items.
 		$userHasMediaItemsPermission = false;
-		
 		// true if a user is logged into the cms and has permission to view playlists.
-		$userHasMediaItemsPermission = false;
+		$userHasPlaylistsPermission = false;
 		
 		if (Auth::isLoggedIn()) {
 			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
