@@ -164,7 +164,7 @@ class PlayerController extends HomeBaseController {
 		$streamUris = array();
 		// return the uris if the live stream is enabled (live), or the logged in cms user has permission
 		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
-		if ($hasLiveStreamItem && ($streamState === 2 || $userHasMediaItemsPermission)) {
+		if ($hasLiveStreamItem && !is_null($liveStream) && ($streamState === 2 || $userHasMediaItemsPermission)) {
 			foreach($liveStream->getUrisWithQualities() as $uriWithQuality) {
 				$streamUris[] = array(
 					"quality"	=> array(
