@@ -2,7 +2,7 @@
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
 		
-		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>">
+		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>">
 			<div class="embed-responsive embed-responsive-16by9">
 				<div class="embed-responsive-item loading-container">
 					<div class="msg">Player Loading</div>

@@ -15,7 +15,7 @@ $(document).ready(function() {
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, qualitiesHandler) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, qualitiesHandler) {
 		
 		var self = this;
 		
@@ -36,11 +36,20 @@ $(document).ready(function() {
 		};
 		
 		this.getNumLikes = function() {
-		
+			return numLikes;
 		};
 		
-		this.registerLike = function() {
-			
+		this.getNumDislikes = function() {
+			return numDisikes;
+		};
+		
+		// returns 'like' if person liked this, 'dislike' if disliked, or null if neither
+		this.getLikeType = function() {
+			return likeType;
+		};
+		
+		this.registerLike = function(type, callback) {
+			registerLike(type, callback);
 		};
 		
 		this.getStreamViewCount = function() {
@@ -76,6 +85,9 @@ $(document).ready(function() {
 		var cachedData = null;
 		var vodViewCount = null;
 		var streamViewCount = null;
+		var numLikes = null;
+		var numDislikes = null;
+		var likeType = null; // "like", "dislike" or null
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			updatePlayer();
@@ -92,11 +104,12 @@ $(document).ready(function() {
 					csrf_token: getCsrfToken()
 				},
 				type: "POST"
-			}).done(function(data, textStatus, jqXHR) {
+			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
 					cachedData = data;
 					updatePlayer();
 					updateViewCounts();
+					updateLikes();
 				}
 				
 				if (!destroyed) {
@@ -190,6 +203,24 @@ $(document).ready(function() {
 			}
 		}
 		
+		function updateLikes() {
+			var changed = numLikes !== cachedData.numLikes;
+			numLikes = cachedData.numLikes;
+			if (changed) {
+				$(self).triggerHandler("numLikesChanged");
+			}
+			var changed = numDislikes !== cachedData.numDislikes;
+			numDislikes = cachedData.numDislikes;
+			if (changed) {
+				$(self).triggerHandler("numDisikesChanged");
+			}
+			var changed = likeType !== cachedData.likeType;
+			likeType = cachedData.likeType;
+			if (changed) {
+				$(self).triggerHandler("likeTypeChanged");
+			}
+		}
+		
 		function registerViewCount() {
 			jQuery.ajax(registerViewCountUri, {
 				cache: false,
@@ -199,6 +230,102 @@ $(document).ready(function() {
 					type: self.getPlayerType()
 				},
 				type: "POST"
+			});
+		}
+		
+		function registerLike(type, callback) {
+			if (type !== "like" && type !== "dislike" && type !== "reset") {
+				throw "Type must be 'like', 'dislike' or 'reset'.";
+			}
+			if (type === "like" && self.getLikeType() === "like" ||
+				type === "dislike" && self.getLikeType() === "dislike" ||
+				type === "reset" && self.getLikeType() === null) {
+				// no change
+				if (callback) {
+					callback(true);
+				}
+				return;
+			}
+			var previousLikeType = self.getLikeType();
+			jQuery.ajax(registerLikeUri, {
+				cache: false,
+				dataType: "json",
+				data: {
+					csrf_token: getCsrfToken(),
+					type: type
+				},
+				type: "POST"
+			}).always(function(data, textStatus, jqXHR) {
+				if (jqXHR.status === 200) {
+					var success = data.success;
+					if (success) {
+						// like has changed on server. update cached versions accordingly
+						if (previousLikeType === self.getLikeType()) {
+							// make sure cache hasn't already been updated before this response was returned
+							var likesChanged = false;
+							var dislikesChanged = false;
+							if (previousLikeType === null) {
+								if (type === "like") {
+									numLikes++;
+									likesChanged = true;
+								}
+								else if (type === "dislike") {
+									numDislikes++;
+									dislikesChanged = true;
+								}
+							}
+							else if (previousLikeType === "like") {
+								if (type === "dislike") {
+									numLikes--;
+									likesChanged = true;
+									numDislikes++;
+									dislikesChanged = true;
+								}
+								else if (type === "reset") {
+									numDislikes--;
+									dislikesChanged = true;
+								}
+							}
+							else if (previousLikeType === "dislike") {
+								if (type === "like") {
+									numLikes++;
+									likesChanged = true;
+									numDislikes--;
+									dislikesChanged = true;
+								}
+								else if (type === "reset") {
+									numLikes--;
+									likesChanged = true;
+								}
+							}
+							if (type === "like") {
+								likeType = "like";
+							}
+							else if (type === "dislike") {
+								likeType = "dislike";
+							}
+							else if (type === "reset") {
+								likeType = null;
+							}
+							$(self).triggerHandler("likeTypeChanged");
+							
+							if (likesChanged) {
+								$(self).triggerHandler("numLikesChanged");
+							}
+							if (dislikesChanged) {
+								$(self).triggerHandler("numDisikesChanged");
+							}
+						}
+					}
+					if (callback) {
+						callback(success);
+					}
+				}
+				else {
+					if (callback) {
+						callback(false);
+					}
+				}
 			});
 		}
 		

@@ -14,6 +14,7 @@ return array(
 	"default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"player_info_base_uri"	=> URL::to("/") . "/player/player-info",
 	"player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
+	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"player_base_uri"	=> URL::to("/") . "/player",
 	// time in minutes that must pass between views on the same item being registered
 	"interval_between_registering_view_counts"	=> 180

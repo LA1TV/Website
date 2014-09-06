@@ -5,6 +5,7 @@ use FormHelpers;
 use Carbon;
 use Exception;
 use Config;
+use DB;
 
 class MediaItem extends MyEloquent {
 	
@@ -112,6 +113,38 @@ class MediaItem extends MyEloquent {
 			return null;
 		}
 		return FormHelpers::formatDateForInput($this->scheduled_publish_time->timestamp);
+	}
+	
+	public function registerLike($siteUser) {
+		return $this->registerLikeDislike($siteUser, true);
+	}
+	
+	public function registerDislike($siteUser) {
+		return $this->registerLikeDislike($siteUser, false);
+	}
+	
+	private function registerLikeDislike($siteUser, $isLike) {
+		return DB::transaction(function() use (&$isLike, &$siteUser) {
+			$like = $this->likes()->where("site_user_id", $siteUser->id)->first();
+			if (is_null($like)) {
+				$like = new MediaItemLike(array(
+					"is_like"	=> $isLike
+				));
+				$like->siteUser()->associate($siteUser);
+				$this->likes()->save($like);
+				return true;
+			}
+			else if ((boolean) $like->is_like !== $isLike) {
+				$like->is_like = $isLike;
+				$like->save();
+				return true;
+			}
+			return false;
+		});
+	}
+	
+	public function removeLike($siteUser) {
+		return $this->likes()->where("site_user_id", $siteUser->id)->delete() > 0;
 	}
 	
 	public function getIsAccessible() {

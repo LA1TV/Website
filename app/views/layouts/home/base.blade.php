@@ -9,7 +9,7 @@
 		<?= stylesheet_link_tag("includes/application") ?>
 		<?= javascript_include_tag("includes/application") ?>
 	</head>
-	<body data-baseurl="<?=e($baseUrl)?>" data-assetsbaseurl="<?=e(asset(""))?>" data-csrftoken="<?=e($csrfToken)?>">
+	<body data-baseurl="<?=e($baseUrl)?>" data-assetsbaseurl="<?=e(asset(""))?>" data-csrftoken="<?=e($csrfToken)?>" data-loggedin="<?=$loggedIn?"1":"0"?>">
 		<div class="container">
 			<nav class="navbar navbar-default" role="navigation">
 				<div class="container-fluid">

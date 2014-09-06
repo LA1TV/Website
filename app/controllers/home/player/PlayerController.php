@@ -7,6 +7,7 @@ use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use Response;
 use Config;
+use Facebook;
 
 class PlayerController extends HomeBaseController {
 
@@ -43,6 +44,7 @@ class PlayerController extends HomeBaseController {
 		$view->playlistTableData = $playlistTableData;
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
+		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$this->setContent($view, "player", "player");
 	}
 	
@@ -77,6 +79,15 @@ class PlayerController extends HomeBaseController {
 		$hasVod = !is_null($videoItem);
 		$vodLive = $hasVod ? $videoItem->getIsAccessible() : null;
 		$vodViewCount = $hasVod ? intval($videoItem->view_count) : null;
+		$numLikes = $mediaItem->likes()->count();
+		$likeType = null;
+		$user = Facebook::getUser();
+		if (!is_null($user)) {
+			$like = $mediaItem->likes()->where("site_user_id", $user->id)->first();
+			if (!is_null($like)) {
+				$likeType = $like->is_like ? "like" : "dislike";
+			}
+		}
 		
 		$streamUris = array();
 		if (!is_null($liveStream) && $liveStream->enabled) {
@@ -117,8 +128,8 @@ class PlayerController extends HomeBaseController {
 			"vodLive"				=> $vodLive, // true when the video should be live to the public
 			"videoUris"				=> $videoUris,
 			"vodViewCount"			=> $vodViewCount,
-			// TODO
-			"numLikes"				=> 20
+			"numLikes"				=> $numLikes, // number of likes this media item has
+			"likeType"				=> $likeType // "like" if liked, "dislike" if disliked, or null otherwise
 		);
 		
 		return Response::json($data);
@@ -141,15 +152,50 @@ class PlayerController extends HomeBaseController {
 			if ($type === "live" || $type === "vod") {
 				if ($type === "live") {
 					$liveStreamItem = $mediaItem->liveStreamItem;
-					if (!is_null($liveStreamItem)) {
+					if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
 						$liveStreamItem->registerViewCount();
 						$success = true;
 					}
 				}
 				else {
 					$videoItem = $mediaItem->videoItem;
-					if (!is_null($videoItem)) {
+					if (!is_null($videoItem) && $videoItem->getIsAccessible()) {
 						$videoItem->registerViewCount();
+						$success = true;
+					}
+				}
+			}
+		}
+		return Response::json(array("success"=>$success));
+	}
+	
+	public function postRegisterLike($playlistId, $mediaItemId) {
+		$playlist = Playlist::find($playlistId);
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		$mediaItem = $playlist->mediaItems()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		$success = false;
+		if (isset($_POST['type'])) {
+			$type = $_POST['type'];
+			if ($type === "like" || $type === "dislike" || $type === "reset") {
+				if ($mediaItem->getIsAccessible()) {
+					$user = Facebook::getUser();
+					if (!is_null($user)) {
+						if ($type === "like") {
+							$mediaItem->registerLike($user);
+						}
+						else if ($type === "dislike") {
+							$mediaItem->registerDislike($user);
+						}
+						else if ($type === "reset") {
+							$mediaItem->removeLike($user);
+						}
 						$success = true;
 					}
 				}
@@ -164,6 +210,10 @@ class PlayerController extends HomeBaseController {
 	
 	private function getRegisterViewCountUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_view_count_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getRegisterLikeUri($playlistId, $mediaItemId) {
+		return Config::get("custom.player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	public function missingMethod($parameters=array()) {

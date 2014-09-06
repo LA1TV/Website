@@ -2,6 +2,7 @@ var baseUrl = null;
 var assetsBaseUrl = null;
 
 $(document).ready(function() {
-	baseUrl = $("body").attr("data-baseUrl");
-	assetsBaseUrl = $("body").attr("data-assetsbaseurl");
+	var $body = $("body");
+	baseUrl = $body.attr("data-baseurl");
+	assetsBaseUrl = $body.attr("data-assetsbaseurl");
 });

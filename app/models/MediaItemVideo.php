@@ -1,7 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use FormHelpers;
-use DB;
 use Session;
 use Carbon;
 use Config;
@@ -63,11 +62,7 @@ class MediaItemVideo extends MyEloquent {
 			// already registered view not that long ago.
 			return;
 		}
-		
-		DB::transaction(function() {
-			$this->view_count++;
-			$this->save();
-		});
+		$this->increment("view_count");
 		Session::set($sessionKey, Carbon::now()->timestamp);
 	}
 	
