@@ -132,9 +132,13 @@ $(document).ready(function() {
 				});
 			}
 			playerComponent.setStartTime(data.scheduledPublishTime !== null ? new Date(data.scheduledPublishTime) : null);
-			playerComponent.setCustomMsg(data.streamInfoMsg);
 			playerComponent.showStreamOver(data.streamState === 3);
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
+			playerComponent.setCustomMsg("");
+			if (data.streamState === 1 || data.streamState === 3) {
+				// show stream info message if the stream is enabled and is either "not live", or "stream over"
+				playerComponent.setCustomMsg(data.streamInfoMsg);
+			}
 			if (data.streamState === 2) {
 				// stream should be live
 				setPlayerType("live");

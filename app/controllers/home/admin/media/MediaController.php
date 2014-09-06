@@ -58,7 +58,7 @@ class MediaController extends MediaBaseController {
 			if ($hasVod) {
 				$hasVodStr .= $vodEnabled ? "Enabled" : "Disabled";
 				$hasVodStr .= ")";
-				if ($a->videoItem->getIsAccessible()) {
+				if ($a->videoItem->getIsLive()) {
 					$hasVodStr .= " (LIVE!)";
 				}
 			}
@@ -68,7 +68,7 @@ class MediaController extends MediaBaseController {
 			if ($hasStream) {
 				$hasStreamStr .= $streamEnabled ? "Enabled" : "Disabled";
 				$hasStreamStr .= ")";
-				if ($a->liveStreamItem->getIsAccessible()) {
+				if ($a->liveStreamItem->getIsAccessible() && intval($a->liveStreamItem->getResolvedStateDefinition()->id) === 2) {
 					$hasStreamStr .= " (LIVE!)";
 				}
 				$streamState = $a->liveStreamItem->stateDefinition->name;
@@ -195,8 +195,6 @@ class MediaController extends MediaBaseController {
 					'side-banners-image-id'	=> array('valid_file_id'),
 					'cover-art-id'		=> array('valid_file_id'),
 					'publish-time'	=> array('my_date'),
-					'vod-name'	=> array('max:50'),
-					'vod-description'	=> array('max:500'),
 					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
 					'vod-time-recorded'	=> array('my_date'),
 					'stream-state'	=> array('required', 'valid_stream_state_id'),
@@ -211,8 +209,6 @@ class MediaController extends MediaBaseController {
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
-					'vod-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
-					'vod-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(),
 					'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
@@ -225,7 +221,7 @@ class MediaController extends MediaBaseController {
 				));
 				
 				$validator->sometimes("vod-time-recorded", "not_specified", function($input) use (&$formData) {
-					return $formData['stream-added'] === "1";
+					return $formData['stream-added'] === "1" && $formData['vod-added'] === "1";
 				});
 				
 				if (!$validator->fails()) {

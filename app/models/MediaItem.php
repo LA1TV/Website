@@ -147,23 +147,48 @@ class MediaItem extends MyEloquent {
 		return $this->likes()->where("site_user_id", $siteUser->id)->delete() > 0;
 	}
 	
+	
+	// returns true if this media item should be accessible
+	// this does not take into consideration the publish time. A media item should still be accessible even if the publish time hasn't passed.
+	// If the publish time hasn't passed then and there's a MediaItemVideo attached it should not be watchable until after this time.
+	// same applies to a live stream (although with a live stream there is no actual restriction, the stream could start earlier/later)
 	public function getIsAccessible() {
+		
 		if (!$this->enabled) {
 			return false;
 		}
-		
-		$scheduledPublishTime = $this->scheduled_publish_time;
-		if (!is_null($scheduledPublishTime) && !$scheduledPublishTime->isPast()) {
+		$sideBannerFile = $this->sideBannerFile;
+		if (!is_null($sideBannerFile) && !$sideBannerFile->getFinishedProcessing()) {
 			return false;
 		}
-		
-		// check that it's in a playlist that is accessible
-		foreach($this->playlists as $a) {
-			if ($a->getIsAccessible()) {
-				return true;
-			}
+		$coverFile = $this->coverFile;
+		if (!is_null($coverFile) && !$coverFile->getFinishedProcessing()) {
+			return false;
 		}
-		return false;
+		$coverArtFile = $this->coverArtFile;
+		if (!is_null($coverArtFile) && !$coverArtFile->getFinishedProcessing()) {
+			return false;
+		}
+		return true;
+	}
+	
+	public function scopeAccessible($q) {
+		return $q->where("enabled", true)->where(function($q2) {
+			$q2->has("sideBannerFile", "=", 0)
+			->orWhereHas("sideBannerFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		})->where(function($q2) {
+			$q2->has("coverFile", "=", 0)
+			->orWhereHas("coverFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		})->where(function($q2) {
+			$q2->has("coverArtFile", "=", 0)
+			->orWhereHas("coverArtFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		});
 	}
 	
 	// A media item is active when:
@@ -172,13 +197,6 @@ class MediaItem extends MyEloquent {
 	public function scopeActive($q) {
 		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
 		return $q->accessible()->where("scheduled_publish_time", ">=", $startTime);
-	}
-	
-	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
-			$q2->accessible();
-		})
-		->where("scheduled_publish_time", "<", Carbon::now());
 	}
 	
 	public function scopeSearch($q, $value) {

@@ -18,28 +18,22 @@ class PlayerController extends HomeBaseController {
 		$userHasMediaItemsPermission = false;
 		// true if a user is logged into the cms and has permission to view playlists.
 		$userHasPlaylistsPermission = false;
-		
 		if (Auth::isLoggedIn()) {
 			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
 			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
 		}
 		
-		$playlist = Playlist::with("show", "mediaItems");
+		$playlist = Playlist::with("show", "mediaItems")->accessible();
 		if (!$userHasPlaylistsPermission) {
-			// current cms user (if logged in) does not have permission to view playlists, so only search accessible playlists.
-			$playlist = $playlist->accessible();
+			// current cms user (if logged in) does not have permission to view playlists, so only search playlists accessible to the public.
+			$playlist = $playlist->accessibleToPublic();
 		}
 		$playlist = $playlist->find(intval($playlistId));
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
 		
-		$currentMediaItem = $playlist->mediaItems();
-		if (!$userHasMediaItemsPermission) {
-			// current cms user (if logged in) does not have permission to view media items, so only search accessible media items.
-			$currentMediaItem = $currentMediaItem->accessible();
-		}
-		$currentMediaItem = $currentMediaItem->find($mediaItemId);
+		$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		if (is_null($currentMediaItem)) {
 			App::abort(404);
 		}
@@ -98,12 +92,28 @@ class PlayerController extends HomeBaseController {
 	
 	// should return ajax response with information for the player.
 	public function postPlayerInfo($playlistId, $mediaItemId) {
-		$playlist = Playlist::find($playlistId);
+	
+		// true if a user is logged into the cms and has permission to view media items.
+		$userHasMediaItemsPermission = false;
+		// true if a user is logged into the cms and has permission to view playlists.
+		$userHasPlaylistsPermission = false;
+		
+		if (Auth::isLoggedIn()) {
+			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
+			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
+		}
+		
+		$playlist = Playlist::accessible();
+		if (!$userHasPlaylistsPermission) {
+			// current cms user (if logged in) does not have permission to view playlists, so only search playlists accessible to the public.
+			$playlist = $playlist->accessibleToPublic();
+		}
+		$playlist = $playlist->find(intval($playlistId));
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
 		
-		$mediaItem = $playlist->mediaItems()->find($mediaItemId);
+		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		if (is_null($mediaItem)) {
 			App::abort(404);
 		}
@@ -111,22 +121,33 @@ class PlayerController extends HomeBaseController {
 		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "liveStreamItem.liveStream", "videoItem");
 		
 		$liveStreamItem = $mediaItem->liveStreamItem;
-		$liveStream = !is_null($liveStreamItem) ? $liveStreamItem->liveStream : null;
+		if (!is_null($liveStreamItem) && !$liveStreamItem->getIsAccessible()) {
+			// should not be accessible so pretend doesn't exist
+			$liveStreamItem = null;
+		}
+		
+		$hasLiveStreamItem = !is_null($liveStreamItem);
+		$liveStream = $hasLiveStreamItem ? $liveStreamItem->liveStream : null;
 		$videoItem = $mediaItem->videoItem;
+		if (!is_null($videoItem) && !$videoItem->getIsAccessible()) {
+			// should not be accessible so pretend doesn't exist
+			$videoItem = null;
+		}
+		$hasVideoItem = !is_null($videoItem);
 		
 		$publishTime = $mediaItem->scheduled_publish_time;
 		if (!is_null($publishTime)) {
 			$publishTime = $publishTime->timestamp;
 		}
 		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, 1920, 1080);
-		$hasStream = !is_null($liveStreamItem);
-		$streamInfoMsg = $hasStream ? $liveStreamItem->information_msg : null;
-		$streamState = $hasStream ? ($liveStreamItem->enabled ? $liveStreamItem->stateDefinition->id: null) : null;
-		$availableOnDemand = $hasStream ? (boolean) $liveStreamItem->being_recorded : null;
-		$streamViewCount = $hasStream ? intval($liveStreamItem->view_count) : null;
-		$hasVod = !is_null($videoItem);
-		$vodLive = $hasVod ? $videoItem->getIsAccessible() : null;
-		$vodViewCount = $hasVod ? intval($videoItem->view_count) : null;
+		$hasStream = $hasLiveStreamItem;
+		$streamInfoMsg = $hasLiveStreamItem ? $liveStreamItem->information_msg : null;
+		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
+		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
+		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
+		$hasVod = $hasVideoItem;
+		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
+		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
 		$numLikes = $mediaItem->likes()->count();
 		$likeType = null;
 		$user = Facebook::getUser();
@@ -137,8 +158,13 @@ class PlayerController extends HomeBaseController {
 			}
 		}
 		
+		// only return the uris if they are actually needed. Security through obscurity
+		// always return uris if there's a cms user with permission logged in because they should be able override the fact that it's not live
+		
 		$streamUris = array();
-		if (!is_null($liveStream) && $liveStream->enabled) {
+		// return the uris if the live stream is enabled (live), or the logged in cms user has permission
+		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
+		if ($hasLiveStreamItem && ($streamState === 2 || $userHasMediaItemsPermission)) {
 			foreach($liveStream->getUrisWithQualities() as $uriWithQuality) {
 				$streamUris[] = array(
 					"quality"	=> array(
@@ -151,7 +177,8 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		$videoUris = array();
-		if (!is_null($videoItem)) {
+		// return the uris if the item is accessible to the public or the logged in cms user has permission
+		if ($hasVideoItem && ($vodLive || $userHasMediaItemsPermission)) {
 			foreach($videoItem->getUrisWithQualities() as $uriWithQuality) {
 				$videoUris[] = array(
 					"quality"	=> array(
@@ -184,12 +211,12 @@ class PlayerController extends HomeBaseController {
 	}
 	
 	public function postRegisterView($playlistId, $mediaItemId) {
-		$playlist = Playlist::find($playlistId);
+		$playlist = Playlist::accessibleToPublic()->find($playlistId);
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
 		
-		$mediaItem = $playlist->mediaItems()->find($mediaItemId);
+		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		if (is_null($mediaItem)) {
 			App::abort(404);
 		}
@@ -218,12 +245,12 @@ class PlayerController extends HomeBaseController {
 	}
 	
 	public function postRegisterLike($playlistId, $mediaItemId) {
-		$playlist = Playlist::find($playlistId);
+		$playlist = Playlist::accessibleToPublic()->find($playlistId);
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
 		
-		$mediaItem = $playlist->mediaItems()->find($mediaItemId);
+		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		if (is_null($mediaItem)) {
 			App::abort(404);
 		}
@@ -232,7 +259,14 @@ class PlayerController extends HomeBaseController {
 		if (isset($_POST['type'])) {
 			$type = $_POST['type'];
 			if ($type === "like" || $type === "dislike" || $type === "reset") {
-				if ($mediaItem->getIsAccessible()) {
+				// an item can only be liked when it has an accessible video, or live stream which is enabled and not in the 'not live' state
+				$mediaItemVideo = $mediaItem->videoItem;
+				$mediaItemLiveStream = $mediaItem->liveStreamItem;
+				
+				$mediaItemVideoAccessible = !is_null($mediaItemVideo) && $mediaItemVideo->getIsAccessible();
+				$mediaItemLiveStreamValidState = !is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible() && intval($mediaItemLiveStream->getResolvedStateDefinition()->id) !== 1;
+				
+				if ($mediaItemVideoAccessible || $mediaItemLiveStreamValidState) {
 					$user = Facebook::getUser();
 					if (!is_null($user)) {
 						if ($type === "like") {

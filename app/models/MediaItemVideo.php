@@ -52,7 +52,8 @@ class MediaItemVideo extends MyEloquent {
 	
 	public function registerViewCount() {
 	
-		if (!$this->getIsAccessible()) {
+		if (!$this->getIsAccessible() || !$this->getIsLive()) {
+			// shouldn't be accessible or isn't live
 			return;
 		}
 		
@@ -70,15 +71,39 @@ class MediaItemVideo extends MyEloquent {
 		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
 	}
 	
-	// returns true if this video should be accessible now. I.e mediaitem enabled and this enabled etc
+	// returns true if this should be shown with the parent media item. If false it should look like the MediaItem does not have a video component.
 	public function getIsAccessible() {
 		$sourceFile = $this->sourceFile;
 		return $this->enabled && $this->mediaItem->getIsAccessible() && !is_null($sourceFile) && $sourceFile->getFinishedProcessing();
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->whereHas("sourceFile", function($q2) {
+		return $q->where("enabled", true)->whereHas("mediaItem", function($q2) {
+			$q2->accessible();
+		})->whereHas("sourceFile", function($q2) {
 			$q2->finishedProcessing();
+		});
+	}
+	
+	// returns true if the video should be live to watch.
+	// this is the case when the parent media items scheduled publish time has passed
+	// the video component can be accessible but not live.
+	public function getIsLive() {
+		if (!$this->getIsAccessible()) {
+			return false;
+		}
+		if (is_null($this->mediaItem->scheduled_publish_time)) {
+			return true;
+		}
+		return $this->mediaItem->scheduled_publish_time < Carbon::now();
+	}
+	
+	public function scopeLive($q) {
+		return $q->accessible()->whereHas("mediaItem", function($q2) {
+			$q2->where(function($q3) {
+				$q3->whereNull("scheduled_publish_time")
+				->orWhere("scheduled_publish_time", "<", Carbon::now());
+			});
 		});
 	}
 	

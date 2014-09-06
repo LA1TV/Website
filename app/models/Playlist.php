@@ -250,7 +250,8 @@ class Playlist extends MyEloquent {
 		return null;
 	}
 	
-	// returns true if this playlist should be accessible now. I.e enabled and scheduled_publish_time passed and show enabled if part of show etc
+	// returns true if this playlist should be accessible now.
+	// see getIsAccessibleToPublic() to determine if the public should have access
 	public function getIsAccessible() {
 		if (!$this->enabled) {
 			return false;
@@ -260,18 +261,60 @@ class Playlist extends MyEloquent {
 				return false;
 			}
 		}
-		$scheduledPublishTime = $this->scheduled_publish_time;
-		return is_null($scheduledPublishTime) || $scheduledPublishTime->isPast();
+		
+		$sideBannerFile = $this->sideBannerFile;
+		if (!is_null($sideBannerFile) && !$sideBannerFile->getFinishedProcessing()) {
+			return false;
+		}
+		$coverFile = $this->coverFile;
+		if (!is_null($coverFile) && !$coverFile->getFinishedProcessing()) {
+			return false;
+		}
+		$coverArtFile = $this->coverArtFile;
+		if (!is_null($coverArtFile) && !$coverArtFile->getFinishedProcessing()) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public function scopeAccessible($q) {
+
 		return $q->where("enabled", true)->where(function($q2) {
 			$q2->has("show", "=", 0)
 			->orWhereHas("show", function($q3) {
 				$q3->accessible();
 			});
-		})
-		->where("scheduled_publish_time", "<", Carbon::now());
+		})->where(function($q2) {
+			$q2->has("sideBannerFile", "=", 0)
+			->orWhereHas("sideBannerFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		})->where(function($q2) {
+			$q2->has("coverFile", "=", 0)
+			->orWhereHas("coverFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		})->where(function($q2) {
+			$q2->has("coverArtFile", "=", 0)
+			->orWhereHas("coverArtFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		});
+	}
+	
+	// returns true if this playlist should be accessible to the public.
+	public function getIsAccessibleToPublic() {
+	
+		if (!$this->getIsAccessible()) {
+			return false;
+		}
+		$scheduledPublishTime = $this->scheduled_publish_time;
+		return is_null($scheduledPublishTime) || $scheduledPublishTime->isPast();
+	}
+	
+	public function scopeAccessibleToPublic($q) {
+		return $q->accessible()->where("scheduled_publish_time", "<", Carbon::now());
 	}
 	
 	public function scopeSearch($q, $value) {

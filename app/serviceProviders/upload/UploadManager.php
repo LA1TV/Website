@@ -11,7 +11,6 @@ use EloquentHelpers;
 use Auth;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
-use uk\co\la1tv\website\fileObjs\FileObjBuilder;
 
 class UploadManager {
 
@@ -226,32 +225,32 @@ class UploadManager {
 		
 		// see if the file should be accessible
 		if (!is_null($sourceFile->mediaItemWithBanner)) {
-			if ($sourceFile->mediaItemWithBanner->getIsAccessible() || $hasMediaItemsPermission) {
+			if ($sourceFile->mediaItemWithBanner->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemWithCover)) {
-			if ($sourceFile->mediaItemWithCover->getIsAccessible() || $hasMediaItemsPermission) {
+			if ($sourceFile->mediaItemWithCover->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemWithCoverArt)) {
-			if ($sourceFile->mediaItemWithCoverArt->getIsAccessible() || $hasMediaItemsPermission) {
+			if ($sourceFile->mediaItemWithCoverArt->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->mediaItemVideoWithFile)) {
-			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() || $hasMediaItemsPermission) {
+			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() && ($sourceFile->mediaItemVideoWithFile->getIsLive() || $hasMediaItemsPermission)) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->playlistWithBanner)) {
-			if ($sourceFile->playlistWithBanner->getIsAccessible() || $hasPlaylistsPermission) {
+			if ($sourceFile->playlistWithBanner->getIsAccessible() && ($sourceFile->playlistWithBanner->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
 				$accessAllowed = true;
 			}
 		}
 		else if (!is_null($sourceFile->playlistWithCover)) {
-			if ($sourceFile->playlistWithCover->getIsAccessible() || $hasPlaylistsPermission) {
+			if ($sourceFile->playlistWithCover->getIsAccessible() && ($sourceFile->playlistWithCover->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
 				$accessAllowed = true;
 			}
 		}
