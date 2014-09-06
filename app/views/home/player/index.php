@@ -1,4 +1,4 @@
-<?php if (!$episodeAccessible): ?>
+<?php if (!$episodeAccessibleToPublic): ?>
 <div class="alert alert-info" role="alert"><strong>NOTE:</strong> This item is currently not accessible to the public.</div>
 <?php endif; ?>
 <div class="row">

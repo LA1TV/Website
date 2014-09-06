@@ -52,18 +52,18 @@ class PlayerController extends HomeBaseController {
 			if ($active) {
 				$activeItemIndex = $i;
 			}
-			$accessible = $item->getIsAccessible();
+			$accessibleToPublic = $item->getIsAccessibleToPublic();
 			$title = $item->name;
-			if (!$accessible) {
+			if (!$accessibleToPublic) {
 				$title = "[Inaccessible] ".$title;
 			}
 			$playlistTableData[] = array(
-				"uri"			=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
-				"active"		=> $active,
-				"title"			=> $title,
-				"episodeNo"		=> intval($item->pivot->position) + 1,
-				"thumbnailUri"	=> $thumbnailUri,
-				"accessible"	=> $accessible
+				"uri"					=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
+				"active"				=> $active,
+				"title"					=> $title,
+				"episodeNo"				=> intval($item->pivot->position) + 1,
+				"thumbnailUri"			=> $thumbnailUri,
+				"accessibleToPublic"	=> $accessibleToPublic
 			);
 		}
 		
@@ -79,7 +79,7 @@ class PlayerController extends HomeBaseController {
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
-		$view->episodeAccessible = $currentMediaItem->getIsAccessible();
+		$view->episodeAccessibleToPublic = $currentMediaItem->getIsAccessibleToPublic();
 		$view->playlistTitle = $playlist->generateName();
 		$view->playlistTableData = $playlistTableData;
 		$view->playlistNextItemUri = $playlistNextItemUri;
