@@ -52,7 +52,7 @@ class PlayerController extends HomeBaseController {
 			if ($active) {
 				$activeItemIndex = $i;
 			}
-			$accessibleToPublic = $item->getIsAccessibleToPublic();
+			$accessibleToPublic = false; // TODO
 			$title = $item->name;
 			if (!$accessibleToPublic) {
 				$title = "[Inaccessible] ".$title;
@@ -79,7 +79,7 @@ class PlayerController extends HomeBaseController {
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
-		$view->episodeAccessibleToPublic = $currentMediaItem->getIsAccessibleToPublic();
+		$view->episodeAccessibleToPublic = false; // TODO
 		$view->playlistTitle = $playlist->generateName();
 		$view->playlistTableData = $playlistTableData;
 		$view->playlistNextItemUri = $playlistNextItemUri;
