@@ -10,8 +10,9 @@ $(document).ready(function() {
 			return $container;
 		};
 		
-		this.setStartTime = function(startTime) {
+		this.setStartTime = function(startTime, willBeLiveParam) {
 			queuedStartTime = startTime;
+			queuedWillBeLive = willBeLiveParam;
 			return this;
 		};
 		
@@ -82,6 +83,7 @@ $(document).ready(function() {
 		};
 		
 		this.destroy = function() {
+			clearTimeout(updateAdTimerId);
 			destroyAd();
 			destroyPlayer();
 			$container.remove();
@@ -98,6 +100,8 @@ $(document).ready(function() {
 		var queuedShowAd = true;
 		var startTime = null;
 		var queuedStartTime = null;
+		var willBeLive = null;
+		var queuedWillBeLive = null;
 		var customMsg = null;
 		var queuedCustomMsg = null;
 		var showStreamOver = null;
@@ -114,6 +118,10 @@ $(document).ready(function() {
 		var queuedPlayerAutoPlay = false;
 		var playerUrisChanged = true;
 		var playerUris = [];
+		var currentAdTimeTxt = null;
+		var currentLiveAtTxt = null;
+		// id of timer that repeatedly calls updateAd() in order for countdown to work
+		var updateAdTimerId = null;
 		
 		
 		var $container = $("<div />").addClass("player-component embed-responsive embed-responsive-16by9");
@@ -134,6 +142,12 @@ $(document).ready(function() {
 		// reference to the dom element which contains the video tag
 		var $player = null;
 		
+		
+		// this is necessary so that countdown is updated
+		updateAdTimerId = setInterval(function() {
+			updateAd();
+		}, 200);
+		
 		// updates the ad using the queued data
 		// creates/destroys the ad if necessary
 		function updateAd() {
@@ -151,20 +165,56 @@ $(document).ready(function() {
 				return;
 			}
 			
-			if ((startTime === null || startTime.getTime()) !== (queuedStartTime === null || queuedStartTime.getTime())) {
-				// TODO
-				if (queuedStartTime === null) {
-					$adLiveAt.hide();
-					$adTime.hide().text("");
+			if (queuedStartTime === null && startTime !== null) {
+				// hiding start time
+				$adLiveAt.hide().text("");
+				currentLiveAtTxt = null;
+				willBeLive = queuedWillBeLive = null;
+				$adTime.hide().text("")
+				currentAdTimeTxt = null;
+			}
+			else if (queuedStartTime !== null) {
+				var currentDate = new Date();
+				var showCountdown = queuedStartTime.getTime() > currentDate.getTime() - 300000 && queuedStartTime.getTime() > currentDate.getTime();
+				
+				var txt = null;
+				if (!showCountdown) {
+					txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
 				}
 				else {
-					$adLiveAt.show();
-					$adTime.text("[Date or countdown]").show();
-					registerFitText($adLiveAt);
-					registerFitText($adTime);
+					var secondsToGo = Math.ceil((queuedStartTime.getTime() - currentDate.getTime()) / 1000);
+					var minutes = Math.floor(secondsToGo/60);
+					var seconds = secondsToGo%60;
+					txt = minutes+" minute"+(minutes!==1?"s":"")+" "+pad(seconds, 2)+" second"+(seconds!==1?"s":"");
 				}
-				startTime = queuedStartTime;
+				
+				var queuedAdLiveAtTxt = null;
+				if (queuedWillBeLive) {
+					queuedAdLiveAtTxt = "Live ";
+				}
+				else {
+					queuedAdLiveAtTxt = "Available ";
+				}
+				willBeLive = queuedWillBeLive;
+				if (showCountdown) {
+					queuedAdLiveAtTxt = queuedAdLiveAtTxt+"In";
+				}
+				else {
+					queuedAdLiveAtTxt = queuedAdLiveAtTxt+"At";
+				}
+				
+				if (queuedAdLiveAtTxt !== currentLiveAtTxt) {
+					$adLiveAt.text(queuedAdLiveAtTxt).show();
+					registerFitText($adLiveAt);
+					currentLiveAtTxt = queuedAdLiveAtTxt;
+				}
+				if (currentAdTimeTxt !== txt) {
+					$adTime.text(txt).show();
+					registerFitText($adTime);
+					currentAdTimeTxt = txt;
+				}
 			}
+			startTime = queuedStartTime;
 			if (customMsg !== queuedCustomMsg) {
 				if (queuedCustomMsg === null) {
 					$adCustomMsg.hide().text("");
@@ -206,14 +256,12 @@ $(document).ready(function() {
 			var $img = $("<img />").attr("src", coverUri).addClass("img-responsive");
 			$bg.append($img);
 			var $overlay = $("<div />").addClass("overlay");
-			$adLiveAt = $("<div />").addClass("live-at-header fit-text txt-shadow").attr("data-compressor", "1.5").text("Live At").hide();
-			$adLiveIn = $("<div />").addClass("live-in-header fit-text txt-shadow").attr("data-compressor", "1.5").text("Live In").hide();
+			$adLiveAt = $("<div />").addClass("live-at-header fit-text txt-shadow").attr("data-compressor", "1.5").hide();
 			$adStreamOver = $("<div />").addClass("stream-over-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Stream Has Now Finished").hide();
 			$adVodAvailableShortly = $("<div />").addClass("vod-available-shortly-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Video Will Be Available To Watch On Demand Shortly").hide();
 			$adTime = $("<div />").addClass("live-time fit-text txt-shadow").attr("data-compressor", "2.1").hide();
 			$adCustomMsg = $("<div />").addClass("custom-msg fit-text txt-shadow").attr("data-compressor", "2.8").hide();
 			$overlay.append($adLiveAt);
-			$overlay.append($adLiveIn);
 			$overlay.append($adStreamOver);
 			$overlay.append($adVodAvailableShortly);
 			$overlay.append($adTime);

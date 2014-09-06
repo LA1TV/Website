@@ -8,7 +8,10 @@
 //= require video-js/video.js
 //= require jquery-fittext/jquery.fittext.js
 //= require jquery-cookie/jquery.cookie.js
+//= require jquery-dateformat/dateFormat.js
+//= require jquery-dateformat/jquery.dateFormat.js
 //= require custom_ordered/js/global-vars.js
+//= require custom_ordered/js/pad.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/fit-text-handler.js
 //= require custom_ordered/js/video-js.js

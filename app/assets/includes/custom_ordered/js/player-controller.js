@@ -131,7 +131,7 @@ $(document).ready(function() {
 					registerViewCount();
 				});
 			}
-			playerComponent.setStartTime(data.scheduledPublishTime !== null ? new Date(data.scheduledPublishTime) : null);
+			playerComponent.setStartTime(data.scheduledPublishTime !== null && data.streamState !== 3 ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
 			playerComponent.showStreamOver(data.streamState === 3);
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setCustomMsg("");
