@@ -86,7 +86,7 @@ class PlayerController extends HomeBaseController {
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
 		$view->episodeAccessible = $currentMediaItem->getIsAccessible();
-		$view->playlistTitle = $playlist->name;
+		$view->playlistTitle = $playlist->generateName();
 		$view->playlistTableData = $playlistTableData;
 		$view->playlistNextItemUri = $playlistNextItemUri;
 		$view->playlistPreviousItemUri = $playlistPreviousItemUri;

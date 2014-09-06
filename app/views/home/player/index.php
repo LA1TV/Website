@@ -11,7 +11,9 @@
 				</div>
 			</div>
 		</div>
+<?php if (!is_null($episodeDescription)): ?>
 		<div class="description-container"><?=e($episodeDescription);?></div>
+<?php endif; ?>
 		<h2>Comments</h2>
 		<p>Blah</p>
 	</div>

@@ -70,6 +70,15 @@ class Playlist extends MyEloquent {
 		return FormHelpers::formatDateForInput($this->scheduled_publish_time->timestamp);
 	}
 	
+	// returns the name from the playlist if set, otherwise the name of the show if it's linked to a show.
+	// shouldn't be a case where it's not set on playlist and not part of show
+	public function generateName() {
+		if (!is_null($this->name)) {
+			return $this->name;
+		}
+		return $this->show->name;
+	}
+	
 	private function getPlaylistContentIdsForOrderableList() {
 		$ids = array();
 		$items = $this->mediaItems()->orderBy("media_item_to_playlist.position", "asc")->get();
