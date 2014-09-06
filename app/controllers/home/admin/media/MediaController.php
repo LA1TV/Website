@@ -129,16 +129,12 @@ class MediaController extends MediaBaseController {
 			array("publish-time", ObjectHelpers::getProp("", $mediaItem, "scheduled_publish_time_for_input")),
 			array("vod-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "videoItem"))?"1":"0"),
 			array("vod-enabled", ObjectHelpers::getProp(false, $mediaItem, "videoItem", "enabled")?"y":""),
-			array("vod-name", ObjectHelpers::getProp("", $mediaItem, "videoItem", "name")),
-			array("vod-description", ObjectHelpers::getProp("", $mediaItem, "videoItem", "description")),
 			array("vod-video-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "sourceFile", "id")),
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded_for_input")),
 			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem"))?"1":"0"),
 			array("stream-enabled", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "enabled")?"y":""),
 			array("stream-state", ObjectHelpers::getProp(LiveStreamStateDefinition::first()->id, $mediaItem, "liveStreamItem", "stateDefinition", "id")),
 			array("stream-being-recorded", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "being_recorded")?"y":""),
-			array("stream-name", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "name")),
-			array("stream-description", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "description")),
 			array("stream-info-msg", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "information_msg")),
 			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id")),
 			array("related-items", json_encode(array()))
@@ -204,8 +200,6 @@ class MediaController extends MediaBaseController {
 					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
 					'vod-time-recorded'	=> array('my_date'),
 					'stream-state'	=> array('required', 'valid_stream_state_id'),
-					'stream-name'	=> array('max:50'),
-					'stream-description'	=> array('max:500'),
 					'stream-info-msg'	=> array('max:500'),
 					'stream-stream-id'	=> array('valid_stream_id'),
 					'related-items'	=> array('required', 'valid_related_items')
@@ -225,8 +219,6 @@ class MediaController extends MediaBaseController {
 					'vod-time-recorded.not_specified'	=> "This cannot be set if this is a recording of a live stream. The time will be inferred from the scheduled live time.",
 					'stream-state.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-state.valid_stream_state_id'	=> FormHelpers::getGenericInvalidMsg(),
-					'stream-name.max'	=> FormHelpers::getLessThanCharactersMsg(50),
-					'stream-description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-info-msg.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg(),
 					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
@@ -285,8 +277,6 @@ class MediaController extends MediaBaseController {
 						}
 						
 						$mediaItemVideo->time_recorded = FormHelpers::nullIfEmpty(strtotime($formData['vod-time-recorded']));
-						$mediaItemVideo->name = FormHelpers::nullIfEmpty($formData['vod-name']);
-						$mediaItemVideo->description = FormHelpers::nullIfEmpty($formData['vod-description']);
 						$mediaItemVideo->enabled = FormHelpers::toBoolean($formData['vod-enabled']);
 						
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
@@ -317,8 +307,6 @@ class MediaController extends MediaBaseController {
 							$mediaItemLiveStream = new MediaItemLiveStream();
 						}
 						
-						$mediaItemLiveStream->name = FormHelpers::nullIfEmpty($formData['stream-name']);
-						$mediaItemLiveStream->description = FormHelpers::nullIfEmpty($formData['stream-description']);
 						$mediaItemLiveStream->information_msg = FormHelpers::nullIfEmpty($formData['stream-info-msg']);
 						$mediaItemLiveStream->being_recorded = FormHelpers::toBoolean($formData['stream-being-recorded']);
 						$mediaItemLiveStream->enabled = FormHelpers::toBoolean($formData['stream-enabled']);
