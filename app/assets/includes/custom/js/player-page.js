@@ -88,13 +88,19 @@ $(document).ready(function() {
 			
 			function renderLikeButton() {
 				var likeType = playerController.getLikeType();
+				var numLikes = playerController.getNumLikes();
+				var txt = null;
 				// ignoring dislikes for now. maybe implement in the future
 				if (likeType === "like") {
-					$likeButtonTxt.text(" Liked!");
+					txt = " Liked!";
 				}
 				else {
-					$likeButtonTxt.text(" Like!");
+					txt = " Like!";
 				}
+				if (numLikes !== null) {
+					txt = txt+" ("+playerController.getNumLikes()+")";
+				}
+				$likeButtonTxt.text(txt);
 			}
 		});
 		

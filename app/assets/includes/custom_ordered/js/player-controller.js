@@ -282,8 +282,8 @@ $(document).ready(function() {
 									dislikesChanged = true;
 								}
 								else if (type === "reset") {
-									numDislikes--;
-									dislikesChanged = true;
+									numLikes--;
+									likesChanged = true;
 								}
 							}
 							else if (previousLikeType === "dislike") {
@@ -294,8 +294,8 @@ $(document).ready(function() {
 									dislikesChanged = true;
 								}
 								else if (type === "reset") {
-									numLikes--;
-									likesChanged = true;
+									numDisikes--;
+									dislikesChanged = true;
 								}
 							}
 							if (type === "like") {
