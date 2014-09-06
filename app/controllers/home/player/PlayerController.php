@@ -10,8 +10,6 @@ use Config;
 use Facebook;
 use Auth;
 
-use DB; //TODO: remove
-
 class PlayerController extends HomeBaseController {
 
 	public function getIndex($playlistId, $mediaItemId) {
@@ -95,8 +93,6 @@ class PlayerController extends HomeBaseController {
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
-		
-		dd(DB::getQueryLog());
 		$this->setContent($view, "player", "player");
 	}
 	
