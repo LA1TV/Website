@@ -27,9 +27,12 @@ class PlayerController extends HomeBaseController {
 		
 		$playlistTableData = array();
 		$activeItemIndex = null;
-		foreach($playlistMediaItems as $item) {
+		foreach($playlistMediaItems as $i=>$item) {
 			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, 1920, 1080);
 			$active = intval($item->id) === intval($currentMediaItem->id);
+			if ($active) {
+				$activeItemIndex = $i;
+			}
 			$playlistTableData[] = array(
 				"uri"			=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
 				"active"		=> $active,
