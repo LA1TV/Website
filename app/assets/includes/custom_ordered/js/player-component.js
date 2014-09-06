@@ -175,7 +175,7 @@ $(document).ready(function() {
 			}
 			else if (queuedStartTime !== null) {
 				var currentDate = new Date();
-				var showCountdown = queuedStartTime.getTime() > currentDate.getTime() - 300000 && queuedStartTime.getTime() > currentDate.getTime();
+				var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
 				
 				var txt = null;
 				if (!showCountdown) {
