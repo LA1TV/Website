@@ -8,22 +8,49 @@ use uk\co\la1tv\website\models\MediaItem;
 use Response;
 use Config;
 use Facebook;
+use Auth;
+
 
 class PlayerController extends HomeBaseController {
 
 	public function getIndex($playlistId, $mediaItemId) {
 		
-		$playlist = Playlist::with("show", "mediaItems")->find(intval($playlistId));
+		// true if a user is logged into the cms and has permission to view media items.
+		$userHasMediaItemsPermission = false;
+		
+		// true if a user is logged into the cms and has permission to view playlists.
+		$userHasMediaItemsPermission = false;
+		
+		if (Auth::isLoggedIn()) {
+			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
+			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
+		}
+		
+		$playlist = Playlist::with("show", "mediaItems");
+		if (!$userHasPlaylistsPermission) {
+			// current cms user (if logged in) does not have permission to view playlists, so only search accessible playlists.
+			$playlist = $playlist->accessible();
+		}
+		$playlist = $playlist->find(intval($playlistId));
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
 		
-		$currentMediaItem = $playlist->mediaItems()->find($mediaItemId);
+		$currentMediaItem = $playlist->mediaItems();
+		if (!$userHasMediaItemsPermission) {
+			// current cms user (if logged in) does not have permission to view media items, so only search accessible media items.
+			$currentMediaItem = $currentMediaItem->accessible();
+		}
+		$currentMediaItem = $currentMediaItem->find($mediaItemId);
 		if (is_null($currentMediaItem)) {
 			App::abort(404);
 		}
 		
-		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
+		$playlistMediaItems = $playlist->mediaItems();
+		if (!$userHasMediaItemsPermission) {
+			$playlistMediaItems = $playlistMediaItems->accessible();
+		}
+		$playlistMediaItems = $playlistMediaItems->orderBy("media_item_to_playlist.position")->get();
 		
 		$playlistTableData = array();
 		$activeItemIndex = null;
@@ -33,12 +60,18 @@ class PlayerController extends HomeBaseController {
 			if ($active) {
 				$activeItemIndex = $i;
 			}
+			$accessible = $item->getIsAccessible();
+			$title = $item->name;
+			if (!$accessible) {
+				$title = "[Inaccessible] ".$title;
+			}
 			$playlistTableData[] = array(
 				"uri"			=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
 				"active"		=> $active,
-				"title"			=> $item->name,
+				"title"			=> $title,
 				"episodeNo"		=> intval($item->pivot->position) + 1,
-				"thumbnailUri"	=> $thumbnailUri
+				"thumbnailUri"	=> $thumbnailUri,
+				"accessible"	=> $accessible
 			);
 		}
 		
@@ -54,6 +87,7 @@ class PlayerController extends HomeBaseController {
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
+		$view->episodeAccessible = $currentMediaItem->getIsAccessible();
 		$view->playlistTitle = $playlist->name;
 		$view->playlistTableData = $playlistTableData;
 		$view->playlistNextItemUri = $playlistNextItemUri;
