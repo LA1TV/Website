@@ -95,7 +95,7 @@ class MediaItemVideo extends MyEloquent {
 		if (is_null($this->mediaItem->scheduled_publish_time)) {
 			return true;
 		}
-		return $this->mediaItem->scheduled_publish_time < Carbon::now();
+		return $this->mediaItem->scheduled_publish_time->isPast();
 	}
 	
 	public function scopeLive($q) {
