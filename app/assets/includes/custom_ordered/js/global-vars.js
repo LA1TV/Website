@@ -6,5 +6,5 @@ $(document).ready(function() {
 	var $body = $("body");
 	baseUrl = $body.attr("data-baseurl");
 	assetsBaseUrl = $body.attr("data-assetsbaseurl");
-	loggedIn = $body.attr("data-loggedin");
+	loggedIn = $body.attr("data-loggedin") === "1";
 });
