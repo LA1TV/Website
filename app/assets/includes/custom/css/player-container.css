@@ -1,0 +1,20 @@
+.player-container .bottom-container {
+	margin-top: 4px;
+}
+
+.player-container .bottom-container .view-count {
+	display: inline-block;
+	float: left;
+	font-weight: bold;
+}
+
+.player-container .bottom-container .right-section {
+	display: inline-block;
+	float: right;
+	margin-left: 15px;
+}
+
+.player-container .bottom-container .right-section .item-container {
+	display: inline-block;
+	margin-left: 5px;
+}
