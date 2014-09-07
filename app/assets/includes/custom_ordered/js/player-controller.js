@@ -135,6 +135,7 @@ $(document).ready(function() {
 			playerComponent.showStreamOver(data.streamState === 3);
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setCustomMsg("");
+			playerComponent.setPlayerUris([]);
 			if (data.streamState === 1 || data.streamState === 3) {
 				// show stream info message if the stream is enabled and is either "not live", or "stream over"
 				playerComponent.setCustomMsg(data.streamInfoMsg);
