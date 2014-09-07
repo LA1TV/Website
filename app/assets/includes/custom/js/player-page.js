@@ -60,7 +60,7 @@ $(document).ready(function() {
 				});
 			});
 			
-			$(playerController).on("likeTypeChanged numLikesChanged", function() {
+			$(playerController).on("likeTypeChanged numLikesChanged streamStateChanged playerTypeChanged", function() {
 				renderLikeButton();
 			});
 			
@@ -89,8 +89,19 @@ $(document).ready(function() {
 			function renderLikeButton() {
 				var likeType = playerController.getLikeType();
 				var numLikes = playerController.getNumLikes();
+				var streamState = playerController.getStreamState();
+				var playerType = playerController.getPlayerType();
 				var txt = null;
 				// ignoring dislikes for now. maybe implement in the future
+				
+				// enable like button if no content unless it's an ad because stream is over.
+				if (playerType === "ad" && streamState !== 3) {
+					$likeButton.hide();
+				}
+				else {
+					$likeButton.show();
+				}
+				
 				if (likeType === "like") {
 					txt = " Liked!";
 				}

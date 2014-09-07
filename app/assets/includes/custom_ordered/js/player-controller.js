@@ -77,6 +77,11 @@ $(document).ready(function() {
 		this.getPlayerType = function() {
 			return currentPlayerType;
 		}
+		
+		// 1=not live, 2=live, 3=show over, null=no live stream
+		this.getStreamState = function() {
+			return streamState;
+		};
 
 		var destroyed = false;
 		var timerId = null;
@@ -88,6 +93,7 @@ $(document).ready(function() {
 		var numLikes = null;
 		var numDislikes = null;
 		var likeType = null; // "like", "dislike" or null
+		var streamState = null;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			updatePlayer();
@@ -131,6 +137,12 @@ $(document).ready(function() {
 					registerViewCount();
 				});
 			}
+			
+			if (data.streamState !== streamState) {
+				streamState = data.streamState;
+				$(self).triggerHandler("streamStateChanged");
+			}
+			
 			playerComponent.setStartTime(data.scheduledPublishTime !== null && data.streamState !== 3 ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
 			playerComponent.showStreamOver(data.streamState === 3);
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
