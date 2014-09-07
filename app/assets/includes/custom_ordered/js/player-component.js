@@ -174,7 +174,7 @@ $(document).ready(function() {
 				currentAdTimeTxt = null;
 			}
 			else if (queuedStartTime !== null) {
-				var currentDate = new Date();
+				var currentDate = SynchronisedTime.getDate();
 				var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
 				
 				var txt = null;
