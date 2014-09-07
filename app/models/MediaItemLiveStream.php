@@ -24,7 +24,7 @@ class MediaItemLiveStream extends MyEloquent {
 	// if the state is set to "live" but there is no live stream attached to, or the attached live stream is not live, then the resolved version is "Not Live"
 	public function getResolvedStateDefinition() {
 		$stateDefinition = $this->stateDefinition;
-		if (intval($stateDefinition->id) === 2 && (is_null($this->liveStream) || !$this->liveStream->getIsAcceessible())) {
+		if (intval($stateDefinition->id) === 2 && (is_null($this->liveStream) || !$this->liveStream->getIsAccessible())) {
 			// set to "live" but no live stream attached or live. Pretend "Not Live"
 			return LiveStreamStateDefinition::find(1);
 		}
