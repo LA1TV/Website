@@ -4,15 +4,16 @@
 // https://github.com/CodeSleeve/asset-pipeline
 //
 //= require_tree jquery
-//= require bootstrap/js/bootstrap.min.js
-//= require video-js/video.js
 //= require jquery-fittext/jquery.fittext.js
 //= require jquery-cookie/jquery.cookie.js
 //= require jquery-dateformat/dateFormat.js
 //= require jquery-dateformat/jquery.dateFormat.js
+//= require bootstrap/js/bootstrap.min.js
+//= require video-js/video.js
 //= require custom_ordered/js/global-vars.js
 //= require custom_ordered/js/pad.js
 //= require custom_ordered/js/csrf.js
+//= require custom_ordered/js/synchronised-time.js
 //= require custom_ordered/js/fit-text-handler.js
 //= require custom_ordered/js/video-js.js
 //= require custom_ordered/js/player-component.js

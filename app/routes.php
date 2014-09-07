@@ -38,6 +38,7 @@ Route::group(array('before' => 'csrf'), function() use(&$p) {
 	// make upload controller also accessible at /file
 	Route::controller('/file', $p.'home\admin\upload\UploadController');
 
+	Route::controller('/ajax', $p.'home\ajax\AjaxController');
 	Route::controller('/about', $p.'home\about\AboutController');
 	Route::controller('/contact', $p.'home\contact\ContactController');
 	Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
