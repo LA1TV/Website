@@ -313,7 +313,7 @@ $(document).ready(function() {
 			destroyPlayer();
 		
 			$player = $("<div />").addClass("player embed-responsive-item");
-			var $video = $("<video />").addClass("video-js vjs-default-skin");
+			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri);
 			$player.append($video);
 			videoJsPlayer = videojs($video[0], {
 				width: "100%",
