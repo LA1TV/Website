@@ -20,6 +20,7 @@ $(document).ready(function() {
 		};
 		
 		this.setQuality = function(qualityId, userChosen) {
+			console.log("setting quality", qualityId);
 			var userChosen = userChosen || false;
 			var requestedQuality = getQualityFromId(qualityId);
 			if (requestedQuality === null) {
@@ -38,6 +39,7 @@ $(document).ready(function() {
 		};
 		
 		this.setAvailableQualities = function(qualities) {
+			console.log("setting available qualities", qualities);
 			availableQualities = qualities;
 			
 			if (!self.hasQualities()) {
