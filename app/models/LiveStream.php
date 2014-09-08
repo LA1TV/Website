@@ -51,22 +51,33 @@ class LiveStream extends MyEloquent {
 		return $ids;
 	}
 	
-	public function getUrisWithQualities() {
-		$this->load("qualities", "qualities.qualityDefinition");
+	public function getQualitiesWithUris() {
+		$this->load("qualities", "qualities.liveStreamQualities");
 		
-		$uris = array();
+		$qualities = array();
 		$positions = array();
-		foreach($this->qualities as $a) {
-			$qualityDefinition = $a->qualityDefinition;
-			$positions[] = intval($qualityDefinition->position);
-			$uris[] = array(
-				"uri"				=> $a->getBuiltUrl($this->server_address, "live", $this->stream_name),
-				"qualityDefinition"	=> $a->qualityDefinition
+		foreach($this->qualities()->orderBy("position", "asc")->get() as $a) {
+			
+			$liveStreamQualities = $a->liveStreamQualities;
+			if (count($liveStreamQualities) === 0) {
+				// don't show a quality entry if there are not stream uris for that quality definition
+				continue;
+			}
+			
+			$uris = array();
+			foreach($liveStreamQualities as $b) {
+				$uris[] = array(
+					"uri"	=> $b->getBuiltUrl($this->server_address, "live", $this->stream_name),
+					"type"	=> $b->type
+				);
+			}
+			
+			$qualities[] = array(
+				"qualityDefinition"	=> $a,
+				"uris"				=> $uris
 			);
 		}
-		// reorder so in qualities order
-		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $uris);
-		return $uris;
+		return $qualities;
 	}
 	
 	

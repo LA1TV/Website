@@ -168,7 +168,7 @@ $(document).ready(function() {
 				qualitiesHandler.setAvailableQualities(qualities);
 				var chosenQualityId = qualitiesHandler.getChosenQualityId();
 				var streamUri = data.streamUris[qualityIds.indexOf(chosenQualityId)];
-				playerComponent.setPlayerUris([streamUri.uri]);
+				playerComponent.setPlayerUris(streamUri.uris);
 			}
 			else if (data.vodLive) {
 				// video should be live

@@ -11,7 +11,7 @@ class QualityDefinition extends MyEloquent {
 		return $this->hasMany(self::$p.'VideoFile', 'quality_definition_id');
 	}
 	
-	public function liveStreamQualties() {
+	public function liveStreamQualities() {
 		return $this->hasMany(self::$p.'LiveStreamQuality', 'quality_definition_id');
 	}
 	

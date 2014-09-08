@@ -302,8 +302,7 @@ $(document).ready(function() {
 			// set the sources
 			for (var i=0; i<playerUris.length; i++) {
 				var uri = playerUris[i];
-				// TODO: get type dynamically
-				var $source = $("<source />").attr("type", "rtmp/mp4").attr("src", uri);
+				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
 				$video.append($source);
 			}
 
@@ -369,7 +368,9 @@ $(document).ready(function() {
 			}
 			
 			for (var i=0; i<queuedPlayerUris.length; i++) {
-				if (queuedPlayerUris[i] !== playerUris[i]) {
+				var queuedUri = queuedPlayerUris[i];
+				var uri = playerUris[i];
+				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type) {
 					return true;
 				}
 			}

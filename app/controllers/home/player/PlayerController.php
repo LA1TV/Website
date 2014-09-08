@@ -165,13 +165,13 @@ class PlayerController extends HomeBaseController {
 		// return the uris if the live stream is enabled (live), or the logged in cms user has permission
 		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
 		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $userHasMediaItemsPermission)) {
-			foreach($liveStream->getUrisWithQualities() as $uriWithQuality) {
+			foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
 				$streamUris[] = array(
 					"quality"	=> array(
-						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
-						"name"	=> $uriWithQuality['qualityDefinition']->name
+						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+						"name"	=> $qualityWithUris['qualityDefinition']->name
 					),
-					"uris"		=> $uriWithQuality['uri']
+					"uris"		=> $qualityWithUris['uris']
 				);
 			}
 		}
@@ -185,7 +185,8 @@ class PlayerController extends HomeBaseController {
 						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
 						"name"	=> $uriWithQuality['qualityDefinition']->name
 					),
-					"uris"		=> array("uri"=>$uriWithQuality['uri']) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
+					// TODO: tidy this up
+					"uris"		=> array(array("uri"=>$uriWithQuality['uri'], "type"=>"video/mp4")) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
 				);
 			}
 		}
