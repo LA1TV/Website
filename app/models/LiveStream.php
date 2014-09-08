@@ -82,11 +82,11 @@ class LiveStream extends MyEloquent {
 	
 	
 	public function getIsAccessible() {
-		return $this->enabled;
+		return $this->enabled && $this->qualities()->count() > 0;
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("enabled", true);
+		return $q->where("enabled", true)->has("qualities", ">", 0);
 	}
 	
 	public function scopeSearch($q, $value) {

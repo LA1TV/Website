@@ -12,6 +12,9 @@ $(document).ready(function() {
 		};
 		
 		this.getChosenQualityId = function() {
+			if (chosenQuality === null) {
+				throw "No quality has been chosen. There probably aren't any available.";
+			}
 			return chosenQuality.id;
 		};
 		
@@ -20,7 +23,6 @@ $(document).ready(function() {
 		};
 		
 		this.setQuality = function(qualityId, userChosen) {
-			console.log("setting quality", qualityId);
 			var userChosen = userChosen || false;
 			var requestedQuality = getQualityFromId(qualityId);
 			if (requestedQuality === null) {
@@ -39,7 +41,6 @@ $(document).ready(function() {
 		};
 		
 		this.setAvailableQualities = function(qualities) {
-			console.log("setting available qualities", qualities);
 			availableQualities = qualities;
 			
 			if (!self.hasQualities()) {
