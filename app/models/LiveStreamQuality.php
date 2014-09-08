@@ -4,7 +4,7 @@
 class LiveStreamQuality extends MyEloquent {
 	
 	protected $table = 'live_streams_qualities';
-	protected $fillable = array('id', 'uri_template', 'type');
+	protected $fillable = array('uri_template', 'type');
 
 	public function qualityDefinition() {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');

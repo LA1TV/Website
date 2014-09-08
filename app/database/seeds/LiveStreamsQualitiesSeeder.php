@@ -27,7 +27,6 @@ class LiveStreamsQualitiesSeeder extends Seeder {
 				$oldModel->delete();
 			}
 			$model = new LiveStreamQuality(array(
-				"id"			=> $b+1,
 				"position"		=> $b,
 				"uri_template"	=> $a[0],
 				"type"			=> $a[2]
