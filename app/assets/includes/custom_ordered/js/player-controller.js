@@ -155,6 +155,20 @@ $(document).ready(function() {
 			if (data.streamState === 2) {
 				// stream should be live
 				setPlayerType("live");
+				var qualities = [];
+				var qualityIds = [];
+				for (var i=0; i<data.streamUris.length; i++) {
+					var streamUri = data.streamUris[i];
+					qualities.push({
+						id:		streamUri.quality.id,
+						name:	streamUri.quality.name
+					});
+					qualityIds.push(streamUri.quality.id);
+				}
+				qualitiesHandler.setAvailableQualities(qualities);
+				var chosenQualityId = qualitiesHandler.getChosenQualityId();
+				var streamUri = data.streamUris[qualityIds.indexOf(chosenQualityId)];
+				playerComponent.setPlayerUris([streamUri.uri]);
 			}
 			else if (data.vodLive) {
 				// video should be live

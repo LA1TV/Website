@@ -171,7 +171,7 @@ class PlayerController extends HomeBaseController {
 						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
 						"name"	=> $uriWithQuality['qualityDefinition']->name
 					),
-					"uri"		=> $uriWithQuality['uri']
+					"uris"		=> $uriWithQuality['uri']
 				);
 			}
 		}
@@ -185,7 +185,7 @@ class PlayerController extends HomeBaseController {
 						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
 						"name"	=> $uriWithQuality['qualityDefinition']->name
 					),
-					"uris"		=> array($uriWithQuality['uri']) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
+					"uris"		=> array("uri"=>$uriWithQuality['uri']) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
 				);
 			}
 		}

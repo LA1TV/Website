@@ -1,12 +1,12 @@
-<?php namespace uk\co\la1tv\website\controllers\home\admin\liveStreamQualities;
+<?php namespace uk\co\la1tv\website\controllers\home\admin\qualityDefinitions;
 
 use Response;
 use Auth;
 use Config;
 use FormHelpers;
-use uk\co\la1tv\website\models\LiveStreamQuality;
+use uk\co\la1tv\website\models\QualityDefinition;
 
-class LiveStreamQualitiesController extends LiveStreamQualitiesBaseController {
+class QualityDefinitionsController extends QualityDefinitionsBaseController {
 
 	// json data for ajaxSelect element
 	public function postAjaxselect() {
@@ -18,15 +18,16 @@ class LiveStreamQualitiesController extends LiveStreamQualitiesBaseController {
 		$searchTerm = FormHelpers::getValue("term", "");
 		$qualities = null;
 		if (!empty($searchTerm)) {
-			$qualities = LiveStreamQuality::with("qualityDefinition")->search($searchTerm)->orderBy("position", "asc")->get();
+			$qualities = QualityDefinition::search($searchTerm)->orderBy("position")->get();
 		}
 		else {
-			$qualities = LiveStreamQuality::with("qualityDefinition")->orderBy("position", "asc")->get();
+			$qualities = QualityDefinition::orderBy("position")->get();
 		}
 		$results = array();
 		foreach($qualities as $a) {
-			$results[] = array("id"=>intval($a->id), "text"=>$a->qualityDefinition->name);
+			$results[] = array("id"=>intval($a->id), "text"=>$a->name);
 		}
+		
 		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
 		$resp['success'] = true;
 		return Response::json($resp);

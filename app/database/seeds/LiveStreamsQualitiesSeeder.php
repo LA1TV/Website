@@ -11,13 +11,15 @@ class LiveStreamsQualitiesSeeder extends Seeder {
 	 * @return void
 	 */
 	public function run() {
+	
+		rtmp://148.88.67.140:1935/live/studio_720p
 		
 		$qualities = array(
-			array("http://{domain}:1935/{appName}/{streamName}_all", 7),
-			array("http://{domain}:1935/{appName}/ngrp:{streamName}_720", 2),
-			array("http://{domain}:1935/{appName}/{streamName}_360", 4),
-			array("http://{domain}:1935/{appName}/{streamName}_240", 5),
-			array("http://{domain}:1935/{appName}/{streamName}_160", 6)
+			array("rtmp://{domain}/{appName}/ngrp:{streamName}_all", 7, "rtmp/mp4"),
+			array("rtmp://{domain}/{appName}/{streamName}_720", 2, "rtmp/mp4"),
+			array("rtmp://{domain}/{appName}/{streamName}_360", 4, "rtmp/mp4"),
+			array("rtmp://{domain}/{appName}/{streamName}_240", 5, "rtmp/mp4"),
+			array("rtmp://{domain}/{appName}/{streamName}_160", 6, "rtmp/mp4")
 		);
 		
 		foreach($qualities as $b=>$a) {
@@ -29,7 +31,8 @@ class LiveStreamsQualitiesSeeder extends Seeder {
 			$model = new LiveStreamQuality(array(
 				"id"			=> $b+1,
 				"position"		=> $b,
-				"uri_template"	=> $a[0]
+				"uri_template"	=> $a[0],
+				"type"			=> $a[2]
 			));
 			$model->qualityDefinition()->associate($qualityDefinition);
 			$model->save();

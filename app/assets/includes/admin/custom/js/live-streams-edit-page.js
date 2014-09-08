@@ -11,7 +11,7 @@ $(document).ready(function() {
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
 			var reorderableList = new ReorderableList(true, true, true, function(state) {
-				var ajaxSelect = new AjaxSelect(baseUrl+"/admin/live-stream-qualities/ajaxselect", state);
+				var ajaxSelect = new AjaxSelect(baseUrl+"/admin/quality-definitions/ajaxselect", state);
 				$(ajaxSelect).on("dropdownOpened", function() {
 					reorderableList.scrollToComponent(ajaxSelect);
 				});

@@ -30,11 +30,20 @@ class LiveStream extends MyEloquent {
 	}
 	
 	public function qualities() {
-		return $this->belongsToMany(self::$p.'LiveStreamQuality', 'live_stream_qualitiy_to_live_stream', 'live_stream_id', 'live_stream_quality_id');
+		return $this->belongsToMany(self::$p.'QualityDefinition', 'quality_definition_to_live_stream', 'live_stream_id', 'quality_definition_id');
+	}
+	
+	public function getQualitiesForInputAttribute() {
+		return QualityDefinition::generateInputValueForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
+	}
+	
+	public function getQualitiesForOrderableListAttribute() {
+		return QualityDefinition::generateInitialDataForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
 	}
 	
 	private function getQualityIdsForOrderableList() {
 		$ids = array();
+		$this->load("qualities");
 		$items = $this->qualities()->orderBy("position", "asc")->get();
 		foreach($items as $a) {
 			$ids[] = intval($a->id);
@@ -60,13 +69,6 @@ class LiveStream extends MyEloquent {
 		return $uris;
 	}
 	
-	public function getQualitiesForInputAttribute() {
-		return LiveStreamQuality::generateInputValueForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
-	}
-	
-	public function getQualitiesForOrderableListAttribute() {
-		return LiveStreamQuality::generateInitialDataForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
-	}
 	
 	public function getIsAccessible() {
 		return $this->enabled;

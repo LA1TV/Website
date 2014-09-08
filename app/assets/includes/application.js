@@ -9,8 +9,8 @@
 //= require jquery-dateformat/dateFormat.js
 //= require jquery-dateformat/jquery.dateFormat.js
 //= require bootstrap/js/bootstrap.min.js
-//= require video-js/video.js
 //= require custom_ordered/js/global-vars.js
+//= require video-js/video.js
 //= require custom_ordered/js/pad.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/synchronised-time.js

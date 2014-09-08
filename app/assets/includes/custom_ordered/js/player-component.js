@@ -40,23 +40,7 @@ $(document).ready(function() {
 		};
 		
 		this.setPlayerUris = function(uris) {
-			if (playerUris !== null) {
-				// see if changed.
-				if (playerUris.length === uris.length) {
-					var changed = false;
-					for (var i=0; i<uris.length; i++) {
-						if (uris[i] !== playerUris[i]) {
-							changed = true;
-							break;
-						}
-					}
-					if (!changed) {
-						return;
-					}
-				}
-			}
-			playerUris = uris;
-			playerUrisChanged = true;
+			queuedPlayerUris = uris;
 			return this;
 		};
 		
@@ -116,8 +100,8 @@ $(document).ready(function() {
 		var queuedShowPlayer = false;
 		var playerAutoPlay = null;
 		var queuedPlayerAutoPlay = false;
-		var playerUrisChanged = true;
-		var playerUris = [];
+		var playerUris = null;
+		var queuedPlayerUris = [];
 		var currentAdTimeTxt = null;
 		var currentLiveAtTxt = null;
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
@@ -285,7 +269,7 @@ $(document).ready(function() {
 		function updatePlayer() {
 			
 			// determine if the player has to be reloaded or the settings can be applied in place.
-			var reloadRequired = playerType !== queuedPlayerType || playerPreload !== queuedPlayerPreload || showPlayer !== queuedShowPlayer || playerUrisChanged;
+			var reloadRequired = playerType !== queuedPlayerType || playerPreload !== queuedPlayerPreload || showPlayer !== queuedShowPlayer || havePlayerUrisChanged();
 			
 			if (playerAutoPlay !== queuedPlayerAutoPlay) {
 				playerAutoPlay = queuedPlayerAutoPlay;
@@ -296,7 +280,7 @@ $(document).ready(function() {
 				playerType = queuedPlayerType;
 				playerPreload = queuedPlayerPreload;
 				showPlayer = queuedShowPlayer;
-				playerUrisChanged = false;
+				playerUris = queuedPlayerUris;
 				if (!showPlayer) {
 					destroyPlayer();
 				}
@@ -311,15 +295,25 @@ $(document).ready(function() {
 		function createPlayer() {
 			// destroy current player if there is one
 			destroyPlayer();
-		
+			
 			$player = $("<div />").addClass("player embed-responsive-item");
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri);
+			
+			// set the sources
+			for (var i=0; i<playerUris.length; i++) {
+				var uri = playerUris[i];
+				// TODO: get type dynamically
+				var $source = $("<source />").attr("type", "rtmp/mp4").attr("src", uri);
+				$video.append($source);
+			}
+
 			$player.append($video);
 			videoJsPlayer = videojs($video[0], {
 				width: "100%",
 				height: "100%",
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
+				techOrder: ["html5", "flash"],
 				autoplay: false, // implementing autoplay manually using callback
 				poster: coverUri,
 				loop: false
@@ -328,7 +322,6 @@ $(document).ready(function() {
 				$(self).triggerHandler("playerLoaded");
 			});
 			registerVideoJsEventHandlers();
-			updateVideoJsSrcs();
 			$container.append($player);
 		}
 		
@@ -344,18 +337,6 @@ $(document).ready(function() {
 			$player.remove();
 			$player = null;
 			$(self).triggerHandler("playerDestroyed");
-		}
-		
-		function updateVideoJsSrcs() {
-			var sources = [];
-			for (var i=0; i<playerUris.length; i++) {
-				var uri = playerUris[i];
-				sources.push({
-					type: "video/mp4",
-					src: uri
-				});
-			}
-			videoJsPlayer.src(sources);
 		}
 		
 		function registerVideoJsEventHandlers() {
@@ -376,6 +357,23 @@ $(document).ready(function() {
 			videoJsPlayer.on("ended", function() {
 				$(self).triggerHandler("ended");
 			});
+		}
+		
+		function havePlayerUrisChanged() {
+			if ((queuedPlayerUris === null && playerUris !== null) || (queuedPlayerUris !== null && playerUris === null)) {
+				return true;
+			}
+			
+			if (playerUris.length !== queuedPlayerUris.length) {
+				return true;
+			}
+			
+			for (var i=0; i<queuedPlayerUris.length; i++) {
+				if (queuedPlayerUris[i] !== playerUris[i]) {
+					return true;
+				}
+			}
+			return false;
 		}
 		
 	};

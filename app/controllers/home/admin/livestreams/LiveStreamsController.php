@@ -12,7 +12,7 @@ use Auth;
 use App;
 use JsonHelpers;
 use uk\co\la1tv\website\models\LiveStream;
-use uk\co\la1tv\website\models\LiveStreamQuality;
+use uk\co\la1tv\website\models\QualityDefinition;
 
 class LiveStreamsController extends LiveStreamsBaseController {
 
@@ -103,8 +103,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "qualities_for_orderable_list");
 		}
 		else {
-			$additionalFormData['qualitiesInput'] = LiveStreamQuality::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['qualities'], true));
-			$additionalFormData['qualitiesInitialData'] = LiveStreamQuality::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["qualities"], true));
+			$additionalFormData['qualitiesInput'] = QualityDefinition::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['qualities'], true));
+			$additionalFormData['qualitiesInitialData'] = QualityDefinition::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["qualities"], true));
 		}
 		
 		$errors = null;
@@ -114,7 +114,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				
 				Validator::extend("valid_ip_or_domain", FormHelpers::getValidIPOrDomainFunction());
 				Validator::extend('valid_qualities', function($attribute, $value, $parameters) {
-					return LiveStreamQuality::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+					return QualityDefinition::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 				});
 				
 				$validator = Validator::make($formData,	array(
@@ -157,7 +157,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					$liveStream->qualities()->detach(); // detaches all
 					$ids = json_decode($formData['qualities'], true);
 					if (count($ids) > 0) {
-						$qualities = LiveStreamQuality::whereIn("id", $ids)->get();
+						$qualities = QualityDefinition::whereIn("id", $ids)->get();
 						foreach($qualities as $a) {
 							$liveStream->qualities()->attach($a);
 						}
