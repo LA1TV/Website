@@ -44,7 +44,7 @@ class TruncateTablesSeeder extends Seeder {
 		DB::table("media_item_to_playlist")->truncate();
 		DB::table("permission_to_group")->truncate();
 		DB::table("user_to_group")->truncate();
-		DB::table("live_stream_qualitiy_to_live_stream")->truncate();
+		DB::table("quality_definition_to_live_stream")->truncate();
 		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 		
 		$this->command->info('Tables truncated!');

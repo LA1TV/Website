@@ -11,8 +11,6 @@ class LiveStreamsQualitiesSeeder extends Seeder {
 	 * @return void
 	 */
 	public function run() {
-	
-		rtmp://148.88.67.140:1935/live/studio_720p
 		
 		$qualities = array(
 			array("rtmp://{domain}/{appName}/ngrp:{streamName}_all", 7, "rtmp/mp4"),

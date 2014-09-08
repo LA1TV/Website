@@ -1,7 +1,6 @@
 <?php
 
 use uk\co\la1tv\website\models\LiveStream;
-use uk\co\la1tv\website\models\LiveStreamQuality;
 use uk\co\la1tv\website\models\QualityDefinition;
 
 class LiveStreamsSeeder extends Seeder {
@@ -26,8 +25,8 @@ class LiveStreamsSeeder extends Seeder {
 					"enabled"	=> false
 				));
 				$stream->save();
-				$stream->qualities()->attach(LiveStreamQuality::find(1));
-				$stream->qualities()->attach(LiveStreamQuality::find(2));
+				$stream->qualities()->attach(QualityDefinition::find(1));
+				$stream->qualities()->attach(QualityDefinition::find(2));
 				
 			});
 		}
