@@ -1,7 +1,7 @@
 <?php
 
 use uk\co\la1tv\website\models\LiveStream;
-use uk\co\la1tv\website\models\LiveStreamQuality;
+use uk\co\la1tv\website\models\LiveStreamUri;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemComment;
 use uk\co\la1tv\website\models\MediaItemLike;
@@ -35,7 +35,7 @@ class TruncateTablesSeeder extends Seeder {
 		Permission::truncate();
 		PermissionGroup::truncate();
 		QualityDefinition::truncate();
-		LiveStreamQuality::truncate();
+		LiveStreamUri::truncate();
 		Playlist::truncate();
 		Show::truncate();
 		SiteUser::truncate();
