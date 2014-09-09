@@ -13,14 +13,14 @@ class LiveStreamUrisSeeder extends Seeder {
 	public function run() {
 		
 		$qualities = array(
-			array("rtmp://{domain}/{appName}/{streamName}_720", 2, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_720/playlist.m3u8", 2, "video/mp4", "mobile"),
-			array("rtmp://{domain}/{appName}/{streamName}_360", 4, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_360/playlist.m3u8", 4, "video/mp4", "mobile"),
-			array("rtmp://{domain}/{appName}/{streamName}_240", 5, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_240/playlist.m3u8", 5, "video/mp4", "mobile"),
-			array("rtmp://{domain}/{appName}/{streamName}_160", 6, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_160/playlist.m3u8", 6, "video/mp4", "mobile"),
+			array("rtmp://{domain}/{appName}/{streamName}_720p", 2, "rtmp/mp4", null),
+			array("http://{domain}/{appName}/{streamName}_720p/playlist.m3u8", 2, "video/mp4", "mobile"),
+			array("rtmp://{domain}/{appName}/{streamName}_360p", 4, "rtmp/mp4", null),
+			array("http://{domain}/{appName}/{streamName}_360p/playlist.m3u8", 4, "video/mp4", "mobile"),
+			array("rtmp://{domain}/{appName}/{streamName}_240p", 5, "rtmp/mp4", null),
+			array("http://{domain}/{appName}/{streamName}_240p/playlist/playlist.m3u8", 5, "video/mp4", "mobile"),
+			array("rtmp://{domain}/{appName}/{streamName}_160p", 6, "rtmp/mp4", null),
+			array("http://{domain}/{appName}/{streamName}_160p/playlist.m3u8", 6, "video/mp4", "mobile"),
 			array("rtmp://{domain}/{appName}/ngrp:{streamName}_all", 7, "rtmp/mp4", null),
 			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 7, "video/mp4", "mobile")
 		);
