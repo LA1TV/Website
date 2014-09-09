@@ -12,6 +12,7 @@
 //= require custom_ordered/js/global-vars.js
 //= require video-js/video.js
 //= require custom_ordered/js/pad.js
+//= require custom_ordered/js/nl2br.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/synchronised-time.js
 //= require custom_ordered/js/fit-text-handler.js
