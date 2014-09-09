@@ -171,8 +171,8 @@ $(document).ready(function() {
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setCustomMsg("");
 			playerComponent.setPlayerUris([]);
-			if (data.streamState === 1 || data.streamState === 3) {
-				// show stream info message if the stream is enabled and is either "not live", or "stream over"
+			if (data.streamState === 1) {
+				// show stream info message if the stream is enabled and is "not live"
 				playerComponent.setCustomMsg(data.streamInfoMsg);
 			}
 			if ((overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3) || data.streamState === 2) {
