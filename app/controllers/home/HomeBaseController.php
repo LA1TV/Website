@@ -8,6 +8,7 @@ use Config;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
 use Facebook;
+use Request;
 
 class HomeBaseController extends BaseController {
 
@@ -23,7 +24,8 @@ class HomeBaseController extends BaseController {
 		$this->layout->content = $content;
 		$this->layout->loggedIn = Facebook::isLoggedIn();
 		
-		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login";
+		$returnUri = Request::url();
+		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
 		$this->layout->logoutUri = Config::get("custom.base_url") . "/facebook/logout";
 		$this->layout->homeUri = Config::get("custom.base_url");
 		$this->layout->guideUri = Config::get("custom.base_url") . "/guide";

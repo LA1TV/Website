@@ -203,7 +203,7 @@ class FacebookManager {
 		if (!$this->isLoggedIn()) {
 			return false;
 		}
-		$this->clearStoredAccessToken();
+		$this->clearOurStoredSecret();
 		return true;
 	}
 }
