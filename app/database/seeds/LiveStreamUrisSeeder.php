@@ -3,7 +3,7 @@
 use uk\co\la1tv\website\models\LiveStreamUri;
 use uk\co\la1tv\website\models\QualityDefinition;
 
-class LiveStreamsUrisSeeder extends Seeder {
+class LiveStreamUrisSeeder extends Seeder {
 
 	/**
 	 * Run the database seeds.
