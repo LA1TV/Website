@@ -33,7 +33,7 @@
 		</div>
 		
 		
-		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>">
+		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>">
 			<div class="embed-responsive embed-responsive-16by9">
 				<div class="embed-responsive-item loading-container">
 					<div class="msg">Player Loading</div>

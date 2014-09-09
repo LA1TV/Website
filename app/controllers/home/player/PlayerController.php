@@ -83,6 +83,7 @@ class PlayerController extends HomeBaseController {
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
+		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$this->setContent($view, "player", "player");
 	}
 	

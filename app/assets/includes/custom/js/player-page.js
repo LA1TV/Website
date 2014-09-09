@@ -10,6 +10,7 @@ $(document).ready(function() {
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
+			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			
 			var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
 			var $viewCount = $("<div />").addClass("view-count").css("display", "none");
@@ -142,6 +143,11 @@ $(document).ready(function() {
 			}
 			
 			function renderOverrideButton() {
+				if (!enableAdminOverride) {
+					$overrideButton.css("display", "none");
+					return;
+				}
+				
 				if (playerController.getOverrideModeEnabled()) {
 					$overrideButton.text("Disable Admin Override").removeClass("btn-default").addClass("btn-danger");
 				}
