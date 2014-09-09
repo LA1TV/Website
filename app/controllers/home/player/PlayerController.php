@@ -38,11 +38,7 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$playlistMediaItems = $playlist->mediaItems();
-		if (!$userHasMediaItemsPermission) {
-			$playlistMediaItems = $playlistMediaItems->accessible();
-		}
-		$playlistMediaItems = $playlistMediaItems->orderBy("media_item_to_playlist.position")->get();
+		$playlistMediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
 		
 		$playlistTableData = array();
 		$activeItemIndex = null;
@@ -179,14 +175,13 @@ class PlayerController extends HomeBaseController {
 		$videoUris = array();
 		// return the uris if the item is accessible to the public or the logged in cms user has permission
 		if ($hasVideoItem && ($vodLive || $userHasMediaItemsPermission)) {
-			foreach($videoItem->getUrisWithQualities() as $uriWithQuality) {
+			foreach($videoItem->getQualitiesWithUris() as $qualityWithUris) {
 				$videoUris[] = array(
 					"quality"	=> array(
-						"id"	=> intval($uriWithQuality['qualityDefinition']->id),
-						"name"	=> $uriWithQuality['qualityDefinition']->name
+						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+						"name"	=> $qualityWithUris['qualityDefinition']->name
 					),
-					// TODO: tidy this up
-					"uris"		=> array(array("uri"=>$uriWithQuality['uri'], "type"=>"video/mp4", "supportedDevices"=>null)) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
+					"uris"		=> $qualityWithUris['uris']
 				);
 			}
 		}

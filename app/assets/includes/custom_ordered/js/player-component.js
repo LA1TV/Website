@@ -309,7 +309,7 @@ $(document).ready(function() {
 				}
 				var currentDevice = DeviceDetection.isMobile() ? "mobile" : "desktop";
 				if (supportedDevices !== null && jQuery.inArray(currentDevice, supportedDevices) === -1) {
-					// not uris for this device
+					// uri not supported on this device
 					continue;
 				}
 				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);

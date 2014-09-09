@@ -27,7 +27,7 @@ class MediaItemVideo extends MyEloquent {
 	}
 	
 	// returns the uris to the different renders of the video
-	public function getUrisWithQualities() {
+	public function getQualitiesWithUris() {
 		
 		$sourceFile = $this->sourceFile;
 		
@@ -36,18 +36,26 @@ class MediaItemVideo extends MyEloquent {
 		}
 	
 		$renders = $sourceFile->renderFiles;
-		$uris = array();
+		$qualities = array();
 		$positions = array();
 		foreach($renders as $a) {
-			$positions[] = intval($a->videoFile->qualityDefinition->position);
+			
+			$uris = array();
 			$uris[] = array(
-				"uri"					=> $a->getUri(),
-				"qualityDefinition"		=> $a->videoFile->qualityDefinition
+				"uri"	=> $a->getUri(),
+				"type"	=> "video/mp4",
+				"supportedDevices"	=> null
+			);
+			
+			$positions[] = intval($a->videoFile->qualityDefinition->position);
+			$qualities[] = array(
+				"qualityDefinition"		=> $a->videoFile->qualityDefinition,
+				"uris"					=> $uris
 			);
 		}
 		// reorder so in qualities order
-		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $uris);
-		return $uris;
+		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $qualities);
+		return $qualities;
 	}
 	
 	public function registerViewCount() {

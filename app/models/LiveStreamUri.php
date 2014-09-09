@@ -1,9 +1,8 @@
 <?php namespace uk\co\la1tv\website\models;
 
-// TODO: change the name of this to LiveStreamUris
-class LiveStreamQuality extends MyEloquent {
+class LiveStreamUri extends MyEloquent {
 	
-	protected $table = 'live_streams_qualities';
+	protected $table = 'live_stream_uris';
 	protected $fillable = array('uri_template', 'type', 'supported_devices');
 
 	public function qualityDefinition() {
