@@ -35,7 +35,7 @@ class LiveStreamUrisSeeder extends Seeder {
 				"position"		=> $b,
 				"uri_template"	=> $a[0],
 				"type"			=> $a[2],
-				"supported_qualities"=> $a[3]
+				"supported_devices"	=> $a[3]
 			));
 			$model->qualityDefinition()->associate($qualityDefinition);
 			$model->save();
