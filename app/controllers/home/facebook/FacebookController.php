@@ -5,22 +5,38 @@ use Config;
 use URL;
 use Facebook;
 use Redirect;
+use Session;
+use FormHelpers;
 
 class FacebookController extends BaseController {
 	
 	// Redirect the user to facebook to login (if necessary)
 	public function getLogin() {
+		$this->recordReturnUri();
 		return Facebook::getLoginRedirect(URL::to("/facebook/auth"));
 	}
 	
 	// User bounced back to here from facebook.
 	public function anyAuth() {	
 		Facebook::authorize();
-		return Redirect::to(Config::get("custom.base_url"));
+		return Redirect::to($this->getReturnUri());
 	}
 	
 	public function getLogout() {
+		$this->recordReturnUri();
 		Facebook::logout();
-		return Redirect::to(Config::get("custom.base_url"));
+		return Redirect::to($this->getReturnUri());
+	}
+	
+	private function recordReturnUri() {
+		Session::set("facebookReturnUri", FormHelpers::getValue("returnuri", "", false, true));	
+	}
+	
+	private function getReturnUri() {
+		$returnUri = Config::get("custom.base_url")."/".Session::pull("facebookReturnUri", "");
+		if (!filter_var($returnUri, FILTER_VALIDATE_URL)) {
+			$returnUri = Config::get("custom.base_url");
+		}
+		return $returnUri;
 	}
 }

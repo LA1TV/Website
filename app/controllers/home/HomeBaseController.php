@@ -24,9 +24,9 @@ class HomeBaseController extends BaseController {
 		$this->layout->content = $content;
 		$this->layout->loggedIn = Facebook::isLoggedIn();
 		
-		$returnUri = Request::url();
+		$returnUri = implode("/", Request::segments());
 		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
-		$this->layout->logoutUri = Config::get("custom.base_url") . "/facebook/logout";
+		$this->layout->logoutUri = Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode($returnUri);
 		$this->layout->homeUri = Config::get("custom.base_url");
 		$this->layout->guideUri = Config::get("custom.base_url") . "/guide";
 		$this->layout->blogUri = Config::get("custom.blog_url");
