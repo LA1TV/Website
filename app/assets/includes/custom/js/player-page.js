@@ -18,11 +18,14 @@ $(document).ready(function() {
 			var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 			var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
 			var $likeButtonTxt = $("<span />");
+			var $overrideButton = $("<button />").attr("type", "button").addClass("override-button btn btn-default btn-xs");
+			var $playerComponent = null;
 			$likeButton.append($likeButtonGlyphicon);
 			$likeButton.append($likeButtonTxt);
 			var $qualitySelectionItemContainer = $("<div />").addClass("item-container");
 			
 			$bottomContainer.append($viewCount);
+			$bottomContainer.append($overrideButton);
 			$bottomContainer.append($rightSection);
 			$rightSection.append($likeButtonItemContainer);
 			$likeButtonItemContainer.append($likeButton);
@@ -39,8 +42,14 @@ $(document).ready(function() {
 			var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, qualitySelectionComponent);
 			$(playerController).on("playerComponentElAvailable", function() {
 				$(self).empty(); // will contain loading message initially
-				$(self).append(playerController.getPlayerComponentEl());
+				$playerComponent = playerController.getPlayerComponentEl();
+				$(self).append($playerComponent);
 				$(self).append($bottomContainer);
+				renderOverrideMode();
+				renderOverrideButton();
+				$overrideButton.click(function() {
+					playerController.enableOverrideMode(!playerController.getOverrideModeEnabled());
+				});
 			});
 			
 			$(playerController).on("viewCountChanged playerTypeChanged", function() {
@@ -62,6 +71,11 @@ $(document).ready(function() {
 			
 			$(playerController).on("likeTypeChanged numLikesChanged streamStateChanged playerTypeChanged", function() {
 				renderLikeButton();
+			});
+			
+			$(playerController).on("overrideModeChanged", function() {
+				renderOverrideMode();
+				renderOverrideButton();
 			});
 			
 			renderViewCount();
@@ -95,7 +109,7 @@ $(document).ready(function() {
 				// ignoring dislikes for now. maybe implement in the future
 				
 				// enable like button if no content unless it's an ad because stream is over.
-				if (playerType === "ad" && streamState !== 3) {
+				if (playerType === null || (playerType === "ad" && streamState !== 3)) {
 					$likeButton.hide();
 				}
 				else {
@@ -113,8 +127,29 @@ $(document).ready(function() {
 				}
 				$likeButtonTxt.text(txt);
 			}
+			
+			function renderOverrideMode() {
+				if ($playerComponent === null) {
+					return;
+				}
+				
+				if (playerController.getOverrideModeEnabled()) {
+					$playerComponent.addClass("override-mode-enabled");
+				}
+				else {
+					$playerComponent.removeClass("override-mode-enabled");
+				}
+			}
+			
+			function renderOverrideButton() {
+				if (playerController.getOverrideModeEnabled()) {
+					$overrideButton.text("Disable Admin Override").removeClass("btn-default").addClass("btn-danger");
+				}
+				else {
+					$overrideButton.text("Enable Admin Override").removeClass("btn-danger").addClass("btn-default");
+				}
+			}
 		});
-		
 
 	});
 	
