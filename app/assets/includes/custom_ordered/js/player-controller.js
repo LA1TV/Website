@@ -82,6 +82,15 @@ $(document).ready(function() {
 		this.getStreamState = function() {
 			return streamState;
 		};
+		
+		this.enableOverrideMode = function(enable) {
+			queuedOverrideModeEnabled = enable;
+			render();
+		};
+		
+		this.getOverrideModeEnabled = function() {
+			return overrideModeEnabled;
+		};
 
 		var destroyed = false;
 		var timerId = null;
@@ -94,6 +103,8 @@ $(document).ready(function() {
 		var numDislikes = null;
 		var likeType = null; // "like", "dislike" or null
 		var streamState = null;
+		var overrideModeEnabled = null;
+		var queuedOverrideModeEnabled = false;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			updatePlayer();
@@ -113,9 +124,7 @@ $(document).ready(function() {
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
 					cachedData = data;
-					updatePlayer();
-					updateViewCounts();
-					updateLikes();
+					render();
 				}
 				
 				if (!destroyed) {
@@ -123,6 +132,20 @@ $(document).ready(function() {
 					timerId = setTimeout(update, 15000);
 				}
 			});
+		}
+		
+		function render() {
+			updateOverrideMode();
+			updatePlayer();
+			updateViewCounts();
+			updateLikes();
+		}
+		
+		function updateOverrideMode() {
+			if (queuedOverrideModeEnabled !== overrideModeEnabled) {
+				overrideModeEnabled = queuedOverrideModeEnabled;
+				$(self).triggerHandler("overrideModeChanged");
+			}
 		}
 		
 		function updatePlayer() {
@@ -152,7 +175,7 @@ $(document).ready(function() {
 				// show stream info message if the stream is enabled and is either "not live", or "stream over"
 				playerComponent.setCustomMsg(data.streamInfoMsg);
 			}
-			if (data.streamState === 2) {
+			if ((overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3) || data.streamState === 2) {
 				// stream should be live
 				setPlayerType("live");
 				var qualities = [];
@@ -170,7 +193,7 @@ $(document).ready(function() {
 				var streamUri = data.streamUris[qualityIds.indexOf(chosenQualityId)];
 				playerComponent.setPlayerUris(streamUri.uris);
 			}
-			else if (data.vodLive) {
+			else if ((overrideModeEnabled && data.videoUris.length > 0) || data.vodLive) {
 				// video should be live
 				setPlayerType("vod");
 				var qualities = [];

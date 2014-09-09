@@ -23,3 +23,12 @@
 	font-size: 20px;
 	font-weight: bold;
 }
+
+.page-player .admin-panel .my-row {
+	margin-bottom: 10px;
+}
+
+.page-player .information-msg-section .buttons-row {
+	display: inline-block;
+	float: right;
+}
