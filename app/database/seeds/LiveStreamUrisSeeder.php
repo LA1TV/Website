@@ -21,7 +21,6 @@ class LiveStreamUrisSeeder extends Seeder {
 			array("http://{domain}/{appName}/{streamName}_240p/playlist/playlist.m3u8", 5, "video/mp4", "mobile"),
 			array("rtmp://{domain}/{appName}/{streamName}_160p", 6, "rtmp/mp4", null),
 			array("http://{domain}/{appName}/{streamName}_160p/playlist.m3u8", 6, "video/mp4", "mobile"),
-			array("rtmp://{domain}/{appName}/ngrp:{streamName}_all", 7, "rtmp/mp4", null),
 			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 7, "video/mp4", "mobile")
 		);
 		
