@@ -66,10 +66,13 @@ class FacebookManager {
 			// populate the model with the rest of the users information from facebook.
 			$this->updateUser($user, $fbSession);
 		}
+		$ourSecret = str_random(40);
+		$hashedSecret = hash("sha256", $ourSecret);
 		$user->fb_access_token = (String) $token;
+		$user->secret = $hashedSecret;
 		$this->facebookTokenValid = true;
 		$user->save();
-		$this->storeAccessToken($token);
+		$this->storeOurSecret($ourSecret);
 	}
 	
 	public function isLoggedIn() {
@@ -94,25 +97,23 @@ class FacebookManager {
 	public function getUser() {
 		$this->initFacebookSession();
 		
-		// a user is logged in if there is an access token stored in the session
-		$tokenStr = $this->getStoredAccessToken();
-		if (is_null($tokenStr)) {
+		$secret = $this->getOurStoredSecret();
+		if (is_null($secret)) {
 			return null;
 		}
 		
-		$fbSession = new FacebookSession($tokenStr);
-		$token = $fbSession->getAccessToken();
-		$user = $this->getUserWithAccessToken($token);
-			
+		$user = $this->getUserWithStoredSecret($secret);
 		if (is_null($user)) {
-			$this->clearStoredAccessToken();
+			$this->clearOurStoredSecret();
 			return;
 		}
 			
 		if ($this->isTimeForNextFacebookUpdate($user)) {
 			// check that the token is still valid and hasn't expired. This checks with facebook and fails if user has removed app.
+			$fbSession = new FacebookSession($user->fb_access_token);
+			$token = $fbSession->getAccessToken();
 			if (!$token->isValid()) {
-				$this->clearStoredAccessToken();
+				$this->clearOurStoredSecret();
 				return;
 			}
 			$this->updateUser($user, $fbSession);
@@ -152,40 +153,41 @@ class FacebookManager {
 		return $timeForUpdate;
 	}
 	
-	private function getStoredAccessToken() {
-		$tokenStr = Session::get("facebookAccessToken", null);
-		if (is_null($tokenStr)) {
-			// check to see if token available in cookie
-			$tokenStr = Cookie::get("facebookAccessToken", null);
-			if (!is_null($tokenStr)) {
-				// copy it accross to session
-				Session::set("facebookAccessToken", $tokenStr);
+	private function getOurStoredSecret() {
+		$secret = Session::get("accountSecret", null);
+		if (is_null($secret)) {
+			// check to see if secret available in cookie
+			$secret = Cookie::get("accountSecret", null);
+			if (!is_null($secret)) {
+				// copy it across to session
+				Session::set("accountSecret", $secret);
 			}
 		}
-		return $tokenStr;
+		return $secret;
 	}
 	
-	private function storeAccessToken($token) {
-		Session::set("facebookAccessToken", (String) $token);
+	private function storeOurSecret($secret) {
+		Session::set("accountSecret", $secret);
 		// set in a cookie as well as session so if not found in session this can be checked first.
-		Cookie::queue(Cookie::forever('facebookAccessToken', (String) $token));
+		Cookie::queue(Cookie::forever('accountSecret', $secret));
 	}
 	
-	private function clearStoredAccessToken() {
-		Session::forget("facebookAccessToken");
-		Cookie::queue(Cookie::forget("facebookAccessToken"));
+	private function clearOurStoredSecret() {
+		Session::forget("accountSecret");
+		Cookie::queue(Cookie::forget("accountSecret"));
 		$this->siteUser = null;
 		$this->siteUserCached = false;
 	}
 	
-	private function getUserWithAccessToken($token) {
+	private function getUserWithStoredSecret($secret) {
 		// if there's a cached version use that
 		if ($this->siteUserCached) {
 			// use cached version
 			return $this->siteUser;
 		}
 		
-		$siteUser = SiteUser::where("fb_access_token", (String) $token)->first();
+		$hashedSecret = hash("sha256", $secret);
+		$siteUser = SiteUser::where("secret", $hashedSecret)->first();
 		if (!is_null($siteUser)) {
 			$this->siteUser = $siteUser;
 			$this->siteUserCached = true;
