@@ -302,6 +302,16 @@ $(document).ready(function() {
 			// set the sources
 			for (var i=0; i<playerUris.length; i++) {
 				var uri = playerUris[i];
+				var supportedDevices = uri.supportedDevices;
+				// if supportedDevices is null then that means all devices are supported. Otherwise only the devices listed are supported.
+				if (supportedDevices !== null) {
+					supportedDevices = supportedDevices.split(",");
+				}
+				var currentDevice = DeviceDetection.isMobile() ? "mobile" : "desktop";
+				if (supportedDevices !== null && jQuery.inArray(currentDevice, supportedDevices) === -1) {
+					// not uris for this device
+					continue;
+				}
 				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
 				$video.append($source);
 			}

@@ -186,7 +186,7 @@ class PlayerController extends HomeBaseController {
 						"name"	=> $uriWithQuality['qualityDefinition']->name
 					),
 					// TODO: tidy this up
-					"uris"		=> array(array("uri"=>$uriWithQuality['uri'], "type"=>"video/mp4")) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
+					"uris"		=> array(array("uri"=>$uriWithQuality['uri'], "type"=>"video/mp4", "supportedDevices"=>null)) // this is an array because the front end player supports several different formats for one quality for different browsers. This allows for this if necessary in the future.
 				);
 			}
 		}

@@ -68,7 +68,8 @@ class LiveStream extends MyEloquent {
 			foreach($liveStreamQualities as $b) {
 				$uris[] = array(
 					"uri"	=> $b->getBuiltUrl($this->server_address, "live", $this->stream_name),
-					"type"	=> $b->type
+					"type"	=> $b->type,
+					"supportedDevices"	=> $b->supported_devices
 				);
 			}
 			
