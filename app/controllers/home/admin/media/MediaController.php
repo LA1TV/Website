@@ -443,4 +443,37 @@ class MediaController extends MediaBaseController {
 		$resp['success'] = true;
 		return Response::json($resp);
 	}
+	
+	// ajax from the live stream control box on the player page on the main site
+	public function postAdminStreamControl($id) {
+	
+		$mediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition")->find($id);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		$liveStreamItem = $mediaItem->liveStreamItem;
+		if (is_null($liveStreamItem)) {
+			App::abort(404);
+		}
+		
+		// should receive stream-state which is the value that the stream_state should be set to.
+		// if it is null do nothing and just return the current one.
+		$requestedState = null;
+		if (isset($_POST['stream_state']) && !is_null($_POST['stream_state'])) {
+			$requestedState = intval($_POST['stream_state']);
+		}
+		
+		if (!is_null($requestedState)) {
+			$stateDefinition = LiveStreamStateDefinition::find($requestedState);
+			if (is_null($stateDefinition)) {
+				throw(new Exception("Invalid stream state."));
+			}
+			$liveStreamItem->stateDefinition()->associate($stateDefinition);
+			$liveStreamItem->save();
+		}
+	
+		$resp = array("streamState"=> $liveStreamItem->stateDefinition->id);
+		return Response::json($resp);
+	}
 }

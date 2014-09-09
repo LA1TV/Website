@@ -4,21 +4,18 @@
 <div class="row">
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
-		<div class="admin-panel panel-group custom-accordian" data-grouptogether="0">
+		<div class="admin-panel panel-group custom-accordian" data-grouptogether="0" data-mediaitemid="<?=e($mediaItemId);?>">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">Admin Stream Control</h4>
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
-						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> The live stream is currently not accessible to the public. This needs fixing in the control panel.</div>
-						<div class="my-row">
+						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> The live stream is currently not accessible to the public no matter what the stream state is. This needs fixing in the control panel.</div>
+						<div class="my-row stream-state-row">
 							<div>Stream state: <em>(Updates Instantly)</em></div>
-							<div class="btn-group">
-								<button type="button" class="btn btn-default">Not Live</button>
-								<button type="button" class="btn btn-primary">Live</button>
-								<button type="button" class="btn btn-default">Show Over</button>
-							</div>
+							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamStateButtonsData));?>"></div>
+							
 						</div>
 						<div class="information-msg-section my-row clearfix">
 							<div>Information message:</div>

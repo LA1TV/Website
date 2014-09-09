@@ -156,7 +156,42 @@ $(document).ready(function() {
 				}
 			}
 		});
-
+		
+		
+		$pageContainer.find(".admin-panel").each(function() {
+			
+			var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
+			
+			$(this).find(".stream-state-row .state-buttons").each(function() {
+				var self = this;
+				
+				var buttonsData = jQuery.parseJSON($(this).attr("data-buttonsdata"));
+				var buttonGroup = new ButtonGroup(buttonsData, true, {
+					id: 1 // TODO, get this
+				});
+				$(buttonGroup).on("stateChanged", function() {
+					jQuery.ajax(baseUrl+"/admin/media/admin-stream-control/"+mediaItemId, {
+						cache: false,
+						dataType: "json",
+						data: {
+							csrf_token: getCsrfToken(),
+							stream_state: buttonGroup.getId()
+						},
+						type: "POST"
+					}).always(function(data, textStatus, jqXHR) {
+						if (jqXHR.status === 200) {
+							console.log(data);
+						}
+						else {
+							// TODO: set back to previous
+						}
+					});
+					
+				});
+				$(this).append(buttonGroup.getEl());
+			});
+			
+		});
 	});
 	
 });

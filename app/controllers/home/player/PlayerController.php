@@ -5,6 +5,7 @@ use View;
 use App;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\LiveStreamStateDefinition;
 use Response;
 use Config;
 use Facebook;
@@ -71,6 +72,15 @@ class PlayerController extends HomeBaseController {
 		if ($activeItemIndex < count($playlistTableData)-1) {
 			$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
 		}
+		
+		$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
+		$streamStateButtonsData = array();
+		foreach($liveStreamStateDefinitions as $a) {
+			$streamStateButtonsData[] = array(
+				"id"	=> intval($a->id),
+				"text"	=> $a->name
+			);
+		}
 
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
@@ -84,6 +94,8 @@ class PlayerController extends HomeBaseController {
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
+		$view->streamStateButtonsData = $streamStateButtonsData;
+		$view->mediaItemId = $currentMediaItem->id;
 		$this->setContent($view, "player", "player");
 	}
 	
