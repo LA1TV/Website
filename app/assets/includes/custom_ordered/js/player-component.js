@@ -92,6 +92,8 @@ $(document).ready(function() {
 		var queuedShowStreamOver = false;
 		var showVodAvailableShortly = null;
 		var queuedShowVodAvailableShortly = false;
+		var currentAdTimeTxt = null;
+		var currentAdLiveAtTxt = null;
 		var playerType = null;
 		var queuedPlayerType = null;
 		var playerPreload = null;
@@ -102,8 +104,6 @@ $(document).ready(function() {
 		var queuedPlayerAutoPlay = false;
 		var playerUris = null;
 		var queuedPlayerUris = [];
-		var currentAdTimeTxt = null;
-		var currentLiveAtTxt = null;
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
 		var updateAdTimerId = null;
 		
@@ -152,7 +152,7 @@ $(document).ready(function() {
 			if (queuedStartTime === null && startTime !== null) {
 				// hiding start time
 				$adLiveAt.hide().text("");
-				currentLiveAtTxt = null;
+				currentAdLiveAtTxt = null;
 				willBeLive = queuedWillBeLive = null;
 				$adTime.hide().text("")
 				currentAdTimeTxt = null;
@@ -187,10 +187,10 @@ $(document).ready(function() {
 					queuedAdLiveAtTxt = queuedAdLiveAtTxt+"At";
 				}
 				
-				if (queuedAdLiveAtTxt !== currentLiveAtTxt) {
+				if (queuedAdLiveAtTxt !== currentAdLiveAtTxt) {
 					$adLiveAt.text(queuedAdLiveAtTxt).show();
 					registerFitText($adLiveAt);
-					currentLiveAtTxt = queuedAdLiveAtTxt;
+					currentAdLiveAtTxt = queuedAdLiveAtTxt;
 				}
 				if (currentAdTimeTxt !== txt) {
 					$adTime.text(txt).show();
@@ -263,6 +263,13 @@ $(document).ready(function() {
 			}
 			$ad.remove();
 			$ad = null;
+			startTime = null;
+			willBeLive = null;
+			customMsg = null;
+			showStreamOver = null;
+			showVodAvailableShortly = null;
+			currentAdTimeTxt = null;
+			currentAdLiveAtTxt = null;
 		}
 		
 		// updates the player using the queued data.
@@ -278,15 +285,13 @@ $(document).ready(function() {
 			
 			// player needs reloading
 			if (reloadRequired) {
-				playerType = queuedPlayerType;
-				playerPreload = queuedPlayerPreload;
 				showPlayer = queuedShowPlayer;
-				playerUris = queuedPlayerUris;
 				if (!showPlayer) {
 					destroyPlayer();
 				}
 				else {
 					createPlayer();
+					playerType = queuedPlayerType;
 				}
 			}
 		}
@@ -301,6 +306,7 @@ $(document).ready(function() {
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri);
 			
 			// set the sources
+			playerUris = queuedPlayerUris;
 			for (var i=0; i<playerUris.length; i++) {
 				var uri = playerUris[i];
 				var supportedDevices = uri.supportedDevices;
@@ -318,6 +324,7 @@ $(document).ready(function() {
 			}
 
 			$player.append($video);
+			playerPreload = queuedPlayerPreload;
 			videoJsPlayer = videojs($video[0], {
 				width: "100%",
 				height: "100%",
@@ -346,6 +353,10 @@ $(document).ready(function() {
 			videoJsPlayer = null;
 			$player.remove();
 			$player = null;
+			playerPreload = null;
+			playerAutoPlay = null;
+			playerUris = null;
+			playerType = null;
 			$(self).triggerHandler("playerDestroyed");
 		}
 		
