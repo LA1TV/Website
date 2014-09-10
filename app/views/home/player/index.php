@@ -4,6 +4,7 @@
 <div class="row">
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
+		<?php if (!is_null($streamControlData)): ?>
 		<div class="admin-panel panel-group custom-accordian" data-grouptogether="0" data-mediaitemid="<?=e($mediaItemId);?>">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -11,15 +12,23 @@
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
+						<?php if ($streamControlData['showInaccessibleWarning']): ?>
 						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> The live stream is currently not accessible to the public no matter what the stream state is. This needs fixing in the control panel.</div>
+						<?php endif; ?>
+						<?php if ($streamControlData['showNoLiveStreamWarning']): ?>
+						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> There is currently no live stream attached to the live stream part of this media item.</div>
+						<?php endif; ?>
+						<?php if ($streamControlData['showLiveStreamNotAccessibleWarning']): ?>
+						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> There is a live stream attached to this media item, but it is not currently accessible. This needs fixing in the 'Live Streams' section of the control panel.</div>
+						<?php endif; ?>
 						<div class="my-row stream-state-row">
 							<div>Stream state: <em>(Updates Instantly)</em></div>
-							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamStateButtonsData));?>" data-chosenid="<?=e($streamStateChosenId);?>"></div>
+							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamControlData['streamStateButtonsData']));?>" data-chosenid="<?=e($streamControlData['streamStateChosenId']);?>"></div>
 							
 						</div>
 						<div class="information-msg-section my-row clearfix">
 							<div>Information message: (Shown When Not Live)</div>
-							<textarea class="form-control" placeholder="Leave empty for no message."><?=e($streamInfoMsg);?></textarea>
+							<textarea class="form-control" placeholder="Leave empty for no message."><?=e($streamControlData['streamInfoMsg']);?></textarea>
 							<div class="buttons-row">
 								<button type="button" class="revert-button btn btn-default btn-xs">Revert</button> <button type="button" class="update-button btn btn-primary btn-xs">Update Message</button>
 							</div>
@@ -28,8 +37,7 @@
 				</div>
 			</div>
 		</div>
-		
-		
+		<?php endif; ?>
 		<div class="player-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>">
 			<div class="embed-responsive embed-responsive-16by9">
 				<div class="embed-responsive-item loading-container">

@@ -71,23 +71,30 @@ class PlayerController extends HomeBaseController {
 		}
 		if ($activeItemIndex < count($playlistTableData)-1) {
 			$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
-		}
+		}	
 		
-		$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
-		$streamStateButtonsData = array();
-		foreach($liveStreamStateDefinitions as $a) {
-			$streamStateButtonsData[] = array(
-				"id"	=> intval($a->id),
-				"text"	=> $a->name
-			);
-		}
-		$streamStateChosenId = null;
-		$streamInfoMsg = null;
+		$streamControlData = null;
 		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
 		$liveStreamItem = $currentMediaItem->liveStreamItem;
-		if (!is_null($liveStreamItem)) {
-			$streamStateChosenId = $liveStreamItem->stateDefinition->id;
-			$streamInfoMsg = $liveStreamItem->information_msg;
+		if ($userHasMediaItemsPermission && !is_null($liveStreamItem)) {
+			$infoMsg = $liveStreamItem->information_msg;
+			$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
+			$streamStateButtonsData = array();
+			foreach($liveStreamStateDefinitions as $a) {
+				$streamStateButtonsData[] = array(
+					"id"	=> intval($a->id),
+					"text"	=> $a->name
+				);
+			}
+			$liveStream = $liveStreamItem->liveStream;
+			$streamControlData = array(
+				"showInaccessibleWarning"	=> !$liveStreamItem->getIsAccessible(),
+				"showNoLiveStreamWarning"	=> is_null($liveStream),
+				"showLiveStreamNotAccessibleWarning"	=> !is_null($liveStream) && !$liveStream->getIsAccessible(),
+				"streamStateButtonsData"	=> $streamStateButtonsData,
+				"streamStateChosenId"		=> $liveStreamItem->stateDefinition->id,
+				"streamInfoMsg"				=> !is_null($infoMsg) ? $infoMsg : ""
+			);
 		}
 
 		$view = View::make("home.player.index");
@@ -102,9 +109,7 @@ class PlayerController extends HomeBaseController {
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
-		$view->streamStateButtonsData = $streamStateButtonsData;
-		$view->streamStateChosenId = $streamStateChosenId;
-		$view->streamInfoMsg = $streamInfoMsg;
+		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$this->setContent($view, "player", "player");
 	}
