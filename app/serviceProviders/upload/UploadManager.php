@@ -98,8 +98,8 @@ class UploadManager {
 								$this->responseData['processInfo'] = $fileDb->getProcessInfo();
 							}
 							else {
--								DB::rollback();
--							}
+								DB::rollback();
+							}
 						}
 						else {
 							DB::rollback();
