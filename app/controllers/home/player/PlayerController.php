@@ -17,10 +17,13 @@ class PlayerController extends HomeBaseController {
 		
 		// true if a user is logged into the cms and has permission to view media items.
 		$userHasMediaItemsPermission = false;
+		// true if a user is logged into the cms and has permission to edit media items.
+		$userHasMediaItemsEditPermission = false;
 		// true if a user is logged into the cms and has permission to view playlists.
 		$userHasPlaylistsPermission = false;
 		if (Auth::isLoggedIn()) {
 			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
+			$userHasMediaItemsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 1);
 			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
 		}
 		
@@ -76,7 +79,7 @@ class PlayerController extends HomeBaseController {
 		$streamControlData = null;
 		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
 		$liveStreamItem = $currentMediaItem->liveStreamItem;
-		if ($userHasMediaItemsPermission && !is_null($liveStreamItem)) {
+		if ($userHasMediaItemsEditPermission && !is_null($liveStreamItem)) {
 			$infoMsg = $liveStreamItem->information_msg;
 			$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
 			$streamStateButtonsData = array();

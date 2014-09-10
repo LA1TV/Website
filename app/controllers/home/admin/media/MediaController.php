@@ -446,6 +446,8 @@ class MediaController extends MediaBaseController {
 	
 	// ajax from the live stream control box on the player page on the main site
 	public function postAdminStreamControlStreamState($id) {
+	
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 1);
 		
 		$mediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition")->find($id);
 		if (is_null($mediaItem)) {
@@ -476,6 +478,9 @@ class MediaController extends MediaBaseController {
 	
 	// ajax from the live stream control box on the player page on the main site
 	public function postAdminStreamControlInfoMsg($id) {
+		
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 1);
+	
 		$mediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition")->find($id);
 		if (is_null($mediaItem)) {
 			App::abort(404);
