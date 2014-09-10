@@ -178,6 +178,11 @@ $(document).ready(function() {
 				$(this).append(buttonGroup.getEl());
 				
 				function makeAjaxRequest(id) {
+					if (id === currentId) {
+						// only make request if id has changed.
+						return;
+					}
+					
 					jQuery.ajax(baseUrl+"/admin/media/admin-stream-control-stream-state/"+mediaItemId, {
 						cache: false,
 						dataType: "json",
