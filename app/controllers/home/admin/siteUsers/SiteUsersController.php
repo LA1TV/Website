@@ -32,7 +32,7 @@ class SiteUsersController extends SiteUsersBaseController {
 			return;
 		}
 		
-		$siteUsers = SiteUser::search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("email", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$siteUsers = SiteUser::search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("first_name", "asc")->orderBy("last_name", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($siteUsers as $a) {
 			$banned = (boolean) $a->banned;
