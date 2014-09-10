@@ -66,11 +66,27 @@ class UploadManager {
 						$fileDb->fileType()->associate($uploadPoint->fileType);
 						$fileDb->uploadPoint()->associate($uploadPoint);
 						if ($fileDb->save() !== FALSE) {
+							
+							// commit transaction so file record is committed to database
+							DB::commit();
+							
+							DB::beginTransaction();
+							// another transaction to make sure the session doesn't become null on the model (which would result in the upload processor trying to delete it, and failing silently if it can't find the file) whilst the file is being moved.
+							$fileDb = File::find($fileDb->id);
+							if (is_null($fileDb)) {
+								throw(new Exception("File model has been deleted!"));
+							}
+							if ($fileDb->session_id !== Session::getId()) {
+								throw(new Exception("Session has changed between transactions!"));
+							}
+						
 							// move the file providing the file record created successfully.
 							// it is important there's always a file record for each file. if there ends up being a file record without a corresponding file that's ok as the record will just get deleted either.
 							if (move_uploaded_file($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
-							
-								// commit transaction so file record is committed to database
+								// set ready_for_processing to true so that processing can start.
+								// this means if the file was copied and then the server crashed before here, the file will still get deleted in the future (when the linked session becomes null)
+								$fileDb->ready_for_processing = true;
+								$fileDb->save();
 								DB::commit();
 								
 								// success
@@ -80,9 +96,6 @@ class UploadManager {
 								$this->responseData['fileName'] = $fileName;
 								$this->responseData['fileSize'] = $fileSize;
 								$this->responseData['processInfo'] = $fileDb->getProcessInfo();
-							}
-							else {
-								DB::rollback();
 							}
 						}
 						else {

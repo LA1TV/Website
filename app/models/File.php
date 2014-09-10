@@ -18,7 +18,6 @@ class File extends MyEloquent {
 			
 			$sourceFileForeignKey = $model->sourceFile()->getForeignKey();
 			$uploadPointForeignKey = $model->uploadPoint()->getForeignKey();
-			
 			if ($model->exists && $model->original["in_use"] && !$model->in_use && !$model->ready_for_delete) {
 				throw(new Exception("The file can only be marked in_use once."));
 			}
