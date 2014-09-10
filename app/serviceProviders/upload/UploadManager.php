@@ -97,6 +97,9 @@ class UploadManager {
 								$this->responseData['fileSize'] = $fileSize;
 								$this->responseData['processInfo'] = $fileDb->getProcessInfo();
 							}
+							else {
+-								DB::rollback();
+-							}
 						}
 						else {
 							DB::rollback();
