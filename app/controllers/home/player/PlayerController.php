@@ -81,6 +81,12 @@ class PlayerController extends HomeBaseController {
 				"text"	=> $a->name
 			);
 		}
+		$streamStateChosenId = null;
+		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
+		$liveStreamItem = $currentMediaItem->liveStreamItem;
+		if (!is_null($liveStreamItem)) {
+			$streamStateChosenId = $liveStreamItem->stateDefinition->id;
+		}
 
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
@@ -95,6 +101,7 @@ class PlayerController extends HomeBaseController {
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->streamStateButtonsData = $streamStateButtonsData;
+		$view->streamStateChosenId = $streamStateChosenId;
 		$view->mediaItemId = $currentMediaItem->id;
 		$this->setContent($view, "player", "player");
 	}

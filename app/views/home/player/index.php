@@ -14,7 +14,7 @@
 						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> The live stream is currently not accessible to the public no matter what the stream state is. This needs fixing in the control panel.</div>
 						<div class="my-row stream-state-row">
 							<div>Stream state: <em>(Updates Instantly)</em></div>
-							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamStateButtonsData));?>"></div>
+							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamStateButtonsData));?>" data-chosenid="<?=e($streamStateChosenId);?>"></div>
 							
 						</div>
 						<div class="information-msg-section my-row clearfix">

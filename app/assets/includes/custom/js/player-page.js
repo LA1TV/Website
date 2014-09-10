@@ -166,29 +166,35 @@ $(document).ready(function() {
 				var self = this;
 				
 				var buttonsData = jQuery.parseJSON($(this).attr("data-buttonsdata"));
+				var chosenId = parseInt($(this).attr("data-chosenid"));
+				var currentId = chosenId;
 				var buttonGroup = new ButtonGroup(buttonsData, true, {
-					id: 1 // TODO, get this
+					id: chosenId
 				});
 				$(buttonGroup).on("stateChanged", function() {
+					makeAjaxRequest(buttonGroup.getId());
+				});
+				
+				$(this).append(buttonGroup.getEl());
+				
+				function makeAjaxRequest(id) {
 					jQuery.ajax(baseUrl+"/admin/media/admin-stream-control/"+mediaItemId, {
 						cache: false,
 						dataType: "json",
 						data: {
 							csrf_token: getCsrfToken(),
-							stream_state: buttonGroup.getId()
+							stream_state: id
 						},
 						type: "POST"
 					}).always(function(data, textStatus, jqXHR) {
 						if (jqXHR.status === 200) {
-							console.log(data);
+							currentId = data.streamState;
 						}
 						else {
-							// TODO: set back to previous
+							buttonGroup.setState({id: currentId});
 						}
 					});
-					
-				});
-				$(this).append(buttonGroup.getEl());
+				}
 			});
 			
 		});
