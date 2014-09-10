@@ -19,9 +19,9 @@
 						</div>
 						<div class="information-msg-section my-row clearfix">
 							<div>Information message:</div>
-							<textarea class="form-control"></textarea>
+							<textarea class="form-control"><?=e($streamInfoMsg);?></textarea>
 							<div class="buttons-row">
-								<button type="button" class="btn btn-default btn-xs">Revert</button> <button type="button" class="btn btn-primary btn-xs">Update Message</button>
+								<button type="button" class="revert-button btn btn-default btn-xs">Revert</button> <button type="button" class="update-button btn btn-primary btn-xs">Update Message</button>
 							</div>
 						</div>
 					</div>

@@ -445,7 +445,7 @@ class MediaController extends MediaBaseController {
 	}
 	
 	// ajax from the live stream control box on the player page on the main site
-	public function postAdminStreamControl($id) {
+	public function postAdminStreamControlStreamState($id) {
 		
 		$mediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition")->find($id);
 		if (is_null($mediaItem)) {
@@ -471,6 +471,39 @@ class MediaController extends MediaBaseController {
 		$liveStreamItem->save();
 	
 		$resp = array("streamState"=> $liveStreamItem->stateDefinition->id);
+		return Response::json($resp);
+	}
+	
+	// ajax from the live stream control box on the player page on the main site
+	public function postAdminStreamControlInfoMsg($id) {
+		$mediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition")->find($id);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		$liveStreamItem = $mediaItem->liveStreamItem;
+		if (is_null($liveStreamItem)) {
+			App::abort(404);
+		}
+		
+		$requestedInfoMsg = null;
+		if (isset($_POST['info_msg'])) {
+			$requestedInfoMsg = $_POST['info_msg'];
+		}
+		if ($requestedInfoMsg === "") {
+			$requestedInfoMsg = null;
+		}
+
+		if (!is_null($requestedInfoMsg) && strlen($requestedInfoMsg) <= 500) {
+			$liveStreamItem->information_msg = $requestedInfoMsg;
+			$liveStreamItem->save();
+		}
+		else if (is_null($requestedInfoMsg)) {
+			$liveStreamItem->information_msg = null;
+			$liveStreamItem->save();
+		}
+		
+		$resp = array("infoMsg"=> $liveStreamItem->information_msg);
 		return Response::json($resp);
 	}
 }

@@ -178,11 +178,12 @@ $(document).ready(function() {
 				$(this).append(buttonGroup.getEl());
 				
 				function makeAjaxRequest(id) {
-					jQuery.ajax(baseUrl+"/admin/media/admin-stream-control/"+mediaItemId, {
+					jQuery.ajax(baseUrl+"/admin/media/admin-stream-control-stream-state/"+mediaItemId, {
 						cache: false,
 						dataType: "json",
 						data: {
 							csrf_token: getCsrfToken(),
+							action: "stream-state",
 							stream_state: id
 						},
 						type: "POST"
@@ -197,6 +198,65 @@ $(document).ready(function() {
 				}
 			});
 			
+			$(this).find(".information-msg-section").each(function() {
+				var self = this;
+				
+				var $textarea = $(this).find("textarea");
+				var currentVal = $textarea.val();
+				var $updateButton = $(this).find(".update-button");
+				var $revertButton = $(this).find(".revert-button");
+				
+				$updateButton.click(function() {
+					update();
+				});
+				
+				$revertButton.click(function() {
+					disableButtons(true);
+					if (!confirm("Are you sure you want to undo changes?")) {
+						disableButtons(false);
+						return;
+					}
+					$textarea.val(currentVal);
+					disableButtons(false);
+				});
+				
+				function disableButtons(disable) {
+					$updateButton.prop("disabled", disable);
+					$revertButton.prop("disabled", disable);
+					$textarea.prop("disabled", disable);
+				}
+				
+				function update() {
+					
+					var msg = $textarea.val();
+					disableButtons(true);
+					if (msg.length > 500) {
+						alert("The message must be less than 500 characters.");
+						disableButtons(false);
+						return;
+					}
+					
+					disableButtons(true);
+					jQuery.ajax(baseUrl+"/admin/media/admin-stream-control-info-msg/"+mediaItemId, {
+						cache: false,
+						dataType: "json",
+						data: {
+							csrf_token: getCsrfToken(),
+							info_msg: msg
+						},
+						type: "POST"
+					}).always(function(data, textStatus, jqXHR) {
+						if (jqXHR.status === 200) {
+							currentVal = data.infoMsg;
+							alert("Updated successfully!");
+						}
+						else {
+							alert("Failed to update message. Please try again.");
+						}
+						disableButtons(false);
+					});
+				}
+			});
 		});
 	});
 	

@@ -82,10 +82,12 @@ class PlayerController extends HomeBaseController {
 			);
 		}
 		$streamStateChosenId = null;
+		$streamInfoMsg = null;
 		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
 		$liveStreamItem = $currentMediaItem->liveStreamItem;
 		if (!is_null($liveStreamItem)) {
 			$streamStateChosenId = $liveStreamItem->stateDefinition->id;
+			$streamInfoMsg = $liveStreamItem->information_msg;
 		}
 
 		$view = View::make("home.player.index");
@@ -102,6 +104,7 @@ class PlayerController extends HomeBaseController {
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->streamStateButtonsData = $streamStateButtonsData;
 		$view->streamStateChosenId = $streamStateChosenId;
+		$view->streamInfoMsg = $streamInfoMsg;
 		$view->mediaItemId = $currentMediaItem->id;
 		$this->setContent($view, "player", "player");
 	}
