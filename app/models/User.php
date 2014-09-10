@@ -109,7 +109,8 @@ class User extends MyEloquent {
 	
 	public function hasPermissionOr401($permissionId, $permissionFlag=0) {
 		if (!$this->hasPermission($permissionId, $permissionFlag)) {
-			App::abort(401); // unauthorized
+			// changed this to a 403 because a 401 was causing the browsers log in dialog to be shown
+			App::abort(403); // unauthorized
 			return;
 		}
 	}
