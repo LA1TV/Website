@@ -21,6 +21,9 @@
 						<?php if ($streamControlData['showLiveStreamNotAccessibleWarning']): ?>
 						<div class="alert alert-warning" role="alert"><span class="glyphicon glyphicon-warning-sign"></span> There is a live stream attached to this media item, but it is not currently accessible. This needs fixing in the 'Live Streams' section of the control panel.</div>
 						<?php endif; ?>
+						<?php if ($streamControlData['showStreamReadyForLiveMsg']): ?>
+						<div class="alert alert-success" role="alert"><span class="glyphicon glyphicon-ok"></span> This stream is all good to go live!</div>
+						<?php endif; ?>
 						<div class="my-row stream-state-row">
 							<div>Stream state: <em>(Updates Instantly)</em></div>
 							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamControlData['streamStateButtonsData']));?>" data-chosenid="<?=e($streamControlData['streamStateChosenId']);?>"></div>
