@@ -304,6 +304,10 @@ $(document).ready(function() {
 			
 			$player = $("<div />").addClass("player embed-responsive-item");
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri);
+			// disable browser context menu on video
+			$video.on('contextmenu', function(e) {
+				e.preventDefault();
+			});
 			
 			// set the sources
 			playerUris = queuedPlayerUris;
