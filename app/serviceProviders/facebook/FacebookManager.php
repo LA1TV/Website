@@ -20,6 +20,11 @@ class FacebookManager {
 	private $siteUserCached = false;
 	
 	public function getLoginRedirect($authUri) {
+		
+		if (!Config::get("facebook.enabled")) {
+			throw(new Exception("Facebook login is currently disabled."));
+		}
+	
 		$this->initFacebookSession();
 		$loginHelper = new MyFacebookRedirectLoginHelper($authUri);
 		return Redirect::to($loginHelper->getLoginUrl());
@@ -29,6 +34,11 @@ class FacebookManager {
 	// this will try to authorize the user so that getUser() then returns them.
 	// returns true if success or false if error (ie facebook error or user clicked cancel etc)
 	public function authorize() {
+		
+		if (!Config::get("facebook.enabled")) {
+			throw(new Exception("Cannot authorize facebook user as facebook login is disabled."));
+		}
+	
 		$this->initFacebookSession();
 		
 		$helper = new MyFacebookRedirectLoginHelper(Request::url());
@@ -95,6 +105,12 @@ class FacebookManager {
 	
 	// returns the SiteUser model of the user that is logged in or null if no one logged in.
 	public function getUser() {
+		
+		if (!Config::get("facebook.enabled")) {
+			// facebook login disabled. pretend no user logged in
+			return null;
+		}
+	
 		$this->initFacebookSession();
 		
 		$secret = $this->getOurStoredSecret();
@@ -140,6 +156,10 @@ class FacebookManager {
 		if ($this->sessionInitalized) {
 			return;
 		}
+		if (is_null(Config::get("facebook.appId")) || is_null(Config::get("facebook.appSecret"))) {
+			throw(new Exception("facebook.appId and/or facebook.appSecret is null. This is only allowed if facebook login is disabled and this is possible by setting facebook.enabled to false."));
+		}
+		
 		FacebookSession::setDefaultApplication(Config::get("facebook.appId"), Config::get("facebook.appSecret"));
 		$sessionInitalized = true;
 	}
