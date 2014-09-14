@@ -10,6 +10,8 @@ use Response;
 use Config;
 use Facebook;
 use Auth;
+use FormHelpers;
+use Exception;
 
 class PlayerController extends HomeBaseController {
 
@@ -312,6 +314,70 @@ class PlayerController extends HomeBaseController {
 			}
 		}
 		return Response::json(array("success"=>$success));
+	}
+	
+	public function postComments($mediaItemId) {
+		
+		$mediaItem = MediaItem::with("comments", "comments.siteUser")->accessible()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		// X = a number of comments
+		// first-id = retrieve all the comments from this id onwards (exclusive). Will only ever return X number of comments.
+		// last-id = the id to stop retrieving at (exclusive). -1 means return the last X comments
+		
+		$firstId = FormHelpers::getValue("first-id");
+		$lastId = FormHelpers::getValue("last-id");
+		
+		$firstId = !is_null($firstId) ? intval($firstId) : null;
+		$lastId = !is_null($lastId) ? intval($lastId) : null;
+		if (!is_null($firstId) && !isNull($lastId)) {
+			throw(new Exception("Only one of first-id and last-id can be set."));
+		}
+		else if (is_null($firstId) && is_null($lastId)) {
+			throw(new Exception("One of first-id and last-id must be set."));
+		}
+		
+		$commentsModels = null;
+		$chosenId = null;
+		if (!is_null($firstId)) {
+			$chosenId = $firstId;
+			$commentsModels = $mediaItem->comments()->orderBy("id", "asc")->where("id", ">=", $chosenId)->limit(Config::get("comments.number_to_retrive"));
+		}
+		else {
+			$chosenId = $lastId;
+			$commentsModels = $mediaItem->comments()->orderBy("id", "asc")->where("id", "=<", $chosenId)->limit(Config::get("comments.number_to_retrive"));
+		}
+		
+		// check that the id that was supplied is in the models
+		if (!$commentsModels->contains($chosenId)) {
+			throw(new Exception("Comment with supplied id could not be found."));
+		}
+		
+		$comments  = array();
+		foreach($commentsModels as $a) {
+			// should not be returning supplied id
+			if (intval($a->id) === $chosenId) {
+				continue;
+			}
+			
+			$siteUser = $a->siteUser;
+			$comments[] = array(
+				"id"			=> intval($a->id),
+				"profilePicUri"	=> $siteUser->getProfilePicUri(100, 100),
+				"postTime"		=> $a->time_created->timestamp,
+				"name"			=> $siteUser->name,
+				"msg"			=> $a->msg,
+				"edited"		=> (boolean) $a->edited
+			);
+		}
+		
+		$response = array(
+			"comments"	=> $comments, // the comments as array("id", "profilePicUri", "postTime", "name", "msg", "edited"), in order of the newest comments last
+			"more"		=> $more // true if there are more comments in the direction that is being returned
+		);
+		return Response::json($response);
 	}
 	
 	private function getInfoUri($playlistId, $mediaItemId) {

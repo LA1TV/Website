@@ -77,7 +77,8 @@ return array(
 	| will not be safe. Please do this before deploying an application!
 	|
 	*/
-
+	
+	// TODO: move this to a .env file
 	'key' => 'Yvxq2bIOPm48kmL1Dpd47aPbqewwI7tL',
 	
 	// new option in 4.2

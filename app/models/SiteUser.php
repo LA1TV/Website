@@ -13,6 +13,11 @@ class SiteUser extends MyEloquent {
 		return $this->hasMany(self::$p.'MediaItemLike', 'site_user_id');
 	}
 	
+	public function getProfilePicUri($w, $h) {
+		// https://developers.facebook.com/docs/graph-api/reference/v2.1/user/picture
+		return "https://graph.facebook.com/v2.1/".urlencode($this->fb_uid)."/picture?redirect=1&height=".urlencode($h)."&type=normal&width=".urlencode($w);
+	}
+	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('last_seen', 'fb_last_update_time'));
 	}
