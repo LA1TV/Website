@@ -52,7 +52,7 @@
 		<div class="description-container"><?=e($episodeDescription);?></div>
 <?php endif; ?>
 		<h2>Comments</h2>
-		<div class="comments">
+		<div class="comments" data-mediaitemid="<?=e($mediaItemId);?>">
 			<div class="well well-sm">
 				<div class="form-group">
 					<input type="comment" class="form-control" placeholder="Enter comment...">

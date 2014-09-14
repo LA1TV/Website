@@ -324,41 +324,51 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		// X = a number of comments
-		// first-id = retrieve all the comments from this id onwards (exclusive). Will only ever return X number of comments.
-		// last-id = the id to stop retrieving at (exclusive). -1 means return the last X comments
+		// id = the id of the comment to start at. -1 means return the last X comments. loadLaterComments must be false in this case
+		// load_later_comments = if true return all comments from the specified id otherwise load comments before it.
 		
-		$firstId = FormHelpers::getValue("first-id");
-		$lastId = FormHelpers::getValue("last-id");
+		$id = FormHelpers::getValue("id");
+		$loadLaterComments = FormHelpers::getValue("load_later_comments") === "1";
 		
-		$firstId = !is_null($firstId) ? intval($firstId) : null;
-		$lastId = !is_null($lastId) ? intval($lastId) : null;
-		if (!is_null($firstId) && !isNull($lastId)) {
-			throw(new Exception("Only one of first-id and last-id can be set."));
+		$id = !is_null($id) ? intval($id) : null;
+		if (is_null($id)) {
+			throw(new Exception("Id must be set."));
 		}
-		else if (is_null($firstId) && is_null($lastId)) {
-			throw(new Exception("One of first-id and last-id must be set."));
+		else if ($id === -1 && $loadLaterComments) {
+			throw(new Exception("If the id is -1 then load_later_comments must be false."));
 		}
 		
 		$commentsModels = null;
-		$chosenId = null;
-		if (!is_null($firstId)) {
-			$chosenId = $firstId;
-			$commentsModels = $mediaItem->comments()->orderBy("id", "asc")->where("id", ">=", $chosenId)->limit(Config::get("comments.number_to_retrive"));
+		$more = null;
+		if ($loadLaterComments) {
+			$commentsModels = $mediaItem->comments()->orderBy("id", "asc")->where("id", ">=", $id)->limit(Config::get("comments.number_to_retrieve")+1)->get();
+			$more = $commentsModels->count() === Config::get("comments.number_to_retrieve")+1;
+			if ($more) {
+				$commentsModels->pop();
+			}
 		}
 		else {
-			$chosenId = $lastId;
-			$commentsModels = $mediaItem->comments()->orderBy("id", "asc")->where("id", "=<", $chosenId)->limit(Config::get("comments.number_to_retrive"));
+			$commentsModels = $mediaItem->comments()->orderBy("id", "desc");
+			if ($id !== -1) {
+				$commentsModels = $commentsModels->where("id", "<=", $id);
+			}
+			$commentsModels = $commentsModels->limit(Config::get("comments.number_to_retrieve")+1)->get();
+			$more = $commentsModels->count() === Config::get("comments.number_to_retrieve")+1;
+			if ($more) {
+				$commentsModels->shift();
+			}
+			$commentsModels = $commentsModels->reverse(); // get in ascending order
 		}
 		
 		// check that the id that was supplied is in the models
-		if (!$commentsModels->contains($chosenId)) {
+		if ($id !== -1 && !$commentsModels->contains($id)) {
 			throw(new Exception("Comment with supplied id could not be found."));
 		}
 		
 		$comments  = array();
 		foreach($commentsModels as $a) {
 			// should not be returning supplied id
-			if (intval($a->id) === $chosenId) {
+			if ($id !== -1 && intval($a->id) === $id) {
 				continue;
 			}
 			
@@ -366,7 +376,7 @@ class PlayerController extends HomeBaseController {
 			$comments[] = array(
 				"id"			=> intval($a->id),
 				"profilePicUri"	=> $siteUser->getProfilePicUri(100, 100),
-				"postTime"		=> $a->time_created->timestamp,
+				"postTime"		=> $a->created_at->timestamp,
 				"name"			=> $siteUser->name,
 				"msg"			=> $a->msg,
 				"edited"		=> (boolean) $a->edited
