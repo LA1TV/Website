@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
 		<meta name="description" content="<?=e($description)?>">
 		<meta name="author" content="">
+		<link rel="shortcut icon" href="<?=asset("assets/img/favicon.ico");?>">
 		<?= stylesheet_link_tag("includes/application") ?>
 		<?= javascript_include_tag("includes/application") ?>
 	</head>
