@@ -249,16 +249,6 @@ class MediaController extends MediaBaseController {
 					$coverArtId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtId, $mediaItem->coverArtFile);
 					EloquentHelpers::associateOrNull($mediaItem->coverArtFile(), $file);
-
-					
-					$mediaItem->relatedItems()->detach(); // detaches all
-					$ids = json_decode($formData['related-items'], true);
-					if (count($ids) > 0) {
-						$mediaItems = MediaItem::whereIn("id", $ids)->get();
-						foreach($mediaItems as $a) {
-							$mediaItem->relatedItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
-						}
-					}
 					
 					// vod
 					$mediaItemVideo = null;
@@ -339,6 +329,15 @@ class MediaController extends MediaBaseController {
 					if (!is_null($mediaItemLiveStream)) {
 						if ($mediaItem->liveStreamItem()->save($mediaItemLiveStream) === false) {
 							throw(new Exception("Error creating MediaItemLiveStream."));
+						}
+					}
+					
+					$mediaItem->relatedItems()->detach(); // detaches all
+					$ids = json_decode($formData['related-items'], true);
+					if (count($ids) > 0) {
+						$mediaItems = MediaItem::whereIn("id", $ids)->get();
+						foreach($mediaItems as $a) {
+							$mediaItem->relatedItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
 						}
 					}
 					
