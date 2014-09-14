@@ -4,7 +4,9 @@ $(document).ready(function() {
 	
 		var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
 		
-		var comments = []; // contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, el}. el is the reference to the dom element containing the comment
+		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, $el}. $el is the reference to the dom element containing the comment
+		// in order of id (which is same as time)
+		var comments = [];
 		var loadedAllComments = false; // set to true when all the comments up to the first one have been loaded.
 
 		
@@ -22,7 +24,28 @@ $(document).ready(function() {
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
-					console.log(data);
+					
+					var newComments = [];
+					for (var i=0; i<data.comments.length; i++) {
+						var comment = data.comments[i];
+						newComments.push({
+							id: comment.id,
+							profilePicUri: comment.profilePicUri,
+							postTime: comment.postTime,
+							name: comment.name,
+							msg: comment.msg,
+							edited: comment.edited,
+							$el: null // to contain the dom el
+						});
+					}
+					
+					if (loadLaterComments) {
+						Array.prototype.push.apply(comments, newComments);
+					}
+					else {
+						Array.prototype.unshift.apply(comments, newComments);
+					}
+					render();
 				}
 			});
 		}
@@ -30,7 +53,12 @@ $(document).ready(function() {
 		retrieveComments(-1, false);
 	
 		function render() {
-			
+			for (var i=0; i<comments.length; i++) {
+				var comment = comments[i];
+				if (comment.$el === null) {
+					
+				}
+			}
 		}
 	});
 

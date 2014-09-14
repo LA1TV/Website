@@ -54,12 +54,53 @@
 		<h2>Comments</h2>
 		<div class="comments" data-mediaitemid="<?=e($mediaItemId);?>">
 			<div class="well well-sm">
-				<div class="form-group">
+				<table class="comments-table table table-bordered table-hover">
+					<tbody>
+						<tr>
+							<td class="load-more-col" colspan="2">
+								<button class="btn btn-info btn-sm btn-block" type="button">Load More</button>
+							</td>
+						</tr>
+						<tr>
+							<td class="profile-pic-col"><img class="img-responsive" src="https://graph.facebook.com/v2.1/4/picture?redirect=1&height=100&type=normal&width=100"></td>
+							<td class="comment-box-col">
+								<div class="comment-box">
+									<div class="buttons-container">
+										<div class="item">
+											<button class="remove-btn btn btn-danger btn-xs" type="button">&times;</button>
+										</div>
+									</div>
+									<div class="top-row"><span class="name">Tom Jenkinson</span> <span class="time">(10 minutes ago)</span></div>
+									<div class="comment">The content of the comment.</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="profile-pic-col"><img class="img-responsive" src="https://graph.facebook.com/v2.1/779122855467151/picture?redirect=1&height=100&type=normal&width=100"></td>
+							<td class="comment-box-col">
+								<div class="comment-box">
+									<div class="top-row"><span class="name">Tom Jenkinson</span> <span class="time">(10 minutes ago)</span></div>
+									<div class="comment">The content of the comment.</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="new-comment-container clearfix">
 					<input type="comment" class="form-control" placeholder="Enter comment...">
+					<div class="buttons-row">
+						<div class="item">
+							<div class="checkbox">
+								<label><input type="checkbox"> Post As Station</label>
+							</div>
+						</div>
+						<div class="item">
+							<button type="button" class="btn btn-primary btn-sm">Post</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
-		<p>Blah</p>
 	</div>
 	<div class="col-md-5">
 		<div class="playlist">
