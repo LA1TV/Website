@@ -13,6 +13,7 @@
 //= require video-js/video.js
 //= require custom_ordered/js/pad.js
 //= require custom_ordered/js/nl2br.js
+//= require custom_ordered/js/html-encode.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/synchronised-time.js
 //= require custom_ordered/js/button-group.js

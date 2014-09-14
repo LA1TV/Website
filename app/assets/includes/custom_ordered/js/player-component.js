@@ -204,8 +204,7 @@ $(document).ready(function() {
 					$adCustomMsg.hide().text("");
 				}
 				else {
-					var escapedCustomMsg = $("<div />").text(queuedCustomMsg).html();
-					$adCustomMsg.html(nl2br(escapedCustomMsg)).show();
+					$adCustomMsg.html(nl2br(e(queuedCustomMsg))).show();
 					registerFitText($adCustomMsg);
 				}
 				customMsg = queuedCustomMsg;

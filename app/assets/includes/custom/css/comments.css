@@ -10,7 +10,7 @@
 
 .comments .new-comment-container .buttons-row .item {
 	display: inline-block;
-	margin-left: 4px;
+	margin-left: 6px;
 }
 
 .comments .comments-table .profile-pic-col {
@@ -19,8 +19,23 @@
 }
 
 .comments .comments-table {
+	width: 100%;
 	background-color: #ffffff;
 	margin-bottom: 0;
+}
+
+.comments .comments-table tbody {
+	display: block;
+	overflow: auto;
+	max-height: 400px;
+}
+
+.comments .comments-table .comment-box-col {
+	width: 100%;
+}
+
+.comments .comments-table .profile-pic-col img {
+	width: 100px;
 }
 
 .comments .comments-table .comment-box-col .comment-box {
@@ -45,5 +60,5 @@
 
 .comments .comments-table .comment-box-col .comment-box .buttons-container .item {
 	display: inline-block;
-	margin-left: 4px;
+	margin-left: 6px;
 }
