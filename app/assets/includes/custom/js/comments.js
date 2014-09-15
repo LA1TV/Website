@@ -4,7 +4,7 @@ $(document).ready(function() {
 	
 		var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
 		
-		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, permissionToDelete, $el, smartTime}. $el is the reference to the dom element containing the comment
+		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, permissionToDelete, deleted, deleting, $el, $deleteButton, smartTime}. $el is the reference to the dom element containing the comment
 		// in order of id (which is same as time)
 		var comments = [];
 		var loadedAllComments = true; // set to true when all the comments up to the first one have been loaded. initialised to false in retrieveComments
@@ -129,7 +129,7 @@ $(document).ready(function() {
 						}
 					}
 					else {
-						alert("An error occurred when trying to post your comment. Please try again.");
+						alert("An error occurred when trying to post your comment. Please try again later.");
 						postingComment = false;
 					}
 					render();
@@ -137,6 +137,31 @@ $(document).ready(function() {
 			}
 			
 			doPost();
+		}
+		
+		// delete comment
+		function deleteComment(comment) {
+			comment.deleting = true;
+			render();
+			jQuery.ajax(baseUrl+"/player/delete-comment/"+mediaItemId, {
+				cache: false,
+				dataType: "json",
+				data: {
+					csrf_token: getCsrfToken(),
+					id: comment.id
+				},
+				type: "POST"
+			}).always(function(data, textStatus, jqXHR) {
+				comment.deleting = false;
+				if (jqXHR.status === 200 && data.success) {
+					// mark as deleted so it will be removed from the dom in render()
+					comment.deleted = true;
+				}
+				else {
+					alert("Sorry the comment can not be deleted at the moment. Please try again later.");
+				}
+				render();
+			});
 		}
 		
 		function retrieveCommentsTimerTask() {
@@ -192,7 +217,10 @@ $(document).ready(function() {
 							msg: comment.msg,
 							edited: comment.edited,
 							permissionToDelete: comment.permissionToDelete,
-							$el: null, // to contain the dom el,
+							deleted: false,
+							deleting: false,
+							$el: null, // to contain the dom el
+							$deleteButton: null,
 							smartTime: null
 						});
 					}
@@ -226,7 +254,7 @@ $(document).ready(function() {
 			
 			var following = $table.outerHeight(true) < $tableContainer.innerHeight() || $tableContainer.scrollTop() + $tableContainer.innerHeight() >= $table.outerHeight(true)-60;
 			
-			$noCommentsRow.css("display", comments.length > 0 ? "none" : "table-row");
+			$noCommentsRow.css("display", getNumberOfActiveComments() > 0 ? "none" : "table-row");
 			$loadMoreRow.css("display", loadedAllComments ? "none" : "table-row");
 			$loadMoreColButton.prop("disabled", loadingMore);
 			$loadMoreColButton.text(!loadingMore ? "Load Earlier Comments" : "Loading...");
@@ -236,8 +264,15 @@ $(document).ready(function() {
 			
 			for (var i=0; i<comments.length; i++) {
 				var comment = comments[i];
-				if (comment.$el === null) {
-					var commentToInsertAfter = getNextCommentWithEl(comment.id);
+				if (comment.deleted) {
+					if (comment.$el !== null) {
+						comment.smartTime.destroy();
+						comment.$el.remove();
+						comment.$el = null;
+					}
+				}
+				else if (comment.$el === null) {
+					var commentToInsertAfter = getPreviousCommentWithEl(comment.id);
 					comment.$el = buildCommentEl(comment);
 					if (commentToInsertAfter === null) {
 						comment.$el.insertAfter($loadMoreRow);
@@ -245,6 +280,10 @@ $(document).ready(function() {
 					else {
 						comment.$el.insertAfter(commentToInsertAfter.$el);
 					}
+				}
+				
+				if (comment.$el !== null) {
+					comment.$deleteButton.prop("disabled", comment.deleting);
 				}
 			}
 			
@@ -264,7 +303,7 @@ $(document).ready(function() {
 			}
 		}
 		
-		function getNextCommentWithEl(startId) {
+		function getPreviousCommentWithEl(startId) {
 			var comment = null;
 			for (var i=0; i<comments.length; i++) {
 				var a = comments[i];
@@ -286,6 +325,17 @@ $(document).ready(function() {
 				}
 			}
 			return null;
+		}
+		
+		function getNumberOfActiveComments() {
+			var num = 0;
+			for (var i=0; i<comments.length; i++) {
+				var comment = comments[i];
+				if (!comment.deleted) {
+					num++;
+				}
+			}
+			return num;
 		}
 		
 		// queued scroll to comment on next render. If the id doesn't exist it will wait until it does and then scroll to it.
@@ -325,6 +375,13 @@ $(document).ready(function() {
 			if (comment.permissionToDelete) {
 				$buttonsContainer.append($item);
 				$item.append($deleteButton);
+				
+				$deleteButton.click(function() {
+					if (confirm("Are you sure you want to delete this comment?")) {
+						deleteComment(comment);
+					}
+				});
+				comment.$deleteButton = $deleteButton;
 			}
 			$commentBox.append($topRow);
 			$topRow.append($name);

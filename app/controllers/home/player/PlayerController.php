@@ -434,6 +434,37 @@ class PlayerController extends HomeBaseController {
 		return Response::json($response);
 	}
 	
+	public function postDeleteComment($mediaItemId) {
+		
+		$mediaItem = MediaItem::accessible()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		// TODO: check if logged into control panel and has permission
+		if (!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) {
+			App::abort(403);
+		}
+		
+		$id = FormHelpers::getValue("id");
+		if (is_null($id)) {
+			throw(new Exception("Id must be supplied."));
+		}
+		$id = intval($id);
+		
+		$comment = $mediaItem->comments()->find($id);
+		if (is_null($comment)) {
+			throw(new Exception("Comment could not be found."));
+		}
+		
+		if (intval($comment->siteUser->id) !== intval(Facebook::getUser()->id)) {
+			App::abort(403);
+		}
+		
+		$comment->delete();
+		return Response::json(array("success"=>true));
+	}
+	
 	private function getInfoUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
