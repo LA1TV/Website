@@ -33,20 +33,16 @@
 	max-height: 430px;
 }
 
-.comments .comments-table .load-more-col {
-	width: 100%;
-}
-
-.comments .comments-table .no-comments-col {
-	width: 100%;
-}
-
 .comments .comments-table .no-comments-col .no-comments-msg {
 	text-align: center;
 	font-style: italic;
 }
 
-.comments .comments-table .comment-box-col {
+.comments .comments-table .col-1 {
+	width: 100px;
+}
+
+.comments .comments-table .col-2 {
 	width: 100%;
 }
 

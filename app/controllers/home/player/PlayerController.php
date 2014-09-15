@@ -409,7 +409,7 @@ class PlayerController extends HomeBaseController {
 		$response = array("success" => false);
 		
 		// check if user posted a comment recently
-		$noRecentComments = MediaItemComment::where("site_user_id", Facebook::getUser()->id)->where("updated_at", ">=", Carbon::now()->subSeconds(Config::get("comments.number_allowed_reset_interval")))->count();
+		$noRecentComments = MediaItemComment::where("site_user_id", $userHasCommentsPermission ? null : Facebook::getUser()->id)->where("updated_at", ">=", Carbon::now()->subSeconds(Config::get("comments.number_allowed_reset_interval")))->count();
 		if ($noRecentComments <= Config::get("comments.number_allowed")) {
 		
 			$msg = FormHelpers::getValue("msg");

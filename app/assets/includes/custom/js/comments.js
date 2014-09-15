@@ -19,6 +19,7 @@ $(document).ready(function() {
 		var $well = $("<div />").addClass("well well-sm");
 		var $tableContainer = $("<div />").addClass("comments-table-container");
 		var $table = $("<table />").addClass("comments-table table table-bordered table-hover");
+		var $colGroup = $("<colgroup />").append($("<col />").attr("class", "col-1")).append($("<col />").attr("class", "col-2"));
 		var $loadMoreRow = $("<tr />");
 		var $loadMoreCol = $("<td />").addClass("load-more-col").attr("colspan", "2");
 		var $loadMoreColButton = $("<button />").addClass("btn btn-info btn-sm btn-block").prop("type", "button");
@@ -38,6 +39,7 @@ $(document).ready(function() {
 		
 		$well.append($tableContainer);
 		$tableContainer.append($table);
+		$table.append($colGroup);
 		$table.append($noCommentsRow);
 		$noCommentsRow.append($noCommentsCol);
 		$noCommentsCol.append($noCommentsMsg);
