@@ -328,6 +328,7 @@ class PlayerController extends HomeBaseController {
 		// X = a number of comments
 		// id = the id of the comment to start at. -1 means return the last X comments. loadLaterComments must be false in this case
 		// load_later_comments = if true return all comments from the specified id otherwise load comments before it.
+		// the id that is provided isn't checked to be valid as the comment it points too may have been deleted.
 		
 		$id = FormHelpers::getValue("id");
 		$loadLaterComments = FormHelpers::getValue("load_later_comments") === "1";
@@ -360,11 +361,6 @@ class PlayerController extends HomeBaseController {
 				$commentsModels->pop();
 			}
 			$commentsModels = $commentsModels->reverse(); // get in ascending order
-		}
-		
-		// check that the id that was supplied is in the models
-		if ($id !== -1 && !$commentsModels->contains($id)) {
-			throw(new Exception("Comment with supplied id could not be found."));
 		}
 		
 		$comments  = array();
