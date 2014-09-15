@@ -1,3 +1,6 @@
+// I have modified this adding getCurrentDateCallback to prettyDate so that the SynchronisedTime can be used as the time source.
+
+
 var DateFormat = {};
 
 (function($) {
@@ -397,6 +400,7 @@ var DateFormat = {};
           return value;
         }
       },
+		// I have modified this adding getCurrentDateCallback
       /*
        * JavaScript Pretty Date
        * Copyright (c) 2011 John Resig (ejohn.org)
@@ -412,7 +416,12 @@ var DateFormat = {};
        * ('2007-12-15T22:24:17Z') // => 'more than 5 weeks ago'
        *
        */
-      prettyDate : function(time) {
+      prettyDate : function(time, getCurrentDateCallback) {
+	  
+		getCurrentDateCallback = getCurrentDateCallback || function() {
+			return new Date();
+		};
+		
         var date;
         var diff;
         var day_diff;
@@ -425,7 +434,7 @@ var DateFormat = {};
           date = new Date(time.toString());
         }
 
-        diff = (((new Date()).getTime() - date.getTime()) / 1000);
+        diff = (((getCurrentDateCallback()).getTime() - date.getTime()) / 1000);
 
         day_diff = Math.floor(diff / 86400);
 

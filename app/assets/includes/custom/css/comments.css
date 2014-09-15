@@ -15,7 +15,6 @@
 
 .comments .comments-table .profile-pic-col {
 	padding: 0;
-	width: 100px;
 }
 
 .comments .comments-table {
@@ -24,17 +23,34 @@
 	margin-bottom: 0;
 }
 
-.comments .comments-table tbody {
-	display: block;
+.comments .comments-table-container {
 	overflow: auto;
 	max-height: 400px;
+}
+
+.comments .comments-table .load-more-col {
+	width: 100%;
+}
+
+.comments .comments-table .no-comments-col {
+	width: 100%;
+}
+
+.comments .comments-table .no-comments-col .no-comments-msg {
+	text-align: center;
+	font-style: italic;
 }
 
 .comments .comments-table .comment-box-col {
 	width: 100%;
 }
 
-.comments .comments-table .profile-pic-col img {
+.comments .comments-table .profile-pic-col .profile-pic-container {
+	height: 100px;
+	overflow: hidden;
+}
+
+.comments .comments-table .profile-pic-col .profile-pic-container img {
 	width: 100px;
 }
 

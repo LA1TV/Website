@@ -16,6 +16,7 @@
 //= require custom_ordered/js/html-encode.js
 //= require custom_ordered/js/csrf.js
 //= require custom_ordered/js/synchronised-time.js
+//= require custom_ordered/js/smart-time.js
 //= require custom_ordered/js/button-group.js
 //= require custom_ordered/js/fit-text-handler.js
 //= require custom_ordered/js/device-detection.js

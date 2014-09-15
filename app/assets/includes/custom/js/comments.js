@@ -4,17 +4,26 @@ $(document).ready(function() {
 	
 		var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
 		
-		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, $el}. $el is the reference to the dom element containing the comment
+		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, $el, smartTime}. $el is the reference to the dom element containing the comment
 		// in order of id (which is same as time)
 		var comments = [];
-		var loadedAllComments = false; // set to true when all the comments up to the first one have been loaded.
+		var loadedAllComments = true; // set to true when all the comments up to the first one have been loaded. initialised to false in retrieveComments
+		var retrieveCommentsTimerId = null;
+		var commentIdToScrollTo = null;
+		var onlyScrollIfFollowing = null;
+		var postingComment = false; // true when a post is in progress
+		var loadingMore = false; // set to true when older comments are being loaded.
 		
 		var $container = $(this).first();
 		var $well = $("<div />").addClass("well well-sm");
+		var $tableContainer = $("<div />").addClass("comments-table-container");
 		var $table = $("<table />").addClass("comments-table table table-bordered table-hover");
 		var $loadMoreRow = $("<tr />");
 		var $loadMoreCol = $("<td />").addClass("load-more-col").attr("colspan", "2");
-		var $loadMoreColButton = $("<button />").addClass("btn btn-info btn-sm btn-block").prop("type", "button").text("Load More");
+		var $loadMoreColButton = $("<button />").addClass("btn btn-info btn-sm btn-block").prop("type", "button");
+		var $noCommentsRow = $("<tr />");
+		var $noCommentsCol = $("<td />").addClass("no-comments-col").attr("colspan", "2");
+		var $noCommentsMsg = $("<div />").addClass("no-comments-msg").text("There are no comments at the moment.");
 		var $newCommentContainer = $("<div />").addClass("new-comment-container clearfix");
 		var $comment = $("<input />").prop("type", "comment").addClass("form-control").attr("placeholder", "Enter comment...");
 		var $buttonsRow = $("<div />").addClass("buttons-row");
@@ -26,7 +35,11 @@ $(document).ready(function() {
 		var $postButtonItem = $("<div />").addClass("item");
 		var $postButton = $("<button />").addClass("btn btn-primary btn-sm").prop("type", "button").text("Post");
 		
-		$well.append($table);
+		$well.append($tableContainer);
+		$tableContainer.append($table);
+		$table.append($noCommentsRow);
+		$noCommentsRow.append($noCommentsCol);
+		$noCommentsCol.append($noCommentsMsg);
 		$table.append($loadMoreRow);
 		$loadMoreRow.append($loadMoreCol);
 		$loadMoreCol.append($loadMoreColButton);
@@ -42,18 +55,127 @@ $(document).ready(function() {
 		$buttonsRow.append($postButtonItem);
 		$postButtonItem.append($postButton);
 		
-		$container.append($well);
+		$postButton.click(function() {
+			postComment();
+		});
 		
-		// if loadLaterComments is true then comments after the entered id will be retrieved, otherwise comments before it will be retrieved.
+		$comment.on("keyup change", function(e) {
+			render(); // post button changes state depending on content of $comment
+		});
+		
+		$loadMoreColButton.click(function() {
+			loadingMore = true;
+			render();
+			retrieveComments(false);
+		});
+		
+		// listen for enter key
+		$comment.keyup(function(e) {
+			if (e.which !== 13) {
+				return;
+			}
+			e.preventDefault();
+			if (getEnteredComment() !== "") {
+				postComment();
+			}
+		});
+		
+		render();
+		$container.append($well);
+		retrieveCommentsTimerTask();
+		
+		function postComment() {
+			if (postingComment) {
+				return;
+			}
+		
+			var msg = getEnteredComment();
+			if (msg === "") {
+				throw "postComment() should not be called if there is no message.";
+			}
+			else if (msg.length > 500) {
+				alert("Your comment must be 500 characters or less.");
+				return;
+			}
+			postCommentImpl(msg);
+		}
+		
+		function postCommentImpl(msg) {
+			postingComment = true;
+			render();
+			
+			function doPost() {
+				jQuery.ajax(baseUrl+"/player/post-comment/"+mediaItemId, {
+					cache: false,
+					dataType: "json",
+					data: {
+						csrf_token: getCsrfToken(),
+						msg: msg
+					},
+					type: "POST"
+				}).always(function(data, textStatus, jqXHR) {
+					if (jqXHR.status === 200) {
+						if (data.success) {
+							$comment.val("");
+							// scroll to the new comment when it exists
+							scrollToCommentWithId(data.id, false);
+							retrieveCommentsTimerTask();
+							postingComment = false;
+						}
+						else {
+							// failed because user has made too many comments recently.
+							// keep trying every 8 seconds until the server allows it again
+							setTimeout(doPost, 8000);
+						}
+					}
+					else {
+						alert("An error occurred when trying to post your comment. Please try again.");
+						postingComment = false;
+					}
+					render();
+				});
+			}
+			
+			doPost();
+		}
+		
+		function retrieveCommentsTimerTask() {
+			if (retrieveCommentsTimerId !== null) {
+				clearTimeout(retrieveCommentsTimerId);
+				retrieveCommentsTimerId = null;
+			}
+			
+			// if there are no comments loaded yet then request previous comments (which will request all previous comments from current time). otherwise request future ones.
+			retrieveComments(comments.length > 0);
+			retrieveCommentsTimerId = setTimeout(retrieveCommentsTimerTask, 8000);
+		}
+		
 		// updates the comments array
-		function retrieveComments(id, loadLaterComments) {
+		function retrieveComments(loadLaterComments) {
+			
+			var id = null;
+			var initialLoad = false;
+			if (comments.length === 0 && loadLaterComments) {
+				throw "You cannot load later comments when there are no comments loaded.";
+			}
+			else if (loadLaterComments) {
+				id = comments[comments.length-1].id;
+			}
+			else {
+				id = comments.length > 0 ? comments[0].id : -1;
+				if (comments.length === 0) {
+					initialLoad = true;
+					loadedAllComments = false;
+				}
+			}
+
 			jQuery.ajax(baseUrl+"/player/comments/"+mediaItemId, {
 				cache: false,
 				dataType: "json",
 				data: {
 					csrf_token: getCsrfToken(),
 					id: id,
-					load_later_comments: loadLaterComments
+					load_later_comments: loadLaterComments ? "1" : "0"
 				},
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
@@ -75,21 +197,41 @@ $(document).ready(function() {
 					
 					if (loadLaterComments) {
 						Array.prototype.push.apply(comments, newComments);
+						if (newComments.length > 0) {
+							scrollToCommentWithId(comments[comments.length-1].id, true);
+						}
 					}
 					else {
 						if (!data.more) {
 							loadedAllComments = true;
 						}
 						Array.prototype.unshift.apply(comments, newComments);
+						if (initialLoad && comments.length > 0) {
+							scrollToCommentWithId(comments[comments.length-1].id, false);
+						}
+						loadingMore = false;
 					}
 					render();
 				}
 			});
 		}
 		
-		retrieveComments(-1, false);
+		function getEnteredComment() {
+			return $.trim($comment.val());
+		}
 	
 		function render() {
+			
+			var following = $table.outerHeight(true) < $tableContainer.innerHeight() || $tableContainer.scrollTop() + $tableContainer.innerHeight() >= $table.outerHeight(true)-60;
+			
+			$noCommentsRow.css("display", comments.length > 0 ? "none" : "table-row");
+			$loadMoreRow.css("display", loadedAllComments ? "none" : "table-row");
+			$loadMoreColButton.prop("disabled", loadingMore);
+			$loadMoreColButton.text(!loadingMore ? "Load Earlier Comments" : "Loading...");
+			$comment.prop("disabled", postingComment);
+			$postButton.prop("disabled", postingComment || getEnteredComment() === "");
+			$checkboxInput.prop("disabled", postingComment);
+			
 			for (var i=0; i<comments.length; i++) {
 				var comment = comments[i];
 				if (comment.$el === null) {
@@ -100,6 +242,21 @@ $(document).ready(function() {
 					}
 					else {
 						comment.$el.insertAfter(commentToInsertAfter.$el);
+					}
+				}
+			}
+			
+			// see if there's a queued comment to scroll to
+			if (commentIdToScrollTo !== null) {
+				var comment = getComment(commentIdToScrollTo);
+				if (comment !== null) {
+					// comment exists now
+					if (!onlyScrollIfFollowing || following) {
+						var $el = comment.$el;
+						$tableContainer.animate({
+							scrollTop: $el.offset().top - $tableContainer.offset().top + $tableContainer.scrollTop()
+						});
+						commentIdToScrollTo = null;
 					}
 				}
 			}
@@ -119,9 +276,33 @@ $(document).ready(function() {
 			return comment;
 		}
 		
+		function getComment(commentId) {
+			for (var i=0; i<comments.length; i++) {
+				var a = comments[i];
+				if (a.id === commentId) {
+					return a;
+				}
+			}
+			return null;
+		}
+		
+		// queued scroll to comment on next render. If the id doesn't exist it will wait until it does and then scroll to it.
+		// if onlyIfFollowing is true the scroll will only occur if the comments list is scrolled all the way to the bottom
+		function scrollToCommentWithId(commentId, onlyIfFollowing) {
+			if (commentIdToScrollTo === commentId && !onlyScrollIfFollowing) {
+				// if the comment is already queued and it's set to always scroll then don't do anything.
+				// something that's set to scroll should take precedence over the same comment getting set again but with scroll only if following set.
+				return;
+			}
+			commentIdToScrollTo = commentId;
+			onlyScrollIfFollowing = onlyIfFollowing;
+			render();
+		}
+		
 		function buildCommentEl(comment) {
 			var $el = $("<tr />");
 			var $profilePicCol = $("<td />").addClass("profile-pic-col");
+			var $profilePicContainer = $("<div />").addClass("profile-pic-container");
 			var $profilePicImg = $("<img />").attr("src", comment.profilePicUri);
 			var $commentBoxCol = $("<td />").addClass("comment-box-col");
 			var $commentBox = $("<div />").addClass("comment-box");
@@ -130,11 +311,12 @@ $(document).ready(function() {
 			var $button = $("<button />").addClass("remove-btn btn btn-danger btn-xs").prop("type", "button").html("&times;");
 			var $topRow = $("<div />").addClass("top-row");
 			var $name = $("<span />").addClass("name").text(comment.name+" ");
-			var $time = $("<span />").addClass("time").text("5 minutes ago");
+			var $time = $("<span />").addClass("time").attr("title", $.format.date(comment.postTime*1000, "HH:mm on D MMM yyyy"));
 			var $comment = $("<div />").addClass("comment").html(nl2br(e(comment.msg)));
 			
 			$el.append($profilePicCol);
-			$profilePicCol.append($profilePicImg);
+			$profilePicCol.append($profilePicContainer);
+			$profilePicContainer.append($profilePicImg);
 			$el.append($commentBoxCol);
 			$commentBoxCol.append($commentBox);
 			$commentBox.append($buttonsContainer);
@@ -144,6 +326,7 @@ $(document).ready(function() {
 			$topRow.append($name);
 			$topRow.append($time);
 			$commentBox.append($comment);
+			comment.smartTime = new SmartTime($time, comment.postTime*1000);
 			return $el;
 		}
 		

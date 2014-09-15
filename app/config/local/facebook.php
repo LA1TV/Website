@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	"enabled"			=> false,
-	"appId"				=> null,
-	"appSecret"			=> null
+	"enabled"			=> true,
+//	"appId"				=> null,
+//	"appSecret"			=> null
 );

@@ -5,9 +5,11 @@ use View;
 use App;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\MediaItemComment;
 use uk\co\la1tv\website\models\LiveStreamStateDefinition;
 use Response;
 use Config;
+use Carbon;
 use Facebook;
 use Auth;
 use FormHelpers;
@@ -355,7 +357,7 @@ class PlayerController extends HomeBaseController {
 			$commentsModels = $commentsModels->limit(Config::get("comments.number_to_retrieve")+1)->get();
 			$more = $commentsModels->count() === Config::get("comments.number_to_retrieve")+1;
 			if ($more) {
-				$commentsModels->shift();
+				$commentsModels->pop();
 			}
 			$commentsModels = $commentsModels->reverse(); // get in ascending order
 		}
@@ -387,6 +389,51 @@ class PlayerController extends HomeBaseController {
 			"comments"	=> $comments, // the comments as array("id", "profilePicUri", "postTime", "name", "msg", "edited"), in order of the newest comments last
 			"more"		=> $more // true if there are more comments in the direction that is being returned
 		);
+		return Response::json($response);
+	}
+	
+	public function postPostComment($mediaItemId) {
+		
+		$mediaItem = MediaItem::accessible()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		// TODO: check if logged into control panel and has permission
+		if (!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) {
+			App::abort(403);
+		}
+		
+		$response = array("success" => false);
+		
+		// check if user posted a comment recently
+		$noRecentComments = MediaItemComment::where("site_user_id", Facebook::getUser()->id)->where("updated_at", ">=", Carbon::now()->subSeconds(Config::get("comments.number_allowed_reset_interval")))->count();
+		if ($noRecentComments <= Config::get("comments.number_allowed")) {
+		
+			$msg = FormHelpers::getValue("msg");
+			if (is_null($msg)) {
+				throw(new Exception("No message supplied."));
+			}
+			else if (strlen($msg) > 500) {
+				throw(new Exception("Message length must be <= 500 characters."));
+			}
+			
+			$msg = trim($msg); // remove leading and trailing whitespace.
+			
+			if ($msg === "") {
+				throw(new Exception("The message cannot be blank."));
+			}
+			
+			$comment = new MediaItemComment(array(
+				"msg"	=> $msg
+			));
+			
+			$comment->siteUser()->associate(Facebook::getUser());
+			$comment->mediaItem()->associate($mediaItem);
+			$comment->save();
+			$response['success'] = true;
+			$response['id'] = intval($comment->id);
+		}
 		return Response::json($response);
 	}
 	
