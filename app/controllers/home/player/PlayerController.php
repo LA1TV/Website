@@ -363,6 +363,9 @@ class PlayerController extends HomeBaseController {
 			$commentsModels = $commentsModels->reverse(); // get in ascending order
 		}
 		
+		// true if a user is logged into the cms and has permission to manage comments and post as station.
+		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+		
 		$comments  = array();
 		foreach($commentsModels as $a) {
 			// should not be returning supplied id
@@ -370,12 +373,12 @@ class PlayerController extends HomeBaseController {
 				continue;
 			}
 			$siteUser = $a->siteUser;
-			$permissionToDelete = Facebook::isLoggedIn() && intval(Facebook::getUser()->id) === intval($siteUser->id);
+			$permissionToDelete = $userHasCommentsPermission || (Facebook::isLoggedIn() && intval(Facebook::getUser()->id) === intval($siteUser->id));
 			$comments[] = array(
 				"id"					=> intval($a->id),
-				"profilePicUri"			=> $siteUser->getProfilePicUri(100, 100),
+				"profilePicUri"			=> !is_null($siteUser) ? $siteUser->getProfilePicUri(100, 100) : Config::get("comments.station_profile_picture_uri"),
 				"postTime"				=> $a->created_at->timestamp,
-				"name"					=> $siteUser->name,
+				"name"					=> !is_null($siteUser) ? $siteUser->name : Config::get("comments.station_name"),
 				"msg"					=> $a->msg,
 				"permissionToDelete"	=> $permissionToDelete,
 				"edited"				=> (boolean) $a->edited
@@ -396,8 +399,10 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		// TODO: check if logged into control panel and has permission
-		if (!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) {
+		// true if a user is logged into the cms and has permission to manage comments and post as station.
+		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+		
+		if ((!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) && !$userHasCommentsPermission) {
 			App::abort(403);
 		}
 		
@@ -408,11 +413,18 @@ class PlayerController extends HomeBaseController {
 		if ($noRecentComments <= Config::get("comments.number_allowed")) {
 		
 			$msg = FormHelpers::getValue("msg");
+			$postAsStation = FormHelpers::getValue("post_as_station") === "1";
 			if (is_null($msg)) {
 				throw(new Exception("No message supplied."));
 			}
 			else if (strlen($msg) > 500) {
 				throw(new Exception("Message length must be <= 500 characters."));
+			}
+			else if ($postAsStation && !$userHasCommentsPermission) {
+				App::abort(403);
+			}
+			else if (!$postAsStation && !Facebook::isLoggedIn()) {
+				throw(new Exception("Cannot post as a facebook user as not logged in as one."));
 			}
 			
 			$msg = trim($msg); // remove leading and trailing whitespace.
@@ -425,7 +437,9 @@ class PlayerController extends HomeBaseController {
 				"msg"	=> $msg
 			));
 			
-			$comment->siteUser()->associate(Facebook::getUser());
+			if (!$postAsStation) {
+				$comment->siteUser()->associate(Facebook::getUser());
+			}
 			$comment->mediaItem()->associate($mediaItem);
 			$comment->save();
 			$response['success'] = true;
@@ -441,8 +455,10 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		// TODO: check if logged into control panel and has permission
-		if (!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) {
+		// true if a user is logged into the cms and has permission to manage comments and post as station.
+		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+		
+		if ((!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) && !$userHasCommentsPermission) {
 			App::abort(403);
 		}
 		
@@ -457,7 +473,7 @@ class PlayerController extends HomeBaseController {
 			throw(new Exception("Comment could not be found."));
 		}
 		
-		if (intval($comment->siteUser->id) !== intval(Facebook::getUser()->id)) {
+		if (!$userHasCommentsPermission && intval($comment->siteUser->id) !== intval(Facebook::getUser()->id)) {
 			App::abort(403);
 		}
 		

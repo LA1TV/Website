@@ -13,6 +13,7 @@ $(document).ready(function() {
 		var onlyScrollIfFollowing = null;
 		var postingComment = false; // true when a post is in progress
 		var loadingMore = false; // set to true when older comments are being loaded.
+		var canPostAsStation = true;
 		
 		var $container = $(this).first();
 		var $well = $("<div />").addClass("well well-sm");
@@ -47,11 +48,13 @@ $(document).ready(function() {
 		$newCommentContainer.append($buttonsRow);
 		$well.append($newCommentContainer);
 		$newCommentContainer.append($buttonsRow);
-		$buttonsRow.append($postAsStationItem);
-		$postAsStationItem.append($postAsStationCheckboxContainer);
-		$postAsStationCheckboxContainer.append($checkboxLabel);
-		$checkboxLabel.append($checkboxInput);
-		$checkboxLabel.append($checkboxSpan);
+		if (canPostAsStation) {
+			$buttonsRow.append($postAsStationItem);
+			$postAsStationItem.append($postAsStationCheckboxContainer);
+			$postAsStationCheckboxContainer.append($checkboxLabel);
+			$checkboxLabel.append($checkboxInput);
+			$checkboxLabel.append($checkboxSpan);
+		}
 		$buttonsRow.append($postButtonItem);
 		$postButtonItem.append($postButton);
 		
@@ -110,7 +113,8 @@ $(document).ready(function() {
 					dataType: "json",
 					data: {
 						csrf_token: getCsrfToken(),
-						msg: msg
+						msg: msg,
+						post_as_station: canPostAsStation && $checkboxInput.prop("checked") ? "1" : "0"
 					},
 					type: "POST"
 				}).always(function(data, textStatus, jqXHR) {
@@ -244,7 +248,7 @@ $(document).ready(function() {
 					render();
 				}
 				else {
-					if (!loadLaterComments) {
+					if (!loadLaterComments && loadingMore) {
 						loadingMore = false;
 						alert("An error occurred when trying to load earlier comments. Please try again later.");
 						render();

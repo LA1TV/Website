@@ -15,12 +15,17 @@
 
 .comments .comments-table .profile-pic-col {
 	padding: 0;
+	width: 100px;
 }
 
 .comments .comments-table {
-	width: 100%;
+	table-layout: fixed;
 	background-color: #ffffff;
 	margin-bottom: 0;
+}
+
+.comments .comments-table tr td {
+	word-wrap: break-word;
 }
 
 .comments .comments-table-container {
