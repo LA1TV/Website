@@ -78,11 +78,12 @@ return array(
 	|
 	*/
 	
-	// TODO: move this to a .env file
-	'key' => 'Yvxq2bIOPm48kmL1Dpd47aPbqewwI7tL',
+	// these settings are overridden for the local environment in the 'local' folder.
+	// should be specified in the .env.php file for the production environment.
+	'key' => isset($_ENV['ENCRYPTION_KEY']) ? $_ENV['ENCRYPTION_KEY'] : null,
 	
 	// new option in 4.2
-	'cipher' => MCRYPT_RIJNDAEL_256,
+	'cipher' => isset($_ENV['ENCRYPTION_CIPHER']) ? $_ENV['ENCRYPTION_CIPHER'] : null,
 
 	/*
 	|--------------------------------------------------------------------------
