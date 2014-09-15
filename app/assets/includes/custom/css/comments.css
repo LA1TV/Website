@@ -25,7 +25,7 @@
 
 .comments .comments-table-container {
 	overflow: auto;
-	max-height: 400px;
+	max-height: 430px;
 }
 
 .comments .comments-table .load-more-col {
