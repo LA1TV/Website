@@ -369,15 +369,16 @@ class PlayerController extends HomeBaseController {
 			if ($id !== -1 && intval($a->id) === $id) {
 				continue;
 			}
-			
 			$siteUser = $a->siteUser;
+			$permissionToDelete = Facebook::isLoggedIn() && intval(Facebook::getUser()->id) === intval($siteUser->id);
 			$comments[] = array(
-				"id"			=> intval($a->id),
-				"profilePicUri"	=> $siteUser->getProfilePicUri(100, 100),
-				"postTime"		=> $a->created_at->timestamp,
-				"name"			=> $siteUser->name,
-				"msg"			=> $a->msg,
-				"edited"		=> (boolean) $a->edited
+				"id"					=> intval($a->id),
+				"profilePicUri"			=> $siteUser->getProfilePicUri(100, 100),
+				"postTime"				=> $a->created_at->timestamp,
+				"name"					=> $siteUser->name,
+				"msg"					=> $a->msg,
+				"permissionToDelete"	=> $permissionToDelete,
+				"edited"				=> (boolean) $a->edited
 			);
 		}
 		

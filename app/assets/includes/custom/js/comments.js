@@ -4,7 +4,7 @@ $(document).ready(function() {
 	
 		var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
 		
-		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, $el, smartTime}. $el is the reference to the dom element containing the comment
+		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, permissionToDelete, $el, smartTime}. $el is the reference to the dom element containing the comment
 		// in order of id (which is same as time)
 		var comments = [];
 		var loadedAllComments = true; // set to true when all the comments up to the first one have been loaded. initialised to false in retrieveComments
@@ -191,7 +191,9 @@ $(document).ready(function() {
 							name: comment.name,
 							msg: comment.msg,
 							edited: comment.edited,
-							$el: null // to contain the dom el
+							permissionToDelete: comment.permissionToDelete,
+							$el: null, // to contain the dom el,
+							smartTime: null
 						});
 					}
 					
@@ -308,7 +310,7 @@ $(document).ready(function() {
 			var $commentBox = $("<div />").addClass("comment-box");
 			var $buttonsContainer = $("<div />").addClass("buttons-container");
 			var $item = $("<div />").addClass("item");
-			var $button = $("<button />").addClass("remove-btn btn btn-danger btn-xs").prop("type", "button").html("&times;");
+			var $deleteButton = $("<button />").addClass("remove-btn btn btn-danger btn-xs").prop("type", "button").html("&times;");
 			var $topRow = $("<div />").addClass("top-row");
 			var $name = $("<span />").addClass("name").text(comment.name+" ");
 			var $time = $("<span />").addClass("time").attr("title", $.format.date(comment.postTime*1000, "HH:mm on D MMM yyyy"));
@@ -320,8 +322,10 @@ $(document).ready(function() {
 			$el.append($commentBoxCol);
 			$commentBoxCol.append($commentBox);
 			$commentBox.append($buttonsContainer);
-			$buttonsContainer.append($item);
-			$item.append($button);
+			if (comment.permissionToDelete) {
+				$buttonsContainer.append($item);
+				$item.append($deleteButton);
+			}
 			$commentBox.append($topRow);
 			$topRow.append($name);
 			$topRow.append($time);
