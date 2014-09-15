@@ -2,6 +2,10 @@
 	margin-top: 3px;
 }
 
+.comments .new-comment-container .login-msg {
+	text-align: center;
+}
+
 .comments .new-comment-container .buttons-row {
 	display: inline-block;
 	margin-top: 4px;
@@ -11,6 +15,11 @@
 .comments .new-comment-container .buttons-row .item {
 	display: inline-block;
 	margin-left: 6px;
+}
+
+.comments .new-comment-container .buttons-row .item .checkbox {
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 .comments .comments-table .profile-pic-col {

@@ -1,8 +1,26 @@
+var CommentsComponent = null;
+
 $(document).ready(function() {
 
-	$(".comments").each(function() {
-	
-		var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
+	CommentsComponent = function(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation) {
+		
+		var self = this;
+		
+		this.getEl = function() {
+			return $container;
+		};
+		
+		this.destroy = function() {
+			destroying = true;
+			clearTimeout(retrieveCommentsTimerId);
+			retrieveCommentsTimerId = null;
+			for (var i=0; i<comments.length; i++) {
+				var comment = comments[i];
+				if (comment.smartTime !== null) {
+					smartTime.destroy();
+				}
+			}
+		};
 		
 		// contains all loaded comments in form {id, profilePicUri, postTime, name, msg, edited, permissionToDelete, deleted, deleting, $el, $deleteButton, smartTime}. $el is the reference to the dom element containing the comment
 		// in order of id (which is same as time)
@@ -13,9 +31,9 @@ $(document).ready(function() {
 		var onlyScrollIfFollowing = null;
 		var postingComment = false; // true when a post is in progress
 		var loadingMore = false; // set to true when older comments are being loaded.
-		var canPostAsStation = true;
+		var destroying = false;
 		
-		var $container = $(this).first();
+		var $container = $("<div />").addClass("comments");
 		var $well = $("<div />").addClass("well well-sm");
 		var $tableContainer = $("<div />").addClass("comments-table-container");
 		var $table = $("<table />").addClass("comments-table table table-bordered table-hover");
@@ -27,6 +45,7 @@ $(document).ready(function() {
 		var $noCommentsCol = $("<td />").addClass("no-comments-col").attr("colspan", "2");
 		var $noCommentsMsg = $("<div />").addClass("no-comments-msg").text("There are no comments at the moment.");
 		var $newCommentContainer = $("<div />").addClass("new-comment-container clearfix");
+		var $loginMsg = $("<div />").addClass("login-msg").text("Please login in order to make a comment.");
 		var $comment = $("<input />").prop("type", "comment").addClass("form-control").attr("placeholder", "Enter comment...");
 		var $buttonsRow = $("<div />").addClass("buttons-row");
 		var $postAsStationItem = $("<div />").addClass("item");
@@ -46,20 +65,26 @@ $(document).ready(function() {
 		$table.append($loadMoreRow);
 		$loadMoreRow.append($loadMoreCol);
 		$loadMoreCol.append($loadMoreColButton);
-		$newCommentContainer.append($comment);
-		$newCommentContainer.append($buttonsRow);
-		$well.append($newCommentContainer);
-		$newCommentContainer.append($buttonsRow);
-		if (canPostAsStation) {
-			$buttonsRow.append($postAsStationItem);
-			$postAsStationItem.append($postAsStationCheckboxContainer);
-			$postAsStationCheckboxContainer.append($checkboxLabel);
-			$checkboxLabel.append($checkboxInput);
-			$checkboxLabel.append($checkboxSpan);
+		if (canPostAsFacebookUser || canPostAsStation) {
+			$newCommentContainer.append($comment);
+			$newCommentContainer.append($buttonsRow);
+			if (canPostAsStation) {
+				if (!canPostAsFacebookUser) {
+					$checkboxInput.prop("checked", true).prop("disabled", true);
+				}
+				$buttonsRow.append($postAsStationItem);
+				$postAsStationItem.append($postAsStationCheckboxContainer);
+				$postAsStationCheckboxContainer.append($checkboxLabel);
+				$checkboxLabel.append($checkboxInput);
+				$checkboxLabel.append($checkboxSpan);
+			}
+			$buttonsRow.append($postButtonItem);
+			$postButtonItem.append($postButton);
 		}
-		$buttonsRow.append($postButtonItem);
-		$postButtonItem.append($postButton);
-		
+		else {
+			$newCommentContainer.append($loginMsg);
+		}
+		$well.append($newCommentContainer);
 		$postButton.click(function() {
 			postComment();
 		});
@@ -110,7 +135,7 @@ $(document).ready(function() {
 			render();
 			
 			function doPost() {
-				jQuery.ajax(baseUrl+"/player/post-comment/"+mediaItemId, {
+				jQuery.ajax(postUri, {
 					cache: false,
 					dataType: "json",
 					data: {
@@ -149,7 +174,7 @@ $(document).ready(function() {
 		function deleteComment(comment) {
 			comment.deleting = true;
 			render();
-			jQuery.ajax(baseUrl+"/player/delete-comment/"+mediaItemId, {
+			jQuery.ajax(deleteUri, {
 				cache: false,
 				dataType: "json",
 				data: {
@@ -171,6 +196,10 @@ $(document).ready(function() {
 		}
 		
 		function retrieveCommentsTimerTask() {
+			if (destroying) {
+				return;
+			}
+			
 			if (retrieveCommentsTimerId !== null) {
 				clearTimeout(retrieveCommentsTimerId);
 				retrieveCommentsTimerId = null;
@@ -200,7 +229,7 @@ $(document).ready(function() {
 				}
 			}
 
-			jQuery.ajax(baseUrl+"/player/comments/"+mediaItemId, {
+			jQuery.ajax(getUri, {
 				cache: false,
 				dataType: "json",
 				data: {
@@ -273,7 +302,7 @@ $(document).ready(function() {
 			$loadMoreColButton.text(!loadingMore ? "Load Earlier Comments" : "Loading...");
 			$comment.prop("disabled", postingComment);
 			$postButton.prop("disabled", postingComment || getEnteredComment() === "");
-			$checkboxInput.prop("disabled", postingComment);
+			$checkboxInput.prop("disabled", !canPostAsFacebookUser || postingComment);
 			
 			for (var i=0; i<comments.length; i++) {
 				var comment = comments[i];
@@ -405,6 +434,6 @@ $(document).ready(function() {
 			return $el;
 		}
 		
-	});
+	};
 
 });

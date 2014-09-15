@@ -24,4 +24,5 @@
 //= require custom_ordered/js/player-component.js
 //= require custom_ordered/js/player-controller.js
 //= require custom_ordered/js/quality-selection-component.js
+//= require custom_ordered/js/comments-component.js
 //= require_tree ./custom

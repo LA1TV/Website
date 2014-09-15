@@ -25,10 +25,13 @@ class PlayerController extends HomeBaseController {
 		$userHasMediaItemsEditPermission = false;
 		// true if a user is logged into the cms and has permission to view playlists.
 		$userHasPlaylistsPermission = false;
+		// true if a user is logged into the cms and has permission to manage comments and post as station.
+		$userHasCommentsPermission = false;
 		if (Auth::isLoggedIn()) {
 			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
 			$userHasMediaItemsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 1);
 			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
+			$userHasCommentsPermission = Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
 		}
 		
 		$playlist = Playlist::with("show", "mediaItems")->accessible();
@@ -117,6 +120,11 @@ class PlayerController extends HomeBaseController {
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
+		$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
+		$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
+		$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
+		$view->canCommentAsFacebookUser = Facebook::isLoggedIn();
+		$view->canCommentAsStation = $userHasCommentsPermission;
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$this->setContent($view, "player", "player");
@@ -373,7 +381,7 @@ class PlayerController extends HomeBaseController {
 				continue;
 			}
 			$siteUser = $a->siteUser;
-			$permissionToDelete = $userHasCommentsPermission || (Facebook::isLoggedIn() && intval(Facebook::getUser()->id) === intval($siteUser->id));
+			$permissionToDelete = $userHasCommentsPermission || (Facebook::isLoggedIn() && !is_null($siteUser) && intval(Facebook::getUser()->id) === intval($siteUser->id));
 			$comments[] = array(
 				"id"					=> intval($a->id),
 				"profilePicUri"			=> !is_null($siteUser) ? $siteUser->getProfilePicUri(100, 100) : Config::get("comments.station_profile_picture_uri"),
@@ -491,6 +499,18 @@ class PlayerController extends HomeBaseController {
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getGetCommentsUri($mediaItemId) {
+		return Config::get("comments.get_base_uri")."/".$mediaItemId;
+	}
+	
+	private function getPostCommentUri($mediaItemId) {
+		return Config::get("comments.post_base_uri")."/".$mediaItemId;
+	}
+	
+	private function getDeleteCommentUri($mediaItemId) {
+		return Config::get("comments.delete_base_uri")."/".$mediaItemId;
 	}
 	
 	public function missingMethod($parameters=array()) {

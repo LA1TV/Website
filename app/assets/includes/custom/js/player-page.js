@@ -263,6 +263,19 @@ $(document).ready(function() {
 				}
 			});
 		});
+		
+		
+		$pageContainer.find(".comments-container").each(function() {
+			var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
+			var getUri = $(this).attr("data-get-uri");
+			var postUri = $(this).attr("data-post-uri");
+			var deleteUri = $(this).attr("data-delete-uri");
+			var canPostAsFacebookUser = $(this).attr("data-can-comment-as-facebook-user") === "1";
+			var canPostAsStation = $(this).attr("data-can-comment-as-station") === "1";
+			
+			var commentsComponent = new CommentsComponent(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation);
+			$(this).append(commentsComponent.getEl());
+		});
 	});
 	
 });
