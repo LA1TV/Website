@@ -243,6 +243,13 @@ $(document).ready(function() {
 					}
 					render();
 				}
+				else {
+					if (!loadLaterComments) {
+						loadingMore = false;
+						alert("An error occurred when trying to load earlier comments. Please try again later.");
+						render();
+					}
+				}
 			});
 		}
 		
@@ -269,6 +276,7 @@ $(document).ready(function() {
 						comment.smartTime.destroy();
 						comment.$el.remove();
 						comment.$el = null;
+						comment.$deleteButton = null;
 					}
 				}
 				else if (comment.$el === null) {
@@ -282,7 +290,7 @@ $(document).ready(function() {
 					}
 				}
 				
-				if (comment.$el !== null) {
+				if (comment.$deleteButton !== null) {
 					comment.$deleteButton.prop("disabled", comment.deleting);
 				}
 			}
