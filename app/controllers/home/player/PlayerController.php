@@ -84,9 +84,8 @@ class PlayerController extends HomeBaseController {
 		$relatedItems = $playlist->relatedItems()->accessible()->orderBy("related_item_to_playlist.position")->get();
 		$relatedItemsTableData = array();
 		foreach($relatedItems as $i=>$item) {
-			// a mediaitem can be part of several playlists. Always use the first one.
-			
-			$relatedItemPlaylist = $item->playlists()->first();
+			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
+			$relatedItemPlaylist = $item->getDefaultPlaylist();
 			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
 			$accessibleToPublic = true; // TODO
 			$title = $item->name;

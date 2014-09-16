@@ -147,6 +147,21 @@ class MediaItem extends MyEloquent {
 		return $this->likes()->where("site_user_id", $siteUser->id)->delete() > 0;
 	}
 	
+	// Get the first one that has a show if there is one, or just the first one otherwise
+	public function getDefaultPlaylist() {
+		$this->load("playlists", "playlists.show");
+		$playlist = null;
+		foreach($this->playlists as $a) {
+			if (is_null($playlist)) {
+				$playlist = $a;
+			}
+			if (!is_null($a->show)) {
+				$playlist = $a;
+				break;
+			}
+		}
+		return $playlist;
+	}
 	
 	// returns true if this media item should be accessible
 	// this does not take into consideration the publish time. A media item should still be accessible even if the publish time hasn't passed.
