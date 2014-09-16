@@ -225,7 +225,6 @@ $(document).ready(function() {
 				id = comments.length > 0 ? comments[0].id : -1;
 				if (comments.length === 0) {
 					initialLoad = true;
-					loadedAllComments = false;
 				}
 			}
 
@@ -267,9 +266,7 @@ $(document).ready(function() {
 						}
 					}
 					else {
-						if (!data.more) {
-							loadedAllComments = true;
-						}
+						loadedAllComments = !data.more;
 						Array.prototype.unshift.apply(comments, newComments);
 						if (initialLoad && comments.length > 0) {
 							scrollToCommentWithId(comments[comments.length-1].id, false);
