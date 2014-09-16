@@ -97,6 +97,7 @@ class PlayerController extends HomeBaseController {
 				"uri"					=> Config::get("custom.player_base_uri")."/".$relatedItemPlaylist->id."/".$item->id,
 				"active"				=> $active,
 				"title"					=> $title,
+				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"accessibleToPublic"	=> $accessibleToPublic
