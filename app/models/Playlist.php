@@ -102,6 +102,13 @@ class Playlist extends MyEloquent {
 		return ($mediaItem->pivot->position + 1) . ". " . $mediaItem->name;
 	}
 	
+	public function generateRelatedItems($mediaItem) {
+		$mediaItemRelatedItems = $mediaItem->relatedItems()->accessible()->orderBy("related_item_to_media_item.position")->get();
+		$playlistRelatedItems = $this->relatedItems()->accessible()->orderBy("related_item_to_playlist.position")->get();
+		$items = $mediaItemRelatedItems->merge($playlistRelatedItems);
+		return $items;
+	}
+	
 	public function getPlaylistContentForInputAttribute() {
 		return MediaItem::generateInputValueForAjaxSelectOrderableList($this->getPlaylistContentIdsForOrderableList());
 	}

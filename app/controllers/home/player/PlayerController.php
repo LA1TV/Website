@@ -81,7 +81,7 @@ class PlayerController extends HomeBaseController {
 			$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
 		}	
 		
-		$relatedItems = $playlist->relatedItems()->accessible()->orderBy("related_item_to_playlist.position")->get();
+		$relatedItems = $playlist->generateRelatedItems($currentMediaItem);
 		$relatedItemsTableData = array();
 		foreach($relatedItems as $i=>$item) {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
@@ -97,7 +97,7 @@ class PlayerController extends HomeBaseController {
 				"active"				=> $active,
 				"title"					=> $title,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
-				"episodeNo"				=> intval($item->pivot->position) + 1,
+				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"accessibleToPublic"	=> $accessibleToPublic
 			);
