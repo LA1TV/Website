@@ -58,18 +58,12 @@ class PlayerController extends HomeBaseController {
 			if ($active) {
 				$activeItemIndex = $i;
 			}
-			$accessibleToPublic = true; // TODO
-			$title = $item->name;
-			if (!$accessibleToPublic) {
-				$title = "[Inaccessible] ".$title;
-			}
 			$playlistTableData[] = array(
 				"uri"					=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
 				"active"				=> $active,
-				"title"					=> $title,
+				"title"					=> $item->name,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
-				"thumbnailUri"			=> $thumbnailUri,
-				"accessibleToPublic"	=> $accessibleToPublic
+				"thumbnailUri"			=> $thumbnailUri
 			);
 		}
 		$playlistPreviousItemUri = null;
@@ -87,19 +81,13 @@ class PlayerController extends HomeBaseController {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
 			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
-			$accessibleToPublic = true; // TODO
-			$title = $item->name;
-			if (!$accessibleToPublic) {
-				$title = "[Inaccessible] ".$title;
-			}
 			$relatedItemsTableData[] = array(
 				"uri"					=> Config::get("custom.player_base_uri")."/".$relatedItemPlaylist->id."/".$item->id,
 				"active"				=> $active,
-				"title"					=> $title,
+				"title"					=> $item->name,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
-				"thumbnailUri"			=> $thumbnailUri,
-				"accessibleToPublic"	=> $accessibleToPublic
+				"thumbnailUri"			=> $thumbnailUri
 			);
 		}
 		
