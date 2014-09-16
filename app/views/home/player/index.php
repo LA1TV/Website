@@ -96,6 +96,25 @@
 				</table>
 			</div>
 		</div>
+		<?php if (count($relatedItemsTableData) > 0): ?>
+		<div class="playlist">
+			<div class="button-row clearfix">
+				<h2 class="playlist-title">Related Items</h2>
+			</div>
+			<div class="playlist-table-container">
+				<table class="playlist-table table table-bordered table-striped table-hover">
+					<tbody>
+						<?php foreach($relatedItemsTableData as $row):?>
+						<tr>
+							<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
+							<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
+							<td class="col-title"><?=e($row['title']);?></td>
+						</tr>
+						<?php endforeach; ?>
+				</table>
+			</div>
+		</div>
+		<?php endif; ?>
 	</div>
 </div>
 

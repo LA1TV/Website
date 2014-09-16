@@ -34,7 +34,7 @@ class PlayerController extends HomeBaseController {
 			$userHasCommentsPermission = Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
 		}
 		
-		$playlist = Playlist::with("show", "mediaItems")->accessible();
+		$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessible();
 		if (!$userHasPlaylistsPermission) {
 			// current cms user (if logged in) does not have permission to view playlists, so only search playlists accessible to the public.
 			$playlist = $playlist->accessibleToPublic();
@@ -50,7 +50,6 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		$playlistMediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
-		
 		$playlistTableData = array();
 		$activeItemIndex = null;
 		foreach($playlistMediaItems as $i=>$item) {
@@ -73,7 +72,6 @@ class PlayerController extends HomeBaseController {
 				"accessibleToPublic"	=> $accessibleToPublic
 			);
 		}
-		
 		$playlistPreviousItemUri = null;
 		$playlistNextItemUri = null;
 		if ($activeItemIndex > 0) {
@@ -82,6 +80,28 @@ class PlayerController extends HomeBaseController {
 		if ($activeItemIndex < count($playlistTableData)-1) {
 			$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
 		}	
+		
+		$relatedItems = $playlist->relatedItems()->accessible()->orderBy("related_item_to_playlist.position")->get();
+		$relatedItemsTableData = array();
+		foreach($relatedItems as $i=>$item) {
+			// a mediaitem can be part of several playlists. Always use the first one.
+			
+			$relatedItemPlaylist = $item->playlists()->first();
+			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$accessibleToPublic = true; // TODO
+			$title = $item->name;
+			if (!$accessibleToPublic) {
+				$title = "[Inaccessible] ".$title;
+			}
+			$relatedItemsTableData[] = array(
+				"uri"					=> Config::get("custom.player_base_uri")."/".$relatedItemPlaylist->id."/".$item->id,
+				"active"				=> $active,
+				"title"					=> $title,
+				"episodeNo"				=> intval($item->pivot->position) + 1,
+				"thumbnailUri"			=> $thumbnailUri,
+				"accessibleToPublic"	=> $accessibleToPublic
+			);
+		}
 		
 		$streamControlData = null;
 		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
@@ -116,6 +136,7 @@ class PlayerController extends HomeBaseController {
 		$view->playlistTableData = $playlistTableData;
 		$view->playlistNextItemUri = $playlistNextItemUri;
 		$view->playlistPreviousItemUri = $playlistPreviousItemUri;
+		$view->relatedItemsTableData = $relatedItemsTableData;
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
