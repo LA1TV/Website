@@ -400,13 +400,14 @@ $(document).ready(function() {
 			var $profilePicContainer = $("<div />").addClass("profile-pic-container");
 			var $profilePicImg = $("<img />").attr("src", comment.profilePicUri);
 			var $commentBoxCol = $("<td />").addClass("comment-box-col");
-			var $commentBox = $("<div />").addClass("comment-box");
+			var $commentBox = $("<div />").addClass("comment-box clearfix");
 			var $buttonsContainer = $("<div />").addClass("buttons-container");
+			var $timeItem = $("<div />").addClass("item");
+			var $time = $("<span />").addClass("time").attr("title", $.format.date(comment.postTime*1000, "HH:mm on D MMM yyyy"));
 			var $item = $("<div />").addClass("item");
 			var $deleteButton = $("<button />").addClass("remove-btn btn btn-danger btn-xs").prop("type", "button").html("&times;");
 			var $topRow = $("<div />").addClass("top-row");
-			var $name = $("<span />").addClass("name").text(comment.name+" ");
-			var $time = $("<span />").addClass("time").attr("title", $.format.date(comment.postTime*1000, "HH:mm on D MMM yyyy"));
+			var $name = $("<span />").addClass("name").text(comment.name);
 			var $comment = $("<div />").addClass("comment").html(nl2br(e(comment.msg)));
 			
 			$el.append($profilePicCol);
@@ -415,6 +416,8 @@ $(document).ready(function() {
 			$el.append($commentBoxCol);
 			$commentBoxCol.append($commentBox);
 			$commentBox.append($buttonsContainer);
+			$buttonsContainer.append($timeItem);
+			$timeItem.append($time);
 			if (comment.permissionToDelete) {
 				$buttonsContainer.append($item);
 				$item.append($deleteButton);
@@ -428,7 +431,6 @@ $(document).ready(function() {
 			}
 			$commentBox.append($topRow);
 			$topRow.append($name);
-			$topRow.append($time);
 			$commentBox.append($comment);
 			comment.smartTime = new SmartTime($time, comment.postTime*1000);
 			return $el;
