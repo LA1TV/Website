@@ -322,7 +322,7 @@ $(document).ready(function() {
 					// uri not supported on this device
 					continue;
 				}
-				var $source = $("<source />").attr("src", uri.uri);
+				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
 				$video.append($source);
 			}
 
