@@ -304,9 +304,9 @@ $(document).ready(function() {
 			$player = $("<div />").addClass("player embed-responsive-item");
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri);//.attr("x-webkit-airplay", "allow");
 			// disable browser context menu on video
-			$video.on('contextmenu', function(e) {
-				e.preventDefault();
-			});
+	//		$video.on('contextmenu', function(e) {
+	//			e.preventDefault();
+	//		});
 			
 			// set the sources
 			playerUris = queuedPlayerUris;
@@ -322,7 +322,7 @@ $(document).ready(function() {
 					// uri not supported on this device
 					continue;
 				}
-				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
+				var $source = $("<source />").attr("src", uri.uri);
 				$video.append($source);
 			}
 
