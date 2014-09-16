@@ -61,15 +61,12 @@
 .playlist .playlist-table .col-title {
 	width: 100%;
 	position: relative;
-	padding: 2px 8px;
-}
-
-.playlist .playlist-table .col-title .title {
-	padding: 6px 0;
 }
 
 .playlist .playlist-table .col-title .subtitle {
 	display: inline-block;
-	float: right;
+	position: absolute;
+	right: 2px;
+	top: 0;
 	font-size: 10px;
 }
