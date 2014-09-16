@@ -127,6 +127,7 @@ class PlayerController extends HomeBaseController {
 		$view->canCommentAsStation = $userHasCommentsPermission;
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
+		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, 940, 150);
 		$this->setContent($view, "player", "player");
 	}
 	
