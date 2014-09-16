@@ -302,11 +302,11 @@ $(document).ready(function() {
 			destroyPlayer();
 			
 			$player = $("<div />").addClass("player embed-responsive-item");
-			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri);//.attr("x-webkit-airplay", "allow");
+			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
 			// disable browser context menu on video
-	//		$video.on('contextmenu', function(e) {
-	//			e.preventDefault();
-	//		});
+			$video.on('contextmenu', function(e) {
+				e.preventDefault();
+			});
 			
 			// set the sources
 			playerUris = queuedPlayerUris;
