@@ -29,6 +29,10 @@
 	overflow: hidden;
 }
 
+.player-component .ad .bg img {
+	width: 100%;
+}
+
 .player-component .ad .overlay {
 	position: absolute;
 	bottom: 0;

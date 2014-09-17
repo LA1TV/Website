@@ -3,12 +3,8 @@
 use uk\co\la1tv\website\controllers\BaseController;
 use URL;
 use Csrf;
-use Auth;
 use Config;
-use uk\co\la1tv\website\models\Show;
-use uk\co\la1tv\website\models\Playlist;
 use Facebook;
-use Request;
 
 class EmbedBaseController extends BaseController {
 
@@ -24,10 +20,10 @@ class EmbedBaseController extends BaseController {
 		$this->layout->stylesheetApplicationPath = "includes/embed/application";
 		$this->layout->javascriptApplicationPath = "includes/embed/application";
 		$this->layout->pageData = array(
-			"baseurl"		=> URL::to("/"),
-			"assetsbaseurl"	=> asset(""),
-			"csrftoken"		=> Csrf::getToken(),
-			"loggedin"		=> Facebook::isLoggedIn() ? "1" : "0"
+			"baseUrl"		=> URL::to("/"),
+			"assetsBaseUrl"	=> asset(""),
+			"csrfToken"		=> Csrf::getToken(),
+			"loggedIn"		=> Facebook::isLoggedIn()
 		);
 	}
 

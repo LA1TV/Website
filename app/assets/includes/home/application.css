@@ -6,6 +6,9 @@
  *
  *= require bootstrap/css/bootstrap.min.css
  *= require video-js/video-js.min.css
+ *= require ../global/custom_ordered/css/player.css
+ *= require ../global/custom_ordered/css/player-container.css
+ *= require ../global/custom_ordered/css/quality-selection-component.css
  *= require_tree ../global/custom
  *= require_tree ./custom
  */

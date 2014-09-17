@@ -46,6 +46,8 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 		Route::controller('/contact', $p.'home\contact\ContactController');
 		Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
 		Route::controller('/player', $p.'home\player\PlayerController');
+		// this is here so the named route can be retrieved in EmbedController
+		Route::any('/player/{a}/{b}', array("as"=>"player", "uses"=>$p.'home\player\PlayerController@index'));
 		Route::controller('/shows', $p.'home\shows\ShowsController');
 		Route::controller('/show', $p.'home\show\ShowController');
 		Route::controller('/guide', $p.'home\guide\GuideController');
@@ -56,5 +58,14 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 
 // embed.la1tv.co.uk
 Route::group(array('domain' => Config::get("subdomains.embed")), function() use(&$p) {
-	Route::controller('/', $p.'embed\EmbedController');
+	
+	Route::group(array('before' => 'csrf'), function() use(&$p) {
+		
+		// /player and /ajax and /file should also be accessible from the embed subdomain as well
+		Route::controller('/player', $p.'home\player\PlayerController');
+		Route::controller('/ajax', $p.'home\ajax\AjaxController');
+		Route::controller('/file', $p.'home\admin\upload\UploadController');
+		
+		Route::controller('/', $p.'embed\EmbedController');
+	});
 });

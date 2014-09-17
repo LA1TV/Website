@@ -129,6 +129,7 @@ class PlayerController extends HomeBaseController {
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
+		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
 		$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
 		$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
