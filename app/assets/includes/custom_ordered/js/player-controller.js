@@ -178,6 +178,7 @@ $(document).ready(function() {
 			if ((overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3) || data.streamState === 2) {
 				// stream should be live
 				setPlayerType("live");
+				// TODO: the code to manage qualities here is pretty much identical below. extract to function.
 				var qualities = [];
 				var qualityIds = [];
 				for (var i=0; i<data.streamUris.length; i++) {
@@ -213,6 +214,7 @@ $(document).ready(function() {
 			}
 			else {
 				setPlayerType("ad");
+				qualitiesHandler.setAvailableQualities([]);
 			}
 			
 			playerComponent.render();
