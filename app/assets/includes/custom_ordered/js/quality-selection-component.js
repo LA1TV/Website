@@ -45,36 +45,36 @@ $(document).ready(function() {
 			
 			if (!self.hasQualities()) {
 				chosenQuality = null;
-				return;
-			}
-			
-			// if the previously quality id that was actively chosen is still available use that.
-			// otherwise if pevious quality id that was chosen is still available use that.
-			// otherwise pick the first quality.
-			var foundActivelyChosen = false;
-			var foundChosen = false;
-			var theActivelyChosenQuality = getActivelyChosenQuality();
-			var activelyChosenQualityId = theActivelyChosenQuality !== null ? theActivelyChosenQuality.id : null;
-			var chosenQualityId = chosenQuality !== null ? chosenQuality.id : null;
-			for (var i=0; i<availableQualities.length; i++) {
-				var quality = availableQualities[i];
-				if (quality.id === activelyChosenQualityId) {
-					foundActivelyChosen = true;
-					break;
-				}
-				else if (quality.id === chosenQualityId) {
-					foundChosen = true;
-				}
-			}
-			if (foundActivelyChosen) {
-				chosenQuality = theActivelyChosenQuality;
-			}
-			else if (foundChosen) {
-				// nothing to do as it's already chosen.
 			}
 			else {
-				// pick the first one.
-				chosenQuality = availableQualities[0];
+				// if the previously quality id that was actively chosen is still available use that.
+				// otherwise if pevious quality id that was chosen is still available use that.
+				// otherwise pick the first quality.
+				var foundActivelyChosen = false;
+				var foundChosen = false;
+				var theActivelyChosenQuality = getActivelyChosenQuality();
+				var activelyChosenQualityId = theActivelyChosenQuality !== null ? theActivelyChosenQuality.id : null;
+				var chosenQualityId = chosenQuality !== null ? chosenQuality.id : null;
+				for (var i=0; i<availableQualities.length; i++) {
+					var quality = availableQualities[i];
+					if (quality.id === activelyChosenQualityId) {
+						foundActivelyChosen = true;
+						break;
+					}
+					else if (quality.id === chosenQualityId) {
+						foundChosen = true;
+					}
+				}
+				if (foundActivelyChosen) {
+					chosenQuality = theActivelyChosenQuality;
+				}
+				else if (foundChosen) {
+					// nothing to do as it's already chosen.
+				}
+				else {
+					// pick the first one.
+					chosenQuality = availableQualities[0];
+				}
 			}
 			render();
 			$(self).triggerHandler("qualitiesChanged");
