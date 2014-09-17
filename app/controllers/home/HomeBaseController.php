@@ -19,10 +19,17 @@ class HomeBaseController extends BaseController {
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
 		$this->layout->title = !is_null($title) ? $title : "LA1:TV";
-		$this->layout->csrfToken = Csrf::getToken();
 		$this->layout->description = ""; // TODO
 		$this->layout->content = $content;
+		$this->layout->allowRobots = true;
+		$this->layout->stylesheetApplicationPath = "includes/application";
+		$this->layout->javascriptApplicationPath = "includes/application";
 		$this->layout->loggedIn = Facebook::isLoggedIn();
+		$this->layout->pageData = array(
+			"assetsbaseurl"	=> asset(""),
+			"csrftoken"		=> Csrf::getToken(),
+			"loggedin"		=> Facebook::isLoggedIn() ? "1" : "0"
+		);
 		
 		$returnUri = implode("/", Request::segments());
 		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);

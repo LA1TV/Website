@@ -16,7 +16,7 @@ if (isset($nav[$currentNavPage])) {
 }
 
 ?>
-@extends('layouts.home.admin.base')
+@extends('layouts.home.admin.body')
 
 @section('navbarList')
 <?php foreach($mainMenuItems as $b):

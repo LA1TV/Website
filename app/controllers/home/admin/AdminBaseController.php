@@ -11,12 +11,20 @@ class AdminBaseController extends BaseController {
 	protected $layout = "layouts.home.admin.master";
 	
 	protected function setContent($content, $navPage, $cssPageId, $title=NULL) {
-		$this->layout->baseUrl = URL::to("/");
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
 		$this->layout->title = !is_null($title) ? $title : "LA1:TV CMS";
-		$this->layout->csrfToken = Csrf::getToken();
 		$this->layout->content = $content;
+		$this->layout->description = "The custom built content management system for LA1:TV's website.";
+		$this->layout->allowRobots = false;
+		$this->layout->stylesheetApplicationPath = "includes/admin/application";
+		$this->layout->javascriptApplicationPath = "includes/admin/application";		
+		
+		$this->layout->pageData = array(
+			"baseurl"		=> URL::to("/"),
+			"assetsbaseurl"	=> asset(""),
+			"csrftoken"		=> Csrf::getToken()
+		);
 		
 		$this->layout->mainMenuItems = array();
 		$this->layout->moreMenuItems = array();
