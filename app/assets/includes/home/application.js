@@ -10,7 +10,7 @@
 //= require jquery-dateformat/jquery.dateFormat.js
 //= require bootstrap/js/bootstrap.min.js
 //= require ../global/custom_ordered/js/global-vars.js
-//= require video-js/video.js
+//= require video-js/js/video.js
 //= require ../global/custom_ordered/js/pad.js
 //= require ../global/custom_ordered/js/nl2br.js
 //= require ../global/custom_ordered/js/html-encode.js
