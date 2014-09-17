@@ -1,4 +1,4 @@
-@extends('layouts.home.base')
+@extends('layouts.home.body')
 
 @section('navbarList')
 <li class="dropdown">
