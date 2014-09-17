@@ -17,13 +17,13 @@ class AdminBaseController extends BaseController {
 		$this->layout->content = $content;
 		$this->layout->description = "The custom built content management system for LA1:TV's website.";
 		$this->layout->allowRobots = false;
-		$this->layout->stylesheetApplicationPath = "includes/admin/application";
-		$this->layout->javascriptApplicationPath = "includes/admin/application";		
+		$this->layout->stylesheetApplicationPath = "includes/home/admin/application";
+		$this->layout->javascriptApplicationPath = "includes/home/admin/application";		
 		
 		$this->layout->pageData = array(
-			"baseurl"		=> URL::to("/"),
-			"assetsbaseurl"	=> asset(""),
-			"csrftoken"		=> Csrf::getToken()
+			"baseUrl"		=> URL::to("/"),
+			"assetsBaseUrl"	=> asset(""),
+			"csrfToken"		=> Csrf::getToken()
 		);
 		
 		$this->layout->mainMenuItems = array();

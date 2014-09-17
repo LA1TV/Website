@@ -22,13 +22,14 @@ class HomeBaseController extends BaseController {
 		$this->layout->description = ""; // TODO
 		$this->layout->content = $content;
 		$this->layout->allowRobots = true;
-		$this->layout->stylesheetApplicationPath = "includes/application";
-		$this->layout->javascriptApplicationPath = "includes/application";
+		$this->layout->stylesheetApplicationPath = "includes/home/application";
+		$this->layout->javascriptApplicationPath = "includes/home/application";
 		$this->layout->loggedIn = Facebook::isLoggedIn();
 		$this->layout->pageData = array(
-			"assetsbaseurl"	=> asset(""),
-			"csrftoken"		=> Csrf::getToken(),
-			"loggedin"		=> Facebook::isLoggedIn() ? "1" : "0"
+			"baseUrl"		=> URL::to("/"),
+			"assetsBaseUrl"	=> asset(""),
+			"csrfToken"		=> Csrf::getToken(),
+			"loggedIn"		=> Facebook::isLoggedIn()
 		);
 		
 		$returnUri = implode("/", Request::segments());

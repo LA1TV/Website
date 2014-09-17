@@ -13,16 +13,7 @@
 		<?= stylesheet_link_tag($stylesheetApplicationPath) ?>
 		<?= javascript_include_tag($javascriptApplicationPath) ?>
 	</head>
-<?php
-	$bodyDataString = "";
-	foreach($pageData as $key=>$val) {
-		$bodyDataString .= ' data-'.$key.'="'.e($val).'"';
-	};
-?>
-	<body<?=$bodyDataString?>>
-<?php
-	unset($bodyDataString);
-?>
+	<body data-pagedata="<?=e(json_encode($pageData));?>">
 		@yield('body', '')
 	</body>
 </html>
