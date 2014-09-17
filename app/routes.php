@@ -56,7 +56,5 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 
 // embed.la1tv.co.uk
 Route::group(array('domain' => Config::get("subdomains.embed")), function() use(&$p) {
-	Route::get('/', function() {
-		return 'Hello from the embed subdomain!';
-	});
+	Route::controller('/', $p.'embed\EmbedController');
 });

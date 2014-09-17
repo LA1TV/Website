@@ -1,0 +1,11 @@
+/**
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * https://github.com/CodeSleeve/asset-pipeline
+ *
+ *= require bootstrap/css/bootstrap.min.css
+ *= require video-js/video-js.min.css
+ *= require_tree ../global/custom
+ *= require_tree ./custom
+ */
