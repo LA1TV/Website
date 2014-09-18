@@ -16,31 +16,31 @@ class EmbedController extends EmbedBaseController {
 			return;
 		}
 		
+		$view = View::make("embed.player");
+		$title = null;
+		
 		$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		if (is_null($currentMediaItem)) {
-			$this->showUnavailable();
-			return;
+			$title = "LA1:TV- [Content Unavailable]";
+			$view->hyperlink = URL::route('home');
+			$view->hasVideo = false;
 		}
-		
-		// true if a user is logged into the cms and has permission to view media items.
-		$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
+		else {
+			// true if a user is logged into the cms and has permission to view media items.
+			$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
 
-		$title = $playlist->generateEpisodeTitle($currentMediaItem);
-	
-		$view = View::make("embed.player");
-		$view->episodeTitle = $title;
-		$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
-		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
-		$view->registerLikeUri = $this->getRegisterLikeUri($playlistId, $mediaItemId);
-		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
-		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
-		$view->hyperlink = URL::route('player', array($playlistId, $mediaItemId));
+			$title = $playlist->generateEpisodeTitle($currentMediaItem);
 		
+			$view->episodeTitle = $title;
+			$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
+			$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
+			$view->registerLikeUri = $this->getRegisterLikeUri($playlistId, $mediaItemId);
+			$view->loginRequiredMsg = "Please log in to our website to use this feature.";
+			$view->adminOverrideEnabled = $userHasMediaItemsPermission;
+			$view->hyperlink = URL::route('player', array($playlistId, $mediaItemId));
+			$view->hasVideo = true;
+		}
 		$this->setContent($view, "player", 'LA1:TV- "' . $title . '"');
-	}
-	
-	private function showUnavailable() {
-		$this->setContent(View::make("embed.unavailable"), "unavailable", "LA1:TV- Item Unavailable");
 	}
 	
 	private function getInfoUri($playlistId, $mediaItemId) {

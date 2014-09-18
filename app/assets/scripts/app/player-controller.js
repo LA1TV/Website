@@ -19,7 +19,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, qualitiesHandler) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, qualitiesHandler, responsive) {
 		
 		var self = this;
 		
@@ -158,7 +158,7 @@ define([
 			}
 			data = cachedData;
 			if (playerComponent === null) {
-				playerComponent = new PlayerComponent(data.coverUri);
+				playerComponent = new PlayerComponent(data.coverUri, responsive);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
 					registerViewCount();

@@ -10,7 +10,7 @@ define([
 	"../video-js"
 ], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e) {
 	
-	var PlayerComponent = function(coverUri) {
+	var PlayerComponent = function(coverUri, responsive) {
 		
 		var self = this;
 		
@@ -116,7 +116,10 @@ define([
 		var updateAdTimerId = null;
 		
 		
-		var $container = $("<div />").addClass("player-component embed-responsive embed-responsive-16by9");
+		var $container = $("<div />").addClass("player-component embed-responsive");
+		if (responsive) {
+			$container.addClass("embed-responsive-16by9");
+		}
 		
 		// reference to dom element which holds the ad
 		var $ad = null;

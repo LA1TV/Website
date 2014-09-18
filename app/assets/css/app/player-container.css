@@ -1,5 +1,43 @@
+.player-container {
+	position: relative;
+}
+
+.embedded-player-container {
+	display: none; /* js shows it */
+}
+
+.player-container .loading-container, .player-container .unavailable-container {
+	background-color: #000000;
+	text-align: center;
+	overflow: hidden;
+}
+
+.player-container .loading-container .msg {
+	color: #202020;
+}
+
+.player-container .unavailable-container .msg {
+	color: #ffffff;
+}
+
+.player-container .loading-container .msg, .player-container .unavailable-container .msg {
+	position: absolute;
+	left: 0;
+	bottom: 10px;
+	width: 100%;
+	font-size: 20px;
+	font-weight: bold;
+}
+
 .player-container .bottom-container {
 	margin-top: 4px;
+}
+
+/* when the player is embedded player-component width and height will be set with javascript to whatever the height of player-container is - bottom-container height. */
+.embedded-player-container .bottom-container {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
 }
 
 .player-container .bottom-container .view-count, .player-container .bottom-container .override-button  {

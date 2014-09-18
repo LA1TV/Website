@@ -13,22 +13,6 @@
 	margin-bottom: 10px;
 }
 
-.page-player .player-container .loading-container {
-	background-color: #000000;
-	color: #202020;
-	text-align: center;
-	overflow: hidden;
-}
-
-.page-player .player-container .loading-container .msg {
-	position: absolute;
-	left: 0;
-	bottom: 10px;
-	width: 100%;
-	font-size: 20px;
-	font-weight: bold;
-}
-
 .page-player .admin-panel .my-row {
 	margin-bottom: 10px;
 }

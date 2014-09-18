@@ -14,6 +14,7 @@ require([
 	"app/player-container",
 	"app/synchronised-time",
 	"app/video-js",
+	"app/pages/embed/player-page",
 ], function() {
 	// everything loaded
 });

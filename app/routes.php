@@ -36,7 +36,6 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 		});
 		
 		// HOME
-		
 		Route::controller('/facebook', $p.'home\facebook\FacebookController');
 		// make upload controller also accessible at /file
 		Route::controller('/file', $p.'home\admin\upload\UploadController');
@@ -51,6 +50,8 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 		Route::controller('/shows', $p.'home\shows\ShowsController');
 		Route::controller('/show', $p.'home\show\ShowController');
 		Route::controller('/guide', $p.'home\guide\GuideController');
+		// this is here so the named route can be retrieved in EmbedController
+		Route::any('/', array("as"=>"home", "uses"=>$p.'home\HomeController@index'));
 		Route::controller('/', $p.'home\HomeController');
 	});
 	
@@ -67,5 +68,7 @@ Route::group(array('domain' => Config::get("subdomains.embed")), function() use(
 		Route::controller('/file', $p.'home\admin\upload\UploadController');
 		
 		Route::controller('/', $p.'embed\EmbedController');
+		// this is here so the named route can be retrieved in PlayerController
+		Route::any('/{a}/{b}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@index'));
 	});
 });
