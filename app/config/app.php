@@ -125,8 +125,6 @@ return array(
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 		
-		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
-		
 		'uk\co\la1tv\website\serviceProviders\auth\AuthServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\facebook\FacebookServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
