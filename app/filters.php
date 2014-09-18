@@ -12,7 +12,7 @@
 */
 App::before(function($request)
 {
-	//
+	Cookie::setDefaultPathAndDomain(Config::get("cookies.path"), Config::get("cookies.domain"));
 });
 
 
