@@ -1,9 +1,10 @@
 define([
 	"jquery",
+	"../../page-data",
 	"../../components/quality-selection",
 	"../../player-controller",
 	"lib/domReady!"
-], function($, QualitySelectionComponent, PlayerController, CommentsComponent) {
+], function($, PageData, QualitySelectionComponent, PlayerController, CommentsComponent) {
 	
 	$(".page-player").first().each(function() {
 	
@@ -63,7 +64,7 @@ define([
 			});
 			
 			$likeButton.click(function() {
-				if (!loggedIn) {
+				if (!PageData.get("loggedIn")) {
 					alert("Please log in to use this feature.");
 					return;
 				}
