@@ -3,15 +3,14 @@ require.config({
 	paths: {
 		jquery: "lib/jquery",
 		"jquery.ui.widget": "lib/jquery.ui.widget", // jquery.fileupload expects this path
-		bootstrap: "lib/bootstrap"
 	},
 	shim: {
-		bootstrap: ["jquery"]
+		"lib/bootstrap": ["jquery"]
 	}
 });
 
 require([
-	"bootstrap",
+	"lib/bootstrap",
 	"app/confirmation-msg",
 	"app/custom-accordian",
 	"app/custom-form",

@@ -2,15 +2,14 @@ require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
 		jquery: "lib/jquery",
-		bootstrap: "lib/bootstrap"
 	},
 	shim: {
-		bootstrap: ["jquery"]
+		"lib/bootstrap": ["jquery"]
 	}
 });
 
 require([
-	"bootstrap",
+	"lib/bootstrap",
 	"app/fit-text-handler",
 	"app/player-container",
 	"app/synchronised-time",
