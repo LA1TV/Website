@@ -1,4 +1,4 @@
-define(["jquery", "lib/domReady!"], function($) {
+define(["jquery", "bootstrap", "lib/domReady!"], function($) {
 
 	$('.custom-accordian').each(function() {
 			

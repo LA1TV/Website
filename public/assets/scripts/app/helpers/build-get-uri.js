@@ -1,9 +1,9 @@
 // generate query string with any attributes in uri still set unless overridden in attrs object
-define(function() {
+define(["./uri-params"], function(UriParams) {
 
 	return function(attrs) {
 		
-		params = getUriParams();
+		params = UriParams.get();
 		jQuery.extend(params, attrs);
 		// params are now the new params we want
 		var uri = "?";
@@ -16,5 +16,5 @@ define(function() {
 			hadFirst = true;
 		}
 		return uri;
-	});
+	};
 });

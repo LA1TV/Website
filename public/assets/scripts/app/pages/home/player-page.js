@@ -1,8 +1,8 @@
 define([
 	"jquery",
-	"./components/button-group",
-	"./components/comments",
-	"./page-data",
+	"../../components/button-group",
+	"../../components/comments",
+	"../../page-data",
 	"lib/domReady!"
 ], function($, ButtonGroup, CommentsComponent, PageData) {
 

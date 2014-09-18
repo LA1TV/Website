@@ -11,8 +11,7 @@
 		<meta name="robots" content="noindex, nofollow">
 		<?php endif; ?>
 		<?= stylesheet_link_tag($stylesheetApplicationPath) ?>
-		<?php //javascript_include_tag($javascriptApplicationPath) ?>
-		<script data-main="<?=asset("scripts/main");?>" src="<?=asset("scripts/require.js");?>"></script>
+		<script data-main="<?=e($requireJsBootstrap);?>" src="<?=asset("assets/scripts/require.js");?>"></script>
 	</head>
 	<body data-pagedata="<?=e(json_encode($pageData));?>">
 		@yield('body', '')

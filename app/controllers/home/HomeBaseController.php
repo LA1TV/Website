@@ -23,7 +23,7 @@ class HomeBaseController extends BaseController {
 		$this->layout->content = $content;
 		$this->layout->allowRobots = true;
 		$this->layout->stylesheetApplicationPath = "includes/home/application";
-		$this->layout->javascriptApplicationPath = "includes/home/application";
+		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
 		$this->layout->loggedIn = Facebook::isLoggedIn();
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),
