@@ -17,7 +17,7 @@ class EmbedBaseController extends BaseController {
 		$this->layout->description = ""; // TODO
 		$this->layout->content = $content;
 		$this->layout->allowRobots = false;
-		$this->layout->stylesheetApplicationPath = "includes/embed/application";
+		$this->layout->cssBootstrap = asset("assets/css/bootstrap/embed.css");
 		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");	
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),

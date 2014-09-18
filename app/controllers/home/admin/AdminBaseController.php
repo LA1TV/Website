@@ -17,7 +17,7 @@ class AdminBaseController extends BaseController {
 		$this->layout->content = $content;
 		$this->layout->description = "The custom built content management system for LA1:TV's website.";
 		$this->layout->allowRobots = false;
-		$this->layout->stylesheetApplicationPath = "includes/home/admin/application";
+		$this->layout->cssBootstrap = asset("assets/css/bootstrap/admin.css");
 		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/admin.js");		
 		
 		$this->layout->pageData = array(
