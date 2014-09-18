@@ -26,7 +26,7 @@ return array(
 	|
 	*/
 
-	'url' => 'http://local.www.la1tv.co.uk',
+	'url' => 'http://www.la1tv.co.uk.local',
 	
 	/*
 	|--------------------------------------------------------------------------

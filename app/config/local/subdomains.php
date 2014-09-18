@@ -1,6 +1,6 @@
 <?php
 
 return array(
-	"www"		=> "local.www.la1tv.co.uk",
-	"embed"		=> "local.embed.la1tv.co.uk"
+	"www"		=> "www.la1tv.co.uk.local",
+	"embed"		=> "embed.la1tv.co.uk.local"
 );

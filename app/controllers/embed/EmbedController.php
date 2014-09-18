@@ -4,6 +4,7 @@ use View;
 use Config;
 use uk\co\la1tv\website\models\Playlist;
 use URL;
+use Auth;
 
 class EmbedController extends EmbedBaseController {
 
@@ -21,6 +22,9 @@ class EmbedController extends EmbedBaseController {
 			return;
 		}
 		
+		// true if a user is logged into the cms and has permission to view media items.
+		$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
+
 		$title = $playlist->generateEpisodeTitle($currentMediaItem);
 	
 		$view = View::make("embed.player");
@@ -29,6 +33,7 @@ class EmbedController extends EmbedBaseController {
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlistId, $mediaItemId);
 		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
+		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->hyperlink = URL::route('player', array($playlistId, $mediaItemId));
 		
 		$this->setContent($view, "player", 'LA1:TV- "' . $title . '"');
