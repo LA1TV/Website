@@ -1,0 +1,17 @@
+.navbar {
+	border-color: #ff0000;
+	margin-bottom: 0;
+}
+
+.navbar .navbar-nav > li > a {
+	color: #ff0000;
+}
+
+.navbar .navbar-brand {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.navbar .navbar-brand img {
+	height: 30px;
+}

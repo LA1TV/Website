@@ -1,0 +1,88 @@
+.comments .new-comment-container  {
+	margin-top: 3px;
+}
+
+.comments .new-comment-container .login-msg {
+	text-align: center;
+}
+
+.comments .new-comment-container .buttons-row {
+	display: inline-block;
+	margin-top: 4px;
+	float: right;
+}
+
+.comments .new-comment-container .buttons-row .item {
+	display: inline-block;
+	margin-left: 6px;
+}
+
+.comments .new-comment-container .buttons-row .item .checkbox {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.comments .comments-table .profile-pic-col {
+	padding: 0;
+	width: 100px;
+}
+
+.comments .comments-table {
+	table-layout: fixed;
+	background-color: #ffffff;
+	margin-bottom: 0;
+}
+
+.comments .comments-table tr td {
+	word-wrap: break-word;
+}
+
+.comments .comments-table-container {
+	overflow: auto;
+	max-height: 430px;
+}
+
+.comments .comments-table .no-comments-col .no-comments-msg {
+	text-align: center;
+	font-style: italic;
+}
+
+.comments .comments-table .col-1 {
+	width: 100px;
+}
+
+.comments .comments-table .col-2 {
+	width: 100%;
+}
+
+.comments .comments-table .profile-pic-col .profile-pic-container {
+	height: 100px;
+	overflow: hidden;
+}
+
+.comments .comments-table .profile-pic-col .profile-pic-container img {
+	width: 100px;
+}
+
+.comments .comments-table .comment-box-col .comment-box {
+	position: relative;
+}
+
+.comments .comments-table .comment-box-col .comment-box .top-row .name {
+	font-weight: bold;
+}
+
+.comments .comments-table .comment-box-col .comment-box .buttons-container {
+	display: inline-block;
+	float: right;
+}
+
+.comments .comments-table .comment-box-col .comment-box .buttons-container .time {
+	font-style: italic;
+	font-size: 12px;
+}
+
+.comments .comments-table .comment-box-col .comment-box .buttons-container .item {
+	display: inline-block;
+	margin-left: 6px;
+}

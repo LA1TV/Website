@@ -10,7 +10,7 @@
 		<?php if (!$allowRobots): ?>
 		<meta name="robots" content="noindex, nofollow">
 		<?php endif; ?>
-		<?= stylesheet_link_tag($stylesheetApplicationPath) ?>
+		<link href="<?=e($cssBootstrap);?>" rel="stylesheet" type="text/css">
 		<script data-main="<?=e($requireJsBootstrap);?>" src="<?=asset("assets/scripts/require.js");?>"></script>
 	</head>
 	<body data-pagedata="<?=e(json_encode($pageData));?>">

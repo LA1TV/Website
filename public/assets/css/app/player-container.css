@@ -1,0 +1,30 @@
+.player-container .bottom-container {
+	margin-top: 4px;
+}
+
+.player-container .bottom-container .view-count, .player-container .bottom-container .override-button  {
+	display: inline-block;
+	float: left;
+}
+
+.player-container .bottom-container .view-count {
+	font-weight: bold;
+	margin-right: 5px;
+}
+
+.player-container .bottom-container .right-section {
+	display: inline-block;
+	float: right;
+	margin-left: 15px;
+}
+
+.player-container .bottom-container .right-section .item-container {
+	display: inline-block;
+	margin-left: 5px;
+}
+
+.player-container .override-mode-enabled {
+	border-color: #ff0000;
+	border-width: 8px;
+	border-style: solid;
+}

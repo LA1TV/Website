@@ -9,7 +9,7 @@ define([
 	"lib/jquery.dateFormat",
 	"../video-js"
 ], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e) {
-
+	
 	var PlayerComponent = function(coverUri) {
 		
 		var self = this;
