@@ -4,5 +4,5 @@
 	name: "bootstrap/admin",
     out: "../../../builds/admin/out.js",
     optimize: "uglify",
-    namespace: 'uk-co-la1tv-website-home-admin'
+    namespace: 'uk_co_la1tv_website_home_admin'
 })

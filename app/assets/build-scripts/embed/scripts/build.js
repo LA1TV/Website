@@ -4,5 +4,5 @@
 	name: "bootstrap/embed",
     out: "../../../builds/embed/out.js",
     optimize: "uglify",
-    namespace: 'uk-co-la1tv-website-embed'
+    namespace: 'uk_co_la1tv_website_embed'
 })

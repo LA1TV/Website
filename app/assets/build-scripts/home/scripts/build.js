@@ -4,5 +4,5 @@
 	name: "bootstrap/home",
     out: "../../../builds/home/out.js",
     optimize: "uglify",
-    namespace: 'uk-co-la1tv-website-home'
+    namespace: 'uk_co_la1tv_website_home'
 })
