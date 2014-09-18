@@ -1,7 +1,7 @@
 ({
 	baseUrl: "../../../scripts",
-    mainConfigFile: '../../../scripts/bootstrap/embed.js',
+	mainConfigFile: '../../../scripts/bootstrap/embed.js',
 	name: "bootstrap/embed",
-    out: "../../../builds/embed/out.js",
-    optimize: "uglify"
+	out: "../../../builds/embed/out.js",
+	optimize: "uglify"
 })
