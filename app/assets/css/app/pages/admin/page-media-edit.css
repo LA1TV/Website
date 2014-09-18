@@ -1,0 +1,4 @@
+/* hide initially until js has loaded */
+.page-media-edit .vod-panel .enabled-container, .page-media-edit .live-stream-panel .enabled-container {
+	display: none;
+}
