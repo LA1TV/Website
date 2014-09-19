@@ -2,33 +2,6 @@
 	position: relative;
 }
 
-.embedded-player-container {
-	display: none; /* js shows it */
-}
-
-.player-container .loading-container, .player-container .unavailable-container {
-	background-color: #000000;
-	text-align: center;
-	overflow: hidden;
-}
-
-.player-container .loading-container .msg {
-	color: #202020;
-}
-
-.player-container .unavailable-container .msg {
-	color: #ffffff;
-}
-
-.player-container .loading-container .msg, .player-container .unavailable-container .msg {
-	position: absolute;
-	left: 0;
-	bottom: 10px;
-	width: 100%;
-	font-size: 20px;
-	font-weight: bold;
-}
-
 .player-container .bottom-container {
 	margin-top: 4px;
 }

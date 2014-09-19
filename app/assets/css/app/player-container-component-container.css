@@ -1,0 +1,23 @@
+.player-container-component-container .msg-container {
+	background-color: #000000;
+	text-align: center;
+	overflow: hidden;
+	position: relative;
+}
+
+.player-container-component-container .msg-container .loading-msg {
+	color: #202020;
+}
+
+.player-container-component-container .msg-container .unavailable-msg {
+	color: #ffffff;
+}
+
+.player-container-component-container .msg-container .msg {
+	position: absolute;
+	left: 0;
+	bottom: 10px;
+	width: 100%;
+	font-size: 20px;
+	font-weight: bold;
+}

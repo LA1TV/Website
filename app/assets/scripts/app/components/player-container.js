@@ -6,7 +6,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, PlayerController, PageData) {
 
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, responsive) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded) {
 
 		var self = this;
 	
@@ -28,6 +28,9 @@ define([
 		};
 		
 		var $container = $("<div />").addClass("player-container");
+		if (embedded) {
+			$container.addClass("embedded-player-container");
+		}
 		var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
 		var $viewCount = $("<div />").addClass("view-count").css("display", "none");
 		var $rightSection = $("<div />").addClass("right-section");
@@ -49,6 +52,7 @@ define([
 		$rightSection.append($qualitySelectionItemContainer);
 		
 		var loaded = false;
+		var responsive = !embedded;
 		
 		var qualitySelectionComponent = new QualitySelectionComponent();
 		$(qualitySelectionComponent).on("qualitiesChanged", function() {
