@@ -89,6 +89,12 @@ define([
 			return null;
 		};
 		
+		this.pause = function() {
+			if (videoJsPlayer !== null) {
+				videoJsPlayer.pause();
+			}
+		};
+		
 		var showAd = null;
 		var queuedShowAd = true;
 		var startTime = null;

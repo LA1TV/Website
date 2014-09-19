@@ -78,6 +78,13 @@ define([
 			return null;
 		};
 		
+		// pause whatever is playing if there is something
+		this.pause = function() {
+			if (playerComponent !== null) {
+				playerComponent.pause();
+			}
+		};
+		
 		this.getPlayerType = function() {
 			return currentPlayerType;
 		}
