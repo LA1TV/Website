@@ -11,7 +11,6 @@ require.config({
 require([
 	"lib/bootstrap",
 	"app/fit-text-handler",
-	"app/player-container",
 	"app/synchronised-time",
 	"app/video-js",
 	"app/pages/embed/player-page",

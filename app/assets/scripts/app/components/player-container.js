@@ -1,21 +1,33 @@
 define([
 	"jquery",
-	"./components/quality-selection",
-	"./player-controller",
-	"./page-data",
+	"./quality-selection",
+	"../player-controller",
+	"../page-data",
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, PlayerController, PageData) {
 
-	$(".player-container").each(function() {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, responsive) {
+
 		var self = this;
+	
+		this.getEl = function() {
+			return $container;
+		};
 		
-		var playerInfoUri = $(this).attr("data-info-uri");
-		var registerViewCountUri = $(this).attr("data-register-view-count-uri");
-		var registerLikeUri = $(this).attr("data-register-like-uri");
-		var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
-		var loginRequiredMsg = $(this).attr("data-login-required-msg");
-		var responsive = !$(this).hasClass("embedded-player-container");
+		this.updateDimensions = function() {
+			updatePlayerComponentSize();
+		};
 		
+		this.onLoaded = function(callback) {
+			if (loaded) {
+				callback();
+			}
+			else {
+				$(self).on("loaded", callback);
+			}
+		};
+		
+		var $container = $("<div />").addClass("player-container");
 		var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
 		var $viewCount = $("<div />").addClass("view-count").css("display", "none");
 		var $rightSection = $("<div />").addClass("right-section");
@@ -36,6 +48,8 @@ define([
 		$likeButtonItemContainer.append($likeButton);
 		$rightSection.append($qualitySelectionItemContainer);
 		
+		var loaded = false;
+		
 		var qualitySelectionComponent = new QualitySelectionComponent();
 		$(qualitySelectionComponent).on("qualitiesChanged", function() {
 			renderQualitySelectionComponent();
@@ -46,17 +60,17 @@ define([
 		
 		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, qualitySelectionComponent, responsive);
 		$(playerController).on("playerComponentElAvailable", function() {
-			$(self).empty(); // will contain loading message initially
 			$playerComponent = playerController.getPlayerComponentEl();
-			$(self).append($playerComponent);
-			$(self).append($bottomContainer);
+			$container.append($playerComponent);
+			$container.append($bottomContainer);
 			renderOverrideMode();
 			renderOverrideButton();
 			$overrideButton.click(function() {
 				playerController.enableOverrideMode(!playerController.getOverrideModeEnabled());
 			});
 			updatePlayerComponentSize();
-			kickOffEventListenersForPlayerComponentSize();
+			loaded = true;
+			$(self).triggerHandler("loaded");
 		});
 		
 		$(playerController).on("viewCountChanged playerTypeChanged", function() {
@@ -89,19 +103,13 @@ define([
 		renderLikeButton();
 		
 		
-		function kickOffEventListenersForPlayerComponentSize() {
-			$(window).resize(updatePlayerComponentSize);
-			setInterval(updatePlayerComponentSize, 1000); // TODO: temporary. Convert this into a component and then have updatePlayerComponentSize called from outside
-		}
-		
-		
 		/* if !responsive then the player should fill the size of the container, minus the space for the nav bar below.
 		   The height of the container should not be assumed as constant. E.g. it may be set to fill the document width and height in the case of an iframe */
 		function updatePlayerComponentSize() {
 			if (responsive || $playerComponent === null) {
 				return;
 			}
-			var containerHeight = $(self).innerHeight();
+			var containerHeight = $container.innerHeight();
 			var bottomContainerHeight = $bottomContainer.outerHeight(true);
 			var playerComponentPadding = $playerComponent.outerHeight(true) - $playerComponent.height();
 			$playerComponent.height(Math.max(containerHeight - bottomContainerHeight - playerComponentPadding, 0));
@@ -185,5 +193,6 @@ define([
 			}
 			updatePlayerComponentSize();
 		}
-	});
+	};
+	return PlayerContainer;
 });

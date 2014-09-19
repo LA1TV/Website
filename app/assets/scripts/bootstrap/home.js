@@ -13,7 +13,6 @@ require([
 	"app/custom-accordian",
 	"app/default-button-group",
 	"app/fit-text-handler",
-	"app/player-container",
 	"app/playlist",
 	"app/synchronised-time",
 	"app/video-js",
