@@ -264,14 +264,30 @@ define([
 					}
 					
 					if (loadLaterComments) {
-						Array.prototype.push.apply(comments, newComments);
+						// if there there are concurrent requests then this makes sure there are no duplicate additions
+						var fromId = comments[comments.length-1].id;
+						for (var i=0; i<newComments.length; i++) {
+							var newComment = newComments[i];
+							if (newComment.id > fromId) {
+								comments.push(newComment);
+							}
+						}
+						
 						if (newComments.length > 0) {
 							scrollToCommentWithId(comments[comments.length-1].id, true);
 						}
 					}
 					else {
 						loadedAllComments = !data.more;
-						Array.prototype.unshift.apply(comments, newComments);
+						// if there there are concurrent requests then this makes sure there are no duplicate additions
+						var fromId = comments.length > 0 ? comments[0].id : null;
+						for (var i=newComments.length-1; i>=0; i--) {
+							var newComment = newComments[i];
+							if (fromId === null || newComment.id < fromId) {
+								comments.unshift(newComment);
+							}
+						}
+						
 						if (initialLoad && comments.length > 0) {
 							scrollToCommentWithId(comments[comments.length-1].id, false);
 						}
