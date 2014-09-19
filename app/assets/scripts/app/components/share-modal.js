@@ -47,8 +47,18 @@ define(["jquery", "lib/bootstrap"], function($) {
 			$embedHeading: $("<h4 />").addClass("heading").text("Embed Code"),
 			$embedContainer: $("<div />").addClass("embed-container"),
 			$embedInstruction: $("<span />").addClass("instruction").text("Copy and paste the code below onto your webpage."),
-			$embedInput: $("<input />").addClass("embed-code-input form-control").prop("type", "text").prop("readonly", true).val(embedCode)
+			$embedInput: $("<input />").addClass("embed-code-input form-control").prop("type", "text").val(embedCode)
 		};
+		
+		$modalBodyEls.$embedInput.mouseup(function() {
+			resetEmbedCode();
+			$(this).select();
+		});
+		
+		$modalBodyEls.$embedInput.change(function() {
+			resetEmbedCode();
+		});
+		
 		
 		$modalBodyEls.$facebookShareButton.click(function() {
 			window.open(embedData.facebookShareUri, "_blank", "location=no, menubar=no, toolbar=no");
@@ -121,6 +131,13 @@ define(["jquery", "lib/bootstrap"], function($) {
 			}
 			animating = true;
 			$container.modal("hide");
+		}
+		
+		function resetEmbedCode() {
+			if ($modalBodyEls.$embedInput.val() === embedCode) {
+				return;
+			}
+			$modalBodyEls.$embedInput.val(embedCode);
 		}
 	};
 	
