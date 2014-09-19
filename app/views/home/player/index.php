@@ -92,7 +92,14 @@
 						<tr class="<?=$row['active'] ? "chosen" : ""?>">
 							<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
 							<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
+							<?php if (is_null($row['playlistName'])): ?>
 							<td class="col-title"><?=e($row['title']);?></td>
+							<?php else: ?>
+							<td class="col-title clearfix">
+								<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></div></div>
+								<div class="title"><?=e($row['title']);?></div>
+							</td>
+							<?php endif; ?>
 						</tr>
 						<?php endforeach; ?>
 				</table>

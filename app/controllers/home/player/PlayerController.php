@@ -58,10 +58,17 @@ class PlayerController extends HomeBaseController {
 			if ($active) {
 				$activeItemIndex = $i;
 			}
+			$playistName = null;
+			if (is_null($currentMediaItem->show)) {
+				// this is a playlist not a series.
+				// show the series/playlist that each video in the playlist is from
+				$playlistName = $item->getDefaultPlaylist()->generateName();
+			}
 			$playlistTableData[] = array(
 				"uri"					=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
 				"active"				=> $active,
 				"title"					=> $item->name,
+				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri
 			);
