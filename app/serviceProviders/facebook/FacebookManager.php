@@ -30,6 +30,10 @@ class FacebookManager {
 		return Redirect::to($loginHelper->getLoginUrl());
 	}
 	
+	public function getShareUri($url) {
+		return "https://www.facebook.com/sharer/sharer.php?u=".urlencode($url);
+	}
+	
 	// should be called on the request back from facebook which contains the authentication info.
 	// this will try to authorize the user so that getUser() then returns them.
 	// returns true if success or false if error (ie facebook error or user clicked cancel etc)

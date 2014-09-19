@@ -6,6 +6,7 @@ use Carbon;
 use Config;
 use Cache;
 use URL;
+use Facebook;
 
 class Playlist extends MyEloquent {
 
@@ -148,8 +149,8 @@ class Playlist extends MyEloquent {
 		
 		return array(
 			"embedCodeTemplate"	=> '<iframe src="'.$this->getEmbedUri($mediaItem).'" width="{w}" height="{h}" frameborder="0" allowfullscreen></iframe>',
-			"shareLink"			=> $this->getUri($mediaItem),
-			"shareMessage"		=> ""
+			"facebookShareUri"	=> Facebook::getShareUri($this->getUri($mediaItem)),
+			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getUri($mediaItem))."&text=".urlencode($this->generateEpisodeTitle($mediaItem))."&via=".urlencode("LA1TV")
 		);
 	}
 	

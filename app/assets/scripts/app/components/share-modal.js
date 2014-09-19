@@ -1,6 +1,6 @@
 define(["jquery", "lib/bootstrap"], function($) {
 
-	// embedData should be an object containing: embedCodeTemplate, shareLink, shareMessage
+	// embedData should be an object containing: embedCodeTemplate, facebookShareUri, twitterShareUri
 	var ShareModal = function(embedData) {
 		
 		var self = this;
@@ -41,15 +41,27 @@ define(["jquery", "lib/bootstrap"], function($) {
 
 		var $modalBodyEls = {
 			$facebookHeading: $("<h4 />").addClass("heading").text("Facebook"),
+			$facebookShareButton: $("<button />").addClass("btn btn-info btn-block").text("Click To Share On Facebook"),
 			$twitterHeading: $("<h4 />").addClass("heading").text("Twitter"),
+			$twitterShareButton: $("<button />").addClass("btn btn-info btn-block").text("Click To Share On Twitter"),
 			$embedHeading: $("<h4 />").addClass("heading").text("Embed Code"),
 			$embedContainer: $("<div />").addClass("embed-container"),
 			$embedInstruction: $("<span />").addClass("instruction").text("Copy and paste the code below onto your webpage."),
 			$embedInput: $("<input />").addClass("embed-code-input form-control").prop("type", "text").prop("readonly", true).val(embedCode)
 		};
 		
+		$modalBodyEls.$facebookShareButton.click(function() {
+			window.open(embedData.facebookShareUri, "_blank", "location=no, menubar=no, toolbar=no");
+		});
+		
+		$modalBodyEls.$twitterShareButton.click(function() {
+			window.open(embedData.twitterShareUri, "_blank", "location=no, menubar=no, toolbar=no");
+		});
+		
 		$modalBody.append($modalBodyEls.$facebookHeading);
+		$modalBody.append($modalBodyEls.$facebookShareButton);
 		$modalBody.append($modalBodyEls.$twitterHeading);
+		$modalBody.append($modalBodyEls.$twitterShareButton);
 		$modalBody.append($modalBodyEls.$embedHeading);
 		$modalBodyEls.$embedContainer.append($modalBodyEls.$embedInstruction);
 		$modalBodyEls.$embedContainer.append($modalBodyEls.$embedInput);
