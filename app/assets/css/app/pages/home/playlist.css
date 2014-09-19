@@ -27,11 +27,6 @@
 	font-size: 25px;
 }
 
-.playlist .playlist-table-container {
-	overflow: auto;
-	max-height: 400px;
-}
-
 .playlist .playlist-table {
 	background-color: #ffffff;
 	table-layout: fixed;
