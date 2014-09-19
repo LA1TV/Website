@@ -145,6 +145,7 @@ define([
 			var commentsComponent = new CommentsComponent(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation);
 			$(this).append(commentsComponent.getEl());
 		});
+		
 	});
 	
 });

@@ -1,12 +1,13 @@
 define([
 	"jquery",
 	"./quality-selection",
+	"./share-modal",
 	"../player-controller",
 	"../page-data",
 	"lib/domReady!"
-], function($, QualitySelectionComponent, PlayerController, PageData) {
-
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded) {
+], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
+	
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, embedCode, shareLink, shareMsg) {
 
 		var self = this;
 	
@@ -38,21 +39,30 @@ define([
 		var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 		var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
 		var $likeButtonTxt = $("<span />");
+		var $shareButtonItemContainer = $("<div />").addClass("item-container");
+		var $shareButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
+		var $shareButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-share");
+		var $shareButtonTxt = $("<span />").text(" Share");
 		var $overrideButton = $("<button />").attr("type", "button").addClass("override-button btn btn-default btn-xs");
 		var $playerComponent = null;
 		$likeButton.append($likeButtonGlyphicon);
 		$likeButton.append($likeButtonTxt);
+		$shareButton.append($shareButtonGlyphicon);
+		$shareButton.append($shareButtonTxt);
 		var $qualitySelectionItemContainer = $("<div />").addClass("item-container");
 		
 		$bottomContainer.append($viewCount);
 		$bottomContainer.append($overrideButton);
 		$bottomContainer.append($rightSection);
+		$rightSection.append($shareButtonItemContainer);
+		$shareButtonItemContainer.append($shareButton);
 		$rightSection.append($likeButtonItemContainer);
 		$likeButtonItemContainer.append($likeButton);
 		$rightSection.append($qualitySelectionItemContainer);
 		
 		var loaded = false;
 		var responsive = !embedded;
+		var shareModal = new ShareModal(embedCode, shareLink, shareMsg);
 		
 		var qualitySelectionComponent = new QualitySelectionComponent();
 		$(qualitySelectionComponent).on("qualitiesChanged", function() {
@@ -69,6 +79,7 @@ define([
 			$container.append($bottomContainer);
 			renderOverrideMode();
 			renderOverrideButton();
+			renderShareButton();
 			$overrideButton.click(function() {
 				playerController.enableOverrideMode(!playerController.getOverrideModeEnabled());
 			});
@@ -79,6 +90,10 @@ define([
 		
 		$(playerController).on("viewCountChanged playerTypeChanged", function() {
 			renderViewCount();
+		});
+		
+		$shareButton.click(function() {
+			shareModal.show(true);
 		});
 		
 		$likeButton.click(function() {
@@ -104,6 +119,7 @@ define([
 		});
 		
 		renderViewCount();
+		renderShareButton();
 		renderLikeButton();
 		
 		
@@ -138,6 +154,15 @@ define([
 				$viewCount.text("").css("display", "none");
 			}
 			updatePlayerComponentSize();
+		}
+		
+		function renderShareButton() {
+			if ($playerComponent === null) {
+				$shareButton.hide();
+			}
+			else {
+				$shareButton.show();
+			}
 		}
 		
 		function renderLikeButton() {

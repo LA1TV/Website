@@ -1,0 +1,17 @@
+.share-modal .modal-content .modal-header .title {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.share-modal .modal-body .heading:first-child {
+	margin-top: 0;
+}
+
+.share-modal .modal-body .heading {
+	margin-bottom: 4px;
+	margin-top: 15px;
+}
+
+.share-modal .modal-body .embed-container .embed-code-input {
+	cursor: text;
+}
