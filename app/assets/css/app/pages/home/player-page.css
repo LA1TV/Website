@@ -22,6 +22,10 @@
 	float: right;
 }
 
-.page-player .go-to-series-btn-container, .page-player .playlist {
+.page-player .go-to-series-btn-container {
 	margin-bottom: 10px;
+}
+
+.page-player .related-items {
+	margin-top: 15px;
 }
