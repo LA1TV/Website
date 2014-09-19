@@ -5,11 +5,11 @@
 	position: relative;
 }
 
-.player-container-component-container .msg-container .loading-msg {
+.player-container-component-container .msg-container .msg-loading {
 	color: #202020;
 }
 
-.player-container-component-container .msg-container .unavailable-msg {
+.player-container-component-container .msg-container .msg-unavailable {
 	color: #ffffff;
 }
 
