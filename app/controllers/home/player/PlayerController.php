@@ -59,7 +59,7 @@ class PlayerController extends HomeBaseController {
 				$activeItemIndex = $i;
 			}
 			$playlistName = null;
-			if (is_null($currentMediaItem->show)) {
+			if (is_null($playlist->show)) {
 				// this is a playlist not a series.
 				// show the series/playlist that each video in the playlist is from
 				$defaultPlaylist = $item->getDefaultPlaylist();
