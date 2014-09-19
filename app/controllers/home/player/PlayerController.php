@@ -134,7 +134,7 @@ class PlayerController extends HomeBaseController {
 			if (!is_null($defaultPlaylist->show)) {
 				// show the button to link the user to the series containing the video they are watching.
 				$seriesAd = array(
-					"seriesName"	=> $defaultPlaylist->generateName(),
+					"name"	=> $defaultPlaylist->generateName(),
 					"uri"		=> Config::get("custom.player_base_uri")."/".$defaultPlaylist->id."/".$currentMediaItem->id
 				);
 			}
