@@ -6,9 +6,10 @@ define([
 	"../device-detection",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
+	"../helpers/pad",
 	"lib/jquery.dateFormat",
 	"../video-js"
-], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e) {
+], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive) {
 		
