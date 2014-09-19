@@ -164,10 +164,10 @@ define([
 		
 		function renderShareButton() {
 			if ($playerComponent === null) {
-				$shareButton.hide();
+				$shareButtonItemContainer.css("display", "none");
 			}
 			else {
-				$shareButton.show();
+				$shareButtonItemContainer.css("display", "inline-block");
 			}
 		}
 		
@@ -181,10 +181,10 @@ define([
 			
 			// enable like button if no content unless it's an ad because stream is over.
 			if (playerType === null || (playerType === "ad" && streamState !== 3)) {
-				$likeButton.hide();
+				$likeButtonItemContainer.css("display", "none");
 			}
 			else {
-				$likeButton.show();
+				$likeButtonItemContainer.css("display", "inline-block");
 			}
 			
 			if (likeType === "like") {
