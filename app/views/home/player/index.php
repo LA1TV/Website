@@ -59,7 +59,9 @@
 		<div class="description-container"><?=e($episodeDescription);?></div>
 <?php endif; ?>
 		<h2>Comments</h2>
-		<div class="comments-container" data-media-item-id="<?=e($mediaItemId);?>" data-get-uri="<?=e($getCommentsUri);?>" data-post-uri="<?=e($postCommentUri);?>" data-delete-uri="<?=e($deleteCommentUri);?>" data-can-comment-as-facebook-user="<?=$canCommentAsFacebookUser?"1":"0"?>" data-can-comment-as-station="<?=$canCommentAsStation?"1":"0"?>"></div>
+		<div class="comments-container" data-media-item-id="<?=e($mediaItemId);?>" data-get-uri="<?=e($getCommentsUri);?>" data-post-uri="<?=e($postCommentUri);?>" data-delete-uri="<?=e($deleteCommentUri);?>" data-can-comment-as-facebook-user="<?=$canCommentAsFacebookUser?"1":"0"?>" data-can-comment-as-station="<?=$canCommentAsStation?"1":"0"?>">
+			<em>Loading...</em>
+		</div>
 	</div>
 	<div class="col-md-5">
 	<?php if (!is_null($seriesAd)): ?>

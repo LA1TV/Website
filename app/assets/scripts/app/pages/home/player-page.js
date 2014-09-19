@@ -143,6 +143,7 @@ define([
 			var canPostAsFacebookUser = $(this).attr("data-can-comment-as-facebook-user") === "1";
 			var canPostAsStation = $(this).attr("data-can-comment-as-station") === "1";
 			var commentsComponent = new CommentsComponent(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation);
+			$(this).empty(); // remove loading message.
 			$(this).append(commentsComponent.getEl());
 		});
 		
