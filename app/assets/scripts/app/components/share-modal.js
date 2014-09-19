@@ -1,6 +1,7 @@
 define(["jquery", "lib/bootstrap"], function($) {
 
-	var ShareModal = function(embedCode, shareLink, shareMsg) {
+	// embedData should be an object containing: embedCodeTemplate, shareLink, shareMessage
+	var ShareModal = function(embedData) {
 		
 		var self = this;
 		
@@ -20,9 +21,13 @@ define(["jquery", "lib/bootstrap"], function($) {
 			$container.remove();
 		};
 		
+		var embeddedPlayerWidth = 600;
+		var embeddedPlayerHeight = 400;
+		
 		var modalTitle = "Share!";
 		var visible = false;
 		var animating = false;
+		var embedCode = embedData.embedCodeTemplate.replace("{w}", embeddedPlayerWidth).replace("{h}", embeddedPlayerHeight);
 		
 		var $container = $("<div />").addClass("share-modal modal fade").attr("tabindex", "-1").attr("role", "dialog").attr("aria-label", modalTitle).attr("aria-hidden", "true");
 		var $modalDialog = $("<div />").addClass("modal-dialog");
@@ -39,8 +44,8 @@ define(["jquery", "lib/bootstrap"], function($) {
 			$twitterHeading: $("<h4 />").addClass("heading").text("Twitter"),
 			$embedHeading: $("<h4 />").addClass("heading").text("Embed Code"),
 			$embedContainer: $("<div />").addClass("embed-container"),
-			$embedInstruction: $("<span />").text("Copy and paste the code below onto your webpage."),
-			$embedInput: $("<input />").addClass("embed-code-input form-control").prop("type", "text").prop("readonly", true).text(embedCode)
+			$embedInstruction: $("<span />").addClass("instruction").text("Copy and paste the code below onto your webpage."),
+			$embedInput: $("<input />").addClass("embed-code-input form-control").prop("type", "text").prop("readonly", true).val(embedCode)
 		};
 		
 		$modalBody.append($modalBodyEls.$facebookHeading);

@@ -12,6 +12,10 @@
 	margin-top: 15px;
 }
 
+.share-modal .modal-body .embed-container .instruction {
+	display: block;
+}
+
 .share-modal .modal-body .embed-container .embed-code-input {
 	cursor: text;
 }

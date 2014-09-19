@@ -5,6 +5,7 @@ use FormHelpers;
 use Carbon;
 use Config;
 use Cache;
+use URL;
 
 class Playlist extends MyEloquent {
 
@@ -132,6 +133,24 @@ class Playlist extends MyEloquent {
 	
 	public function getRelatedItemsForOrderableListAttribute() {
 		return MediaItem::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemsIdsForOrderableList());
+	}
+	
+	// returns the uri to the page containing the playlist with media item on the main site.
+	public function getUri($mediaItem) {
+		return URL::route('player', array($this->id, $mediaItem->id));
+	}
+	
+	public function getEmbedUri($mediaItem) {
+		return URL::route('embed-player', array($this->id, $mediaItem->id));
+	}
+	
+	public function getEmbedData($mediaItem) {
+		
+		return array(
+			"embedCodeTemplate"	=> '<iframe src="'.$this->getEmbedUri($mediaItem).'" width="{w}" height="{h}" frameborder="0" allowfullscreen></iframe>',
+			"shareLink"			=> $this->getUri($mediaItem),
+			"shareMessage"		=> ""
+		);
 	}
 	
 	public function getDates() {

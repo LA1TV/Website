@@ -7,7 +7,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, embedCode, shareLink, shareMsg) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded) {
 
 		var self = this;
 	
@@ -62,7 +62,6 @@ define([
 		
 		var loaded = false;
 		var responsive = !embedded;
-		var shareModal = new ShareModal(embedCode, shareLink, shareMsg);
 		
 		var qualitySelectionComponent = new QualitySelectionComponent();
 		$(qualitySelectionComponent).on("qualitiesChanged", function() {
@@ -88,12 +87,15 @@ define([
 			$(self).triggerHandler("loaded");
 		});
 		
-		$(playerController).on("viewCountChanged playerTypeChanged", function() {
-			renderViewCount();
+		$(playerController).on("embedDataAvailable", function() {
+			var shareModal = new ShareModal(playerController.getEmbedData());
+			$shareButton.click(function() {
+				shareModal.show(true);
+			});
 		});
 		
-		$shareButton.click(function() {
-			shareModal.show(true);
+		$(playerController).on("viewCountChanged playerTypeChanged", function() {
+			renderViewCount();
 		});
 		
 		$likeButton.click(function() {

@@ -87,6 +87,10 @@ define([
 			return streamState;
 		};
 		
+		this.getEmbedData = function() {
+			return embedData;
+		};
+		
 		this.enableOverrideMode = function(enable) {
 			queuedOverrideModeEnabled = enable;
 			render();
@@ -109,6 +113,7 @@ define([
 		var streamState = null;
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
+		var embedData = null;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			updatePlayer();
@@ -139,10 +144,20 @@ define([
 		}
 		
 		function render() {
+			updateEmbedData();
 			updateOverrideMode();
 			updatePlayer();
 			updateViewCounts();
 			updateLikes();
+		}
+		
+		function updateEmbedData() {
+			if (embedData !== null) {
+				// the assumption is that embed data doesn't change
+				return;
+			}
+			embedData = cachedData.embedData;
+			$(self).triggerHandler("embedDataAvailable");
 		}
 		
 		function updateOverrideMode() {

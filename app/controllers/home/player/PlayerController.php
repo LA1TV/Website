@@ -69,7 +69,7 @@ class PlayerController extends HomeBaseController {
 				}
 			}
 			$playlistTableData[] = array(
-				"uri"					=> Config::get("custom.player_base_uri")."/".$playlist->id."/".$item->id,
+				"uri"					=> $playlist->getUri($item),
 				"active"				=> $active,
 				"title"					=> $item->name,
 				"playlistName"			=> $playlistName,
@@ -93,7 +93,7 @@ class PlayerController extends HomeBaseController {
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
 			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
 			$relatedItemsTableData[] = array(
-				"uri"					=> Config::get("custom.player_base_uri")."/".$relatedItemPlaylist->id."/".$item->id,
+				"uri"					=> $relatedItemPlaylist->getUri($item),
 				"active"				=> $active,
 				"title"					=> $item->name,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
@@ -135,7 +135,7 @@ class PlayerController extends HomeBaseController {
 				// show the button to link the user to the series containing the video they are watching.
 				$seriesAd = array(
 					"name"	=> $defaultPlaylist->generateName(),
-					"uri"		=> Config::get("custom.player_base_uri")."/".$defaultPlaylist->id."/".$currentMediaItem->id
+					"uri"		=> $defaultPlaylist->getUri($currentMediaItem)
 				);
 			}
 		}
@@ -233,6 +233,7 @@ class PlayerController extends HomeBaseController {
 				$likeType = $like->is_like ? "like" : "dislike";
 			}
 		}
+		$embedData = $playlist->getEmbedData($mediaItem);
 		
 		// only return the uris if they are actually needed. Security through obscurity
 		// always return uris if there's a cms user with permission logged in because they should be able override the fact that it's not live
@@ -269,6 +270,7 @@ class PlayerController extends HomeBaseController {
 		$data = array(
 			"scheduledPublishTime"	=> $publishTime,
 			"coverUri"				=> $coverArtUri,
+			"embedData"				=> $embedData,
 			"hasStream"				=> $hasStream, // true if this media item has a live stream
 			"streamInfoMsg"			=> $streamInfoMsg,
 			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
