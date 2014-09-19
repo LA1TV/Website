@@ -62,7 +62,12 @@
 		<div class="comments-container" data-media-item-id="<?=e($mediaItemId);?>" data-get-uri="<?=e($getCommentsUri);?>" data-post-uri="<?=e($postCommentUri);?>" data-delete-uri="<?=e($deleteCommentUri);?>" data-can-comment-as-facebook-user="<?=$canCommentAsFacebookUser?"1":"0"?>" data-can-comment-as-station="<?=$canCommentAsStation?"1":"0"?>"></div>
 	</div>
 	<div class="col-md-5">
-		<div class="playlist">
+	<?php if (!is_null($seriesAd)): ?>
+		<div class="go-to-series-btn-container">
+			<a class="btn btn-info btn-block" href="<?=e($seriesAd['uri']);?>">Go To "<?=e($seriesAd['name']);?>" Series</a>
+		</div>
+	<?php endif; ?>
+		<div class="playlist playlist-element">
 			<div class="button-row clearfix">
 				<div class="buttons">
 					<div class="item">
@@ -106,7 +111,7 @@
 			</div>
 		</div>
 		<?php if (count($relatedItemsTableData) > 0): ?>
-		<div class="playlist">
+		<div class="related-items playlist-element">
 			<div class="button-row clearfix">
 				<h2 class="playlist-title">Related Items</h2>
 			</div>

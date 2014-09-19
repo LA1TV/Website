@@ -13,10 +13,10 @@ require([
 	"app/custom-accordian",
 	"app/default-button-group",
 	"app/fit-text-handler",
-	"app/playlist",
 	"app/synchronised-time",
 	"app/video-js",
-	"app/pages/home/player-page"
+	"app/pages/home/player-page",
+	"app/pages/home/playlist"
 ], function() {
 	// everything loaded
 });

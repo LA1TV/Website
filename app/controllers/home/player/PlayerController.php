@@ -126,6 +126,19 @@ class PlayerController extends HomeBaseController {
 				"streamInfoMsg"				=> !is_null($infoMsg) ? $infoMsg : ""
 			);
 		}
+		
+		$seriesAd = null;
+		if (is_null($playlist->show)) {
+			// user is currently browsing playlist not series
+			$defaultPlaylist = $currentMediaItem->getDefaultPlaylist();
+			if (!is_null($defaultPlaylist->show)) {
+				// show the button to link the user to the series containing the video they are watching.
+				$seriesAd = array(
+					"seriesName"	=> $defaultPlaylist->generateName(),
+					"uri"		=> Config::get("custom.player_base_uri")."/".$defaultPlaylist->id."/".$currentMediaItem->id
+				);
+			}
+		}
 
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
@@ -148,6 +161,7 @@ class PlayerController extends HomeBaseController {
 		$view->canCommentAsStation = $userHasCommentsPermission;
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
+		$view->seriesAd = $seriesAd;
 		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, 940, 150);
 		$this->setContent($view, "player", "player");
 	}

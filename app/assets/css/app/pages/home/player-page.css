@@ -21,3 +21,7 @@
 	display: inline-block;
 	float: right;
 }
+
+.page-player .go-to-series-btn-container, .page-player .playlist {
+	margin-bottom: 10px;
+}
