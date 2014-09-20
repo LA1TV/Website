@@ -185,6 +185,7 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function scopeBelongsToShow($q, $yes=true) {
+		return $q;
 		return $q->has("show", $yes ? "!=" : "=", 0);
 	}
 	
