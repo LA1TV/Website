@@ -213,10 +213,12 @@ class MediaItem extends MyEloquent {
 	
 	// A media item is active when:
 	//						it's scheduled publish time is not too old (configured in config)
+	//						the scheduled publish time is before some time in the future (configured in config)
 	//						the scheduled publish time is automatically set if not specified the first time a media item is enabled.
 	public function scopeActive($q) {
 		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
-		return $q->accessible()->where("scheduled_publish_time", ">=", $startTime);
+		$endTime = Carbon::now()->addDays(Config::get("custom.num_days_future_before_active"));
+		return $q->accessible()->where("scheduled_publish_time", ">=", $startTime)->where("scheduled_publish_time", "<", $endTime);
 	}
 	
 	public function scopeSearch($q, $value) {

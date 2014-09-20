@@ -172,13 +172,16 @@ class Playlist extends MyEloquent {
 	}
 	
 	// A playlist is active when:
-	//						it's scheduled publish time is not too old (configured in config), or one of the following is true
+	//						it's scheduled publish time is not too old or coming up (configured in config), or one of the following is true
 	//						it contains an active media item.
 	public function scopeActive($q) {
 		$startTime = Carbon::now()->subDays(Config::get("custom.num_days_active"));
-		return $q->accessible()->where(function($q2) use (&$startTime) {
-			$q2->where("scheduled_publish_time", ">=", $startTime)
-			->orWhereHas("mediaItems", function($q3) {
+		$endTime = Carbon::now()->addDays(Config::get("custom.num_days_future_before_active"));
+		return $q->accessible()->where(function($q2) use (&$startTime, &$endTime) {
+			$q2->where(function($q3) use (&$startTime, &$endTime) {
+				$q3->where("scheduled_publish_time", ">=", $startTime)
+					->where("scheduled_publish_time", "<", $endTime);
+			})->orWhereHas("mediaItems", function($q3) {
 				$q3->accessible()->active();
 			});
 		});
