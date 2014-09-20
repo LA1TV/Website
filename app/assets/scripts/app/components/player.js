@@ -195,14 +195,11 @@ define([
 					queuedAdLiveAtTxt = "Live ";
 				}
 				else {
-					queuedAdLiveAtTxt = "Available ";
+					queuedAdLiveAtTxt = "Available";
 				}
 				willBeLive = queuedWillBeLive;
 				if (showCountdown) {
-					queuedAdLiveAtTxt = queuedAdLiveAtTxt+"In";
-				}
-				else {
-					queuedAdLiveAtTxt = queuedAdLiveAtTxt+"At";
+					queuedAdLiveAtTxt = queuedAdLiveAtTxt+" In";
 				}
 				
 				if (queuedAdLiveAtTxt !== currentAdLiveAtTxt) {
