@@ -49,7 +49,7 @@ define([
 		var $noCommentsCol = $("<td />").addClass("no-comments-col").attr("colspan", "2");
 		var $noCommentsMsg = $("<div />").addClass("no-comments-msg").text("There are no comments at the moment.");
 		var $newCommentContainer = $("<div />").addClass("new-comment-container clearfix");
-		var $loginMsg = $("<div />").addClass("login-msg").text("Please login in order to make a comment.");
+		var $loginMsg = $("<div />").addClass("login-msg").text("Please login to comment.");
 		var $comment = $("<input />").prop("type", "comment").addClass("form-control").attr("placeholder", "Enter comment...");
 		var $buttonsRow = $("<div />").addClass("buttons-row");
 		var $postAsStationItem = $("<div />").addClass("item");
