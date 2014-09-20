@@ -36,7 +36,7 @@ class PlaylistController extends HomeBaseController {
 			$playlistTableData[] = array(
 				"uri"					=> $playlist->getUri($item),
 				"title"					=> $item->name,
-				"description"			=> "Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description. Some really long description.",
+				"description"			=> $item->description,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri
