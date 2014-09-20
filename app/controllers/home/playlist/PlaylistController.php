@@ -15,9 +15,6 @@ class PlaylistController extends HomeBaseController {
 		}
 		
 		$playlistMediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
-		if (count($playlistMediaItems) === 0) {
-			App:abort(404);
-		}
 		
 		$playlistTableData = array();
 		$activeItemIndex = null;

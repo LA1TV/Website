@@ -7,6 +7,9 @@
 <?php if (!is_null($playlistDescription)): ?>
 <p class="description"><?=e($playlistDescription);?></p>
 <?php endif; ?>
+<?php if (count($playlistTableData) === 0): ?>
+<p class="coming-soon well well-sm">Coming soon!</p>
+<?php else: ?>
 <div class="playlist playlist-element">
 	<div class="playlist-table-container">
 		<table class="playlist-table table table-bordered table-striped table-hover">
@@ -31,3 +34,4 @@
 		</table>
 	</div>
 </div>
+<?php endif; ?>
