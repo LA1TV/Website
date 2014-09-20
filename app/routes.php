@@ -46,12 +46,12 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 		Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
 		Route::controller('/player', $p.'home\player\PlayerController');
 		// this is here so the named route can be retrieved in EmbedController
-		Route::any('/player/{a}/{b}', array("as"=>"player", "uses"=>$p.'home\player\PlayerController@index'));
+		Route::get('/player/{a}/{b}', array("as"=>"player", "uses"=>$p.'home\player\PlayerController@getIndex'));
 		Route::controller('/shows', $p.'home\shows\ShowsController');
 		Route::controller('/show', $p.'home\show\ShowController');
 		Route::controller('/guide', $p.'home\guide\GuideController');
 		// this is here so the named route can be retrieved in EmbedController
-		Route::any('/', array("as"=>"home", "uses"=>$p.'home\HomeController@index'));
+		Route::get('/', array("as"=>"home", "uses"=>$p.'home\HomeController@getIndex'));
 		Route::controller('/', $p.'home\HomeController');
 	});
 	
@@ -69,6 +69,6 @@ Route::group(array('domain' => Config::get("subdomains.embed")), function() use(
 		
 		Route::controller('/', $p.'embed\EmbedController');
 		// this is here so the named route can be retrieved in PlayerController
-		Route::any('/{a}/{b}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@index'));
+		Route::get('/{a}/{b}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@getIndex'));
 	});
 });
