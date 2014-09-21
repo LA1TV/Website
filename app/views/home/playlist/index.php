@@ -3,7 +3,12 @@
 	<img class="img-responsive img-rounded" src="<?=e($coverImageUri);?>">
 </div>
 <?php endif; ?>
-<h1 class="no-top-margin"><?=e($playlistTitle);?></h1>
+<div class="title-container clearfix">
+<?php if (!is_null($seriesUri)): ?>
+	<a class="view-series-button btn btn-info" href="<?=e($seriesUri);?>">View All Series</a>
+<?php endif; ?>
+	<h1 class="no-top-margin"><?=e($playlistTitle);?></h1>
+</div>
 <?php if (!is_null($escapedPlaylistDescription)): ?>
 <p class="description"><?=$escapedPlaylistDescription?></p>
 <?php endif; ?>

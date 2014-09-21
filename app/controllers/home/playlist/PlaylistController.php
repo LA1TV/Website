@@ -83,6 +83,7 @@ class PlaylistController extends HomeBaseController {
 			),
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
+		$view->seriesUri = !is_null($playlist->show) ? $playlist->show->getUri() : null;
 		$this->setContent($view, "playlist", "playlist");
 	}
 	

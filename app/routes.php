@@ -50,6 +50,7 @@ Route::group(array('domain' => Config::get("subdomains.www"), 'after' => 'setCon
 		Route::get('/player/{a}/{b}', array("as"=>"player", "uses"=>$p.'home\player\PlayerController@getIndex'));
 		Route::controller('/shows', $p.'home\shows\ShowsController');
 		Route::controller('/show', $p.'home\show\ShowController');
+		Route::get('/show/{a}', array("as"=>"show", "uses"=>$p.'home\show\ShowController@getIndex'));
 		Route::controller('/guide', $p.'home\guide\GuideController');
 		// this is here so the named route can be retrieved in EmbedController
 		Route::get('/', array("as"=>"home", "uses"=>$p.'home\HomeController@getIndex'));

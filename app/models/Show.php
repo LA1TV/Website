@@ -2,6 +2,7 @@
 
 use Config;
 use Cache;
+use URL;
 
 class Show extends MyEloquent {
 
@@ -10,6 +11,10 @@ class Show extends MyEloquent {
 	
 	public function playlists() {
 		return $this->hasMany(self::$p.'Playlist', 'show_id');
+	}
+	
+	public function getUri() {
+		return URL::route('show', array($this->id));
 	}
 	
 	// returns true if this show should be accessible now. I.e enabled
