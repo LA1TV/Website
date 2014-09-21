@@ -50,11 +50,13 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		
 		$playlistMediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
 		$playlistTableData = array();
 		$activeItemIndex = null;
 		foreach($playlistMediaItems as $i=>$item) {
-			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$active = intval($item->id) === intval($currentMediaItem->id);
 			if ($active) {
 				$activeItemIndex = $i;
@@ -93,7 +95,7 @@ class PlayerController extends HomeBaseController {
 		foreach($relatedItems as $i=>$item) {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
-			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$relatedItemsTableData[] = array(
 				"uri"					=> $relatedItemPlaylist->getUri($item),
 				"active"				=> false,
@@ -179,7 +181,8 @@ class PlayerController extends HomeBaseController {
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;
-		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, 940, 150);
+		$coverImageResolutions = Config::get("imageResolutions.coverImage");
+		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h'], 150);
 		$this->setContent($view, "player", "player");
 	}
 	
@@ -232,7 +235,8 @@ class PlayerController extends HomeBaseController {
 		if (!is_null($publishTime)) {
 			$publishTime = $publishTime->timestamp;
 		}
-		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, 1920, 1080);
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']);
 		$hasStream = $hasLiveStreamItem;
 		$streamInfoMsg = $hasLiveStreamItem ? $liveStreamItem->information_msg : null;
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;

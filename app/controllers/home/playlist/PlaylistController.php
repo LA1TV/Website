@@ -4,6 +4,7 @@ use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use App;
 use URLHelpers;
+use Config;
 use uk\co\la1tv\website\models\Playlist;
 
 class PlaylistController extends HomeBaseController {
@@ -14,13 +15,14 @@ class PlaylistController extends HomeBaseController {
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
 		$playlistMediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
 		
 		$playlistTableData = array();
 		$activeItemIndex = null;
 		foreach($playlistMediaItems as $i=>$item) {
-			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$playlistName = null;
 			if (is_null($playlist->show)) {
 				// this is a playlist not a series.
@@ -47,7 +49,7 @@ class PlaylistController extends HomeBaseController {
 		foreach($relatedItems as $i=>$item) {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
-			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$relatedItemsTableData[] = array(
 				"uri"					=> $relatedItemPlaylist->getUri($item),
 				"active"				=> false,
@@ -62,7 +64,8 @@ class PlaylistController extends HomeBaseController {
 		$coverUri = null;
 		$coverFile = $playlist->coverFile;
 		if (!is_null($coverFile)) {
-			$coverFile = $coverFile->getImageFileWithResolution(940, 150);
+			$coverImageResolutions = Config::get("imageResolutions.coverImage");
+			$coverFile = $coverFile->getImageFileWithResolution($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 			if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
 				$coverUri = $coverFile->getUri();
 			}
