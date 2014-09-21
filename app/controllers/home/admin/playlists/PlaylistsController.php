@@ -181,11 +181,16 @@ class PlaylistsController extends PlaylistsBaseController {
 				
 					$show = $formData['show-id'] !== "" ? Show::find(intval($formData['show-id'])) : null;
 					
-					Validator::extend('unique_series_no', function($attribute, $value, $parameters) use (&$show) {
+					Validator::extend('unique_series_no', function($attribute, $value, $parameters) use (&$playlist, &$show) {
 						if (is_null($show)) {
 							return true;
 						}
-						return $show->playlists()->where("series_no", $value)->count() === 0;
+						$count = $show->playlists()->where("series_no", $value);
+						if (!is_null($playlist)) {
+							$count = $count->where("id", "!=", $playlist->id);
+						}
+						$count = $count->count();
+						return $count === 0;
 					});
 					
 					$validator = Validator::make($formData,	array(
