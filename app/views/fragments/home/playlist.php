@@ -37,8 +37,8 @@
 						<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></div></div>
 						<?php endif; ?>
 						<div class="title"><?=e($row['title']);?></div>
-						<?php if (!is_null($row['description'])): ?>
-						<div class="description"><?=e($row['description']);?></div>
+						<?php if (!is_null($row['escapedDescription'])): ?>
+						<div class="description"><?=$row['escapedDescription'];?></div>
 						<?php endif; ?>
 					</td>
 				</tr>

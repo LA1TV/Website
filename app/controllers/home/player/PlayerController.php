@@ -13,6 +13,7 @@ use Carbon;
 use Facebook;
 use Auth;
 use FormHelpers;
+use URLHelpers;
 use Exception;
 
 class PlayerController extends HomeBaseController {
@@ -72,7 +73,7 @@ class PlayerController extends HomeBaseController {
 				"uri"					=> $playlist->getUri($item),
 				"active"				=> $active,
 				"title"					=> $item->name,
-				"description"			=> null,
+				"escapedDescription"	=> null,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri
@@ -97,7 +98,7 @@ class PlayerController extends HomeBaseController {
 				"uri"					=> $relatedItemPlaylist->getUri($item),
 				"active"				=> false,
 				"title"					=> $item->name,
-				"description"			=> null,
+				"escapedDescription"	=> null,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri
@@ -144,7 +145,7 @@ class PlayerController extends HomeBaseController {
 
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
-		$view->episodeDescription = $currentMediaItem->description;
+		$view->episodeDescriptionEscaped = !is_null($currentMediaItem->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($currentMediaItem->description)) : null;
 		$view->episodeAccessibleToPublic = true; // TODO;	
 		$view->playlistTableFragment = View::make("fragments.home.playlist", array(
 			"headerRowData"	=> array(

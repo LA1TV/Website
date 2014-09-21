@@ -4,8 +4,8 @@
 </div>
 <?php endif; ?>
 <h1 class="no-top-margin"><?=e($playlistTitle);?></h1>
-<?php if (!is_null($playlistDescription)): ?>
-<p class="description"><?=e($playlistDescription);?></p>
+<?php if (!is_null($escapedPlaylistDescription)): ?>
+<p class="description"><?=$escapedPlaylistDescription?></p>
 <?php endif; ?>
 <?php if (is_null($playlistTableFragment)): ?>
 <p class="coming-soon well well-sm">Coming soon!</p>

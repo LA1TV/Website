@@ -3,6 +3,7 @@
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use App;
+use URLHelpers;
 use uk\co\la1tv\website\models\Playlist;
 
 class PlaylistController extends HomeBaseController {
@@ -33,7 +34,7 @@ class PlaylistController extends HomeBaseController {
 			$playlistTableData[] = array(
 				"uri"					=> $playlist->getUri($item),
 				"title"					=> $item->name,
-				"description"			=> $item->description,
+				"escapedDescription"	=> !is_null($item->description) ? nl2br(e($item->description)) : null,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri,
@@ -51,7 +52,7 @@ class PlaylistController extends HomeBaseController {
 				"uri"					=> $relatedItemPlaylist->getUri($item),
 				"active"				=> false,
 				"title"					=> $item->name,
-				"description"			=> null,
+				"escapedDescription"	=> null,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri
@@ -69,7 +70,7 @@ class PlaylistController extends HomeBaseController {
 		
 		$view = View::make("home.playlist.index");
 		$view->playlistTitle = $playlist->generateName();
-		$view->playlistDescription = $playlist->description;
+		$view->escapedPlaylistDescription = !is_null($playlist->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($playlist->description)) : null;
 		$view->coverImageUri = $coverUri;
 		$view->playlistTableFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> null,
