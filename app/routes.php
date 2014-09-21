@@ -16,7 +16,7 @@ $p = "uk\\co\\la1tv\\website\\controllers\\";
 // www.la1tv.co.uk
 Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$p) {
 
-	Route::group(array('before' => 'csrf'), function() use(&$p) {
+	Route::group(array('before' => array('force.ssl', 'csrf')), function() use(&$p) {
 		
 		// ADMIN
 		Route::controller('/admin/login', $p.'home\admin\login\LoginController');
@@ -61,7 +61,7 @@ Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$
 // embed.la1tv.co.uk
 Route::group(array('domain' => Config::get("subdomains.embed")), function() use(&$p) {
 	
-	Route::group(array('before' => 'csrf'), function() use(&$p) {
+	Route::group(array('before' =>  array('force.ssl', 'csrf')), function() use(&$p) {
 		
 		// /player and /ajax and /file should also be accessible from the embed subdomain as well
 		Route::controller('/player', $p.'home\player\PlayerController');

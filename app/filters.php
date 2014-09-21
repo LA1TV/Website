@@ -62,10 +62,17 @@ Route::filter('csrf', function() {
 
 /*
 |--------------------------------------------------------------------------
-| CSRF Protection Filter
+| https Filter
 |--------------------------------------------------------------------------
 */
 
-Route::filter("permission", function() {
-
+Route::filter('force.ssl', function() {
+	if (!Config::get("ssl.enabled")) {
+		// ssl is disabled in config so don't redirect
+		return;
+	}
+	
+	if(!Request::secure()) {
+		return Redirect::secure(Request::path());
+	}
 });
