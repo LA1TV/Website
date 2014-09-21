@@ -14,7 +14,7 @@ class HomeBaseController extends BaseController {
 
 	protected $layout = "layouts.home.master";
 	
-	protected function setContent($content, $navPage, $cssPageId, $title=NULL) {
+	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL) {
 		$this->layout->baseUrl = URL::to("/");
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
@@ -31,6 +31,10 @@ class HomeBaseController extends BaseController {
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn()
 		);
+		$this->layout->openGraphProperties = array_merge(array(
+			array("name"=> "fb:app_id",	"content"=> Config::get("facebook.appId")),
+			array("name"=> "og:url",	"content"=> Request::url())
+		), $openGraphProperties);
 		
 		$returnUri = implode("/", Request::segments());
 		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
