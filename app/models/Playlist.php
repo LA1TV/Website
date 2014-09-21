@@ -286,7 +286,7 @@ class Playlist extends MyEloquent {
 				return $coverFileImageFile->getUri();
 			}
 		}
-		return $this->getCoverArtUri($width, $height);
+		return $this->getCoverUri($width, $height);
 	}
 	
 	// returns true if this playlist should be accessible now.

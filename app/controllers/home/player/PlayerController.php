@@ -152,6 +152,7 @@ class PlayerController extends HomeBaseController {
 		$view->playlistTableFragment = View::make("fragments.home.playlist", array(
 			"headerRowData"	=> array(
 				"title" 			=> $playlist->generateName(),
+				"seriesUri"			=> !is_null($playlist->show) ? $playlist->show->getUri() : null,
 				"navButtons"		=> array(
 					"previousItemUri"	=> $playlistPreviousItemUri,
 					"nextItemUri"		=> $playlistNextItemUri
@@ -162,6 +163,7 @@ class PlayerController extends HomeBaseController {
 		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> array(
 				"title" 		=> "Related Items",
+				"seriesUri"		=> null,
 				"navButtons"	=> null
 			),
 			"tableData"		=> $relatedItemsTableData
@@ -182,7 +184,7 @@ class PlayerController extends HomeBaseController {
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
-		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h'], 150);
+		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$this->setContent($view, "player", "player");
 	}
 	

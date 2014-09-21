@@ -2,9 +2,11 @@
 	<?php if (!is_null($headerRowData)): ?>
 	<div class="button-row clearfix">
 		<div class="buttons">
+			<?php if (!is_null($headerRowData['seriesUri'])): ?>
 			<div class="item">
-				<button class="btn btn-default btn-xs" type="button">View All Series</button>
+				<a class="btn btn-default btn-xs" href="<?=e($headerRowData['seriesUri'])?>">View All Series</a>
 			</div>
+			<?php endif; ?>
 			<?php if (!is_null($headerRowData['navButtons'])):?>
 			<div class="item">
 				<?php if (!is_null($headerRowData['navButtons']['previousItemUri'])): ?>
