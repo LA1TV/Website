@@ -164,7 +164,6 @@ class PlaylistsController extends PlaylistsBaseController {
 					'show-id.valid_show_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
 					'series-no.integer'	=> FormHelpers::getMustBeIntegerMsg(),
-					'series-no.unique_series_no'	=> "A series already exists with that number.",
 					'name.required_without'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
