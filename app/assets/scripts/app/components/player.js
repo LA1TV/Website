@@ -192,7 +192,7 @@ define([
 				
 				var queuedAdLiveAtTxt = null;
 				if (queuedWillBeLive) {
-					queuedAdLiveAtTxt = "Live ";
+					queuedAdLiveAtTxt = "Live";
 				}
 				else {
 					queuedAdLiveAtTxt = "Available";
