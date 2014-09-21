@@ -16,7 +16,7 @@ $p = "uk\\co\\la1tv\\website\\controllers\\";
 // www.la1tv.co.uk
 Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$p) {
 
-	Route::group(array('before' => 'csrf'), function() use(&$p) {
+	Route::group(array('before' => 'csrf', 'after' => 'setXFrameOptionsHeader'), function() use(&$p) {
 		
 		// ADMIN
 		Route::controller('/admin/login', $p.'home\admin\login\LoginController');

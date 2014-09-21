@@ -69,3 +69,19 @@ Route::filter('csrf', function() {
 	// throws exception if token invalid
 	Csrf::check();
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| X-Frame-Options Header Filter
+|--------------------------------------------------------------------------
+|
+| Prevents pages being loaded in an iframe.
+|
+*/
+
+Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
+	if (get_class($response) === "Illuminate\Http\Response") {
+		$response->header("X-Frame-Options", "deny");
+	}
+});
