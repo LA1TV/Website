@@ -31,10 +31,13 @@ class HomeBaseController extends BaseController {
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn()
 		);
-		$this->layout->openGraphProperties = array_merge(array(
-			array("name"=> "fb:app_id",	"content"=> Config::get("facebook.appId")),
-			array("name"=> "og:url",	"content"=> Request::url())
-		), $openGraphProperties);
+		$facebookAppId = Config::get("facebook.appId");
+		$defaultOpenGraphProperties = array();
+		if (!is_null($facebookAppId)) {
+			$defaultOpenGraphProperties[] = array("name"=> "fb:app_id", "content"=> $facebookAppId);
+		}
+		$defaultOpenGraphProperties[] = array("name"=> "og:url", "content"=> Request::url());
+		$this->layout->openGraphProperties = array_merge($defaultOpenGraphProperties, $openGraphProperties);
 		
 		$returnUri = implode("/", Request::segments());
 		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
