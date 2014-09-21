@@ -26,6 +26,8 @@ class UpdatePlaylistsTableToWorkWithNewSeasonsTable extends Migration {
 			
 			$table->index("show_id");
 			
+			$table->unique(array("show_id", "series_no"));
+			
 			$table->foreign("show_id")->references('id')->on('series')->onUpdate("restrict")->onDelete('restrict');
 		});
 	}

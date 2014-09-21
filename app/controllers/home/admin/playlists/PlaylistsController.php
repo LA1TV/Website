@@ -145,6 +145,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
+			
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 				
 				$validator = Validator::make($formData,	array(
@@ -163,6 +164,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'show-id.valid_show_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'series-no.required_with'	=> FormHelpers::getRequiredMsg(),
 					'series-no.integer'	=> FormHelpers::getMustBeIntegerMsg(),
+					'series-no.unique_series_no'	=> "A series already exists with that number.",
 					'name.required_without'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
@@ -177,61 +179,84 @@ class PlaylistsController extends PlaylistsBaseController {
 				));
 				
 				if (!$validator->fails()) {
-					// everything is good. save/create model
-					if (is_null($playlist)) {
-						$playlist = new Playlist();
-					}
+				
+					$show = $formData['show-id'] !== "" ? Show::find(intval($formData['show-id'])) : null;
 					
-					$playlist->name = FormHelpers::nullIfEmpty($formData['name']);
-					$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
-					$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
-					
-					// if the scheduled publish time is empty and this playlist is enabled, set it to the current time.
-					// an enabled playlist should always have a published time.
-					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
-					$playlist->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();
-					
-					
-					$show = Show::find(intval($formData['show-id']));
-					EloquentHelpers::associateOrNull($playlist->show(), $show);
-					$playlist->series_no = !is_null($show) ? intval($formData['series-no']) : null;
-					
-					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
-					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $playlist->coverFile);
-					EloquentHelpers::associateOrNull($playlist->coverFile(), $file);
-					
-					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
-					$file = Upload::register(Config::get("uploadPoints.sideBannersImage"), $sideBannerFileId, $playlist->sideBannerFile);
-					EloquentHelpers::associateOrNull($playlist->sideBannerFile(), $file);
-					
-					$coverArtFileId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
-					$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtFileId, $playlist->coverArtFile);
-					EloquentHelpers::associateOrNull($playlist->coverArtFile(), $file);
-					
-					if ($playlist->save() === false) {
-						throw(new Exception("Error saving Playlist."));
-					}
-					
-					$playlist->mediaItems()->detach(); // detaches all
-					$ids = json_decode($formData['playlist-content'], true);
-					if (count($ids) > 0) {
-						$mediaItems = MediaItem::whereIn("id", $ids)->get();
-						foreach($mediaItems as $a) {
-							$playlist->mediaItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+					Validator::extend('unique_series_no', function($attribute, $value, $parameters) use (&$show) {
+						if (is_null($show)) {
+							return true;
 						}
-					}
+						return $show->playlists()->where("series_no", $value)->count() === 0;
+					});
 					
-					$playlist->relatedItems()->detach(); // detaches all
-					$ids = json_decode($formData['related-items'], true);
-					if (count($ids) > 0) {
-						$mediaItems = MediaItem::whereIn("id", $ids)->get();
-						foreach($mediaItems as $a) {
-							$playlist->relatedItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+					$validator = Validator::make($formData,	array(
+						'series-no'		=> array('unique_series_no')
+					), array(
+						'series-no.unique_series_no'	=> "A series already exists with that number."
+					));
+						
+					if (!$validator->fails()) {
+					
+					
+						// everything is good. save/create model
+						if (is_null($playlist)) {
+							$playlist = new Playlist();
 						}
-					}
+						
+						$playlist->name = FormHelpers::nullIfEmpty($formData['name']);
+						$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
+						$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
+						
+						// if the scheduled publish time is empty and this playlist is enabled, set it to the current time.
+						// an enabled playlist should always have a published time.
+						$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
+						$playlist->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();
+						
+						
+						EloquentHelpers::associateOrNull($playlist->show(), $show);
+						$playlist->series_no = !is_null($show) ? intval($formData['series-no']) : null;
+						
+						$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
+						$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $playlist->coverFile);
+						EloquentHelpers::associateOrNull($playlist->coverFile(), $file);
+						
+						$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
+						$file = Upload::register(Config::get("uploadPoints.sideBannersImage"), $sideBannerFileId, $playlist->sideBannerFile);
+						EloquentHelpers::associateOrNull($playlist->sideBannerFile(), $file);
+						
+						$coverArtFileId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
+						$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtFileId, $playlist->coverArtFile);
+						EloquentHelpers::associateOrNull($playlist->coverArtFile(), $file);
+						
+						if ($playlist->save() === false) {
+							throw(new Exception("Error saving Playlist."));
+						}
+						
+						$playlist->mediaItems()->detach(); // detaches all
+						$ids = json_decode($formData['playlist-content'], true);
+						if (count($ids) > 0) {
+							$mediaItems = MediaItem::whereIn("id", $ids)->get();
+							foreach($mediaItems as $a) {
+								$playlist->mediaItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+							}
+						}
+						
+						$playlist->relatedItems()->detach(); // detaches all
+						$ids = json_decode($formData['related-items'], true);
+						if (count($ids) > 0) {
+							$mediaItems = MediaItem::whereIn("id", $ids)->get();
+							foreach($mediaItems as $a) {
+								$playlist->relatedItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
+							}
+						}
 
-					// the transaction callback result is returned out of the transaction function
-					return true;
+						// the transaction callback result is returned out of the transaction function
+						return true;
+					}
+					else {
+						$errors = $validator->messages();
+						return false;
+					}
 				}
 				else {
 					$errors = $validator->messages();
