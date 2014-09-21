@@ -14,7 +14,7 @@
 $p = "uk\\co\\la1tv\\website\\controllers\\";
 
 // www.la1tv.co.uk
-Route::group(array('domain' => Config::get("subdomains.www")), function() use(&$p) {
+Route::group(array('domain' => Config::get("subdomains.www"), 'after' => 'setContentSecurityPolicyHeader'), function() use(&$p) {
 
 	Route::group(array('before' => 'csrf', 'after' => 'setXFrameOptionsHeader'), function() use(&$p) {
 		

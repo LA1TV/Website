@@ -85,3 +85,15 @@ Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
 		$response->header("X-Frame-Options", "deny");
 	}
 });
+
+/*
+|--------------------------------------------------------------------------
+| Content Security Policy Header Filter
+|--------------------------------------------------------------------------
+*/
+
+Route::filter('setContentSecurityPolicyHeader', function($route, $request, $response) {
+	if (get_class($response) === "Illuminate\Http\Response") {
+		$response->header("Content-Security-Policy", "default-src 'self'; img-src *; frame-src 'none'");
+	}
+});
