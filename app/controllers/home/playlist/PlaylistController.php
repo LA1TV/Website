@@ -34,7 +34,7 @@ class PlaylistController extends HomeBaseController {
 				}
 			}
 			$playlistTableData[] = array(
-				"uri"					=> $playlist->getUri($item),
+				"uri"					=> $playlist->getMediaItemUri($item),
 				"title"					=> $playlist->generateEpisodeTitle($item),
 				"escapedDescription"	=> !is_null($item->description) ? e($item->description) : null,
 				"playlistName"			=> $playlistName,
@@ -51,7 +51,7 @@ class PlaylistController extends HomeBaseController {
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
 			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$relatedItemsTableData[] = array(
-				"uri"					=> $relatedItemPlaylist->getUri($item),
+				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
 				"active"				=> false,
 				"title"					=> $item->name,
 				"escapedDescription"	=> null,

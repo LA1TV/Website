@@ -5,17 +5,12 @@
 <?php endif; ?>
 <h1 class="no-top-margin"><?=e($showTitle);?></h1>
 <?php if (!is_null($escapedShowDescription)): ?>
-<p class="description"><?=$escapedPlaylistDescription?></p>
+<p class="description"><?=$escapedShowDescription?></p>
 <?php endif; ?>
-<?php if (is_null($playlistTableFragment)): ?>
+<?php if (is_null($showTableFragment)): ?>
 <p class="coming-soon well well-sm">Coming soon!</p>
 <?php else: ?>
 <div class="playlist">
-	<?=$playlistTableFragment?>
+	<?=$showTableFragment?>
 </div>
-<?php if (!is_null($relatedItemsTableFragment)): ?>
-	<div class="related-items">
-		<?=$relatedItemsTableFragment?>
-	</div>
-<?php endif; ?>
 <?php endif; ?>

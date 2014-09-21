@@ -137,21 +137,24 @@ class Playlist extends MyEloquent {
 		return MediaItem::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemsIdsForOrderableList());
 	}
 	
+	public function getUri() {
+		return URL::route('playlist', array($this->id));
+	}
+	
 	// returns the uri to the page containing the playlist with media item on the main site.
-	public function getUri($mediaItem) {
+	public function getMediaItemUri($mediaItem) {
 		return URL::route('player', array($this->id, $mediaItem->id));
 	}
 	
-	public function getEmbedUri($mediaItem) {
+	public function getMediaItemEmbedUri($mediaItem) {
 		return URL::route('embed-player', array($this->id, $mediaItem->id));
 	}
 	
 	public function getEmbedData($mediaItem) {
-		
 		return array(
-			"embedCodeTemplate"	=> '<iframe src="'.$this->getEmbedUri($mediaItem).'" width="{w}" height="{h}" frameborder="0" allowfullscreen></iframe>',
-			"facebookShareUri"	=> Facebook::getShareUri($this->getUri($mediaItem)),
-			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getUri($mediaItem))."&text=".urlencode($this->generateEpisodeTitle($mediaItem))."&via=".urlencode("LA1TV")
+			"embedCodeTemplate"	=> '<iframe src="'.$this->getMediaItemEmbedUri($mediaItem).'" width="{w}" height="{h}" frameborder="0" allowfullscreen></iframe>',
+			"facebookShareUri"	=> Facebook::getShareUri($this->getMediaItemUri($mediaItem)),
+			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getMediaItemUri($mediaItem))."&text=".urlencode($this->generateEpisodeTitle($mediaItem))."&via=".urlencode("LA1TV")
 		);
 	}
 	
@@ -192,6 +195,19 @@ class Playlist extends MyEloquent {
 		return $q->has("show", $yes ? "!=" : "=", 0);
 	}
 	
+	// get the cover art for the playlist or the default if there isn't one set
+	public function getCoverArtUri($width, $height) {
+		$coverArtFile = $this->coverArtFile;
+		if (!is_null($coverArtFile)) {
+			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverArtImageFile) && $coverArtFile->getShouldBeAccessible()) {
+				return $coverArtImageFile->getUri();
+			}
+		}
+		// return default cover
+		return Config::get("custom.default_cover_uri");
+	}
+	
 	// get the uri that should be used as the media items cover art.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns the uri to the default cover
@@ -209,18 +225,8 @@ class Playlist extends MyEloquent {
 				return $coverArtImageFile->getUri();
 			}
 		}
-		
-		// check on playlist
-		$coverArtFile = $this->coverArtFile;
-		if (!is_null($coverArtFile)) {
-			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
-			if (!is_null($coverArtImageFile) && $coverArtFile->getShouldBeAccessible()) {
-				return $coverArtImageFile->getUri();
-			}
-		}
-		
-		// return default cover
-		return Config::get("custom.default_cover_uri");
+		// get the one on the playlist (or default)
+		return $this->getCoverArtUri($width, $height);
 	}
 	
 	// get the uri that should be used for the media item side banners.

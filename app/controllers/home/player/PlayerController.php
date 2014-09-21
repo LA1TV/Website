@@ -72,7 +72,7 @@ class PlayerController extends HomeBaseController {
 				}
 			}
 			$playlistTableData[] = array(
-				"uri"					=> $playlist->getUri($item),
+				"uri"					=> $playlist->getMediaItemUri($item),
 				"active"				=> $active,
 				"title"					=> $item->name,
 				"escapedDescription"	=> null,
@@ -97,7 +97,7 @@ class PlayerController extends HomeBaseController {
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
 			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$relatedItemsTableData[] = array(
-				"uri"					=> $relatedItemPlaylist->getUri($item),
+				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
 				"active"				=> false,
 				"title"					=> $item->name,
 				"escapedDescription"	=> null,
@@ -140,7 +140,7 @@ class PlayerController extends HomeBaseController {
 				// show the button to link the user to the series containing the video they are watching.
 				$seriesAd = array(
 					"name"	=> $defaultPlaylist->generateName(),
-					"uri"		=> $defaultPlaylist->getUri($currentMediaItem)
+					"uri"		=> $defaultPlaylist->getMediaItemUri($currentMediaItem)
 				);
 			}
 		}
