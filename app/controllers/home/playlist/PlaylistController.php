@@ -41,6 +41,23 @@ class PlaylistController extends HomeBaseController {
 			);
 		}
 		
+		$relatedItems = $playlist->relatedItems;
+		$relatedItemsTableData = array();
+		foreach($relatedItems as $i=>$item) {
+			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
+			$relatedItemPlaylist = $item->getDefaultPlaylist();
+			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
+			$relatedItemsTableData[] = array(
+				"uri"					=> $relatedItemPlaylist->getUri($item),
+				"active"				=> false,
+				"title"					=> $item->name,
+				"description"			=> null,
+				"playlistName"			=> $relatedItemPlaylist->generateName(),
+				"episodeNo"				=> $i+1,
+				"thumbnailUri"			=> $thumbnailUri
+			);
+		}
+		
 		$coverUri = null;
 		$coverFile = $playlist->coverFile;
 		if (!is_null($coverFile)) {
@@ -57,6 +74,13 @@ class PlaylistController extends HomeBaseController {
 		$view->playlistTableFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> null,
 			"tableData"		=> $playlistTableData
+		)) : null;
+		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"headerRowData"	=> array(
+				"title" 		=> "Related Items",
+				"navButtons"	=> null
+			),
+			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		$this->setContent($view, "playlist", "playlist");
 	}

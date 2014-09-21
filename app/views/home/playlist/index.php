@@ -10,5 +10,12 @@
 <?php if (is_null($playlistTableFragment)): ?>
 <p class="coming-soon well well-sm">Coming soon!</p>
 <?php else: ?>
-<?=$playlistTableFragment?>
+<div class="playlist">
+	<?=$playlistTableFragment?>
+</div>
+<?php if (!is_null($relatedItemsTableFragment)): ?>
+	<div class="related-items">
+		<?=$relatedItemsTableFragment?>
+	</div>
+<?php endif; ?>
 <?php endif; ?>
