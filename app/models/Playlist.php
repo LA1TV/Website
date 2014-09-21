@@ -205,7 +205,7 @@ class Playlist extends MyEloquent {
 		$coverArtFile = $mediaItem->coverArtFile;
 		if (!is_null($coverArtFile)) {
 			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
-			if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
+			if (!is_null($coverArtImageFile) && $coverArtFile->getShouldBeAccessible()) {
 				return $coverArtImageFile->getUri();
 			}
 		}
@@ -214,7 +214,7 @@ class Playlist extends MyEloquent {
 		$coverArtFile = $this->coverArtFile;
 		if (!is_null($coverArtFile)) {
 			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
-			if (!is_null($coverArtFile) && $coverArtFile->getShouldBeAccessible()) {
+			if (!is_null($coverArtImageFile) && $coverArtFile->getShouldBeAccessible()) {
 				return $coverArtImageFile->getUri();
 			}
 		}
