@@ -66,7 +66,7 @@ class PlaylistController extends HomeBaseController {
 		
 		$view = View::make("home.playlist.index");
 		$view->playlistTitle = $playlist->generateName();
-		$view->escapedPlaylistDescription = !is_null($playlist->description) ? URLHelpers::escapeAndReplaceUrls($playlist->description) : null;
+		$view->escapedPlaylistDescription = !is_null($playlist->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($playlist->description)) : null;
 		$view->coverImageUri = $coverUri;
 		$view->playlistTableFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> null,

@@ -37,7 +37,7 @@ class ShowController extends HomeBaseController {
 	
 		$view = View::make("home.show.index");
 		$view->showTitle = $show->name;
-		$view->escapedShowDescription = !is_null($show->description) ? URLHelpers::escapeAndReplaceUrls($show->description) : null;
+		$view->escapedShowDescription = !is_null($show->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($show->description)) : null;
 		$view->coverImageUri = $coverUri;
 		$view->showTableFragment = count($showTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> null,
