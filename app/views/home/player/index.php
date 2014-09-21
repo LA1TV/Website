@@ -69,69 +69,12 @@
 			<a class="btn btn-info btn-block" href="<?=e($seriesAd['uri']);?>">Go To "<?=e($seriesAd['name']);?>" Series</a>
 		</div>
 	<?php endif; ?>
-		<div class="playlist playlist-element">
-			<div class="button-row clearfix">
-				<div class="buttons">
-					<div class="item">
-						<button class="btn btn-default btn-xs" type="button">View All Series</button>
-					</div>
-					<div class="item">
-						<?php if (!is_null($playlistPreviousItemUri)): ?>
-						<a href="<?=e($playlistPreviousItemUri);?>" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-backward"></span></a>
-						<?php else: ?>
-						<button disabled type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-backward"></span></button>
-						<?php endif; ?>
-					</div>
-					<div class="item">
-						<?php if (!is_null($playlistNextItemUri)): ?>
-						<a href="<?=e($playlistNextItemUri);?>" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-forward"></span></a>
-						<?php else: ?>
-						<button disabled type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-fast-forward"></span></button>
-						<?php endif; ?>
-					</div>
-				</div>
-				<h2 class="playlist-title"><?=e($playlistTitle);?></h2>
-			</div>
-			<div class="playlist-table-container">
-				<table class="playlist-table table table-bordered table-striped table-hover">
-					<tbody>
-						<?php foreach($playlistTableData as $row):?>
-						<tr class="<?=$row['active'] ? "chosen" : ""?>">
-							<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
-							<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
-							<?php if (is_null($row['playlistName'])): ?>
-							<td class="col-title"><?=e($row['title']);?></td>
-							<?php else: ?>
-							<td class="col-title clearfix">
-								<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></div></div>
-								<div class="title"><?=e($row['title']);?></div>
-							</td>
-							<?php endif; ?>
-						</tr>
-						<?php endforeach; ?>
-				</table>
-			</div>
+		<div class="playlist">
+			<?=$playlistTableFragment?>
 		</div>
-		<?php if (count($relatedItemsTableData) > 0): ?>
-		<div class="related-items playlist-element">
-			<div class="button-row clearfix">
-				<h2 class="playlist-title">Related Items</h2>
-			</div>
-			<div class="playlist-table-container">
-				<table class="playlist-table table table-bordered table-striped table-hover">
-					<tbody>
-						<?php foreach($relatedItemsTableData as $row):?>
-						<tr>
-							<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
-							<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
-							<td class="col-title clearfix">
-								<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></div></div>
-								<div class="title"><?=e($row['title']);?></div>
-							</td>
-						</tr>
-						<?php endforeach; ?>
-				</table>
-			</div>
+		<?php if (!is_null($relatedItemsTableFragment)): ?>
+		<div class="related-items">
+			<?=$relatedItemsTableFragment?>
 		</div>
 		<?php endif; ?>
 	</div>

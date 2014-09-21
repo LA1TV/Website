@@ -72,6 +72,7 @@ class PlayerController extends HomeBaseController {
 				"uri"					=> $playlist->getUri($item),
 				"active"				=> $active,
 				"title"					=> $item->name,
+				"description"			=> null,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri
@@ -94,8 +95,9 @@ class PlayerController extends HomeBaseController {
 			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, 1920, 1080);
 			$relatedItemsTableData[] = array(
 				"uri"					=> $relatedItemPlaylist->getUri($item),
-				"active"				=> $active,
+				"active"				=> false,
 				"title"					=> $item->name,
+				"description"			=> null,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri
@@ -143,12 +145,26 @@ class PlayerController extends HomeBaseController {
 		$view = View::make("home.player.index");
 		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$view->episodeDescription = $currentMediaItem->description;
-		$view->episodeAccessibleToPublic = true; // TODO
-		$view->playlistTitle = $playlist->generateName();
-		$view->playlistTableData = $playlistTableData;
-		$view->playlistNextItemUri = $playlistNextItemUri;
-		$view->playlistPreviousItemUri = $playlistPreviousItemUri;
-		$view->relatedItemsTableData = $relatedItemsTableData;
+		$view->episodeAccessibleToPublic = true; // TODO;	
+		$view->playlistTableFragment = View::make("fragments.home.playlist", array(
+			"headerRowData"	=> array(
+				"title" 			=> $playlist->generateName(),
+				"navButtons"		=> array(
+					"previousItemUri"	=> $playlistPreviousItemUri,
+					"nextItemUri"		=> $playlistNextItemUri
+				)
+			),
+			"tableData"		=> $playlistTableData
+		));
+		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"headerRowData"	=> array(
+				"title" 		=> "Related Items",
+				"navButtons"	=> null
+			),
+			"tableData"		=> $relatedItemsTableData
+		)) : null;
+		
+		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);

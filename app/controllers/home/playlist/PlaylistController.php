@@ -36,7 +36,8 @@ class PlaylistController extends HomeBaseController {
 				"description"			=> $item->description,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
-				"thumbnailUri"			=> $thumbnailUri
+				"thumbnailUri"			=> $thumbnailUri,
+				"active"				=> false
 			);
 		}
 		
@@ -53,7 +54,10 @@ class PlaylistController extends HomeBaseController {
 		$view->playlistTitle = $playlist->generateName();
 		$view->playlistDescription = $playlist->description;
 		$view->coverImageUri = $coverUri;
-		$view->playlistTableData = $playlistTableData;
+		$view->playlistTableFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"headerRowData"	=> null,
+			"tableData"		=> $playlistTableData
+		)) : null;
 		$this->setContent($view, "playlist", "playlist");
 	}
 	

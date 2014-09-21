@@ -16,7 +16,7 @@ class CreateRelatedItemToPlaylistTable extends Migration {
 		
 			$table->integer("media_item_id")->unsigned();
 			$table->integer("related_media_item_id")->unsigned();
-			$table->tinyInteger("position")->unique("position_unique_index");
+			$table->tinyInteger("position");
 			$table->primary(array("media_item_id", "related_media_item_id"), "primary_key");
 			
 			$table->foreign("media_item_id", "media_item_id_playlists_foreign")->references('id')->on('media_items')->onUpdate("restrict")->onDelete('cascade');
