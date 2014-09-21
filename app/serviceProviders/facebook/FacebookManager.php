@@ -193,7 +193,7 @@ class FacebookManager {
 	private function storeOurSecret($secret) {
 		Session::set("accountSecret", $secret);
 		// set in a cookie as well as session so if not found in session this can be checked first.
-		Cookie::queue(Cookie::forever('accountSecret', $secret));
+		Cookie::queue(Cookie::forever('accountSecret', $secret, null, null, Config::get("ssl.enabled"));
 	}
 	
 	private function clearOurStoredSecret() {
