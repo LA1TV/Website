@@ -75,6 +75,7 @@ class PlaylistController extends HomeBaseController {
 		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> array(
 				"title" 		=> "Related Items",
+				"seriesUri"		=> null,
 				"navButtons"	=> null
 			),
 			"tableData"		=> $relatedItemsTableData
