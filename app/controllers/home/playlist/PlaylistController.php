@@ -33,16 +33,16 @@ class PlaylistController extends HomeBaseController {
 			}
 			$playlistTableData[] = array(
 				"uri"					=> $playlist->getUri($item),
-				"title"					=> $item->name,
+				"title"					=> $playlist->generateEpisodeTitle($item),
 				"escapedDescription"	=> !is_null($item->description) ? e($item->description) : null,
 				"playlistName"			=> $playlistName,
-				"episodeNo"				=> intval($item->pivot->position) + 1,
+				"episodeNo"				=> is_null($playlist->show) ? intval($item->pivot->position) + 1 : null,
 				"thumbnailUri"			=> $thumbnailUri,
 				"active"				=> false
 			);
 		}
 		
-		$relatedItems = $playlist->relatedItems;
+		$relatedItems = $playlist->relatedItems()->accessible()->orderBy("related_item_to_playlist.position")->get();
 		$relatedItemsTableData = array();
 		foreach($relatedItems as $i=>$item) {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise

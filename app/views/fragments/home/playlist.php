@@ -30,7 +30,9 @@
 			<tbody>
 				<?php foreach($tableData as $row):?>
 				<tr class="<?=$row['active'] ? "chosen" : ""?>">
+					<?php if (!is_null($row['episodeNo'])): ?>
 					<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
+					<?php endif; ?>
 					<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
 					<td class="col-title clearfix">
 						<?php if (!is_null($row['playlistName'])): ?>

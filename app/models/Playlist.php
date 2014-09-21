@@ -73,12 +73,13 @@ class Playlist extends MyEloquent {
 	}
 	
 	// returns the name from the playlist if set, otherwise the name of the show if it's linked to a show.
+	// if the show has a name use that otherwise it should be the name of the show with series number
 	// shouldn't be a case where it's not set on playlist and not part of show
 	public function generateName() {
 		if (!is_null($this->name)) {
 			return $this->name;
 		}
-		return $this->show->name;
+		return $this->show->name." Series ".$this->series_no;
 	}
 	
 	private function getPlaylistContentIdsForOrderableList() {
