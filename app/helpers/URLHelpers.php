@@ -17,7 +17,7 @@ class URLHelpers {
 				}
 				if (isset($match['url'])) {
 					if (filter_var($match['url'], FILTER_VALIDATE_URL) !== false) {
-						$outputText .= sprintf('<a target="_blank" href="%s">%s</a>', $match['url'], e($match['url']));
+						$outputText .= sprintf('<a target="_blank" href="%s">%s</a>', e($match['url']), e($match['url']));
 					}
 					else {
 						// even though the regex matches, ie thinks this is a url, php thinks differently, so treat it as not being one.
