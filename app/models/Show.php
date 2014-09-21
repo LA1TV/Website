@@ -17,6 +17,17 @@ class Show extends MyEloquent {
 		return URL::route('show', array($this->id));
 	}
 	
+	// returns the cover from the highest series that has one, or null otherwise
+	public function getCoverUri($width, $height) {
+		foreach($this->playlists()->orderBy("series_no", "desc")->get() as $a) {
+			$coverUri = $a->getCoverUri($width, $height);
+			if (!is_null($coverUri)) {
+				return $coverUri;
+			}
+		}
+		return null;
+	}
+	
 	// returns true if this show should be accessible now. I.e enabled
 	public function getIsAccessible() {
 		return (boolean) $this->enabled;

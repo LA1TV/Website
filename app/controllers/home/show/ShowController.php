@@ -17,8 +17,9 @@ class ShowController extends HomeBaseController {
 		}
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 	
+		$playlists = $show->playlists()->accessibleToPublic()->get();
 		$showTableData = array();
-		foreach($show->playlists as $i=>$item) {
+		foreach($playlists as $i=>$item) {
 			$thumbnailUri = $item->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$showTableData[] = array(
 				"uri"					=> $item->getUri(),
@@ -30,11 +31,14 @@ class ShowController extends HomeBaseController {
 				"active"				=> false
 			);
 		}
+		
+		$coverImageResolutions = Config::get("imageResolutions.coverImage");
+		$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 	
 		$view = View::make("home.show.index");
 		$view->showTitle = $show->name;
 		$view->escapedShowDescription = !is_null($show->description) ? URLHelpers::escapeAndReplaceUrls($show->description) : null;
-		$view->coverImageUri = null; // TODO
+		$view->coverImageUri = $coverUri;
 		$view->showTableFragment = count($showTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"headerRowData"	=> null,
 			"tableData"		=> $showTableData

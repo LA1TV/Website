@@ -258,6 +258,17 @@ class Playlist extends MyEloquent {
 		return null;
 	}
 	
+	public function getCoverUri($width, $height) {
+		$coverFile = $this->coverFile;
+		if (!is_null($coverFile)) {
+			$coverFileImageFile = $coverFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverFileImageFile) && $coverFileImageFile->getShouldBeAccessible()) {
+				return $coverFileImageFile->getUri();
+			}
+		}
+		return null;
+	}
+	
 	// get the uri that should be used for the media item cover.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
@@ -275,16 +286,7 @@ class Playlist extends MyEloquent {
 				return $coverFileImageFile->getUri();
 			}
 		}
-		
-		// check on playlist
-		$coverFile = $this->coverFile;
-		if (!is_null($coverFile)) {
-			$coverFileImageFile = $coverFile->getImageFileWithResolution($width, $height);
-			if (!is_null($coverFileImageFile) && $coverFileImageFile->getShouldBeAccessible()) {
-				return $coverFileImageFile->getUri();
-			}
-		}
-		return null;
+		return $this->getCoverArtUri($width, $height);
 	}
 	
 	// returns true if this playlist should be accessible now.

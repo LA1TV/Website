@@ -11,7 +11,7 @@ class PlaylistController extends HomeBaseController {
 
 	public function getIndex($id) {
 		
-		$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessible()->accessibleToPublic()->find(intval($id));
+		$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessibleToPublic()->find(intval($id));
 		if (is_null($playlist)) {
 			App::abort(404);
 		}
@@ -61,15 +61,8 @@ class PlaylistController extends HomeBaseController {
 			);
 		}
 		
-		$coverUri = null;
-		$coverFile = $playlist->coverFile;
-		if (!is_null($coverFile)) {
-			$coverImageResolutions = Config::get("imageResolutions.coverImage");
-			$coverFile = $coverFile->getImageFileWithResolution($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-			if (!is_null($coverFile) && $coverFile->getShouldBeAccessible()) {
-				$coverUri = $coverFile->getUri();
-			}
-		}
+		$coverImageResolutions = Config::get("imageResolutions.coverImage");
+		$coverUri = $playlist->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		
 		$view = View::make("home.playlist.index");
 		$view->playlistTitle = $playlist->generateName();
