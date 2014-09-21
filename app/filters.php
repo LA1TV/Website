@@ -12,13 +12,23 @@
 */
 App::before(function($request)
 {
+	if (Config::get("ssl.enabled")) {
+		if(!Request::secure()) {
+			return Redirect::secure(Request::path(), 301); // permanent redirect
+		}
+	}
+
 	Cookie::setDefaultPathAndDomain(Config::get("cookies.path"), Config::get("cookies.domain"));
 });
 
 
 App::after(function($request, $response)
 {
-	//
+	if (Config::get("ssl.enabled") && Request::secure()) {
+		if (get_class($response) === "Illuminate\Http\Response") {
+			$response->header("Strict-Transport-Security", "max-age=5256000");
+		}
+	}
 });
 
 /*
@@ -58,21 +68,4 @@ Route::filter('csrf', function() {
 	
 	// throws exception if token invalid
 	Csrf::check();
-});
-
-/*
-|--------------------------------------------------------------------------
-| https Filter
-|--------------------------------------------------------------------------
-*/
-
-Route::filter('force.ssl', function() {
-	if (!Config::get("ssl.enabled")) {
-		// ssl is disabled in config so don't redirect
-		return;
-	}
-	
-	if(!Request::secure()) {
-		return Redirect::secure(Request::path());
-	}
 });
