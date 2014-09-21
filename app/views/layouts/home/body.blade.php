@@ -17,7 +17,7 @@
 				<ul class="nav navbar-nav">
 					@yield('navbarList', '')
 				</ul>
-				<a class="btn btn-default navbar-btn navbar-right" href="<?=e($loggedIn ? $logoutUri : $loginUri);?>"><?=e($loggedIn ? "Logout" : "[FB] Login");?></a>
+				<a class="btn <?=!$loggedIn ? "btn-primary" : "btn-default"?> navbar-btn navbar-right" href="<?=e($loggedIn ? $logoutUri : $loginUri);?>"><?=$loggedIn ? "Logout" : '<img width="14" height="14" src="'.asset("assets/img/fb-icon.png").'"/> Login'?></a>
 			</div>
 		</div>
 	</nav>
