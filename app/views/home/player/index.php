@@ -79,22 +79,3 @@
 		<?php endif; ?>
 	</div>
 </div>
-
-
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-label="Share!" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<h4 class="modal-title">Share!</h4>
-			</div>
-			<div class="modal-body">
-			<p>Some content</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default">Done</button>
-			</div>
-		</div>
-	</div>
-</div>
