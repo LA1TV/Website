@@ -1,3 +1,7 @@
+.table {
+	background-color: #ffffff;
+}
+
 .table .action-col {
 	text-align: center;
 	white-space: nowrap;
