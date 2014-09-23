@@ -236,7 +236,7 @@ class PlayerController extends HomeBaseController {
 			// should not be accessible so pretend doesn't exist
 			$videoItem = null;
 		}
-		$hasVideoItem = !is_null($videoItem);
+		$hasVideoItem = !is_null($videoItem) && !is_null($videoItem->file); // pretend doesn't exist if no video/video processing
 		
 		$publishTime = $mediaItem->scheduled_publish_time;
 		if (!is_null($publishTime)) {
@@ -249,7 +249,7 @@ class PlayerController extends HomeBaseController {
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
 		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
 		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
-		$hasVod = $hasVideoItem && !is_null($videoItem->file);
+		$hasVod = $hasVideoItem;
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
 		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
 		$numLikes = $mediaItem->likes()->count();
