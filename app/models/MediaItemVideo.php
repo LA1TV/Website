@@ -82,14 +82,12 @@ class MediaItemVideo extends MyEloquent {
 	// returns true if this should be shown with the parent media item. If false it should look like the MediaItem does not have a video component.
 	public function getIsAccessible() {
 		$sourceFile = $this->sourceFile;
-		return $this->enabled && $this->mediaItem->getIsAccessible() && !is_null($sourceFile) && $sourceFile->getFinishedProcessing();
+		return $this->enabled && $this->mediaItem->getIsAccessible();
 	}
 	
 	public function scopeAccessible($q) {
 		return $q->where("enabled", true)->whereHas("mediaItem", function($q2) {
 			$q2->accessible();
-		})->whereHas("sourceFile", function($q2) {
-			$q2->finishedProcessing();
 		});
 	}
 	
@@ -98,6 +96,9 @@ class MediaItemVideo extends MyEloquent {
 	// the video component can be accessible but not live.
 	public function getIsLive() {
 		if (!$this->getIsAccessible()) {
+			return false;
+		}
+		if (!is_null($this->sourceFile) && !$this->sourceFile->getFinishedProcessing()) {
 			return false;
 		}
 		if (is_null($this->mediaItem->scheduled_publish_time)) {
@@ -111,6 +112,11 @@ class MediaItemVideo extends MyEloquent {
 			$q2->where(function($q3) {
 				$q3->whereNull("scheduled_publish_time")
 				->orWhere("scheduled_publish_time", "<", Carbon::now());
+			})->where(function($q2) {
+				$q2->has("sourceFile", "=", 0)
+				->orWhereHas("sourceFile", function($q3) {
+					$q3->finishedProcessing();
+				});
 			});
 		});
 	}
