@@ -60,6 +60,10 @@ class MediaItemLiveStream extends MyEloquent {
 		});
 	}
 	
+	public function scopeLive($q) {
+		return $q->has("liveStream", ">", 0)->where("state_id", 2);
+	}
+	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}

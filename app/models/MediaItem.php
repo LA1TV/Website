@@ -6,6 +6,7 @@ use Carbon;
 use Exception;
 use Config;
 use DB;
+use Cache;
 
 class MediaItem extends MyEloquent {
 	
@@ -161,6 +162,28 @@ class MediaItem extends MyEloquent {
 			}
 		}
 		return $playlist;
+	}
+	
+	// returns an array of ("mediaItem", "generatedName")
+	public static function getCachedLiveItems() {
+		return Cache::remember('liveMediaItems', Config::get("custom.cache_time"), function() {
+			$mediaItems = self::accessible()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->whereHas("liveStreamItem", function($q) {
+				$q->accessible()->live();
+			})->get();
+			
+			$items = array();
+			foreach($mediaItems as $a) {
+				$playlist = $a->getDefaultPlaylist();
+				$generatedName = $playlist->generateEpisodeTitle($a);
+				$uri = $playlist->getMediaItemUri($a);
+				$items[] = array(
+					"mediaItem"		=> $a,
+					"generatedName"	=> $generatedName,
+					"uri"			=> $uri
+				);
+			}
+			return $items;
+		});
 	}
 	
 	// returns true if this media item should be accessible

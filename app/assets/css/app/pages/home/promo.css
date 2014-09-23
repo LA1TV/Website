@@ -1,7 +1,13 @@
 .promo {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 999;
+
 	padding: 5px 0;
 	background-color: #ff0000;
-	
+	cursor: pointer;
 	border-style: none;
 	border-bottom-style: solid;
 	border-bottom-width: 4px;
@@ -27,7 +33,11 @@
 }
 
 .promo .live-item {
-	margin: 0 10px;
+	padding: 0 15px;
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
 }
 
 .promo .live-txt {

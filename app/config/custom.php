@@ -14,6 +14,7 @@ return array(
 	"cache_time"		=> 1,
 	"blog_url"			=> "http://blog.la1tv.co.uk/",
 	"default_cover_uri"	=> asset("assets/img/default-cover.png"),
+	"live_shows_uri"	=> URL::to("/") . "/player/live-shows",
 	"player_info_base_uri"	=> URL::to("/") . "/player/player-info",
 	"player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",

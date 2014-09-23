@@ -554,6 +554,20 @@ class PlayerController extends HomeBaseController {
 		return Response::json(array("success"=>true));
 	}
 	
+	public function postLiveShows() {
+		$liveItems = MediaItem::getCachedLiveItems();
+		$items = array();
+		foreach($liveItems as $a) {
+			$items[] = array(
+				"id"					=> intval($a['mediaItem']->id),
+				"name"					=> $a['generatedName'],
+				"scheduledPublishTime"	=> $a['mediaItem']->scheduled_publish_time->timestamp,
+				"uri"					=> $a['uri']
+			);
+		}
+		return Response::json(array("items"=>$items));
+	}
+	
 	private function getInfoUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}

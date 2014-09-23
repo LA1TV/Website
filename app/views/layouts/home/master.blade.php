@@ -1,13 +1,7 @@
 @extends('layouts.home.body')
 
 @section('promo')
-<div class="promo">
-	<div class="container clearfix">
-		<div class="item item-lft live-txt">LIVE NOW</div>
-		<div class="item item-rgt live-txt">LIVE NOW</div>
-		<div class="item live-item">The LA1 Show</div>
-	</div>
-</div>
+<div class="promo-container" data-ajaxuri="<?=e($promoAjaxUri);?>"></div>
 @stop
 
 @section('navbarList')

@@ -1,7 +1,6 @@
 @extends('layouts.base')
 
 @section('body')
-@yield('promo', '')
 <div class="container">
 	<nav class="navbar navbar-default" role="navigation">
 		<div class="container-fluid">
@@ -29,4 +28,5 @@
 		<p class="text-muted footer-txt">&copy; LA1:TV [SOME YEAR]. OPEN SOURCE. Code here.</p>
 	</div>
 </div>
+@yield('promo', '')
 @stop

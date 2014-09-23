@@ -38,6 +38,7 @@ class HomeBaseController extends BaseController {
 		}
 		$defaultOpenGraphProperties[] = array("name"=> "og:url", "content"=> Request::url());
 		$this->layout->openGraphProperties = array_merge($defaultOpenGraphProperties, $openGraphProperties);
+		$this->layout->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
 		$returnUri = implode("/", Request::segments());
 		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
