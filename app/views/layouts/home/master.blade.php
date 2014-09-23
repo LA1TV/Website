@@ -1,5 +1,15 @@
 @extends('layouts.home.body')
 
+@section('promo')
+<div class="promo">
+	<div class="container clearfix">
+		<div class="item item-lft live-txt">LIVE NOW</div>
+		<div class="item item-rgt live-txt">LIVE NOW</div>
+		<div class="item live-item">The LA1 Show</div>
+	</div>
+</div>
+@stop
+
 @section('navbarList')
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Shows <b class="caret"></b></a>
