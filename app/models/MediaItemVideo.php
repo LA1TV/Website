@@ -81,7 +81,6 @@ class MediaItemVideo extends MyEloquent {
 	
 	// returns true if this should be shown with the parent media item. If false it should look like the MediaItem does not have a video component.
 	public function getIsAccessible() {
-		$sourceFile = $this->sourceFile;
 		return $this->enabled && $this->mediaItem->getIsAccessible();
 	}
 	

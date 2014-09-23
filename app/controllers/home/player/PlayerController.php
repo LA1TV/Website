@@ -236,7 +236,7 @@ class PlayerController extends HomeBaseController {
 			// should not be accessible so pretend doesn't exist
 			$videoItem = null;
 		}
-		$hasVideoItem = !is_null($videoItem) && !is_null($videoItem->file); // pretend doesn't exist if no video/video processing
+		$hasVideoItem = !is_null($videoItem) && !is_null($videoItem->sourceFile); // pretend doesn't exist if no video/video processing
 		
 		$publishTime = $mediaItem->scheduled_publish_time;
 		if (!is_null($publishTime)) {
