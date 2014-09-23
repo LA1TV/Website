@@ -221,6 +221,10 @@ class MediaItem extends MyEloquent {
 		return $q->accessible()->where("scheduled_publish_time", ">=", $startTime)->where("scheduled_publish_time", "<", $endTime);
 	}
 	
+	public function scopeScheduledPublishTimeBetweenDates($q, $start, $end) {
+		return $q->whereNotNull("scheduled_publish_time")->where("scheduled_publish_time", ">=", $start)->where("scheduled_publish_time", "<", $end);
+	}
+	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
