@@ -28,6 +28,7 @@ class ShowController extends HomeBaseController {
 				"playlistName"			=> null,
 				"episodeNo"				=> null,
 				"thumbnailUri"			=> $thumbnailUri,
+				"thumbnailFooter"		=> null,
 				"active"				=> false
 			);
 		}
@@ -40,6 +41,7 @@ class ShowController extends HomeBaseController {
 		$view->escapedShowDescription = !is_null($show->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($show->description)) : null;
 		$view->coverImageUri = $coverUri;
 		$view->showTableFragment = count($showTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
 			"headerRowData"	=> null,
 			"tableData"		=> $showTableData
 		)) : null;

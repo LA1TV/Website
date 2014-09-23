@@ -40,6 +40,7 @@ class PlaylistController extends HomeBaseController {
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> is_null($playlist->show) ? intval($item->pivot->position) + 1 : null,
 				"thumbnailUri"			=> $thumbnailUri,
+				"thumbnailFooter"		=> null,
 				"active"				=> false
 			);
 		}
@@ -57,7 +58,8 @@ class PlaylistController extends HomeBaseController {
 				"escapedDescription"	=> null,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
-				"thumbnailUri"			=> $thumbnailUri
+				"thumbnailUri"			=> $thumbnailUri,
+				"thumbnailFooter"		=> null
 			);
 		}
 		
@@ -69,10 +71,12 @@ class PlaylistController extends HomeBaseController {
 		$view->escapedPlaylistDescription = !is_null($playlist->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($playlist->description)) : null;
 		$view->coverImageUri = $coverUri;
 		$view->playlistTableFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
 			"headerRowData"	=> null,
 			"tableData"		=> $playlistTableData
 		)) : null;
 		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
 			"headerRowData"	=> array(
 				"title" 		=> "Related Items",
 				"seriesUri"		=> null,

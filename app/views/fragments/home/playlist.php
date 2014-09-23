@@ -28,14 +28,24 @@
 	</div>
 	<?php endif; ?>
 	<div class="playlist-table-container">
-		<table class="playlist-table table table-bordered table-striped table-hover">
+		<table class="playlist-table table table-bordered <?=$stripedTable?"table-striped":""?> table-hover">
 			<tbody>
 				<?php foreach($tableData as $row):?>
 				<tr class="<?=$row['active'] ? "chosen" : ""?>">
 					<?php if (!is_null($row['episodeNo'])): ?>
 					<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
 					<?php endif; ?>
-					<td class="col-thumbnail"><a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a></td>
+					<td class="col-thumbnail">
+						<div class="thumbnail-container">
+							<a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a>
+							<?php if (!is_null($row['thumbnailFooter'])): ?>
+							<div class="footer">
+								<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
+								<div><?=e($row['thumbnailFooter']['dateTxt']);?></div>
+							</div>
+							<?php endif; ?>
+						</div>
+					</td>
 					<td class="col-title clearfix">
 						<?php if (!is_null($row['playlistName'])): ?>
 						<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></div></div>

@@ -23,7 +23,7 @@ class GuideController extends HomeBaseController {
 		// of form ("dateStr", "mediaItems")
 		$calendarData = array();
 		$previousMediaItem = null;
-		
+		$lastDate = $startDate;
 		foreach($mediaItems as $a) {
 			if (is_null($previousMediaItem) || $previousMediaItem->scheduled_publish_time->startOfDay()->timestamp !== $a->scheduled_publish_time->startOfDay()->timestamp) {
 				// new day
@@ -31,6 +31,7 @@ class GuideController extends HomeBaseController {
 					"dateStr"		=> $a->scheduled_publish_time->startOfDay()->format('dS M'),
 					"mediaItems"	=> array()
 				);
+				$lastDate = $a->scheduled_publish_time->startOfDay();
 			}
 			$calendarData[count($calendarData)-1]['mediaItems'][] = $a;
 			$previousMediaItem = $a;
@@ -39,7 +40,6 @@ class GuideController extends HomeBaseController {
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		$viewCalendarData = array();
 		foreach($calendarData as $day) {
-		
 			$playlistTableData = array();
 			
 			foreach($day['mediaItems'] as $i=>$item) {
@@ -55,17 +55,18 @@ class GuideController extends HomeBaseController {
 					"title"					=> $playlist->generateEpisodeTitle($item),
 					"escapedDescription"	=> !is_null($item->description) ? e($item->description) : null,
 					"playlistName"			=> $playlistName,
-					// TODO: figure out how to get episode no
 					"episodeNo"				=> null,
 					"thumbnailUri"			=> $thumbnailUri,
+					"thumbnailFooter"		=> array(
+						"isLive"	=> true,
+						"dateTxt"	=> $item->scheduled_publish_time->format("H:i")
+					),
 					"active"				=> false
 				);
 			}
 			
-			
-			
-		
 			$playlistFragment = View::make("fragments.home.playlist", array(
+				"stripedTable"	=> false,
 				"headerRowData"	=> null,
 				"tableData"		=> $playlistTableData
 			));
@@ -79,8 +80,7 @@ class GuideController extends HomeBaseController {
 		
 		$view = View::make("home.guide.index");
 		$view->calendarData = $viewCalendarData;
-		$view->startDateStr = $startDate->format('dS M');
-		$view->endDateStr = $endDate->format('dS M');
+		$view->titleDatesStr = $startDate !== $lastDate ? $startDate->format('dS M') . " - " . $lastDate->format('dS M') : $startDate->format('dS M');
 		$this->setContent($view, "guide", "guide");
 	}
 }

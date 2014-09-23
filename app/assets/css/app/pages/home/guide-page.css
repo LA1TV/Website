@@ -1,10 +1,31 @@
 .page-guide .guide-table {
 	table-layout: fixed;
+	margin-bottom: 0;
 }
 
 .page-guide .guide-table .col-date {
-	width: 130px;
+	width: 60px;
 	font-size: 21px;
 	text-align: center;
 	vertical-align: middle;
+}
+
+.page-guide .bottom-row {
+	margin-top: 8px;
+}
+
+.page-guide .bottom-row .page-numbers-container {
+	float: right;
+	display: inline-block;
+}
+
+.page-guide .bottom-row .page-numbers-container .pagination {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+	.page-guide .guide-table .col-date {
+		width: 130px;
+	}
 }

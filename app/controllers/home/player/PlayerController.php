@@ -78,7 +78,8 @@ class PlayerController extends HomeBaseController {
 				"escapedDescription"	=> null,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
-				"thumbnailUri"			=> $thumbnailUri
+				"thumbnailUri"			=> $thumbnailUri,
+				"thumbnailFooter"		=> null
 			);
 		}
 		$playlistPreviousItemUri = null;
@@ -103,7 +104,8 @@ class PlayerController extends HomeBaseController {
 				"escapedDescription"	=> null,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
-				"thumbnailUri"			=> $thumbnailUri
+				"thumbnailUri"			=> $thumbnailUri,
+				"thumbnailFooter"		=> null
 			);
 		}
 		
@@ -150,6 +152,7 @@ class PlayerController extends HomeBaseController {
 		$view->episodeDescriptionEscaped = !is_null($currentMediaItem->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($currentMediaItem->description)) : null;
 		$view->episodeAccessibleToPublic = true; // TODO;	
 		$view->playlistTableFragment = View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
 			"headerRowData"	=> array(
 				"title" 			=> $playlist->generateName(),
 				"seriesUri"			=> !is_null($playlist->show) ? $playlist->show->getUri() : null,
@@ -161,6 +164,7 @@ class PlayerController extends HomeBaseController {
 			"tableData"		=> $playlistTableData
 		));
 		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
 			"headerRowData"	=> array(
 				"title" 		=> "Related Items",
 				"seriesUri"		=> null,
