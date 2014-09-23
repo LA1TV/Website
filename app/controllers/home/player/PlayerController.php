@@ -249,7 +249,7 @@ class PlayerController extends HomeBaseController {
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
 		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
 		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
-		$hasVod = $hasVideoItem;
+		$hasVod = $hasVideoItem && !is_null($videoItem->file);
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
 		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
 		$numLikes = $mediaItem->likes()->count();
