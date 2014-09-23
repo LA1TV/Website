@@ -14,6 +14,7 @@
 @import url("../app/components/player.css");
 @import url("../app/components/quality-selection.css");
 @import url("../app/components/share-modal.css");
+@import url("../app/components/promo.css");
 
 @import url("../app/pages/home/container.css");
 @import url("../app/pages/home/general.css");
@@ -24,4 +25,3 @@
 @import url("../app/pages/home/playlist-element.css");
 @import url("../app/pages/home/sticky-footer.css");
 @import url("../app/pages/home/cover-image.css");
-@import url("../app/pages/home/promo.css");
