@@ -90,7 +90,7 @@ class GuideController extends HomeBaseController {
 		$view->calendarData = $viewCalendarData;
 		$view->titleDatesStr = $this->getDateString($startDate) . " - " . $this->getDateString((new Carbon($endDate))->subDays(1));
 		$view->previousPageUri = $dayGroupOffset !== -1*$numPages ? URL::route("guide", array($dayGroupOffset-1)) : null;
-		$view->previousPageStartDateStr = $this->getDateString($startDate->subDays(1));
+		$view->previousPageStartDateStr = $this->getDateString($startDate->subDays($daysPerPage));
 		$view->nextPageUri = $dayGroupOffset !== $numPages ? URL::route("guide", array($dayGroupOffset+1)) : null;
 		$view->nextPageStartDateStr = $this->getDateString($endDate);
 		$this->setContent($view, "guide", "guide");
