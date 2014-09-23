@@ -6,6 +6,7 @@ use App;
 use URLHelpers;
 use Config;
 use uk\co\la1tv\website\models\Playlist;
+use PlaylistTableHelpers;
 
 class PlaylistController extends HomeBaseController {
 
@@ -40,7 +41,7 @@ class PlaylistController extends HomeBaseController {
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> is_null($playlist->show) ? intval($item->pivot->position) + 1 : null,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> null,
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
 				"active"				=> false
 			);
 		}
@@ -59,7 +60,7 @@ class PlaylistController extends HomeBaseController {
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> null
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
 		}
 		

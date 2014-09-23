@@ -15,6 +15,7 @@ use Auth;
 use FormHelpers;
 use URLHelpers;
 use Exception;
+use PlaylistTableHelpers;
 
 class PlayerController extends HomeBaseController {
 
@@ -79,7 +80,7 @@ class PlayerController extends HomeBaseController {
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> intval($item->pivot->position) + 1,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> null
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
 		}
 		$playlistPreviousItemUri = null;
@@ -105,7 +106,7 @@ class PlayerController extends HomeBaseController {
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> null
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
 		}
 		
