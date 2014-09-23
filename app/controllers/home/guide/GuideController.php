@@ -4,17 +4,26 @@ use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use Config;
 use Carbon;
+use URL;
+use App;
 use uk\co\la1tv\website\models\MediaItem;
 
 class GuideController extends HomeBaseController {
 
-	public function getIndex() {
+	public function getIndex($dayGroupOffset=0) {
+		$dayGroupOffset = intval($dayGroupOffset);
 		
-		$dayOffset = 0;
+		$daysPerPage = intval(Config::get("liveGuide.daysPerPage"));
+		$numPages = intval(Config::get("liveGuide.numPages"));
 		
+		if (abs($dayGroupOffset) > $numPages) {
+			App::abort(404);
+		}
+		
+		$dayOffset = $dayGroupOffset*$daysPerPage;
 		
 		$startDate = Carbon::now()->startOfDay()->addDays($dayOffset);
-		$endDate = Carbon::now()->startOfDay()->addDays($dayOffset + Config::get("liveGuide.daysPerPage"));
+		$endDate = Carbon::now()->startOfDay()->addDays($dayOffset + $daysPerPage);
 		
 		$mediaItems = MediaItem::accessible()->scheduledPublishTimeBetweenDates($startDate, $endDate)->whereHas("liveStreamItem", function($q2) {
 			$q2->accessible();
@@ -28,7 +37,7 @@ class GuideController extends HomeBaseController {
 			if (is_null($previousMediaItem) || $previousMediaItem->scheduled_publish_time->startOfDay()->timestamp !== $a->scheduled_publish_time->startOfDay()->timestamp) {
 				// new day
 				$calendarData[] = array(
-					"dateStr"		=> $a->scheduled_publish_time->startOfDay()->format('dS M'),
+					"dateStr"		=> $this->getDateString($a->scheduled_publish_time->startOfDay()),
 					"mediaItems"	=> array()
 				);
 				$lastDate = $a->scheduled_publish_time->startOfDay();
@@ -76,11 +85,33 @@ class GuideController extends HomeBaseController {
 				"playlistFragment"	=> $playlistFragment
 			);
 		}
-	
 		
 		$view = View::make("home.guide.index");
 		$view->calendarData = $viewCalendarData;
-		$view->titleDatesStr = $startDate !== $lastDate ? $startDate->format('dS M') . " - " . $lastDate->format('dS M') : $startDate->format('dS M');
+		$view->titleDatesStr = $this->getDateString($startDate) . " - " . $this->getDateString((new Carbon($endDate))->subDays(1));
+		$view->previousPageUri = $dayGroupOffset !== -1*$numPages ? URL::route("guide", array($dayGroupOffset-1)) : null;
+		$view->previousPageStartDateStr = $this->getDateString($startDate->subDays(1));
+		$view->nextPageUri = $dayGroupOffset !== $numPages ? URL::route("guide", array($dayGroupOffset+1)) : null;
+		$view->nextPageStartDateStr = $this->getDateString($endDate);
 		$this->setContent($view, "guide", "guide");
+	}
+	
+	private function getDateString($date) {
+		if ($date->year !== Carbon::now()->year) {
+			return $date->format('jS M y');
+		}
+		else {
+			return $date->format('jS M');
+		}
+	}
+	
+	public function missingMethod($parameters=array()) {
+		// redirect /[integer]/[anything] to /index/[integer]/[anything]
+		if (count($parameters) >= 1 && preg_match("/^\-?[0-9]+$/", $parameters[0])) {
+			return call_user_func_array(array($this, "getIndex"), $parameters);
+		}
+		else {
+			return parent::missingMethod($parameters);
+		}
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 
 return array(
-	"daysPerPage"	=> 7
+	"daysPerPage"	=> 7,
+	"numPages"		=> 50
 );
