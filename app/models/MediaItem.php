@@ -267,6 +267,80 @@ class MediaItem extends MyEloquent {
 		});
 	}
 	
+	// the accessible media items with the most views
+	public static function getCachedMostPopularItems() {
+		return Cache::remember('mostPopularMediaItems', Config::get("custom.cache_time"), function() {
+			$numPopularItems = intval(Config::get("custom.num_popular_items"));
+			$cachedPopularIds = self::getCachedMostPopularMediaItemIds();
+			$tmp = "";
+			foreach($cachedPopularIds as $i=>$a) {
+				if ($i > 0) {
+					$tmp .= ",";
+				}
+				$tmp .= "'".$a."'";
+			}
+			$mediaItems = self::accessible()->whereIn("id", $cachedPopularIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("name", "asc")->get();
+			
+			$items = array();
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			foreach($mediaItems as $a) {
+				$playlist = $a->getDefaultPlaylist();
+				$generatedName = $playlist->generateEpisodeTitle($a);
+				$uri = $playlist->getMediaItemUri($a);
+				
+				$playlistName = null;
+				if (!is_null($playlist->show)) {
+					// the current item is part of a show.
+					$playlistName = $playlist->generateName();
+				}
+				$items[] = array(
+					"mediaItem"		=> $a,
+					"generatedName"	=> $generatedName,
+					"playlistName"	=> $playlistName,
+					"uri"			=> $uri,
+					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
+				);
+			}
+			return $items;
+		});
+	}
+	
+	public static function getCachedMostPopularMediaItemIds() {
+		return Cache::remember('mostPopularMediaItemIds', Config::get("custom.popular_items_cache_time"), function() {
+			$mediaItems = self::with("liveStreamItem", "videoItem")->accessible()->where(function($q) {
+				$q->whereHas("liveStreamItem", function($q2) {
+					$q2->accessible();
+				})
+				->orWhereHas("videoItem", function($q2) {
+					$q2->accessible();
+				});
+			})->get();
+			$ids = array();
+			$counts = array();
+			foreach($mediaItems as $a) {
+				$liveStreamItem = $a->liveStreamItem;
+				$videoItem = $a->videoItem;
+				$count = 0;
+				if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
+					$count += intval($liveStreamItem->view_count);
+				}
+				if (!is_null($videoItem) && $videoItem->getIsAccessible()) {
+					$count += intval($videoItem->view_count);
+				}
+				if ($count === 0) {
+					continue;
+				}
+				$ids[] = $a['id'];
+				$counts[] = $count;
+			}
+			
+			array_multisort($counts, SORT_NUMERIC, SORT_DESC, $ids);
+			$numPopularItemsToCache = intval(Config::get("custom.num_popular_items_to_cache"));
+			$ids = array_slice($ids, 0, $numPopularItemsToCache);
+			return $ids;
+		});
+	}	
+	
 	// returns true if this media item should be accessible
 	// this does not take into consideration the publish time. A media item should still be accessible even if the publish time hasn't passed.
 	// If the publish time hasn't passed then and there's a MediaItemVideo attached it should not be watchable until after this time.
@@ -295,7 +369,7 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
+		return $q->where("media_items.enabled", true)->whereHas("playlists", function($q2) {
 			$q2->accessible();
 		})->where(function($q2) {
 			$q2->has("sideBannerFile", "=", 0)

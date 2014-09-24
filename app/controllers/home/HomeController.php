@@ -41,6 +41,20 @@ class HomeController extends HomeBaseController {
 			);
 		}
 		
+		$mostPopularItems = MediaItem::getCachedMostPopularItems();
+		$mostPopularTableData = array();
+		foreach($mostPopularItems as $i=>$a) {
+			$mostPopularTableData[] = array(
+				"uri"					=> $a['uri'],
+				"active"				=> false,
+				"title"					=> $a['generatedName'],
+				"escapedDescription"	=> null,
+				"playlistName"			=> $a['playlistName'],
+				"episodeNo"				=> $i+1,
+				"thumbnailUri"			=> $a['coverArtUri'],
+				"thumbnailFooter"		=> null
+			);
+		}
 		
 		$view = View::make("home.index");
 		
@@ -50,16 +64,19 @@ class HomeController extends HomeBaseController {
 			"headerRowData"	=> null,
 			"tableData"		=> $recentlyAddedTableData
 		)) : null;
-		$view->mostPopularPlaylistFragment = null;
+		$view->mostPopularPlaylistFragment = count($mostPopularTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
+			"headerRowData"	=> null,
+			"tableData"		=> $mostPopularTableData
+		)) : null;
 		$this->setContent($view, "home", "home");
 	}
 	
 	private function buildTimeStr($isLive, $time) {
-		
 		$liveStr = $isLive ? "Live" : "Available";
 		
 		if ($time->isPast()) {
-			return "Available On Demand";
+			return "Available On Demand Now";
 		}
 		else if ($time->isToday()) {
 			return $liveStr." Today at ".$time->format("H:i");
