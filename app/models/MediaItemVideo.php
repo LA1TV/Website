@@ -111,11 +111,11 @@ class MediaItemVideo extends MyEloquent {
 			$q2->where(function($q3) {
 				$q3->whereNull("scheduled_publish_time")
 				->orWhere("scheduled_publish_time", "<", Carbon::now());
-			})->where(function($q2) {
-				$q2->has("sourceFile", "=", 0)
-				->orWhereHas("sourceFile", function($q3) {
-					$q3->finishedProcessing();
-				});
+			});
+		})->where(function($q2) {
+			$q2->has("sourceFile", "=", 0)
+			->orWhereHas("sourceFile", function($q3) {
+				$q3->finishedProcessing();
 			});
 		});
 	}

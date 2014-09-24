@@ -1,0 +1,7 @@
+.slick-prev:before, .slick-next:before {
+	color: #ff0000;
+}
+
+.slick-dots li button:before, .slick-dots li.slick-active button:before {
+	color: #ff0000;
+}

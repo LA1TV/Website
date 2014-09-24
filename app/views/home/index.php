@@ -1,25 +1,21 @@
 <h1>index</h1>
 
-<div class="carousel slide" data-ride="carousel">
-	<ol class="carousel-indicators">
-		<li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-		<li data-target="#carousel-example-generic" data-slide-to="1"></li>
-		<li data-target="#carousel-example-generic" data-slide-to="2"></li>
-	</ol>
-	
-	<div class="carousel-inner">
-		<div class="item active">
-			<img src="..." alt="...">
-			<div class="carousel-caption">
-				...
+<?php if (count($promotedItemsData) > 0): ?>
+<div class="promo-carousel">
+	<?php foreach($promotedItemsData as $a): ?>
+	<div class="item">
+		<div class="embed-responsive embed-responsive-16by9">
+			<div class="embed-responsive-item">
+				<div class="content-container" data-jslink="<?=e($a['uri']);?>">
+					<img src="<?=e($a['coverArtUri']);?>" class="cover-img img-responsive">
+					<div class="footer">
+						<div class="title"><?=e($a['name']);?></div>
+						<div class="available-msg"><?=e($a['availableMsg']);?></div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
-
-	<a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-		<span class="glyphicon glyphicon-chevron-left"></span>
-	</a>
-	<a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-		<span class="glyphicon glyphicon-chevron-right"></span>
-	</a>
+	<?php endforeach; ?>
 </div>
+<?php endif; ?>

@@ -186,6 +186,57 @@ class MediaItem extends MyEloquent {
 		});
 	}
 	
+	public static function getCachedPromotedItems() {
+		return Cache::remember('promotedMediaItems', Config::get("custom.cache_time"), function() {
+			// retrieve y number of items in each direction, with items that are more than z time away excluded
+			// then ordered by time away from now ascending
+			$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
+			$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
+			
+			$now = Carbon::now();
+			$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
+			$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
+			
+			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
+				$q->whereHas("videoItem", function($q2) {
+					$q2->accessible()->whereHas("sourceFile", function($q3) {
+						$q3->finishedProcessing();
+					});
+				})
+				->orWhereHas("liveStreamItem", function($q2) {
+					$q2->accessible()->showOver(false);
+				});
+			})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
+			
+			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
+				$q->whereHas("videoItem", function($q2) {
+					$q2->live()->whereHas("sourceFile", function($q3) {
+						$q3->finishedProcessing();
+					});
+				});
+			})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
+		
+			$items = $pastItems->merge($futureItems);
+			$distances = array();
+			$finalItems = array();
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			foreach($items as $a) {
+				$playlist = $a->getDefaultPlaylist();
+				$generatedName = $playlist->generateEpisodeTitle($a);
+				$uri = $playlist->getMediaItemUri($a);
+				$finalItems[] = array(
+					"mediaItem"		=> $a,
+					"generatedName"	=> $generatedName,
+					"uri"			=> $uri,
+					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+				);
+				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
+			}
+			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
+			return $finalItems;
+		});
+	}
+	
 	// returns true if this media item should be accessible
 	// this does not take into consideration the publish time. A media item should still be accessible even if the publish time hasn't passed.
 	// If the publish time hasn't passed then and there's a MediaItemVideo attached it should not be watchable until after this time.

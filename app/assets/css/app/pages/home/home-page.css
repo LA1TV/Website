@@ -1,0 +1,36 @@
+.page-home .promo-carousel {
+	display: none; /* removed in js */
+	margin: 0 25px 45px 25px;
+}
+
+.page-home .promo-carousel .item {
+	text-align: center;
+	color: #ffffff;
+}
+
+.page-home .promo-carousel .item .content-container {
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.page-home .promo-carousel .item .content-container .footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(255, 0, 0, 0.75);
+	padding: 15px 20px;
+	max-height: 100%;
+	overflow: auto;
+}
+
+.page-home .promo-carousel .item .content-container .cover-img {
+	width: 100%;
+}
+
+.page-home .promo-carousel .item .content-container .title {
+	font-weight: bold;
+	font-size: 23px;
+}

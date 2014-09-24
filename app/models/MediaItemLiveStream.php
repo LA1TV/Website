@@ -60,8 +60,20 @@ class MediaItemLiveStream extends MyEloquent {
 		});
 	}
 	
-	public function scopeLive($q) {
-		return $q->has("liveStream", ">", 0)->where("state_id", 2);
+	public function isLive() {
+		return intval($this->getResolvedStateDefinition()->id) === 2;
+	}
+	
+	public function scopeLive($q, $yes=true) {
+		return $q->whereHas("liveStream", function($q2) {
+			$q2->accessible();
+		})->where("state_id", $yes ? "=" : "!=", 2);
+	}
+	
+	public function scopeShowOver($q, $yes=true) {
+		return $q->whereHas("liveStream", function($q2) {
+			$q2->accessible();
+		})->where("state_id", $yes ? "=" : "!=", 3);
 	}
 	
 	public function scopeSearch($q, $value) {
