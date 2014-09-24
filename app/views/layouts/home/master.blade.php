@@ -32,7 +32,6 @@
 <li><a href="<?=e($guideUri);?>">Live Guide</a></li>
 <li><a href="<?=e($blogUri);?>">Blog</a></li>
 <li><a href="<?=e($contactUri);?>">Contact</a></li>
-<li><a href="<?=e($aboutUri);?>">About</a></li>
 @stop
 
 @section('content')

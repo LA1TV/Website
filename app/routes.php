@@ -41,7 +41,6 @@ Route::group(array('domain' => Config::get("subdomains.www"), 'after' => 'setCon
 		Route::controller('/file', $p.'home\admin\upload\UploadController');
 
 		Route::controller('/ajax', $p.'home\ajax\AjaxController');
-		Route::controller('/about', $p.'home\about\AboutController');
 		Route::controller('/contact', $p.'home\contact\ContactController');
 		Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
 		Route::get('/playlists/{a?}', array("as"=>"playlists", "uses"=>$p.'home\playlists\PlaylistsController@getIndex'));
