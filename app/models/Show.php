@@ -28,6 +28,17 @@ class Show extends MyEloquent {
 		return null;
 	}
 	
+	// returns the cover art from the highest series that has one, or null otherwise
+	public function getCoverArtUri($width, $height) {
+		foreach($this->playlists()->orderBy("series_no", "desc")->get() as $a) {
+			$coverArtUri = $a->getCoverArtUri($width, $height);
+			if (!is_null($coverArtUri)) {
+				return $coverArtUri;
+			}
+		}
+		return null;
+	}
+	
 	// returns true if this show should be accessible now. I.e enabled
 	public function getIsAccessible() {
 		return (boolean) $this->enabled;

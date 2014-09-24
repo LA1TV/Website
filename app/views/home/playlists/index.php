@@ -1,5 +1,4 @@
 <h1 class="no-top-margin">Playlists</h1>
-
 <?php if (!is_null($playlistFragment)): ?>
 <?=$playlistFragment?>
 <?php else: ?>
