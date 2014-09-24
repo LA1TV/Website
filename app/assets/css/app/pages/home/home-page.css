@@ -32,5 +32,9 @@
 
 .page-home .promo-carousel .item .content-container .title {
 	font-weight: bold;
-	font-size: 23px;
+	font-size: 28px
+}
+
+.page-home .promo-carousel .item .content-container .available-msg {
+	font-size: 20px;
 }

@@ -1,8 +1,9 @@
 define([
 	"jquery",
+	"../../fit-text-handler",
 	"lib/jquery.slick",
 	"lib/domReady!"
-], function($) {
+], function($, FitTextHandler) {
 	
 	$(".page-home").first().each(function() {
 		
@@ -10,9 +11,12 @@ define([
 		
 		$pageContainer.find(".promo-carousel").each(function() {
 			$(this).css("display", "block");
+			
 			$(this).slick({
 				dots: true
 			});
+			
+			
 		});
 		
 	});

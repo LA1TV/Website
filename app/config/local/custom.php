@@ -1,5 +1,5 @@
 <?php
 
 return array(
-	"cache_time"		=> 0 // disable caching
+//	"cache_time"		=> 0 // disable caching
 );
