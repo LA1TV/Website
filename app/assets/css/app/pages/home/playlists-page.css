@@ -1,0 +1,13 @@
+.page-playlists .bottom-row {
+	margin-top: 8px;
+}
+
+.page-playlists .bottom-row .page-numbers-container {
+	float: right;
+	display: inline-block;
+}
+
+.page-playlists .bottom-row .page-numbers-container .pagination {
+	margin-top: 0;
+	margin-bottom: 0;
+}

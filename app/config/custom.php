@@ -16,6 +16,8 @@ return array(
 	"num_popular_items_to_cache"	=> 100,
 	"num_recent_items"	=> 8,
 	"num_popular_items"	=> 8,
+	"num_playlists_per_page"	=> 1,
+	"num_shows_per_page"	=> 20,
 	"blog_url"			=> "http://blog.la1tv.co.uk/",
 	"default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"live_shows_uri"	=> URL::to("/") . "/player/live-shows",

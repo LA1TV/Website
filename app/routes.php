@@ -44,12 +44,14 @@ Route::group(array('domain' => Config::get("subdomains.www"), 'after' => 'setCon
 		Route::controller('/about', $p.'home\about\AboutController');
 		Route::controller('/contact', $p.'home\contact\ContactController');
 		Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
+		Route::get('/playlists/{a?}', array("as"=>"playlists", "uses"=>$p.'home\playlists\PlaylistsController@getIndex'));
 		Route::controller('/playlist', $p.'home\playlist\PlaylistController');
 		Route::get('/playlist/{a}', array("as"=>"playlist", "uses"=>$p.'home\playlist\PlaylistController@getIndex'));
 		Route::controller('/player', $p.'home\player\PlayerController');
 		// this is here so the named route can be retrieved in EmbedController
 		Route::get('/player/{a}/{b}', array("as"=>"player", "uses"=>$p.'home\player\PlayerController@getIndex'));
 		Route::controller('/shows', $p.'home\shows\ShowsController');
+		Route::get('/shows/{a?}', array("as"=>"shows", "uses"=>$p.'home\shows\ShowsController@getIndex'));
 		Route::controller('/show', $p.'home\show\ShowController');
 		Route::get('/show/{a}', array("as"=>"show", "uses"=>$p.'home\show\ShowController@getIndex'));
 		Route::controller('/guide', $p.'home\guide\GuideController');
