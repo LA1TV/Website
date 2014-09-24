@@ -8,7 +8,7 @@
 		<meta name="author" content="">
 		<?php if (isset($openGraphProperties)): ?>
 		<?php foreach($openGraphProperties as $a): ?>
-		<meta name="<?=e($a['name']);?>" content="<?=e($a['content']);?>">
+		<meta property="<?=e($a['name']);?>" content="<?=e($a['content']);?>">
 		<?php endforeach; ?>
 		<?php endif; ?>
 		<link rel="shortcut icon" href="<?=asset("assets/img/favicon.ico");?>">
