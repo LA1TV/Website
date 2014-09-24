@@ -73,7 +73,9 @@ class PlaylistController extends HomeBaseController {
 		if (!is_null($playlist->show)) {
 			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.tv_show");
 		}
-		$openGraphProperties[] = array("name"=> "og:description", "content"=> $playlist->description);
+		if (!is_null($playlist->description)) {
+			$openGraphProperties[] = array("name"=> "og:description", "content"=> $playlist->description);
+		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $playlist->scheduled_publish_time->toISO8601String());
 		$openGraphProperties[] = array("name"=> "og:title", "content"=> $playlistName);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);

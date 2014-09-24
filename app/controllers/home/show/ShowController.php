@@ -39,7 +39,9 @@ class ShowController extends HomeBaseController {
 		
 	
 		$openGraphProperties = array();
-		$openGraphProperties[] = array("name"=> "og:description", "content"=> $show->description);
+		if (!is_null($show->description)) {
+			$openGraphProperties[] = array("name"=> "og:description", "content"=> $show->description);
+		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> null);
 		$openGraphProperties[] = array("name"=> "og:title", "content"=> $show->name);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
