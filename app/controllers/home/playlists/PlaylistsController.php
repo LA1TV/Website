@@ -61,9 +61,11 @@ class PlaylistsController extends HomeBaseController {
 		
 		$view = View::make("home.playlists.index");
 		$view->playlistFragment = $playlistFragment;
-		$view->previousPageUri = $pageNo > 0 ? URL::route("playlists", array($pageNo-1)) : null;
-		$view->nextPageUri = $pageNo < $numPages-1 ? URL::route("playlists", array($pageNo+1)) : null;
-		$view->pageNumbers = $pageNumbers;
+		$view->pageSelectorFragment = View::make("fragments.home.pageSelector", array(
+			"nextUri" 	=> $pageNo < $numPages-1 ? URL::route("playlists", array($pageNo+1)) : null,
+			"prevUri"	=> $pageNo > 0 ? URL::route("playlists", array($pageNo-1)) : null,
+			"numbers"	=> $pageNumbers
+		));
 		$this->setContent($view, "playlists", "playlists");
 	}
 	
