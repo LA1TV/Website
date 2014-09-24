@@ -260,7 +260,7 @@ class MediaItem extends MyEloquent {
 					"generatedName"	=> $generatedName,
 					"playlistName"	=> $playlistName,
 					"uri"			=> $uri,
-					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
 				);
 			}
 			return $items;
