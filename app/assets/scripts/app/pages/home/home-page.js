@@ -8,6 +8,9 @@ define([
 		
 		var $pageContainer = $(this).first();
 		
+		$(this).css("display", "block");
+		$(this).animate({opacity: 1}, 500);
+		
 		$pageContainer.find(".promo-carousel").each(function() {
 			$(this).css("display", "block");
 			
@@ -20,7 +23,6 @@ define([
 				pauseOnHover: true,
 				speed: 800
 			});
-			
 			
 		});
 		

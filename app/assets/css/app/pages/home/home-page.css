@@ -1,3 +1,8 @@
+.page-home {
+	opacity: 0; /* changed in js */
+	display: none;
+}
+
 .page-home .promo-carousel {
 	display: none; /* removed in js */
 	margin: 0 25px 45px 25px;
