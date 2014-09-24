@@ -192,6 +192,7 @@ class MediaItem extends MyEloquent {
 			// then ordered by time away from now ascending
 			$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
 			$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
+			$numItemsToShow = intval(Config::get("promoCarousel.numItemsToShow"));
 			
 			$now = Carbon::now();
 			$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
@@ -233,6 +234,7 @@ class MediaItem extends MyEloquent {
 				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
 			}
 			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
+			$finalItems = array_slice($finalItems, 0, $numItemsToShow);
 			return $finalItems;
 		});
 	}
