@@ -1,5 +1,3 @@
-<h1>index</h1>
-
 <?php if (count($promotedItemsData) > 0): ?>
 <div class="promo-carousel">
 	<?php foreach($promotedItemsData as $a): ?>
@@ -9,8 +7,8 @@
 				<div class="content-container" data-jslink="<?=e($a['uri']);?>">
 					<img src="<?=e($a['coverArtUri']);?>" class="cover-img img-responsive">
 					<div class="footer">
-						<div class="title" data-compressor="2.5"><?=e($a['name']);?></div>
-						<div class="available-msg" data-compressor="3.4"><?=e($a['availableMsg']);?></div>
+						<div class="title"><?=e($a['name']);?></div>
+						<div class="available-msg"><?=e($a['availableMsg']);?></div>
 					</div>
 				</div>
 			</div>

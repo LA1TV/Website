@@ -1,6 +1,5 @@
 define([
 	"jquery",
-	"../../fit-text-handler",
 	"lib/jquery.slick",
 	"lib/domReady!"
 ], function($, FitTextHandler) {
@@ -13,7 +12,13 @@ define([
 			$(this).css("display", "block");
 			
 			$(this).slick({
-				dots: true
+				dots: true,
+				autoplay: true,
+				autoplaySpeed: 4500,
+				arrows: true,
+				fade: false,
+				pauseOnHover: true,
+				speed: 800
 			});
 			
 			
