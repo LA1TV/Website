@@ -66,9 +66,26 @@ class PlaylistController extends HomeBaseController {
 		
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$coverUri = $playlist->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		$playlistName = $playlist->generateName();
+		$openGraphCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+		
+		$openGraphProperties = array();
+		if (!is_null($playlist->show)) {
+			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.tv_show");
+		}
+		$openGraphProperties[] = array("name"=> "og:description", "content"=> $playlist->description);
+		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $playlist->scheduled_publish_time->toISO8601String());
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $playlistName);
+		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		foreach($playlistTableData as $a) {
+			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+		}
+		foreach($relatedItemsTableData as $a) {
+			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+		}
 		
 		$view = View::make("home.playlist.index");
-		$view->playlistTitle = $playlist->generateName();
+		$view->playlistTitle = $playlistName;
 		$view->escapedPlaylistDescription = !is_null($playlist->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($playlist->description)) : null;
 		$view->coverImageUri = $coverUri;
 		$view->playlistTableFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
@@ -86,7 +103,7 @@ class PlaylistController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		$view->seriesUri = !is_null($playlist->show) ? $playlist->show->getUri() : null;
-		$this->setContent($view, "playlist", "playlist");
+		$this->setContent($view, "playlist", "playlist", $openGraphProperties);
 	}
 	
 	public function missingMethod($parameters=array()) {
