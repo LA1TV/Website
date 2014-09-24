@@ -94,6 +94,6 @@ Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
 
 Route::filter('setContentSecurityPolicyHeader', function($route, $request, $response) {
 	if (get_class($response) === "Illuminate\Http\Response") {
-		$response->header("Content-Security-Policy", "default-src 'self'; script-src 'self' https://ssl.google-analytics.com; img-src *; frame-src 'none'");
+		$response->header("Content-Security-Policy", "default-src 'self'; script-src 'self' https://www.google-analytics.com; img-src *; frame-src 'none'");
 	}
 });

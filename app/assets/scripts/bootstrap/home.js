@@ -2,14 +2,19 @@ require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
 		jquery: "lib/jquery",
+		ga: "https://www.google-analytics.com/analytics"
 	},
 	shim: {
-		"lib/bootstrap": ["jquery"]
+		"lib/bootstrap": ["jquery"],
+		"ga": {
+			exports: "ga"
+		}
 	}
 });
 
 require([
 	"lib/bootstrap",
+	"app/google-analytics",
 	"app/custom-accordian",
 	"app/default-button-group",
 	"app/fit-text-handler",
