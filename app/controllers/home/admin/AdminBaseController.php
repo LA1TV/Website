@@ -23,7 +23,8 @@ class AdminBaseController extends BaseController {
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"assetsBaseUrl"	=> asset(""),
-			"csrfToken"		=> Csrf::getToken()
+			"csrfToken"		=> Csrf::getToken(),
+			"gaEnabled"		=> Config::get("googleAnalytics.enabled")
 		);
 		
 		$this->layout->mainMenuItems = array();

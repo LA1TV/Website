@@ -2,15 +2,20 @@ require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
 		jquery: "lib/jquery",
+		ga: "https://www.google-analytics.com/analytics",
 		"jquery.ui.widget": "lib/jquery.ui.widget", // jquery.fileupload expects this path
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"]
+		"ga": {
+			exports: "ga"
+		}
 	}
 });
 
 require([
 	"lib/bootstrap",
+	"app/google-analytics",
 	"app/confirmation-msg",
 	"app/custom-accordian",
 	"app/custom-form",

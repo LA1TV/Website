@@ -2,6 +2,14 @@ require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
 		jquery: "lib/jquery",
+		ga: "https://www.google-analytics.com/analytics"
+	},
+	shim: {
+		"lib/bootstrap": ["jquery"],
+		"ga": {
+			exports: "ga"
+		}
+	}
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"]
@@ -10,6 +18,7 @@ require.config({
 
 require([
 	"lib/bootstrap",
+	"app/google-analytics",
 	"app/fit-text-handler",
 	"app/synchronised-time",
 	"app/video-js",

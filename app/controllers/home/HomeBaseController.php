@@ -29,7 +29,8 @@ class HomeBaseController extends BaseController {
 			"baseUrl"		=> URL::to("/"),
 			"assetsBaseUrl"	=> asset(""),
 			"csrfToken"		=> Csrf::getToken(),
-			"loggedIn"		=> Facebook::isLoggedIn()
+			"loggedIn"		=> Facebook::isLoggedIn(),
+			"gaEnabled"		=> Config::get("googleAnalytics.enabled")
 		);
 		$facebookAppId = Config::get("facebook.appId");
 		$defaultOpenGraphProperties = array();
