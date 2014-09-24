@@ -41,7 +41,7 @@ class HomeBaseController extends BaseController {
 			$defaultOpenGraphProperties[] = array("name"=> "fb:app_id", "content"=> $facebookAppId);
 		}
 		$defaultOpenGraphProperties[] = array("name"=> "og:url", "content"=> Request::url());
-		$defaultOpenGraphProperties[] = array("name"=> "og:locale", "content"=> "en_UK");
+		$defaultOpenGraphProperties[] = array("name"=> "og:locale", "content"=> "en_GB");
 		$defaultOpenGraphProperties[] = array("name"=> "og:site_name", "content"=> "LA1:TV");
 		$defaultOpenGraphProperties[] = array("name"=> "og:description", "content"=> $description);
 		$defaultOpenGraphProperties[] = array("name"=> "og:image", "content"=> asset("assets/img/logo.png"));
