@@ -44,6 +44,10 @@
 	font-size: 20px;
 }
 
+.page-home .most-popular-section, .page-home .recently-added-section {
+	margin-bottom: 20px;
+}
+
 .page-home .most-popular-section .heading, .page-home .recently-added-section .heading {
 	text-align: center;
 	margin-top: 0;
