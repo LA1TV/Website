@@ -59,6 +59,12 @@ class PlaylistsController extends HomeBaseController {
 			);
 		}
 		
+		$openGraphProperties = array();
+		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> null);
+		foreach($playlistTableData as $a) {
+			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+		}
+		
 		$view = View::make("home.playlists.index");
 		$view->playlistFragment = $playlistFragment;
 		$view->pageSelectorFragment = View::make("fragments.home.pageSelector", array(
@@ -66,7 +72,7 @@ class PlaylistsController extends HomeBaseController {
 			"prevUri"	=> $pageNo > 0 ? URL::route("playlists", array($pageNo-1)) : null,
 			"numbers"	=> $pageNumbers
 		));
-		$this->setContent($view, "playlists", "playlists");
+		$this->setContent($view, "playlists", "playlists", $openGraphProperties);
 	}
 	
 	public function missingMethod($parameters=array()) {
