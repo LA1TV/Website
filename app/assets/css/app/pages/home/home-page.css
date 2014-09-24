@@ -26,7 +26,7 @@
 	left: 0;
 	right: 0;
 	background-color: rgba(255, 0, 0, 0.75);
-	padding: 15px 20px;
+	padding: 5px 15px;
 	max-height: 100%;
 	overflow: auto;
 }
@@ -37,11 +37,25 @@
 
 .page-home .promo-carousel .item .content-container .title {
 	font-weight: bold;
-	font-size: 28px
+	font-size: 20px
 }
 
 .page-home .promo-carousel .item .content-container .available-msg {
-	font-size: 20px;
+	font-size: 15px;
+}
+
+@media (min-width: 450px) {
+	.page-home .promo-carousel .item .content-container .title {
+		font-size: 28px
+	}
+
+	.page-home .promo-carousel .item .content-container .available-msg {
+		font-size: 20px;
+	}
+	
+	.page-home .promo-carousel .item .content-container .footer {
+		padding: 15px 20px;
+	}
 }
 
 .page-home .most-popular-section, .page-home .recently-added-section {
