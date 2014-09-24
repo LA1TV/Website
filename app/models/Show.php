@@ -28,7 +28,7 @@ class Show extends MyEloquent {
 		return null;
 	}
 	
-	// returns the cover art from the highest series that has one, or null otherwise
+	// returns the cover art from the highest series that has one, or the default cover otherwise
 	public function getCoverArtUri($width, $height) {
 		foreach($this->playlists()->orderBy("series_no", "desc")->get() as $a) {
 			$coverArtUri = $a->getCoverArtUri($width, $height);
@@ -36,7 +36,8 @@ class Show extends MyEloquent {
 				return $coverArtUri;
 			}
 		}
-		return null;
+		// return default cover
+		return Config::get("custom.default_cover_uri");
 	}
 	
 	// returns true if this show should be accessible now. I.e enabled

@@ -35,7 +35,18 @@ class ShowController extends HomeBaseController {
 		
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		$openGraphCoverArtUri = $show->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+		
 	
+		$openGraphProperties = array();
+		$openGraphProperties[] = array("name"=> "og:description", "content"=> $show->description);
+		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> null);
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $show->name);
+		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		foreach($showTableData as $a) {
+			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+		}
+		
 		$view = View::make("home.show.index");
 		$view->showTitle = $show->name;
 		$view->escapedShowDescription = !is_null($show->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($show->description)) : null;
@@ -45,7 +56,7 @@ class ShowController extends HomeBaseController {
 			"headerRowData"	=> null,
 			"tableData"		=> $showTableData
 		)) : null;
-		$this->setContent($view, "show", "show");
+		$this->setContent($view, "show", "show", $openGraphProperties);
 	}
 	
 	public function missingMethod($parameters=array()) {
