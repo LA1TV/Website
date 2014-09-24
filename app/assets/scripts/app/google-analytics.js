@@ -4,8 +4,6 @@ define(["./page-data", "ga"], function(PageData, ga) {
 		return;
 	}
 	
-	ga('create', 'UA-43879336-5', {
-		cookieDomain: "la1tv.co.uk"
-	});
+	ga('create', 'UA-43879336-5', 'auto');
 	ga('send', 'pageview');
 });
