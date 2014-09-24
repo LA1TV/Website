@@ -3,6 +3,7 @@
 use View;
 use uk\co\la1tv\website\models\MediaItem;
 use Carbon;
+use Config;
 
 class HomeController extends HomeBaseController {
 
@@ -23,10 +24,33 @@ class HomeController extends HomeBaseController {
 			);
 		}
 		
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		
+		$recentlyAddedItems = MediaItem::getCachedRecentItems();
+		$recentlyAddedTableData = array();
+		foreach($recentlyAddedItems as $i=>$a) {
+			$recentlyAddedTableData[] = array(
+				"uri"					=> $a['uri'],
+				"active"				=> false,
+				"title"					=> $a['generatedName'],
+				"escapedDescription"	=> null,
+				"playlistName"			=> $a['playlistName'],
+				"episodeNo"				=> $i+1,
+				"thumbnailUri"			=> $a['coverArtUri'],
+				"thumbnailFooter"		=> null
+			);
+		}
+		
 		
 		$view = View::make("home.index");
 		
 		$view->promotedItemsData = $promotedItemsData;
+		$view->recentlyAddedPlaylistFragment = count($recentlyAddedTableData) > 0 ? View::make("fragments.home.playlist", array(
+			"stripedTable"	=> true,
+			"headerRowData"	=> null,
+			"tableData"		=> $recentlyAddedTableData
+		)) : null;
+		$view->mostPopularPlaylistFragment = null;
 		$this->setContent($view, "home", "home");
 	}
 	

@@ -239,6 +239,34 @@ class MediaItem extends MyEloquent {
 		});
 	}
 	
+	public static function getCachedRecentItems() {
+		return Cache::remember('recentMediaItems', Config::get("custom.cache_time"), function() {
+			$numRecentItems = intval(Config::get("custom.num_recent_items"));
+			$mediaItems = self::accessible()->active()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numRecentItems)->get();
+			$items = array();
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			foreach($mediaItems as $a) {
+				$playlist = $a->getDefaultPlaylist();
+				$generatedName = $playlist->generateEpisodeTitle($a);
+				$uri = $playlist->getMediaItemUri($a);
+				
+				$playlistName = null;
+				if (!is_null($playlist->show)) {
+					// the current item is part of a show.
+					$playlistName = $playlist->generateName();
+				}
+				$items[] = array(
+					"mediaItem"		=> $a,
+					"generatedName"	=> $generatedName,
+					"playlistName"	=> $playlistName,
+					"uri"			=> $uri,
+					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+				);
+			}
+			return $items;
+		});
+	}
+	
 	// returns true if this media item should be accessible
 	// this does not take into consideration the publish time. A media item should still be accessible even if the publish time hasn't passed.
 	// If the publish time hasn't passed then and there's a MediaItemVideo attached it should not be watchable until after this time.
