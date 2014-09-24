@@ -15,11 +15,14 @@ class HomeBaseController extends BaseController {
 	protected $layout = "layouts.home.master";
 	
 	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL) {
+		
+		$description = "Lancaster University's Student Union TV station.";
+	
 		$this->layout->baseUrl = URL::to("/");
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
 		$this->layout->title = !is_null($title) ? $title : "LA1:TV";
-		$this->layout->description = ""; // TODO
+		$this->layout->description = $description;
 		$this->layout->content = $content;
 		$this->layout->allowRobots = true;
 		$this->layout->cssBootstrap = asset("assets/css/bootstrap/home.css");
@@ -38,7 +41,25 @@ class HomeBaseController extends BaseController {
 			$defaultOpenGraphProperties[] = array("name"=> "fb:app_id", "content"=> $facebookAppId);
 		}
 		$defaultOpenGraphProperties[] = array("name"=> "og:url", "content"=> Request::url());
-		$this->layout->openGraphProperties = array_merge($defaultOpenGraphProperties, $openGraphProperties);
+		$defaultOpenGraphProperties[] = array("name"=> "og:locale", "content"=> "en_UK");
+		$defaultOpenGraphProperties[] = array("name"=> "og:site_name", "content"=> "LA1:TV");
+		$defaultOpenGraphProperties[] = array("name"=> "og:description", "content"=> $description);
+		$usedOpenGraphNames = array();
+		$finalOpenGraphProperties = array();
+		foreach($openGraphProperties as $a) {
+			if (!is_null($a['content'])) {
+				$finalOpenGraphProperties[] = $a;
+			}
+			if (!in_array($a['name'], $usedOpenGraphNames)) {
+				$usedOpenGraphNames[] = $a['name'];
+			}
+		}
+		foreach($defaultOpenGraphProperties as $a) {
+			if (!in_array($a['name'], $usedOpenGraphNames)) {
+				$finalOpenGraphProperties[] = $a;
+			}
+		}
+		$this->layout->openGraphProperties = $finalOpenGraphProperties;
 		$this->layout->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
 		$returnUri = implode("/", Request::segments());

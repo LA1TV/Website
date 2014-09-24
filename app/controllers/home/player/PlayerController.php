@@ -147,9 +147,36 @@ class PlayerController extends HomeBaseController {
 				);
 			}
 		}
-
+		
+		$episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
+		$openGraphCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+			
+		$openGraphProperties = array();
+		if (is_null($playlist->show)) {
+			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
+		}
+		else {
+			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.episode");
+			$openGraphProperties[] = array("name"=> "video:series", "content"=> $playlist->getUri());
+		}
+		$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
+		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $episodeTitle);
+		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		if (!is_null($playlist->show)) {
+			if (!is_null($playlistNextItemUri)) {
+				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistNextItemUri);
+			}
+			if (!is_null($playlistPreviousItemUri)) {
+				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistPreviousItemUri);
+			}
+		}
+		foreach($relatedItemsTableData as $a) {
+			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+		}
+		
 		$view = View::make("home.player.index");
-		$view->episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
+		$view->episodeTitle = $episodeTitle;
 		$view->episodeDescriptionEscaped = !is_null($currentMediaItem->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($currentMediaItem->description)) : null;
 		$view->episodeAccessibleToPublic = true; // TODO;	
 		$view->playlistTableFragment = View::make("fragments.home.playlist", array(
@@ -174,7 +201,6 @@ class PlayerController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		
-		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
@@ -190,7 +216,7 @@ class PlayerController extends HomeBaseController {
 		$view->seriesAd = $seriesAd;
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-		$this->setContent($view, "player", "player");
+		$this->setContent($view, "player", "player", $openGraphProperties);
 	}
 	
 	// should return ajax response with information for the player.
