@@ -369,7 +369,7 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("media_items.enabled", true)->whereHas("playlists", function($q2) {
+		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
 			$q2->accessible();
 		})->where(function($q2) {
 			$q2->has("sideBannerFile", "=", 0)
