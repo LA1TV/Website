@@ -29,10 +29,11 @@ class HomeController extends HomeBaseController {
 		$recentlyAddedItems = MediaItem::getCachedRecentItems();
 		$recentlyAddedTableData = array();
 		foreach($recentlyAddedItems as $i=>$a) {
+			$mediaItem = $a['mediaItem'];
 			$recentlyAddedTableData[] = array(
 				"uri"					=> $a['uri'],
 				"active"				=> false,
-				"title"					=> $a['generatedName'],
+				"title"					=> $mediaItem->name,
 				"escapedDescription"	=> null,
 				"playlistName"			=> $a['playlistName'],
 				"episodeNo"				=> $i+1,
@@ -44,10 +45,11 @@ class HomeController extends HomeBaseController {
 		$mostPopularItems = MediaItem::getCachedMostPopularItems();
 		$mostPopularTableData = array();
 		foreach($mostPopularItems as $i=>$a) {
+			$mediaItem = $a['mediaItem'];
 			$mostPopularTableData[] = array(
 				"uri"					=> $a['uri'],
 				"active"				=> false,
-				"title"					=> $a['generatedName'],
+				"title"					=> $mediaItem->name,
 				"escapedDescription"	=> null,
 				"playlistName"			=> $a['playlistName'],
 				"episodeNo"				=> $i+1,
