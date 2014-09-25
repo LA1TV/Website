@@ -94,20 +94,40 @@ class PlayerController extends HomeBaseController {
 		
 		$relatedItems = $playlist->generateRelatedItems($currentMediaItem);
 		$relatedItemsTableData = array();
+		$activeItemIndex = null;
 		foreach($relatedItems as $i=>$item) {
-			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
-			$relatedItemPlaylist = $item->getDefaultPlaylist();
-			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Playlist::getRelatedMediaItemCoverArtUri($item, $playlist, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$active = intval($item->id) === intval($currentMediaItem->id);
+			if ($active) {
+				$activeItemIndex = $i;
+			}
+			$playlistName = null;
+			$defaultPlaylist = $item->getDefaultPlaylist();
+			// show the series/playlist that this video is from (if it has one)
+			if (!is_null($defaultPlaylist)) {
+				$playlistName = $defaultPlaylist->generateName();
+			}
+			
 			$relatedItemsTableData[] = array(
-				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
-				"active"				=> false,
+				"uri"					=> $playlist->getMediaItemUri($item),
+				"active"				=> $active,
 				"title"					=> $item->name,
 				"escapedDescription"	=> null,
-				"playlistName"			=> $relatedItemPlaylist->generateName(),
+				"playlistName"			=> $playlistName,
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
+		}
+		$relatedItemsPreviousItemUri = null;
+		$relatedItemsNextItemUri = null;
+		if (!is_null($activeItemIndex)) {
+			if ($activeItemIndex > 0) {
+				$relatedItemsPreviousItemUri = $relatedItemsTableData[$activeItemIndex-1]['uri'];
+			}
+			if ($activeItemIndex < count($relatedItemsTableData)-1) {
+				$relatedItemsNextItemUri = $relatedItemsTableData[$activeItemIndex+1]['uri'];
+			}
 		}
 		
 		$streamControlData = null;

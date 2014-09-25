@@ -65,6 +65,10 @@ class MediaItem extends MyEloquent {
 		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_media_item', 'related_media_item_id', 'media_item_id')->withPivot('position');
 	}
 	
+	public function playlistsRelatedTo() {
+		return $this->belongsToMany(self::$p.'Playlist', 'related_item_to_playlist', 'related_media_item_id', 'media_item_id')->withPivot('position');
+	}
+	
 	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
 		$items = $this->relatedItems()->orderBy("related_item_to_media_item.position", "asc")->get();
@@ -355,7 +359,7 @@ class MediaItem extends MyEloquent {
 		if (!$this->enabled) {
 			return false;
 		}
-		if ($this->playlists()->accessible()->count() === 0) {
+		if ($this->playlists()->accessible()->count() === 0 && $this->itemsRelatedTo()->accessible(true)->count() === 0 && $this->playlistsRelatedTo()->accessible()->count() === 0) {
 			return false;
 		}
 		$sideBannerFile = $this->sideBannerFile;
@@ -373,10 +377,51 @@ class MediaItem extends MyEloquent {
 		return true;
 	}
 	
-	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
-			$q2->accessible();
-		})->where(function($q2) {
+	public function scopeAccessible($q, $skipCheckingRelatedMediaItems=false, $tmp=false) {
+		
+		
+		return $q->where("enabled", true)->where(function($q2) use(&$skipCheckingRelatedMediaItems) {
+				$q2->whereHas("playlists", function($q3) {
+					//$q3->accessible();
+				//	$q3->whereRaw("999999999=999999999");
+				});
+				if (!$skipCheckingRelatedMediaItems) {
+					$q2->orWhereHas("itemsRelatedTo", function($q3) {
+						$q3->accessible(true);
+					//	$q3->has("playlists"); // the issue is that this is using the MediaItem primary key so is adding where media_items.id=? when it should be using the id in the other inner query created by itemsRelatedTo which ends up being somthing like `self_50df99cb4c29719fa5bfc56eb52f62b8`.`media_item_id`
+					});
+				}
+			
+			/*
+				WORKING QUERY
+				select * from `media_items` where `enabled` = 1
+
+# it's in a playlist
+and ((select count(*) from `playlists` inner join `media_item_to_playlist` on `playlists`.`id` = `media_item_to_playlist`.`playlist_id` 
+
+where `media_item_to_playlist`.`media_item_id` = `media_items`.`id`) >= 1
+ 
+ # or it's got one or more related item, which is in a playlist
+ or (select count(*) from `related_item_to_media_item` as `self_7179aac37398c3b4ae90084a304b55c8` where 
+
+`self_7179aac37398c3b4ae90084a304b55c8`.`related_media_item_id` = `media_items`.`id` and `enabled` = 1 and ((select count(*) from 
+
+`playlists` as `x` inner join `media_item_to_playlist` as `y` on `x`.`id` = `y`.`playlist_id` where `y`.`media_item_id` = 
+
+`self_7179aac37398c3b4ae90084a304b55c8`.`media_item_id`) >= 1)) >= 1)
+
+				GENERATED INCORRECCT QUERY
+				
+select * from `media_items` where `enabled` = ? and ((select count(*) from `playlists` inner join `media_item_to_playlist` on `playlists`.`id` = `media_item_to_playlist`.`playlist_id` where `media_item_to_playlist`.`media_item_id` = `media_items`.`id`) >= 1 or (select count(*) from `related_item_to_media_item` as `self_deb80988f9d260c7a9399fb5240e38de` where `self_deb80988f9d260c7a9399fb5240e38de`.`related_media_item_id` = `media_items`.`id` and `enabled` = ? and ((select count(*) from `playlists` inner join `media_item_to_playlist` on `playlists`.`id` = `media_item_to_playlist`.`playlist_id` where `media_item_to_playlist`.`media_item_id` = `media_items`.`id`) >= 1)) >= 1)
+			
+			*/
+			
+			
+			
+		//	$q2->orWhereHas("playlistsRelatedTo", function($q3) {
+		//		$q3->accessible();
+		//	});
+		}); /*->where(function($q2) {
 			$q2->has("sideBannerFile", "=", 0)
 			->orWhereHas("sideBannerFile", function($q3) {
 				$q3->finishedProcessing();
@@ -392,6 +437,7 @@ class MediaItem extends MyEloquent {
 				$q3->finishedProcessing();
 			});
 		});
+	*/
 	}
 	
 	// A media item is active when:

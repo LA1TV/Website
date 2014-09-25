@@ -8,6 +8,13 @@ use Cache;
 use URL;
 use Facebook;
 
+
+
+
+
+
+use DB; // TODO: remove
+
 class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
@@ -106,7 +113,24 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function generateRelatedItems($mediaItem) {
-		$mediaItemRelatedItems = $mediaItem->relatedItems()->accessible()->orderBy("related_item_to_media_item.position")->get();
+		
+		
+		$a = MediaItem::accessible()->get();
+		$tmp = DB::getQueryLog();
+		echo($tmp[count($tmp)-1]['query']);
+		var_dump($tmp[count($tmp)-1]['bindings']);
+		
+		var_dump($a->toArray());
+		die();
+	// TODO: add accessible
+//		$mediaItemRelatedItems = $mediaItem->relatedItems()->accessible()->orderBy("related_item_to_media_item.position")->get();
+		$mediaItemRelatedItems = $mediaItem->relatedItems()->accessible()->get();
+		$tmp = DB::getQueryLog();
+		echo($tmp[count($tmp)-1]['query']);
+		var_dump($tmp[count($tmp)-1]['bindings']);
+		
+		var_dump($mediaItemRelatedItems->toArray());
+		die();
 		$playlistRelatedItems = $this->relatedItems()->accessible()->orderBy("related_item_to_playlist.position")->get();
 		$items = $mediaItemRelatedItems->merge($playlistRelatedItems);
 		return $items;
@@ -287,6 +311,32 @@ class Playlist extends MyEloquent {
 			}
 		}
 		return $this->getCoverUri($width, $height);
+	}
+	
+	// returns the uri from the art it would get in it's default playlist if it has one, otherwise it returns its artwork, or the related playlists artwork, or the default
+	public static function getRelatedMediaItemCoverArtUri($relatedMediaItem, $playlistRelatedTo, $width, $height) {
+		$relatedItemPlaylist = $relatedMediaItem->getDefaultPlaylist();
+		$coverArtUri = null;
+		if (!is_null($relatedItemPlaylist)) {
+			// if this related item is also in a playlist use the cover it would get from being there
+			$coverArtUri = $relatedItemPlaylist->getMediaItemCoverArtUri($relatedMediaItem, $width, $height);
+		}
+		else {
+			// check on media item
+			$coverArtFile = $relatedMediaItem->coverArtFile;
+			if (!is_null($coverArtFile)) {
+				$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
+				if (!is_null($coverArtImageFile) && $coverArtFile->getShouldBeAccessible()) {
+					$coverArtUri = $coverArtImageFile->getUri();
+				}
+			}
+			
+			if (is_null($coverArtUri)) {
+				// media item itself does not have one. get the one on the playlist it's related to (or default)
+				$coverArtUri = $playlistRelatedTo->getCoverArtUri($width, $height);
+			}
+		}
+		return $coverArtUri;
 	}
 	
 	// returns true if this playlist should be accessible now.
