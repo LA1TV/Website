@@ -11,15 +11,14 @@ class EmbedController extends EmbedBaseController {
 	public function getIndex($playlistId, $mediaItemId) {
 	
 		$playlist = Playlist::with("show", "mediaItems")->accessible()->accessibleToPublic()->find(intval($playlistId));
-		if (is_null($playlist)) {
-			$this->showUnavailable();
-			return;
+		$currentMediaItem = null;
+		if (!is_null($playlist)) {
+			$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		}
 		
 		$view = View::make("embed.player");
 		$title = null;
 		
-		$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
 		if (is_null($currentMediaItem)) {
 			$title = "LA1:TV- [Content Unavailable]";
 			$view->hyperlink = URL::route('home');
