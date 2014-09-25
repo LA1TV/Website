@@ -22,7 +22,7 @@ define([
 			var toggleEnabled = $(this).attr("data-toggleenabled") === "1";
 			
 			var toggleableComponent = new ToggleableComponent(toggleEnabled, function(state) {
-				return new SelectComponent(false, state);
+				return new SelectComponent(false, true, state);
 			}, {
 				value: ""
 			}, initialData);

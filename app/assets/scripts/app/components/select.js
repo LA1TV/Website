@@ -1,6 +1,6 @@
 define(["jquery"], function($) {
 
-	var SelectComponent = function(forPassword, state) {
+	var SelectComponent = function(forPassword, disableAutoComplete, state) {
 		
 		var self = this;
 		
@@ -27,6 +27,9 @@ define(["jquery"], function($) {
 		var currentValue = null;
 		var $el = $("<input />").addClass("form-control");
 		$el.prop("type", forPassword ? "password" : "text");
+		if (disableAutoComplete) {
+			$el.prop("autocomplete", "off");
+		}
 		
 		$el.on("keyup change", function() {
 			var value = $el.val();
