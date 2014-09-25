@@ -270,6 +270,11 @@ class UploadManager {
 				$accessAllowed = true;
 			}
 		}
+		else if (!is_null($sourceFile->playlistWithCoverArt)) {
+			if ($sourceFile->playlistWithCoverArt->getIsAccessible() && ($sourceFile->playlistWithCoverArt->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+				$accessAllowed = true;
+			}
+		}
 		return $accessAllowed ? $requestedFile : null;
 	}
 	
