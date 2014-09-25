@@ -44,11 +44,11 @@ class PlaylistsController extends HomeBaseController {
 			);
 		}
 		
-		$playlistFragment = View::make("fragments.home.playlist", array(
+		$playlistFragment = count($playlistTableData) > 0 ? View::make("fragments.home.playlist", array(
 			"stripedTable"	=> true,
 			"headerRowData"	=> null,
 			"tableData"		=> $playlistTableData
-		));
+		)) : null;
 		
 		$pageNumbers = array();
 		for ($i=0; $i<$numPages; $i++) {
