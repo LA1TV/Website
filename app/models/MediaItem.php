@@ -272,6 +272,11 @@ class MediaItem extends MyEloquent {
 		return Cache::remember('mostPopularMediaItems', Config::get("custom.cache_time"), function() {
 			$numPopularItems = intval(Config::get("custom.num_popular_items"));
 			$cachedPopularIds = self::getCachedMostPopularMediaItemIds();
+			
+			if (count($cachedPopularIds) === 0) {
+				return array();
+			}
+			
 			$tmp = "";
 			foreach($cachedPopularIds as $i=>$a) {
 				if ($i > 0) {
