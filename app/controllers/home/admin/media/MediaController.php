@@ -120,7 +120,7 @@ class MediaController extends MediaBaseController {
 
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
-			array("enabled", ObjectHelpers::getProp(false, $mediaItem, "enabled")?"y":""),
+			array("enabled", ObjectHelpers::getProp(true, $mediaItem, "enabled")?"y":""),
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
@@ -128,11 +128,11 @@ class MediaController extends MediaBaseController {
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $mediaItem, "scheduled_publish_time_for_input")),
 			array("vod-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "videoItem"))?"1":"0"),
-			array("vod-enabled", ObjectHelpers::getProp(false, $mediaItem, "videoItem", "enabled")?"y":""),
+			array("vod-enabled", ObjectHelpers::getProp(true, $mediaItem, "videoItem", "enabled")?"y":""),
 			array("vod-video-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "sourceFile", "id")),
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded_for_input")),
 			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem"))?"1":"0"),
-			array("stream-enabled", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "enabled")?"y":""),
+			array("stream-enabled", ObjectHelpers::getProp(true, $mediaItem, "liveStreamItem", "enabled")?"y":""),
 			array("stream-state", ObjectHelpers::getProp(LiveStreamStateDefinition::first()->id, $mediaItem, "liveStreamItem", "stateDefinition", "id")),
 			array("stream-being-recorded", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "being_recorded")?"y":""),
 			array("stream-info-msg", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "information_msg")),
