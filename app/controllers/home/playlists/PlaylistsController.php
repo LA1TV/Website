@@ -17,9 +17,9 @@ class PlaylistsController extends HomeBaseController {
 		
 		$itemOffset = $pageNo*$itemsPerPage;
 		
-		$numPlaylists = Playlist::accessible()->belongsToShow(false)->count();
+		$numPlaylists = Playlist::accessibleToPublic()->belongsToShow(false)->count();
 		$numPages = ceil($numPlaylists/$itemsPerPage);
-		$playlists = Playlist::accessible()->belongsToShow(false)->orderBy("name", "asc")->orderBy("description", "asc")->skip($itemOffset)->take($itemsPerPage)->get();
+		$playlists = Playlist::accessibleToPublic()->belongsToShow(false)->orderBy("name", "asc")->orderBy("description", "asc")->skip($itemOffset)->take($itemsPerPage)->get();
 		
 		if ($pageNo > 0 && $playlists->count() === 0) {
 			App::abort(404);

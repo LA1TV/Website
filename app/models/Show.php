@@ -19,7 +19,7 @@ class Show extends MyEloquent {
 	
 	// returns the cover from the highest series that has one, or null otherwise
 	public function getCoverUri($width, $height) {
-		foreach($this->playlists()->orderBy("series_no", "desc")->get() as $a) {
+		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
 			$coverUri = $a->getCoverUri($width, $height);
 			if (!is_null($coverUri)) {
 				return $coverUri;
@@ -30,7 +30,7 @@ class Show extends MyEloquent {
 	
 	// returns the cover art from the highest series that has one, or the default cover otherwise
 	public function getCoverArtUri($width, $height) {
-		foreach($this->playlists()->orderBy("series_no", "desc")->get() as $a) {
+		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
 			$coverArtUri = $a->getCoverArtUri($width, $height);
 			if (!is_null($coverArtUri)) {
 				return $coverArtUri;
@@ -54,7 +54,7 @@ class Show extends MyEloquent {
 	//						it is linked to a playlist that is active
 	public function scopeActive($q) {
 		return $q->accessible()->whereHas("playlists", function($q2) {
-			$q2->accessible()->active();
+			$q2->accessibleToPublic()->active();
 		});
 	}
 	
