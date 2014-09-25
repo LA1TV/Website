@@ -12,6 +12,13 @@
 */
 App::before(function($request)
 {
+	$maxNestingLevel = ini_get('xdebug.max_nesting_level');
+	if (is_null($maxNestingLevel) || $maxNestingLevel === "" || $maxNestingLevel < 200) {
+		// when less than 100 was getting error and think it's related to the eloquent whereHas queries referencing other models with similar queries.
+		// TODO: look into this to make sure it's not some other reason
+		ini_set('xdebug.max_nesting_level', 200);
+	}
+
 	if (Config::get("ssl.enabled")) {
 		if(!Request::secure()) {
 			return Redirect::secure(Request::path(), 301); // permanent redirect
