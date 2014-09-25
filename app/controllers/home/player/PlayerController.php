@@ -211,7 +211,7 @@ class PlayerController extends HomeBaseController {
 		$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
 		$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
 		$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
-		$view->canCommentAsFacebookUser = Facebook::isLoggedIn();
+		$view->canCommentAsFacebookUser = Facebook::isLoggedIn() && Facebook::getUserState() === 0;
 		$view->canCommentAsStation = $userHasCommentsPermission;
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
