@@ -165,13 +165,20 @@ class AuthManager {
 		
 		$lastLoginAttempt = $user->last_login_attempt;
 		// update last login attempt
-		$user->last_login_attempt = Carbon::now();
+		$now = Carbon::now();
+		$user->last_login_attempt = $now;
 		if (!$user->save()) {
 			$this->doSleep($lastLoginAttempt);
 			return false;
 		}
 		
 		$this->doSleep($lastLoginAttempt);
+		$user = User::where("username", $username)->first();
+		if (is_null($user) || $user->last_login_attempt->timestamp !== $now->timestamp) {
+			// user deleted or has attempted to log in again whilst this was sleeping. Don't authenticate this attempt
+			return false;
+		}
+		
 		if (!Hash::check($password, $user->password_hash)) {
 			return false;
 		}
