@@ -591,7 +591,7 @@ class PlayerController extends HomeBaseController {
 		foreach($liveItems as $a) {
 			$items[] = array(
 				"id"					=> intval($a['mediaItem']->id),
-				"name"					=> $a['generatedName'],
+				"name"					=> $a['mediaItem']->name,
 				"scheduledPublishTime"	=> $a['mediaItem']->scheduled_publish_time->timestamp,
 				"uri"					=> $a['uri']
 			);
