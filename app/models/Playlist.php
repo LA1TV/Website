@@ -154,7 +154,7 @@ class Playlist extends MyEloquent {
 		return array(
 			"embedCodeTemplate"	=> '<iframe src="'.$this->getMediaItemEmbedUri($mediaItem).'" width="{w}" height="{h}" frameborder="0" allowfullscreen></iframe>',
 			"facebookShareUri"	=> Facebook::getShareUri($this->getMediaItemUri($mediaItem)),
-			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getMediaItemUri($mediaItem))."&text=".urlencode($mediaItem->name))."&via=".urlencode("LA1TV")
+			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getMediaItemUri($mediaItem))."&text=".urlencode($mediaItem->name)."&via=".urlencode("LA1TV")
 		);
 	}
 	
