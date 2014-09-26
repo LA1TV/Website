@@ -57,6 +57,7 @@
 .playlist-element .playlist-table .col-thumbnail .thumbnail-container {
 	position: relative;
 	overflow: hidden;
+	min-height: 60px;
 }
 
 .playlist-element .playlist-table .col-thumbnail .thumbnail-container .footer {
