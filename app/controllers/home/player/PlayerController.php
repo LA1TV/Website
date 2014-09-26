@@ -174,7 +174,9 @@ class PlayerController extends HomeBaseController {
 			}
 		}
 		foreach($relatedItemsTableData as $a) {
-			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+			if (!in_array($a['uri'], array($playlistNextItemUri, $playlistPreviousItemUri))) {
+				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+			}
 		}
 		
 		$view = View::make("home.player.index");
