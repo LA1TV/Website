@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	"numItemsEachDirection"	=> 3,
-	"numItemsToShow"		=> 5,
-	"itemTimeSpan"			=> 1814400 // 3 weeks, seconds
+	"numItemsEachDirection"	=> 5,
+	"numItemsToShow"		=> 8,
+	"itemTimeSpan"			=> 2419200 // 4 weeks, seconds
 );
