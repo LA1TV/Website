@@ -178,17 +178,22 @@ define([
 			else if (queuedStartTime !== null) {
 				var currentDate = SynchronisedTime.getDate();
 				var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
+				var timePassed = currentDate.getTime() >= queuedStartTime.getTime();
 				
 				var txt = null;
-				if (!showCountdown) {
-					txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
+				if (!timePassed) {
+					if (!showCountdown) {
+						txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
+					}
+					else {
+						var secondsToGo = Math.ceil((queuedStartTime.getTime() - currentDate.getTime()) / 1000);
+						var minutes = Math.floor(secondsToGo/60);
+						var seconds = secondsToGo%60;
+						txt = minutes+" minute"+(minutes!==1?"s":"")+" "+pad(seconds, 2)+" second"+(seconds!==1?"s":"");
+					}
 				}
-				else {
-					var secondsToGo = Math.ceil((queuedStartTime.getTime() - currentDate.getTime()) / 1000);
-					var minutes = Math.floor(secondsToGo/60);
-					var seconds = secondsToGo%60;
-					txt = minutes+" minute"+(minutes!==1?"s":"")+" "+pad(seconds, 2)+" second"+(seconds!==1?"s":"");
-				}
+				
+				willBeLive = queuedWillBeLive;
 				
 				var queuedAdLiveAtTxt = null;
 				if (queuedWillBeLive) {
@@ -197,10 +202,16 @@ define([
 				else {
 					queuedAdLiveAtTxt = "Available";
 				}
-				willBeLive = queuedWillBeLive;
-				if (showCountdown) {
-					queuedAdLiveAtTxt = queuedAdLiveAtTxt+" In";
+				
+				if (!timePassed) {
+					if (showCountdown) {
+						queuedAdLiveAtTxt = queuedAdLiveAtTxt+" In";
+					}
 				}
+				else {
+					queuedAdLiveAtTxt = queuedAdLiveAtTxt+" Soon";
+				}
+				
 				
 				if (queuedAdLiveAtTxt !== currentAdLiveAtTxt) {
 					$adLiveAt.text(queuedAdLiveAtTxt).show();
@@ -208,8 +219,13 @@ define([
 					currentAdLiveAtTxt = queuedAdLiveAtTxt;
 				}
 				if (currentAdTimeTxt !== txt) {
-					$adTime.text(txt).show();
-					FitTextHandler.register($adTime);
+					if (txt !== null) {
+						$adTime.text(txt).show();
+						FitTextHandler.register($adTime);
+					}
+					else {
+						$adTime.hide().text("");
+					}
 					currentAdTimeTxt = txt;
 				}
 			}
