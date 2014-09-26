@@ -50,12 +50,12 @@ define([
 		var $noCommentsMsg = $("<div />").addClass("no-comments-msg").text("There are no comments at the moment.");
 		var $newCommentContainer = $("<div />").addClass("new-comment-container clearfix");
 		var $loginMsg = $("<div />").addClass("login-msg").text("Please login to comment.");
-		var $comment = $("<input />").prop("type", "comment").addClass("form-control").attr("placeholder", "Enter comment...");
+		var $comment = $("<input />").attr("type", "comment").addClass("form-control").attr("placeholder", "Enter comment...");
 		var $buttonsRow = $("<div />").addClass("buttons-row");
 		var $postAsStationItem = $("<div />").addClass("item");
 		var $postAsStationCheckboxContainer = $("<div />").addClass("checkbox");
 		var $checkboxLabel = $("<label />");
-		var $checkboxInput = $("<input />").prop("type", "checkbox");
+		var $checkboxInput = $("<input />").attr("type", "checkbox");
 		var $checkboxSpan = $("<span />").text(" Post as station.");
 		var $postButtonItem = $("<div />").addClass("item");
 		var $postButton = $("<button />").addClass("btn btn-primary btn-sm").prop("type", "button").text("Post");
