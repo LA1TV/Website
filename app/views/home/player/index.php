@@ -66,7 +66,7 @@
 	<div class="col-md-5">
 	<?php if (!is_null($seriesAd)): ?>
 		<div class="go-to-series-btn-container">
-			<a class="btn btn-info btn-block" href="<?=e($seriesAd['uri']);?>">Go To "<?=e($seriesAd['name']);?>" Series</a>
+			<a class="btn btn-info btn-block" href="<?=e($seriesAd['uri']);?>">Go To "<?=e($seriesAd['name']);?>"</a>
 		</div>
 	<?php endif; ?>
 		<div class="playlist">
