@@ -104,7 +104,7 @@ class AuthManager {
 	
 	// return login URL for redirecting the user to cosign
 	public function getLoginUrl($redirectLocation="") {
-		return "https://weblogin.lancs.ac.uk/?cosign-http-www.la1tv.co.uk&http".(Config::get("ssl.enabled")?"s":"")."://www.la1tv.co.uk/".$redirectLocation;
+		return "https://weblogin.lancs.ac.uk/?cosign-https-www.la1tv.co.uk&http".(Config::get("ssl.enabled")?"s":"")."://www.la1tv.co.uk/".$redirectLocation;
 	}
 	
 	// returns
