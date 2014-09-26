@@ -288,7 +288,7 @@ class MediaItem extends MyEloquent {
 				}
 				$tmp .= "'".$a."'";
 			}
-			$mediaItems = self::accessible()->whereIn("id", $cachedPopularIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->get();
+			$mediaItems = self::accessible()->whereIn("id", $cachedPopularIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numPopularItems)->get();
 			
 			$items = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
