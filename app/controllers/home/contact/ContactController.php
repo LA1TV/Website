@@ -6,6 +6,6 @@ use View;
 class ContactController extends HomeBaseController {
 
 	public function getIndex() {
-		$this->setContent(View::make("home.contact.index"), "contact", "contact");
+		$this->setContent(View::make("home.contact.index"), "contact", "contact", array(), "Contact");
 	}
 }

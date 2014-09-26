@@ -72,7 +72,7 @@ class ShowsController extends HomeBaseController {
 			"prevUri"	=> $pageNo > 0 ? URL::route("shows", array($pageNo-1)) : null,
 			"numbers"	=> $pageNumbers
 		));
-		$this->setContent($view, "shows", "shows", $openGraphProperties);
+		$this->setContent($view, "shows", "shows", $openGraphProperties, "Shows");
 	}
 	
 	public function missingMethod($parameters=array()) {

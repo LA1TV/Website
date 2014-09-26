@@ -21,7 +21,10 @@ class HomeBaseController extends BaseController {
 		$this->layout->baseUrl = URL::to("/");
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
-		$this->layout->title = !is_null($title) ? $title : "LA1:TV";
+		$this->layout->title = "LA1:TV";
+		if (!is_null($title)) {
+			$this->layout->title .= ": ".$title;
+		}
 		$this->layout->description = $description;
 		$this->layout->content = $content;
 		$this->layout->allowRobots = true;

@@ -72,7 +72,7 @@ class PlaylistsController extends HomeBaseController {
 			"prevUri"	=> $pageNo > 0 ? URL::route("playlists", array($pageNo-1)) : null,
 			"numbers"	=> $pageNumbers
 		));
-		$this->setContent($view, "playlists", "playlists", $openGraphProperties);
+		$this->setContent($view, "playlists", "playlists", $openGraphProperties, "Playlists");
 	}
 	
 	public function missingMethod($parameters=array()) {

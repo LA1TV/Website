@@ -163,7 +163,7 @@ class PlayerController extends HomeBaseController {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
 		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());
-		$openGraphProperties[] = array("name"=> "og:title", "content"=> $episodeTitle);
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $currentMediaItem->name);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
 		if (!is_null($playlist->show)) {
 			if (!is_null($playlistNextItemUri)) {
@@ -220,7 +220,7 @@ class PlayerController extends HomeBaseController {
 		$view->seriesAd = $seriesAd;
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-		$this->setContent($view, "player", "player", $openGraphProperties);
+		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name);
 	}
 	
 	// should return ajax response with information for the player.

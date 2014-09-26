@@ -105,7 +105,7 @@ class PlaylistController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		$view->seriesUri = !is_null($playlist->show) ? $playlist->show->getUri() : null;
-		$this->setContent($view, "playlist", "playlist", $openGraphProperties);
+		$this->setContent($view, "playlist", "playlist", $openGraphProperties, $playlistName);
 	}
 	
 	public function missingMethod($parameters=array()) {

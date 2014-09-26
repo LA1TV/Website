@@ -58,7 +58,7 @@ class ShowController extends HomeBaseController {
 			"headerRowData"	=> null,
 			"tableData"		=> $showTableData
 		)) : null;
-		$this->setContent($view, "show", "show", $openGraphProperties);
+		$this->setContent($view, "show", "show", $openGraphProperties, $show->name);
 	}
 	
 	public function missingMethod($parameters=array()) {
