@@ -11,4 +11,11 @@ class AjaxController extends BaseController {
 			"time"	=> microtime(true)
 		));
 	}
+	
+	// used as an endpoint to ping to keep a users session alive
+	public function postHello() {
+		return Response::json(array(
+			"data"	=> "hi"
+		));
+	}
 }

@@ -1,14 +1,17 @@
 define([
 	"jquery",
 	"../../page-data",
+	"../../pinger",
 	"../../custom-form",
 	"../../components/reorderable-list",
 	"../../components/ajax-select",
 	"../../components/ajax-upload",
 	"lib/domReady!"
-], function($, PageData, CustomForm, ReorderableList, AjaxSelect, AjaxUpload) {
-
+], function($, PageData, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload) {
+	
 	$(".page-media-edit").first().each(function() {
+	
+		new Pinger(); // keeps the session alive by making a request at regular intervals
 		
 		CustomForm.addHandler(1, function() {
 			if (AjaxUpload.getNoActiveUploads() > 0) {
