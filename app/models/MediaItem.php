@@ -202,7 +202,7 @@ class MediaItem extends MyEloquent {
 			$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
 			$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
 			
-			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
+			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
 				$q->whereHas("videoItem", function($q2) {
 					$q2->accessible()->whereHas("sourceFile", function($q3) {
 						$q3->finishedProcessing();
@@ -213,7 +213,7 @@ class MediaItem extends MyEloquent {
 				});
 			})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
 			
-			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
+			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
 				$q->whereHas("videoItem", function($q2) {
 					$q2->live()->whereHas("sourceFile", function($q3) {
 						$q3->finishedProcessing();
