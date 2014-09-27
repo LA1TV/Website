@@ -1,4 +1,4 @@
-define(["jquery", "../../lib/jquery.cookie", "../../cookie-config"], function($, cookieConfig) {
+define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, cookieConfig) {
 
 	var QualitySelectionComponent = function() {
 		
