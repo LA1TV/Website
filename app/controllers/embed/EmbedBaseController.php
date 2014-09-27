@@ -21,6 +21,7 @@ class EmbedBaseController extends BaseController {
 		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");	
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),
+			"cookieDomain"	=> Config::get("cookies.domain"),
 			"assetsBaseUrl"	=> asset(""),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),

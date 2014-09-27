@@ -33,6 +33,7 @@ class HomeBaseController extends BaseController {
 		$this->layout->loggedIn = Facebook::isLoggedIn();
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),
+			"cookieDomain"	=> Config::get("cookies.domain"),
 			"assetsBaseUrl"	=> asset(""),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
