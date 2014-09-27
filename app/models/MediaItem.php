@@ -211,24 +211,20 @@ class MediaItem extends MyEloquent {
 				->orWhereHas("liveStreamItem", function($q2) {
 					$q2->accessible()->showOver(false);
 				});
-			})->orderBy("scheduled_publish_time", "asc")->get();//->take($numItemsEachDirection)->get();
+			})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
 			
 			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
 				$q->whereHas("videoItem", function($q2) {
 					$q2->live()->whereHas("sourceFile", function($q3) {
 						$q3->finishedProcessing();
 					});
+				})
+				->orWhereHas("liveStreamItem", function($q2) {
+					$q2->accessible()->showOver(false);
 				});
-			})->orderBy("scheduled_publish_time", "desc")->get();//->take($numItemsEachDirection)->get();
+			})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
 		
-		//	$items = $pastItems->merge($futureItems);
-			$items = array();
-			foreach($pastItems as $a) {
-				$items[] = $a;
-			}
-			foreach($futureItems as $a) {
-				$items[] = $a;
-			}
+			$items = $pastItems->merge($futureItems);
 			$distances = array();
 			$finalItems = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
@@ -245,7 +241,6 @@ class MediaItem extends MyEloquent {
 				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
 			}
 			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
-			dd($distances);
 			$finalItems = array_slice($finalItems, 0, $numItemsToShow);
 			return $finalItems;
 		});
