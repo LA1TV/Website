@@ -178,7 +178,10 @@ class MediaItem extends MyEloquent {
 			$items = array();
 			foreach($mediaItems as $a) {
 				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $playlist->generateEpisodeTitle($a);
+				$generatedName = $a->name;
+				if (!is_null($playlist->show)) {
+					$generatedName = $playlist->generateName() . ": " . $generatedName;
+				}
 				$uri = $playlist->getMediaItemUri($a);
 				$items[] = array(
 					"mediaItem"		=> $a,
