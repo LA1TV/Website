@@ -245,6 +245,7 @@ class MediaItem extends MyEloquent {
 				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
 			}
 			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
+			dd($distances);
 			$finalItems = array_slice($finalItems, 0, $numItemsToShow);
 			return $finalItems;
 		});
