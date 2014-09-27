@@ -18,6 +18,10 @@
 }
 
 .player-container .bottom-container .view-count {
+	white-space: nowrap;
+}
+
+.player-container .bottom-container .view-count {
 	font-weight: bold;
 	margin-right: 5px;
 }
