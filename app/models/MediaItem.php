@@ -221,7 +221,14 @@ class MediaItem extends MyEloquent {
 				});
 			})->orderBy("scheduled_publish_time", "desc")->get();//->take($numItemsEachDirection)->get();
 		
-			$items = $pastItems->merge($futureItems);
+		//	$items = $pastItems->merge($futureItems);
+			$items = array();
+			foreach($pastItems as $a) {
+				$items[] = $a;
+			}
+			foreach($futureItems as $a) {
+				$items[] = $a;
+			}
 			$distances = array();
 			$finalItems = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
