@@ -1,4 +1,4 @@
-define(["jquery", "../../lib/jquery.cookie"], function($) {
+define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, cookieConfig) {
 
 	var QualitySelectionComponent = function() {
 		
@@ -104,7 +104,7 @@ define(["jquery", "../../lib/jquery.cookie"], function($) {
 		
 		function setActivelyChosenQuality(quality) {
 			activelyChosenQuality = quality;
-			$.cookie("chosenQualityId", quality.id); 
+			$.cookie("chosenQualityId", quality.id, cookieConfig); 
 		}
 		
 		function getActivelyChosenQuality() {

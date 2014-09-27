@@ -22,6 +22,8 @@ class AdminBaseController extends BaseController {
 		
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),
+			"cookieDomain"	=> Config::get("cookies.domain"),
+			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
 			"csrfToken"		=> Csrf::getToken(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled")

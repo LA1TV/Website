@@ -1,8 +1,9 @@
 define([
 	"jquery",
 	"./page-data",
+	"./cookie-config",
 	"../lib/jquery.cookie"
-], function($, PageData) {
+], function($, PageData, cookieConfig) {
 
 	var SynchronisedTime = null;
 	// manage synchronised time
@@ -58,7 +59,7 @@ define([
 	}
 	
 	function updateCookieOffsetTime() {
-		$.cookie("synchronisedTimeOffset", ""+offsetTime)
+		$.cookie("synchronisedTimeOffset", ""+offsetTime, cookieConfig)
 	}
 	
 	// make the first request after a delay
