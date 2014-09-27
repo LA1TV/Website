@@ -211,7 +211,7 @@ class MediaItem extends MyEloquent {
 				->orWhereHas("liveStreamItem", function($q2) {
 					$q2->accessible()->showOver(false);
 				});
-			})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
+			})->orderBy("scheduled_publish_time", "asc")->get();//->take($numItemsEachDirection)->get();
 			
 			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
 				$q->whereHas("videoItem", function($q2) {
@@ -219,7 +219,7 @@ class MediaItem extends MyEloquent {
 						$q3->finishedProcessing();
 					});
 				});
-			})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
+			})->orderBy("scheduled_publish_time", "desc")->get();//->take($numItemsEachDirection)->get();
 		
 			$items = $pastItems->merge($futureItems);
 			$distances = array();
