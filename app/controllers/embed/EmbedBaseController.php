@@ -22,6 +22,7 @@ class EmbedBaseController extends BaseController {
 		$this->layout->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
+			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),

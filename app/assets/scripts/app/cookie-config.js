@@ -3,6 +3,6 @@ define(["./page-data"], function(PageData) {
 	return {
 		path: "/",
 		domain: PageData.get("cookieDomain"),
-		secure: true
+		secure: PageData.get("cookieSecure")
 	};
 });
