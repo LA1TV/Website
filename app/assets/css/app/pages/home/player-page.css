@@ -3,8 +3,6 @@
 }
 
 .page-player .description-container {
-	max-height: 130px;
-	overflow: auto;
 	margin-bottom: 10px;
 }
 
