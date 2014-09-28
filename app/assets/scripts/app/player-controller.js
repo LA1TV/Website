@@ -204,46 +204,35 @@ define([
 			if ((overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3) || data.streamState === 2) {
 				// stream should be live
 				setPlayerType("live");
-				// TODO: the code to manage qualities here is pretty much identical below. extract to function.
-				var qualities = [];
-				var qualityIds = [];
-				for (var i=0; i<data.streamUris.length; i++) {
-					var streamUri = data.streamUris[i];
-					qualities.push({
-						id:		streamUri.quality.id,
-						name:	streamUri.quality.name
-					});
-					qualityIds.push(streamUri.quality.id);
-				}
-				qualitiesHandler.setAvailableQualities(qualities);
-				var chosenQualityId = qualitiesHandler.getChosenQualityId();
-				var streamUri = data.streamUris[qualityIds.indexOf(chosenQualityId)];
-				playerComponent.setPlayerUris(streamUri.uris);
+				setPlayerUris(data.streamUris);
 			}
 			else if ((overrideModeEnabled && data.videoUris.length > 0) || data.vodLive) {
 				// video should be live
 				setPlayerType("vod");
-				var qualities = [];
-				var qualityIds = [];
-				for (var i=0; i<data.videoUris.length; i++) {
-					var videoUri = data.videoUris[i];
-					qualities.push({
-						id:		videoUri.quality.id,
-						name:	videoUri.quality.name
-					});
-					qualityIds.push(videoUri.quality.id);
-				}
-				qualitiesHandler.setAvailableQualities(qualities);
-				var chosenQualityId = qualitiesHandler.getChosenQualityId();
-				var videoUri = data.videoUris[qualityIds.indexOf(chosenQualityId)];
-				playerComponent.setPlayerUris(videoUri.uris);
+				setPlayerUris(data.videoUris);
 			}
 			else {
 				setPlayerType("ad");
 				qualitiesHandler.setAvailableQualities([]);
 			}
-			
 			playerComponent.render();
+		}
+		
+		function setPlayerUris(uriGroups) {
+			var qualities = [];
+			var qualityIds = [];
+			for (var i=0; i<uriGroups.length; i++) {
+				var uriGroup = uriGroups[i];
+				qualities.push({
+					id:		uriGroup.quality.id,
+					name:	uriGroup.quality.name
+				});
+				qualityIds.push(uriGroup.quality.id);
+			}
+			qualitiesHandler.setAvailableQualities(qualities);
+			var chosenQualityId = qualitiesHandler.getChosenQualityId();
+			var chosenUriGroup = uriGroups[qualityIds.indexOf(chosenQualityId)];
+			playerComponent.setPlayerUris(chosenUriGroup.uris);
 		}
 		
 		function setPlayerType(type) {
