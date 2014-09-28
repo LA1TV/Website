@@ -22,6 +22,18 @@
 	bottom: 0;
 }
 
+.page-home .promo-carousel .item .content-container .bg {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.page-home .promo-carousel .item .content-container .bg .cover-img {
+	width: 100%;
+}
+
 .page-home .promo-carousel .item .content-container .footer {
 	position: absolute;
 	bottom: 0;
@@ -33,25 +45,21 @@
 	overflow: auto;
 }
 
-.page-home .promo-carousel .item .content-container .cover-img {
-	width: 100%;
-}
-
-.page-home .promo-carousel .item .content-container .title {
+.page-home .promo-carousel .item .content-container .footer .title {
 	font-weight: bold;
 	font-size: 20px
 }
 
-.page-home .promo-carousel .item .content-container .available-msg {
+.page-home .promo-carousel .item .content-container .footer .available-msg {
 	font-size: 15px;
 }
 
 @media (min-width: 450px) {
-	.page-home .promo-carousel .item .content-container .title {
+	.page-home .promo-carousel .item .content-container .footer .title {
 		font-size: 28px
 	}
 
-	.page-home .promo-carousel .item .content-container .available-msg {
+	.page-home .promo-carousel .item .content-container .footer .available-msg {
 		font-size: 20px;
 	}
 	
