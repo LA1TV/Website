@@ -17,6 +17,7 @@ class FacebookController extends BaseController {
 	}
 	
 	// User bounced back to here from facebook.
+	// NOTE: this url (https://www.la1tv.co.uk/facebook/auth) is set in the facebook app settings as a 'valid oauth redirect uri'. If it is changed here it must also be updated there.
 	public function anyAuth() {	
 		Facebook::authorize();
 		return Redirect::to($this->getReturnUri());
