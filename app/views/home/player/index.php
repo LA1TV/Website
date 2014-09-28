@@ -1,6 +1,3 @@
-<?php if (!$episodeAccessibleToPublic): ?>
-<div class="alert alert-info" role="alert"><strong>NOTE:</strong> This item is currently not accessible to the public.</div>
-<?php endif; ?>
 <?php if (!is_null($coverImageUri)): ?>
 	<div class="cover-image-container">
 		<img class="img-responsive img-rounded" src="<?=e($coverImageUri);?>">
