@@ -6,7 +6,6 @@
 		<?=FormHelpers::getReadOnlyTxtInput("Name", $additionalForm['name']);?>
 		<?=FormHelpers::getReadOnlyTxtInput("First Name", $additionalForm['firstName']);?>
 		<?=FormHelpers::getReadOnlyTxtInput("Last Name", $additionalForm['lastName']);?>
-		<?=FormHelpers::getReadOnlyTxtInput("E-Mail", $additionalForm['email']);?>
 		<?=FormHelpers::getFormCheckInput(1, "Banned", "banned", $form['banned'] === "y", $formErrors);?>
 	</div>
 	<div class="panel-footer clearfix">

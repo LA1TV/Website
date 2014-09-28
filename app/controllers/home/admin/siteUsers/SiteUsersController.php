@@ -42,7 +42,6 @@ class SiteUsersController extends SiteUsersBaseController {
 				"banned"		=> $bannedStr,
 				"bannedCss"		=> $banned ? "text-success" : "text-danger",
 				"name"			=> $a->name,
-				"email"			=> $a->email,
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/siteusers/edit/" . $a->id,
 				"id"			=> $a->id
@@ -77,8 +76,7 @@ class SiteUsersController extends SiteUsersBaseController {
 		$additionalFormData = array(
 			"name"		=> $siteUser->name,
 			"firstName"		=> $siteUser->first_name,
-			"lastName"	=> $siteUser->last_name,
-			"email"		=> $siteUser->email
+			"lastName"	=> $siteUser->last_name
 		);
 		
 		

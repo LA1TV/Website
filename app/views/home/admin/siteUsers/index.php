@@ -8,7 +8,6 @@
 			<thead>
 				<tr>
 					<th>Name</th>
-					<th>E-Mail</th>
 					<th>Banned</th>
 					<th>Time Joined</th>
 					<?php if ($editEnabled): ?>
@@ -20,7 +19,6 @@
 			<?php foreach($tableData as $a): ?>
 				<tr>
 					<td><?=e($a['name']);?></td>
-					<td><a href="mailto:<?=e($a['email']);?>"><?=e($a['email']);?></a></td>
 					<td><span class="<?=e($a['bannedCss']);?>"><?=e($a['banned']);?></span></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<?php if ($editEnabled): ?>
