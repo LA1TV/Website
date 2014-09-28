@@ -218,6 +218,7 @@ class AuthManager {
 			return false;
 		}
 		$this->user->userSessions()->where("session_id", Session::getId())->delete();
+		$this->user = null;
 		return true;
 	}
 	
