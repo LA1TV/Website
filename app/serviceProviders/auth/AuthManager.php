@@ -5,6 +5,7 @@ use uk\co\la1tv\website\serviceProviders\auth\exceptions\ErrorLoggingOutExceptio
 use uk\co\la1tv\website\serviceProviders\auth\exceptions\UserAlreadyLoggedInException;
 
 use uk\co\la1tv\website\models\User;
+use uk\co\la1tv\website\models\UserSession;
 use Hash;
 use Config;
 use Session;
@@ -56,8 +57,10 @@ class AuthManager {
 			return $this->user;
 		}
 		
-		// check users table for user with matching session_id
-		$this->user = User::where("session_id", Session::getId())->first();
+		// check for a user that has this session_id in their list of current sessions
+		$this->user = User::with("userSessions")->whereHas("userSessions", function($q) {
+			$q->where("session_id", Session::getId());
+		})->first();
 		return $this->user;
 	}
 	
@@ -198,10 +201,11 @@ class AuthManager {
 	}
 	
 	private function authenticateUser(User $user) {
-		$user->session_id = Session::getId();
-		if (!$user->save()) {
-			return false;
-		}
+		// add this session id to the users list of sessions
+		$userSession = new UserSession(array(
+			"session_id"	=> Session::getId()
+		));
+		$user->userSessions()->save($userSession);
 		$this->updateLastCosignUser();
 		return true;
 	}
@@ -213,12 +217,8 @@ class AuthManager {
 			// already logged out
 			return false;
 		}
-		$this->user->session_id = null;
-		if ($this->user->save()) {
-			$this->user = null;
-			return true;
-		}
-		return false;
+		$this->user->userSessions()->where("session_id", Session::getId())->delete();
+		return true;
 	}
 	
 	// returns the redirect route that should then be returned from the controller.

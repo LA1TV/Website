@@ -27,6 +27,10 @@ class User extends MyEloquent {
 		});
 	}
 
+	public function userSessions() {
+		return $this->hasMany(self::$p.'UserSession', 'user_id');
+	}
+	
 	public function permissionGroups() {
 		return $this->belongsToMany(self::$p.'PermissionGroup', 'user_to_group', 'user_id', 'group_id');
 	}
