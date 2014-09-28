@@ -163,7 +163,7 @@ class PlayerController extends HomeBaseController {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
 		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());
-		$openGraphProperties[] = array("name"=> "og:title", "content"=> $playlist->generateEpisodeTitle($currentMediaItem);
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $playlist->generateEpisodeTitle($currentMediaItem));
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
 		if (!is_null($playlist->show)) {
 			if (!is_null($playlistNextItemUri)) {
