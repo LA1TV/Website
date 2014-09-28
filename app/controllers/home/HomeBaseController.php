@@ -49,7 +49,7 @@ class HomeBaseController extends BaseController {
 		$defaultOpenGraphProperties[] = array("name"=> "og:locale", "content"=> "en_GB");
 		$defaultOpenGraphProperties[] = array("name"=> "og:site_name", "content"=> "LA1:TV");
 		$defaultOpenGraphProperties[] = array("name"=> "og:description", "content"=> $description);
-		$defaultOpenGraphProperties[] = array("name"=> "og:image", "content"=> asset("assets/img/logo.png"));
+		$defaultOpenGraphProperties[] = array("name"=> "og:image", "content"=> Config::get("custom.open_graph_logo_uri"));
 		$usedOpenGraphNames = array();
 		$finalOpenGraphProperties = array();
 		foreach($openGraphProperties as $a) {
