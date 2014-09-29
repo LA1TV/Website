@@ -50,6 +50,10 @@
 	font-size: 20px
 }
 
+.page-home .promo-carousel .item .content-container .footer .series-title {
+	font-size: 24px;
+}
+
 .page-home .promo-carousel .item .content-container .footer .available-msg {
 	font-size: 15px;
 }

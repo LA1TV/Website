@@ -238,7 +238,7 @@ class MediaItem extends MyEloquent {
 				$finalItems[] = array(
 					"mediaItem"		=> $a,
 					"generatedName"	=> $generatedName,
-			//		"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
+					"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
