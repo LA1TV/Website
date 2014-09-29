@@ -15,6 +15,7 @@
 
 .player-container .bottom-container .view-count, .player-container .bottom-container .override-button  {
 	display: inline-block;
+	float: left;
 }
 
 .player-container .bottom-container .view-count {
