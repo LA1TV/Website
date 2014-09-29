@@ -253,7 +253,17 @@ class MediaItem extends MyEloquent {
 	public static function getCachedRecentItems() {
 		return Cache::remember('recentMediaItems', Config::get("custom.cache_time"), function() {
 			$numRecentItems = intval(Config::get("custom.num_recent_items"));
-			$mediaItems = self::accessible()->active()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numRecentItems)->get();
+			$mediaItems = self::accessible()->active()->where(function($q) {
+				$q->whereHas("videoItem", function($q2) {
+					$q2->live()->whereHas("sourceFile", function($q3) {
+						$q3->finishedProcessing();
+					});
+				})
+				->orWhereHas("liveStreamItem", function($q2) {
+					$q2->accessible()->showOver(false);
+				});
+			})->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numRecentItems)->get();
+			
 			$items = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
 			foreach($mediaItems as $a) {
