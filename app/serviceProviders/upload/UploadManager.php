@@ -52,7 +52,7 @@ class UploadManager {
 					}
 				}
 				if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
-
+					echo("here1");
 					try {
 						DB::beginTransaction();
 						
@@ -66,7 +66,7 @@ class UploadManager {
 						$fileDb->fileType()->associate($uploadPoint->fileType);
 						$fileDb->uploadPoint()->associate($uploadPoint);
 						if ($fileDb->save() !== FALSE) {
-							
+							echo("here2");
 							// commit transaction so file record is committed to database
 							DB::commit();
 							
@@ -83,6 +83,7 @@ class UploadManager {
 							// move the file providing the file record created successfully.
 							// it is important there's always a file record for each file. if there ends up being a file record without a corresponding file that's ok as the record will just get deleted either.
 							if (move_uploaded_file($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
+								echo("here3");
 								// set ready_for_processing to true so that processing can start.
 								// this means if the file was copied and then the server crashed before here, the file will still get deleted in the future (when the linked session becomes null)
 								$fileDb->ready_for_processing = true;
