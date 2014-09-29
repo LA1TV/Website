@@ -39,6 +39,7 @@ class UploadManager {
 			
 			if (!is_null($uploadPoint) && isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= self::$maxFileLength && isset($_FILES['files']['tmp_name'][0])) {
 				
+							echo("test");
 				$fileLocation = $_FILES['files']['tmp_name'][0];
 				$fileName = $_FILES['files']['name'][0];
 				$fileSize = filesize($fileLocation);
@@ -53,7 +54,6 @@ class UploadManager {
 				}
 				if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
 
-							echo("test");
 					try {
 						DB::beginTransaction();
 						
