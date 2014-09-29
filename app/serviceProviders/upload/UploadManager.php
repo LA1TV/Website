@@ -79,7 +79,7 @@ class UploadManager {
 							if ($fileDb->session_id !== Session::getId()) {
 								throw(new Exception("Session has changed between transactions!"));
 							}
-						
+							echo("test");
 							// move the file providing the file record created successfully.
 							// it is important there's always a file record for each file. if there ends up being a file record without a corresponding file that's ok as the record will just get deleted either.
 							if (move_uploaded_file($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
