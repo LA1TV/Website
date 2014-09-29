@@ -9,6 +9,9 @@
 				</div>
 				<div class="footer">
 					<div class="title"><?=e($a['name']);?></div>
+					<?php if (!is_null($a['seriesName'])): ?>
+					<div class="series-title"><?=e($a['seriesName']);?></div>
+					<?php endif; ?>
 					<div class="available-msg"><?=e($a['availableMsg']);?></div>
 				</div>
 			</div>

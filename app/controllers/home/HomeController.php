@@ -18,7 +18,8 @@ class HomeController extends HomeBaseController {
 			$liveNow = $isLiveShow && $mediaItem->liveStreamItem->isLive();
 			$promotedItemsData[] = array(
 				"coverArtUri"	=> $a['coverArtUri'],
-				"name"			=> $a['generatedName'],
+				"name"			=> $mediaItem->name,
+				"seriesName"	=> $a['seriesName'],
 				"availableMsg"	=> $liveNow ? "Live Now!" : $this->buildTimeStr($isLiveShow, $mediaItem->scheduled_publish_time),
 				"uri"			=> $a['uri']
 			);

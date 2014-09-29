@@ -233,14 +233,12 @@ class MediaItem extends MyEloquent {
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
 			foreach($items as $a) {
 				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $a->name;
-				if (!is_null($playlist->show)) {
-					$generatedName = $playlist->generateName().": ".$generatedName;
-				}
+				$generatedName = $playlist->generateEpisodeTitle($a);
 				$uri = $playlist->getMediaItemUri($a);
 				$finalItems[] = array(
 					"mediaItem"		=> $a,
 					"generatedName"	=> $generatedName,
+					"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
