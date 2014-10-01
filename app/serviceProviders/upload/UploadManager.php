@@ -291,6 +291,6 @@ class UploadManager {
 			return Response::make("", 404);
 		}
 		// return response with cache header set for client to cache for a year
-		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id)->setContentDisposition("inline")->setClientTtl(31556926)->setTtl(31556926);
+		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id)->setContentDisposition("inline")->setClientTtl(31556926)->setTtl(31556926)->setEtag($file->id);
 	}
 }
