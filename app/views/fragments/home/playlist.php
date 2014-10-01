@@ -48,7 +48,7 @@
 					</td>
 					<td class="col-title clearfix">
 						<?php if (!is_null($row['playlistName'])): ?>
-						<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></div></div>
+						<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></span></div>
 						<?php endif; ?>
 						<div class="title"><?=e($row['title']);?></div>
 						<?php if (!is_null($row['escapedDescription'])): ?>
