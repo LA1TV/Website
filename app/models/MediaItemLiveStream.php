@@ -64,6 +64,10 @@ class MediaItemLiveStream extends MyEloquent {
 		return intval($this->getResolvedStateDefinition()->id) === 2;
 	}
 	
+	public function isOver() {
+		return intval($this->getResolvedStateDefinition()->id) === 3;
+	}
+	
 	public function scopeLive($q, $yes=true) {
 		if ($yes) {
 			$q->whereHas("liveStream", function($q2) {
