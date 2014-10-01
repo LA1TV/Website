@@ -79,7 +79,12 @@ class HomeController extends HomeBaseController {
 		$liveStr = $isLive ? "Live" : "Available";
 		
 		if ($time->isPast()) {
-			return "Available On Demand Now";
+			if (!$isLive) {
+				return "Available On Demand Now";
+			}
+			else {
+				return "Live Shortly";
+			}
 		}
 		else if ($time->isToday()) {
 			return $liveStr." Today at ".$time->format("H:i");
