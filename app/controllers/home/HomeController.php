@@ -14,7 +14,7 @@ class HomeController extends HomeBaseController {
 		
 		foreach($promotedItems as $a) {
 			$mediaItem = $a['mediaItem'];
-			$isLiveShow = !is_null($mediaItem->liveStreamItem);
+			$isLiveShow = !is_null($mediaItem->liveStreamItem) && !$mediaItem->liveStreamItem->isOver();
 			$liveNow = $isLiveShow && $mediaItem->liveStreamItem->isLive();
 			$promotedItemsData[] = array(
 				"coverArtUri"	=> $a['coverArtUri'],
