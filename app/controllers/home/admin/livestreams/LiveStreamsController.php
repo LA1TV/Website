@@ -87,6 +87,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			array("name", ObjectHelpers::getProp("", $liveStream, "name")),
 			array("description", ObjectHelpers::getProp("", $liveStream, "description")),
 			array("server-address", ObjectHelpers::getProp("", $liveStream, "server_address")),
+			array("app-name", ObjectHelpers::getProp("", $liveStream, "app_name")),
 			array("stream-name", ObjectHelpers::getProp("", $liveStream, "stream_name")),
 			array("dvr-enabled", ObjectHelpers::getProp(false, $liveStream, "dvr_enabled")?"y":""),
 			array("qualities", json_encode(array())),
@@ -121,6 +122,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					'name'				=> array('required', 'max:50'),
 					'description'		=> array('max:500'),
 					'server-address'	=> array('required', 'max:50', 'valid_ip_or_domain'),
+					'app-name'			=> array('required', 'max:50', 'alpha_dash'),
 					'stream-name'		=> array('required', 'max:50', 'alpha_dash'),
 					'qualities'			=> array('required', 'valid_qualities')
 				), array(
@@ -129,6 +131,9 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					'server-address.required'	=> FormHelpers::getRequiredMsg(),
 					'server-address.max'	=> FormHelpers::getLessThanCharactersMsg(50),
 					'server-address.valid_ip_or_domain'	=> FormHelpers::getInvalidIPOrDomainMsg(),
+					'app-name.required'		=> FormHelpers::getRequiredMsg(),
+					'app-name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
+					'app-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
 					'stream-name.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
 					'stream-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
@@ -148,6 +153,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					$liveStream->enabled = FormHelpers::toBoolean($formData['enabled']);
 					$liveStream->dvr_enabled = FormHelpers::toBoolean($formData['dvr-enabled']);
 					$liveStream->server_address = $formData['server-address'];
+					$liveStream->app_name = $formData['app-name'];
 					$liveStream->stream_name = $formData['stream-name'];
 					
 					if ($liveStream->save() === false) {
