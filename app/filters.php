@@ -32,7 +32,7 @@ App::before(function($request)
 App::after(function($request, $response)
 {
 	if (Config::get("ssl.enabled") && Request::secure()) {
-		if (get_class($response) === "Illuminate\Http\Response") {
+		if (is_a($response, "Illuminate\Http\Response")) {
 			$response->header("Strict-Transport-Security", "max-age=5256000");
 		}
 	}
@@ -100,7 +100,15 @@ Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
 */
 
 Route::filter('setContentSecurityPolicyHeader', function($route, $request, $response) {
-	if (get_class($response) === "Illuminate\Http\Response") {
-		$response->header("Content-Security-Policy", "default-src 'self'; script-src 'self' https://www.google-analytics.com; img-src *; frame-src 'none'");
+	if (is_a($response, "Illuminate\Http\Response")) {
+	
+		$allowedDomains = array();
+		
+		if (is_a($response, "MyResponse")) {
+			$allowedDomains = array_unique(array_merge($allowedDomains, $response->getContentSecurityPolicyDomains()));
+		}
+		$domainsString = implode(" ", $allowedDomains);
+	
+		$response->header("Content-Security-Policy", "default-src 'self'; media-src 'self' ".$domainsString."; script-src 'self' https://www.google-analytics.com; img-src *; frame-src 'none'");
 	}
 });

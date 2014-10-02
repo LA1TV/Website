@@ -14,14 +14,14 @@ class LiveStreamUrisSeeder extends Seeder {
 		
 		$qualities = array(
 			array("rtmp://{domain}/{appName}/{streamName}_720p", 2, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_720p/playlist.m3u8", 2, "video/mp4", "mobile"),
+			array("http://{domain}/{appName}/{streamName}_720p/playlist.m3u8", 2, "application/x-mpegURL", "mobile"),
 			array("rtmp://{domain}/{appName}/{streamName}_360p", 4, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_360p/playlist.m3u8", 4, "video/mp4", "mobile"),
+			array("http://{domain}/{appName}/{streamName}_360p/playlist.m3u8", 4, "application/x-mpegURL", "mobile"),
 			array("rtmp://{domain}/{appName}/{streamName}_240p", 5, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_240p/playlist/playlist.m3u8", 5, "video/mp4", "mobile"),
+			array("http://{domain}/{appName}/{streamName}_240p/playlist/playlist.m3u8", 5, "application/x-mpegURL", "mobile"),
 			array("rtmp://{domain}/{appName}/{streamName}_160p", 6, "rtmp/mp4", null),
-			array("http://{domain}/{appName}/{streamName}_160p/playlist.m3u8", 6, "video/mp4", "mobile"),
-			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 7, "video/mp4", "mobile")
+			array("http://{domain}/{appName}/{streamName}_160p/playlist.m3u8", 6, "application/x-mpegURL", "mobile"),
+			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 7, "application/x-mpegURL", "mobile")
 		);
 		
 		foreach($qualities as $b=>$a) {

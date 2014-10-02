@@ -7,31 +7,36 @@ use Auth;
 use Config;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\LiveStream;
 use Facebook;
 use Request;
+use MyResponse;
+use View;
 
 class HomeBaseController extends BaseController {
 
-	protected $layout = "layouts.home.master";
+	protected $layout = null;
 	
 	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL) {
 		
 		$description = "Lancaster University's Student Union TV station.";
 	
-		$this->layout->baseUrl = URL::to("/");
-		$this->layout->currentNavPage = $navPage;
-		$this->layout->cssPageId = $cssPageId;
-		$this->layout->title = "LA1:TV";
+		$view = View::make("layouts.home.master");
+	
+		$view->baseUrl = URL::to("/");
+		$view->currentNavPage = $navPage;
+		$view->cssPageId = $cssPageId;
+		$view->title = "LA1:TV";
 		if (!is_null($title)) {
-			$this->layout->title .= ": ".$title;
+			$view->title .= ": ".$title;
 		}
-		$this->layout->description = $description;
-		$this->layout->content = $content;
-		$this->layout->allowRobots = true;
-		$this->layout->cssBootstrap = asset("assets/css/bootstrap/home.css");
-		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
-		$this->layout->loggedIn = Facebook::isLoggedIn();
-		$this->layout->pageData = array(
+		$view->description = $description;
+		$view->content = $content;
+		$view->allowRobots = true;
+		$view->cssBootstrap = asset("assets/css/bootstrap/home.css");
+		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
+		$view->loggedIn = Facebook::isLoggedIn();
+		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
@@ -66,32 +71,38 @@ class HomeBaseController extends BaseController {
 				$finalOpenGraphProperties[] = $a;
 			}
 		}
-		$this->layout->openGraphProperties = $finalOpenGraphProperties;
-		$this->layout->promoAjaxUri = Config::get("custom.live_shows_uri");
+		$view->openGraphProperties = $finalOpenGraphProperties;
+		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
 		$returnUri = implode("/", Request::segments());
-		$this->layout->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
-		$this->layout->logoutUri = Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode($returnUri);
-		$this->layout->homeUri = Config::get("custom.base_url");
-		$this->layout->guideUri = Config::get("custom.base_url") . "/guide";
-		$this->layout->blogUri = Config::get("custom.blog_url");
-		$this->layout->contactUri = Config::get("custom.base_url") . "/contact";
+		$view->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
+		$view->logoutUri = Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode($returnUri);
+		$view->homeUri = Config::get("custom.base_url");
+		$view->guideUri = Config::get("custom.base_url") . "/guide";
+		$view->blogUri = Config::get("custom.blog_url");
+		$view->contactUri = Config::get("custom.base_url") . "/contact";
 		
 		// recent shows in dropdown
 		$shows = Show::getCachedActiveShows();
-		$this->layout->showsDropdown = array();
+		$view->showsDropdown = array();
 		foreach($shows as $a) {
-			$this->layout->showsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/show/".$a->id, "text"=>$a->name);
+			$view->showsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/show/".$a->id, "text"=>$a->name);
 		}
-		$this->layout->showsUri = Config::get("custom.base_url") . "/shows";
+		$view->showsUri = Config::get("custom.base_url") . "/shows";
 		
 		// recent playlists dropdown
 		$playlists = Playlist::getCachedActivePlaylists(false);
-		$this->layout->playlistsDropdown = array();
+		$view->playlistsDropdown = array();
 		foreach($playlists as $a) {
-			$this->layout->playlistsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/playlist/".$a->id, "text"=>$a->name);
+			$view->playlistsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/playlist/".$a->id, "text"=>$a->name);
 		}
-		$this->layout->playlistsUri = Config::get("custom.base_url") . "/playlists";
+		$view->playlistsUri = Config::get("custom.base_url") . "/playlists";
+		
+		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
+		
+		$response = new MyResponse($view);
+		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
+		$this->layout = $response;
 	}
 
 }
