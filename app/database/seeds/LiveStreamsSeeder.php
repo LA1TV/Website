@@ -21,6 +21,7 @@ class LiveStreamsSeeder extends Seeder {
 					"description"	=>	NULL,
 					"server_address"	=>	"la1tv-wowza1.lancs.ac.uk:1935",
 					"dvr_enabled"	=>	false,
+					"app_name"	=>		"live",
 					"stream_name"	=>	$a[1],
 					"enabled"	=> false
 				));
