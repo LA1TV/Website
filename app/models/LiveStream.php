@@ -1,6 +1,8 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use Exception;
+use Config;
+use Cache;
 
 class LiveStream extends MyEloquent {
 
@@ -81,6 +83,36 @@ class LiveStream extends MyEloquent {
 		return $qualities;
 	}
 	
+	// returns an array containing all the domains that live streams come from which are loaded from a http request. I.e. playlist.m3u8 for mobiles.
+	public static function getCachedLiveStreamDomains() {
+		return Cache::remember('liveStreamDomains', Config::get("custom.live_stream_domains_cache_time"), function() {
+			$uris = array();
+			$models = self::get();
+			foreach($models as $a) {
+				foreach($a->getQualitiesWithUris() as $b) {
+					foreach($b['uris'] as $uri) {
+						$uris[] = $uri['uri'];
+					}
+				}
+			}
+			
+			$uris = array_where($uris, function($key, $value) {
+				// filter out so we only have uris beginning with http:// or https://
+				return preg_match('@^https?://@i', $value) === 1;
+			});
+			$domains = array();
+			foreach($uris as $a) {
+				$info = parse_url($a);
+				$domain = $info['scheme']."://".$info['host'];
+				if (isset($info['port'])) {
+					$domain .= ":".$info['port'];
+				}
+				$domains[] = $domain;
+			}
+			$domains = array_unique($domains);
+			return $domains;
+		});
+	}
 	
 	public function getIsAccessible() {
 		return $this->enabled && $this->qualities()->count() > 0;

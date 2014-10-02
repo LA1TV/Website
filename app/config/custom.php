@@ -12,6 +12,7 @@ return array(
 	"num_days_future_before_active"	=> 7,
 	// the time in minutes to cache certain query results. E.g the active shows and active playlists list.
 	"cache_time"		=> 1,
+	"live_stream_domains_cache_time"	=> 1,
 	"popular_items_cache_time"	=> 10,
 	"num_popular_items_to_cache"	=> 100,
 	"num_recent_items"	=> 8,
