@@ -71,7 +71,7 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, qualitySelectionComponent, responsive);
+		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, qualitySelectionComponent, responsive, false);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);

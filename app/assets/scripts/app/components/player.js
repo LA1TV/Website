@@ -58,8 +58,9 @@ define([
 			return this;
 		};
 		
-		this.setPlayerAutoPlay = function(autoPlay) {
-			queuedPlayerAutoPlay = autoPlay;
+		// if set the player will automatically start playing at this point (seconds) in the video once the player has loaded.
+		this.setPlayerAutoPlayStartTime = function(autoPlayStartTime) {
+			queuedPlayerAutoPlayStartTime = autoPlayStartTime;
 			return this;
 		};
 		
@@ -82,11 +83,17 @@ define([
 			$container.remove();
 		};
 		
-		this.getCurrentTime = function() {
+		this.getPlayerCurrentTime = function() {
 			if (videoJsPlayer !== null) {
 				return videoJsPlayer.currentTime();
 			}
 			return null;
+		};
+		
+		this.play = function() {
+			if (videoJsPlayer !== null) {
+				videoJsPlayer.play();
+			}
 		};
 		
 		this.pause = function() {
@@ -115,8 +122,8 @@ define([
 		var queuedPlayerPreload = true;
 		var showPlayer = null;
 		var queuedShowPlayer = false;
-		var playerAutoPlay = null;
-		var queuedPlayerAutoPlay = false;
+		var playerAutoPlayStartTime = null;
+		var queuedPlayerAutoPlayStartTime = null;
 		var playerUris = null;
 		var queuedPlayerUris = [];
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
@@ -309,10 +316,6 @@ define([
 			// determine if the player has to be reloaded or the settings can be applied in place.
 			var reloadRequired = playerType !== queuedPlayerType || playerPreload !== queuedPlayerPreload || showPlayer !== queuedShowPlayer || havePlayerUrisChanged();
 			
-			if (playerAutoPlay !== queuedPlayerAutoPlay) {
-				playerAutoPlay = queuedPlayerAutoPlay;
-			}
-			
 			// player needs reloading
 			if (reloadRequired) {
 				showPlayer = queuedShowPlayer;
@@ -331,6 +334,10 @@ define([
 		function createPlayer() {
 			// destroy current player if there is one
 			destroyPlayer();
+			
+			if (playerAutoPlayStartTime !== queuedPlayerAutoPlayStartTime) {
+				playerAutoPlayStartTime = queuedPlayerAutoPlayStartTime;
+			}
 			
 			$player = $("<div />").addClass("player embed-responsive-item");
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
@@ -365,12 +372,15 @@ define([
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
 				techOrder: ["html5", "flash"],
-				autoplay: false, // implementing autoplay manually using callback
+				autoPlayStartTime: false, // implementing autoPlayStartTime manually using callback
 				poster: coverUri,
 				loop: false
 			}, function() {
 				// called when player loaded.
-				$(self).triggerHandler("playerLoaded");
+				setTimeout(function() {
+					// in timeout as needs videoJsPlayer needs to have been set before playerLoaded event.
+					$(self).triggerHandler("playerLoaded");
+				}, 0);
 			});
 			registerVideoJsEventHandlers();
 			$container.append($player);
@@ -388,7 +398,7 @@ define([
 			$player.remove();
 			$player = null;
 			playerPreload = null;
-			playerAutoPlay = null;
+			playerAutoPlayStartTime = null;
 			playerUris = null;
 			playerType = null;
 			$(self).triggerHandler("playerDestroyed");
@@ -396,10 +406,17 @@ define([
 		
 		function registerVideoJsEventHandlers() {
 			videoJsPlayer.on("loadedmetadata", function() {
-				if (playerAutoPlay) {
-					videoJsPlayer.play();
+				if (playerAutoPlayStartTime !== null) {
+					if (playerAutoPlayStartTime > videoJsPlayer.duration()) {
+						console.log("ERROR: The auto play start time was set to a value which is longer than the length of the video. Not auto playing.");
+					}
+					else {
+						videoJsPlayer.currentTime(playerAutoPlayStartTime);
+						videoJsPlayer.play();
+					}
 				}
 			});
+			
 			videoJsPlayer.on("play", function() {
 				$(self).triggerHandler("play");
 			});
