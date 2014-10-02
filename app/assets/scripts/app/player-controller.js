@@ -19,7 +19,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, qualitiesHandler, responsive) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, qualitiesHandler, responsive, autoPlay) {
 		
 		var self = this;
 		
@@ -121,6 +121,11 @@ define([
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
+		var playerUris = null;
+		var previousPlayerUris = null;
+		var currentQualityId = null
+		var previousQualityId = null
+		
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			updatePlayer();
@@ -197,6 +202,7 @@ define([
 			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setCustomMsg("");
 			playerComponent.setPlayerUris([]);
+			playerComponent.setPlayerAutoPlayStartTime(null);
 			if (data.streamState === 1) {
 				// show stream info message if the stream is enabled and is "not live"
 				playerComponent.setCustomMsg(data.streamInfoMsg);
@@ -205,20 +211,35 @@ define([
 				// stream should be live
 				setPlayerType("live");
 				setPlayerUris(data.streamUris);
+				setPlayerComponentPlayerUris(getPlayerUris().uris);
 			}
 			else if ((overrideModeEnabled && data.videoUris.length > 0) || data.vodLive) {
 				// video should be live
 				setPlayerType("vod");
 				setPlayerUris(data.videoUris);
+				setPlayerComponentPlayerUris(getPlayerUris().uris);
+				var autoPlayStartTime = null;
+				if (getPlayerUris().changedSinceLastRender && autoPlay) {
+					autoPlayStartTime = 0;
+				}
+				else {
+					if (previousQualityId !== currentQualityId) {
+						// quality is changing. set autoplay so start video from current point after player reloaded.
+						autoPlayStartTime = playerComponent.getPlayerCurrentTime();
+					}
+				}
+				playerComponent.setPlayerAutoPlayStartTime(autoPlayStartTime);
 			}
 			else {
 				setPlayerType("ad");
 				qualitiesHandler.setAvailableQualities([]);
 			}
 			playerComponent.render();
+			previousPlayerUris = getPlayerUris().uris;
+			previousQualityId = currentQualityId;
 		}
 		
-		function setPlayerUris(uriGroups) {
+		function setPlayerComponentPlayerUris(uriGroups) {
 			var qualities = [];
 			var qualityIds = [];
 			for (var i=0; i<uriGroups.length; i++) {
@@ -230,9 +251,38 @@ define([
 				qualityIds.push(uriGroup.quality.id);
 			}
 			qualitiesHandler.setAvailableQualities(qualities);
-			var chosenQualityId = qualitiesHandler.getChosenQualityId();
-			var chosenUriGroup = uriGroups[qualityIds.indexOf(chosenQualityId)];
+			currentQualityId = qualitiesHandler.getChosenQualityId();
+			var chosenUriGroup = uriGroups[qualityIds.indexOf(currentQualityId)];
 			playerComponent.setPlayerUris(chosenUriGroup.uris);
+		}
+		
+		// returns the current player uris
+		function getPlayerUris() {
+			var changed = false;
+			if ((previousPlayerUris === null && playerUris !== null) || (previousPlayerUris !== null && playerUris === null)) {
+				changed = true;
+			}
+			else if (playerUris.length !== previousPlayerUris.length) {
+				changed = true;
+			}
+			else {
+				for (var i=0; i<previousPlayerUris.length; i++) {
+					var queuedUri = previousPlayerUris[i];
+					var uri = playerUris[i];
+					if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type) {
+						changed = true;
+					}
+				}
+			}
+			
+			return {
+				changedSinceLastRender: changed,
+				uris: playerUris
+			};
+		}
+		
+		function setPlayerUris(uriGroups) {
+			playerUris = uriGroups;
 		}
 		
 		function setPlayerType(type) {
