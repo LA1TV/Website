@@ -5,7 +5,7 @@ use Exception;
 class LiveStream extends MyEloquent {
 
 	protected $table = 'live_streams';
-	protected $fillable = array('name', 'description', 'load_balancer_server_address', 'server_address', 'dvr_enabled', 'stream_name', 'enabled');
+	protected $fillable = array('name', 'description', 'load_balancer_server_address', 'server_address', 'dvr_enabled', 'stream_name', 'app_name', 'enabled');
 	protected $appends = array("qualities_for_input", "qualities_for_orderable_select");
 	
 	protected static function boot() {
@@ -67,7 +67,7 @@ class LiveStream extends MyEloquent {
 			$uris = array();
 			foreach($liveStreamUris as $b) {
 				$uris[] = array(
-					"uri"	=> $b->getBuiltUrl($this->server_address, "live", $this->stream_name),
+					"uri"	=> $b->getBuiltUrl($this->server_address, $this->app_name, $this->stream_name),
 					"type"	=> $b->type,
 					"supportedDevices"	=> $b->supported_devices
 				);

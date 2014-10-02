@@ -7,6 +7,7 @@
 		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Server Address (Can Include Port)", "server-address", $form['server-address'], $formErrors);?>
+		<?=FormHelpers::getFormTxtInput(1, "App Name", "app-name", $form['app-name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Stream Name", "stream-name", $form['stream-name'], $formErrors);?>
 		<?=FormHelpers::getFormCheckInput(1, "DVR Enabled", "dvr-enabled", $form['dvr-enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormGroupStart("qualities", $formErrors);
