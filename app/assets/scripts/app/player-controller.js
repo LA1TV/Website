@@ -259,7 +259,10 @@ define([
 		// returns the current player uris
 		function getPlayerUris() {
 			var changed = false;
-			if ((previousPlayerUris === null && playerUris !== null) || (previousPlayerUris !== null && playerUris === null)) {
+			if (previousPlayerUris === null && playerUris === null) {
+				// intentional	
+			}
+			else if ((previousPlayerUris === null && playerUris !== null) || (previousPlayerUris !== null && playerUris === null)) {
 				changed = true;
 			}
 			else if (playerUris.length !== previousPlayerUris.length) {
