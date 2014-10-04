@@ -123,8 +123,9 @@ define([
 		var embedData = null;
 		var playerUris = null;
 		var previousPlayerUris = null;
-		var currentQualityId = null
-		var previousQualityId = null
+		var currentQualityId = null;
+		var previousQualityId = null;
+		var viewCountRegistered = false;
 		
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
@@ -188,7 +189,10 @@ define([
 				playerComponent = new PlayerComponent(data.coverUri, responsive);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
-					registerViewCount();
+					if (!viewCountRegistered) {
+						viewCountRegistered = true;
+						registerViewCount();
+					}
 				});
 			}
 			
