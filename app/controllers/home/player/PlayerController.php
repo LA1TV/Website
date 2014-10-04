@@ -33,7 +33,7 @@ class PlayerController extends HomeBaseController {
 			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
 			$userHasMediaItemsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 1);
 			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
-			$userHasCommentsPermission = Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+			$userHasCommentsPermission = Auth::getUser()->hasPermission(Config::get("permissions.siteComments"), 0);
 		}
 		
 		$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessible();
@@ -467,7 +467,7 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		// true if a user is logged into the cms and has permission to manage comments and post as station.
-		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.siteComments"), 0);
 		
 		$comments  = array();
 		foreach($commentsModels as $a) {
@@ -503,7 +503,7 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		// true if a user is logged into the cms and has permission to manage comments and post as station.
-		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.siteComments"), 0);
 		
 		if ((!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) && !$userHasCommentsPermission) {
 			App::abort(403);
@@ -559,7 +559,7 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		// true if a user is logged into the cms and has permission to manage comments and post as station.
-		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.comments"), 0);
+		$userHasCommentsPermission = Auth::isLoggedIn() && Auth::getUser()->hasPermission(Config::get("permissions.siteComments"), 0);
 		
 		if ((!Facebook::isLoggedIn() || Facebook::getUserState() !== 0) && !$userHasCommentsPermission) {
 			App::abort(403);
