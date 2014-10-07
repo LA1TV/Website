@@ -8,6 +8,7 @@ use FormHelpers;
 use Exception;
 use Csrf;
 use EloquentHelpers;
+use FileHelpers;
 use Auth;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
@@ -57,7 +58,7 @@ class UploadManager {
 					
 					$fileLocation = $fileInfo['path'];
 					$fileName = $fileInfo['name'];
-					$fileSize = 123456789; // TODO: replace this with something reliable
+					$fileSize = FileHelpers::filesize64($fileLocation);
 					
 					$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 					$extensions = array();

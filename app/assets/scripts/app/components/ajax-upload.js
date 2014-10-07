@@ -356,8 +356,8 @@ define([
 			drop_element: $container[0],
 			url: PageData.get("baseUrl")+"/admin/upload/index",
 			multi_selection: false,
-			flash_swf_url: '../../moxie/Moxie.cdn.swf',
-			silverlight_xap_url: '../../moxie/Moxie.cdn.xap',
+			flash_swf_url: '../../moxie/Moxie.swf',
+			silverlight_xap_url: '../../moxie/Moxie.xap',
 			filters: {
 				mime_types: [
 					{title: allowedExtensions.join(","), extensions: allowedExtensions.join(",")},
