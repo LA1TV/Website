@@ -34,13 +34,14 @@ class UploadManager {
 		$uploadPointId = FormHelpers::getValue("upload_point_id");
 		
 		if (Csrf::hasValidToken() && !is_null($uploadPointId) && (is_null($allowedIds) || in_array($uploadPointId, $allowedIds, true))) {
+			
 			$uploadPointId = intval($uploadPointId, 10);
 			$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);
 			
-			if (!is_null($uploadPoint) && isset($_FILES['files']) && count($_FILES['files']['name']) >= 1 && strlen($_FILES['files']['name'][0]) <= self::$maxFileLength && isset($_FILES['files']['tmp_name'][0])) {
+			if (!is_null($uploadPoint) && isset($_FILES['file']) && strlen($_FILES['file']['name']) <= self::$maxFileLength && isset($_FILES['file']['tmp_name'])) {
 				
-				$fileLocation = $_FILES['files']['tmp_name'][0];
-				$fileName = $_FILES['files']['name'][0];
+				$fileLocation = $_FILES['file']['tmp_name'];
+				$fileName = $_FILES['file']['name'];
 				$fileSize = filesize($fileLocation);
 				
 				$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));

@@ -3,12 +3,21 @@ require.config({
 	paths: {
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",
-		"jquery.ui.widget": "lib/jquery.ui.widget" // jquery.fileupload expects this path
+		"jquery.ui.widget": "lib/jquery.ui.widget",
+		moxie: "lib/moxie",
+		plupload: "lib/plupload"
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"],
 		"ga": {
 			exports: "ga"
+		},
+		"moxie": {
+			exports: "mOxie"
+		},
+		"plupload": {
+			exports: "plupload",
+			deps: ['moxie']
 		}
 	}
 });

@@ -412,6 +412,7 @@ define([
 					}
 					else {
 						videoJsPlayer.currentTime(playerAutoPlayStartTime);
+						console.log("HERE");
 						videoJsPlayer.play();
 					}
 				}
