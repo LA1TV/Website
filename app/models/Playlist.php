@@ -108,7 +108,7 @@ class Playlist extends MyEloquent {
 	public function getEpisodeNumber($mediaItem) {
 		foreach($this->mediaItems()->orderBy("media_item_to_playlist.position")->get() as $i=>$item) {
 			if (intval($item->id) === intval($mediaItem->id)) {
-				return $i;
+				return $i+1;
 			}
 		}
 		throw(new Exception("Playlist does not contain MediaItem."));
