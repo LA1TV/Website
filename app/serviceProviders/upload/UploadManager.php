@@ -21,6 +21,8 @@ class UploadManager {
 	
 	// process the file that has been uploaded
 	// Returns true if succeeds or false otherwise
+	// The file may be a chunk of the complete file in which case this just puts it to one side/builds the file with the new chunks.
+	// When the last chunk arrives it will then create the db etc.
 	public function process($allowedIds=null) {
 		
 		if ($this->processCalled) {
@@ -31,88 +33,156 @@ class UploadManager {
 		$this->responseData = array("success"=> false);
 		$success = false;
 		
-		$uploadPointId = FormHelpers::getValue("upload_point_id");
-		
-		if (Csrf::hasValidToken() && !is_null($uploadPointId) && (is_null($allowedIds) || in_array($uploadPointId, $allowedIds, true))) {
+		$info = $this->buildFile();
+		if (!$info['success']) {
+			$success = false;
+			$this->responseData['success'] = false;
+			$this->responseData['wasChunk'] = true;
+		}
+		else if (is_null($info['info'])) {
+			$success = true;
+			$this->responseData['success'] = true;
+			$this->responseData['wasChunk'] = true;
+		}
+		else {
+			$fileInfo = $info['info'];
+			$uploadPointId = FormHelpers::getValue("upload_point_id");
 			
-			$uploadPointId = intval($uploadPointId, 10);
-			$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);
-			
-			if (!is_null($uploadPoint) && isset($_FILES['file']) && strlen($_FILES['file']['name']) <= self::$maxFileLength && isset($_FILES['file']['tmp_name'])) {
+			if (Csrf::hasValidToken() && !is_null($uploadPointId) && (is_null($allowedIds) || in_array($uploadPointId, $allowedIds, true))) {
 				
-				$fileLocation = $_FILES['file']['tmp_name'];
-				$fileName = $_FILES['file']['name'];
-				$fileSize = filesize($fileLocation);
+				$uploadPointId = intval($uploadPointId, 10);
+				$uploadPoint = UploadPoint::with("fileType", "fileType.extensions")->find($uploadPointId);
 				
-				$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-				$extensions = array();
-				$extensionModels = $uploadPoint->fileType->extensions;
-				if (!is_null($extensionModels)) {
-					foreach($extensionModels as $a) {
-						$extensions[] = $a->extension;
+				if (!is_null($uploadPoint) && strlen($fileInfo['name']) <= self::$maxFileLength) {
+					
+					$fileLocation = $fileInfo['path'];
+					$fileName = $fileInfo['name'];
+					$fileSize = 123456789; // TODO: replace this with something reliable
+					
+					$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+					$extensions = array();
+					$extensionModels = $uploadPoint->fileType->extensions;
+					if (!is_null($extensionModels)) {
+						foreach($extensionModels as $a) {
+							$extensions[] = $a->extension;
+						}
 					}
-				}
-				if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
+					if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
 
-					try {
-						DB::beginTransaction();
-						
-						// create the file reference in the db
-						$fileDb = new File(array(
-							"in_use"	=> false,
-							"filename"	=> $fileName,
-							"size"		=> $fileSize,
-							"session_id"	=> Session::getId() // the laravel session id
-						));
-						$fileDb->fileType()->associate($uploadPoint->fileType);
-						$fileDb->uploadPoint()->associate($uploadPoint);
-						if ($fileDb->save() !== FALSE) {
-							
-							// commit transaction so file record is committed to database
-							DB::commit();
-							
+						try {
 							DB::beginTransaction();
-							// another transaction to make sure the session doesn't become null on the model (which would result in the upload processor trying to delete it, and failing silently if it can't find the file) whilst the file is being moved.
-							$fileDb = File::find($fileDb->id);
-							if (is_null($fileDb)) {
-								throw(new Exception("File model has been deleted!"));
-							}
-							if ($fileDb->session_id !== Session::getId()) {
-								throw(new Exception("Session has changed between transactions!"));
-							}
-							// move the file providing the file record created successfully.
-							// it is important there's always a file record for each file. if there ends up being a file record without a corresponding file that's ok as the record will just get deleted either.
-							if (move_uploaded_file($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
-								// set ready_for_processing to true so that processing can start.
-								// this means if the file was copied and then the server crashed before here, the file will still get deleted in the future (when the linked session becomes null)
-								$fileDb->ready_for_processing = true;
-								$fileDb->save();
+							
+							// create the file reference in the db
+							$fileDb = new File(array(
+								"in_use"	=> false,
+								"filename"	=> $fileName,
+								"size"		=> $fileSize,
+								"session_id"	=> Session::getId() // the laravel session id
+							));
+							$fileDb->fileType()->associate($uploadPoint->fileType);
+							$fileDb->uploadPoint()->associate($uploadPoint);
+							if ($fileDb->save() !== FALSE) {
+								
+								// commit transaction so file record is committed to database
 								DB::commit();
 								
-								// success
-								$success = true;
-								$this->responseData['success'] = true;
-								$this->responseData['id'] = $fileDb->id;
-								$this->responseData['fileName'] = $fileName;
-								$this->responseData['fileSize'] = $fileSize;
-								$this->responseData['processInfo'] = $fileDb->getProcessInfo();
+								DB::beginTransaction();
+								// another transaction to make sure the session doesn't become null on the model (which would result in the upload processor trying to delete it, and failing silently if it can't find the file) whilst the file is being moved.
+								$fileDb = File::find($fileDb->id);
+								if (is_null($fileDb)) {
+									throw(new Exception("File model has been deleted!"));
+								}
+								if ($fileDb->session_id !== Session::getId()) {
+									throw(new Exception("Session has changed between transactions!"));
+								}
+								// move the file providing the file record created successfully.
+								// it is important there's always a file record for each file. if there ends up being a file record without a corresponding file that's ok as the record will just get deleted either.
+								if (rename($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
+									// set ready_for_processing to true so that processing can start.
+									// this means if the file was copied and then the server crashed before here, the file will still get deleted in the future (when the linked session becomes null)
+									$fileDb->ready_for_processing = true;
+									$fileDb->save();
+									DB::commit();
+									
+									// success
+									$success = true;
+									$this->responseData['success'] = true;
+									$this->responseData['id'] = $fileDb->id;
+									$this->responseData['fileName'] = $fileName;
+									$this->responseData['fileSize'] = $fileSize;
+									$this->responseData['processInfo'] = $fileDb->getProcessInfo();
+								}
+								else {
+									DB::rollback();
+								}
 							}
 							else {
 								DB::rollback();
 							}
 						}
-						else {
+						catch (\Exception $e) {
 							DB::rollback();
+							throw($e);
 						}
-					}
-					catch (\Exception $e) {
-						DB::rollback();
-						throw($e);
 					}
 				}
 			}
 		}
 		return $success;
+	}
+	
+	// buildFile will append the current file chunk to the stored chunks.
+	// if this is the last chunk and there's now a complete file it returns the info about the completed file, otherwise the info key is null, meaning there's more chunks left to come in
+	// the return value an array of form array("success", "info"=>array("name", "path")) where "name" is the files original name and "path" is the path to the built file. success is false if there was an error with the current chunk.
+	// it names the files as [session_id]-[fileid]-[original name]. this means when a users session expires any incomplete chunks can be removed easily
+	private function buildFile() {
+		$returnVal = array("success" => false, "info" => null);
+		
+		// http://www.plupload.com/docs/Chunking
+		if (!empty($_FILES) && is_uploaded_file($_FILES['file']['tmp_name']) && $_FILES['file']['error'] === 0) {
+			$chunk = isset($_POST["chunk"]) ? intval($_POST["chunk"]) : 0;
+			$chunks = isset($_POST["chunks"]) ? intval($_POST["chunks"]) : 0;
+
+			if (isset($_POST['id']) && ctype_digit($_POST['id'])) {
+				$fileId = intval($_POST['id']);
+				$actualFileName = isset($_POST['name']) ? $_POST["name"] : $_FILES["file"]["name"];
+				$fileName = Session::getId()."-".$fileId."-".$actualFileName;
+				$filePath = Config::get("custom.file_chunks_location") . DIRECTORY_SEPARATOR . $fileName;
+				
+				// Open temp file
+				$out = @fopen($filePath.".part", $chunk === 0 ? "wb" : "ab");
+				if ($out) {
+					// Read binary input stream and append it to temp file
+					$in = @fopen($_FILES['file']['tmp_name'], "rb");
+					if ($in) {
+						while ($buff = fread($in, 4096)) {
+							fwrite($out, $buff);
+						}
+						@fclose($in);
+						@fclose($out);
+						$returnVal['success'] = true;
+						// Check if the complete file has now been uploaded
+						if ($chunks === 0 || $chunk === $chunks - 1) {
+							// Strip the temp .part suffix off
+							rename($filePath.".part", $filePath);
+							$returnVal['info'] = array(
+								"name"	=> $actualFileName,
+								"path"	=> $filePath
+							);
+						}
+					}
+					else {
+						@fclose($in);
+						@fclose($out);
+					}
+				}
+				else {
+					@fclose($out);
+				}
+				@unlink($_FILES['file']['tmp_name']);
+			}
+		}	
+		return $returnVal;
 	}
 	
 	// get the Laravel response (json) object to be returned to the user
@@ -121,16 +191,6 @@ class UploadManager {
 			throw(new Exception("'process' must have been called first."));
 		}
 		return Response::json($this->responseData);
-	}
-	
-	// get an array containing information about the last upload
-	// returns array or null if there was an error processing
-	public function getInfo() {
-		if (!$this->processCalled) {
-			throw(new Exception("'process' must have been called first."));
-		}
-		$data = $this->responseData;
-		return $data['success'] ? array("fileName"=>$data['fileName'], "fileSize"=>$data['fileSize']) : null;
 	}
 	
 	// register a file as now in use by its id. It assumed that this id is valid. an exception is thrown otherwise
