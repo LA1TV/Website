@@ -378,10 +378,12 @@ define([
 					if (state !== 0 && state !== 3) {
 						// must be in upload state to upload
 						// do nothing
+						uploader.splice(); // clear queue
 						return;
 					}
 					
 					if (files.length !== 1) {
+						uploader.splice(); // clear queue
 						return;
 					}
 					
@@ -392,11 +394,13 @@ define([
 					var extension = fileName.split('.').pop().toLowerCase();
 					if (jQuery.inArray(extension, allowedExtensions) === -1) {
 						alert("That file type is not allowed.");
+						uploader.splice(); // clear queue
 						return;
 					}
 					
 					if (fileName.length > maxFileLength) {
 						alert("The file name must be "+maxFileLength+" characters or less.");
+						uploader.splice(); // clear queue
 						return;
 					}
 					
