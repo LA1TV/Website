@@ -53,10 +53,15 @@ class PlayerController extends HomeBaseController {
 		
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
-		$playlistMediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
+		// retrieving inaccessible items as well and then skipping them in the loop. This is so that we get the correct episode number.
+		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
 		$playlistTableData = array();
 		$activeItemIndex = null;
 		foreach($playlistMediaItems as $i=>$item) {
+			if (!$item->getIsAccessible()) {
+				// this shouldn't be accessible
+				continue;
+			}
 			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$active = intval($item->id) === intval($currentMediaItem->id);
 			if ($active) {
@@ -78,7 +83,7 @@ class PlayerController extends HomeBaseController {
 				"title"					=> $item->name,
 				"escapedDescription"	=> null,
 				"playlistName"			=> $playlistName,
-				"episodeNo"				=> intval($item->pivot->position) + 1,
+				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
