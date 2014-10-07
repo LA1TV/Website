@@ -1,8 +1,11 @@
 define([
 	"../page-data",
 	"../helpers/file-size-helper",
+	"plupload",
 	"lib/jquery.fileupload"
-], function(PageData, FileSizeHelper) {
+], function(PageData, FileSizeHelper, plupload) {
+
+		console.log(plupload);
 
 		var noUploads = 0;
 
