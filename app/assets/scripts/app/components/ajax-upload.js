@@ -366,10 +366,12 @@ define([
 			multipart: true,
 			multipart_params: {
 				upload_point_id: uploadPointId,
-				csrf_token: PageData.get("csrfToken")
+				csrf_token: PageData.get("csrfToken"),
+				// random number between 0 and 1000000
+				id: Math.floor(Math.random() * (1000000 + 1))
 			},
-		//	chunk_size: "500mb",
-			max_retries: 2,
+			chunk_size: "500mb",
+			max_retries: 3,
 
 			init: {
 				FilesAdded: function(up, files) {
