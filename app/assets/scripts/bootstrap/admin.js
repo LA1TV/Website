@@ -3,7 +3,7 @@ require.config({
 	paths: {
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",
-		"jquery.ui.widget": "lib/jquery.ui.widget", // jquery.fileupload expects this path
+		"jquery.ui.widget": "lib/jquery.ui.widget",
 		moxie: "lib/moxie",
 		plupload: "lib/plupload"
 	},

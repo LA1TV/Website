@@ -1,15 +1,12 @@
 define([
 	"../page-data",
 	"../helpers/file-size-helper",
-	"plupload",
-	"lib/jquery.fileupload"
+	"plupload"
 ], function(PageData, FileSizeHelper, plupload) {
 
-		console.log(plupload);
+	var noUploads = 0;
 
-		var noUploads = 0;
-
-		var AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, stateParam) {
+	var AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, stateParam) {
 		
 		var self = this;
 		
@@ -58,20 +55,14 @@ define([
 		
 		var $container = $("<div />").addClass("ajax-upload");
 		
-		// the generated <input type="file">. Note: this gets replaced by jquery file upload after every time files are selected
-		// therefore always search for this element, don't use this reference as it will only be correct initially
-		var $fileInput = $('<input />').prop("type", "file").addClass("hidden");
-		
-		// use this to get input for reason above
-		var getFileInput = function() {
-			return $container.find('input[type="file"]').first();
-		};
-		
 		var $btnContainer = $("<div />").addClass("btn-container");
 		
 		// the upload button
 		var $uploadBtn = $('<button />').prop("type", "button").addClass("btn btn-xs btn-default");
 		$btnContainer.append($uploadBtn);
+		
+		// the upload plugin needs it's own button. giving this one and then clicking it programatically
+		var $pluploadButton = $('<button />').prop("type", "button").addClass("hidden");
 		
 		var $txt = $('<span />').addClass("info-txt");
 		$btnContainer.append($txt);
@@ -80,20 +71,20 @@ define([
 		var $progressBar = $("<div />").addClass("progress-bar").attr("role", "progressbar").attr("aria-valuemin", 0).attr("aria-valuemax", 100).attr("aria-valuenow", 0).width("0%");
 		$progressBarContainer.append($progressBar);
 		
-		$container.append($fileInput);
+		$container.append($pluploadButton);
 		$container.append($btnContainer);
 		$container.append($progressBarContainer);
 		
 		var maxFileLength = 50;
 		
 		var id = null;
+		var uploader;
 		var fileName = null;
 		var fileSize = null;
 		var processState = null;
 		var processMsg;
 		var processPercentage;
 		var updateProcessStateTimerId = null;
-		var jqXHR = null;
 		var progressBarVisible = false;
 		var progressBarActive = false;
 		var progressBarPercent = null;
@@ -117,8 +108,7 @@ define([
 		$uploadBtn.click(function() {
 			if (state === 0 || state === 3) {
 				// start upload
-				var input = getFileInput();
-				input.click();
+				$pluploadButton.click();
 			}
 			else if (state === 1) {
 				if (!confirm("Are you sure you want to cancel this upload?")) {
@@ -355,90 +345,116 @@ define([
 			cancelling = false;
 		}
 		
-		// Initialize the jQuery File Upload plugin
-		// https://github.com/blueimp/jQuery-File-Upload/
-		$fileInput.fileupload({
-			dropZone: $container,
-			pasteZone: $container,
+		
+		// Initialize the plupload plugin
+		// https://github.com/moxiecode/plupload
+		
+		uploader = new plupload.Uploader({
+			runtimes : 'html5,flash,silverlight,html4',
+			browse_button : $pluploadButton[0],
+			container: $container[0],
+			drop_element: $container[0],
 			url: PageData.get("baseUrl")+"/admin/upload/index",
-			dataType: "json",
-			type: "POST",
-			limitConcurrentUploads: 3,
-			multipart: true,
-			// extra data to be sent
-			formData: function() {
-				return [
-					{name: 'upload_point_id', value: uploadPointId},
-					{name: 'csrf_token', value: PageData.get("csrfToken")}
+			multi_selection: false,
+			flash_swf_url: '../../moxie/Moxie.cdn.swf',
+			silverlight_xap_url: '../../moxie/Moxie.cdn.xap',
+			filters: {
+				mime_types: [
+					{title: allowedExtensions.join(","), extensions: allowedExtensions.join(",")},
 				]
 			},
-			// This function is called when a file is added to the queue;
-			// either via the browse button, or via drag/drop:
-			add: function(e, data) {
-			
-				if (state !== 0 && state !== 3) {
-					// must be in upload state to upload
-					return;
-				}
-				
-				fileName = data.files[0].name;
-				fileSize = data.files[0].size;
-				
-				var extension = fileName.split('.').pop().toLowerCase();
-				if (jQuery.inArray(extension, allowedExtensions) === -1) {
-					alert("That file type is not allowed.");
-					return;
-				}
-				
-				if (fileName.length > maxFileLength) {
-					alert("The file name must be "+maxFileLength+" characters or less.");
-					return;
-				}
-				
-				progress = 0;
-				state = 1;
-				update();
-				
-				// start upload automatically
-				jqXHR = data.submit();
-				noUploads++;
+			multipart: true,
+			multipart_params: {
+				upload_point_id: uploadPointId,
+				csrf_token: PageData.get("csrfToken")
 			},
-			progress: function(e, data) {
-				// Calculate the completion percentage of the upload
-				progress = parseInt(data.loaded / data.total * 100, 10);
-				update();
-			},
-			fail: function(e, data) {
-				errorOccurred();
-			},
-			done: function(e, data) {
-				var result = data.result;
-				// response returned is object with 'success' and 'id' which is the id of the newly created file
-				if (!result.success) {
+		//	chunk_size: "500mb",
+			max_retries: 2,
+
+			init: {
+				FilesAdded: function(up, files) {
+					if (state !== 0 && state !== 3) {
+						// must be in upload state to upload
+						// do nothing
+						return;
+					}
+					
+					if (files.length !== 1) {
+						return;
+					}
+					
+					var file = files[0];
+					fileName = file.name;
+					fileSize = file.size;
+					
+					var extension = fileName.split('.').pop().toLowerCase();
+					if (jQuery.inArray(extension, allowedExtensions) === -1) {
+						alert("That file type is not allowed.");
+						return;
+					}
+					
+					if (fileName.length > maxFileLength) {
+						alert("The file name must be "+maxFileLength+" characters or less.");
+						return;
+					}
+					
+					progress = 0;
+					state = 1;
+					update();
+					
+					// start upload automatically
+					uploader.start();
+					noUploads++;				
+				},
+
+				UploadProgress: function(up, file) {
+					progress = file.percent;
+					update();
+				},
+				
+				FileUploaded: function(up, files, responseData) {
+					var status = responseData.status;
+					if (status !== 200) {
+						errorOccurred();
+					}
+					else {
+						var result = $.parseJSON(responseData.response);
+						// response returned is object with 'success' and 'id' which is the id of the newly created file
+						if (!result.success) {
+							errorOccurred(); // this decrements noUploads
+							return;
+						}
+						
+						noUploads--;
+						id = result.id;
+						$(self).triggerHandler("stateChanged");
+						fileName = result.fileName;
+						fileSize = result.fileSize;
+						processState = result.processInfo.state;
+						processPercentage = result.processInfo.percentage;
+						processMsg = result.processInfo.msg;
+						progress = 100;
+						state = processState !== 0 ? 2 : 4;
+						update();
+					}
+				},
+
+				Error: function(up, err) {
 					errorOccurred();
-					return;
 				}
-				noUploads--;
-				
-				id = result.id;
-				$(self).triggerHandler("stateChanged");
-				fileName = result.fileName;
-				fileSize = result.fileSize;
-				processState = result.processInfo.state;
-				processPercentage = result.processInfo.percentage;
-				processMsg = result.processInfo.msg;
-				progress = 100;
-				state = processState !== 0 ? 2 : 4;
-				update();
 			}
 		});
+
+		uploader.init();
+
 		
 		function cancelUpload() {
 			if (state !== 1) {
 				return;
 			}
 			cancelling = true;
-			jqXHR.abort(); // this triggers the error callback
+			uploader.stop();
+			errorOccurred();
 		}
 		
 		function removeUpload() {
