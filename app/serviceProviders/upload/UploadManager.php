@@ -12,6 +12,7 @@ use FileHelpers;
 use Auth;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\Session as SessionModel;
 
 class UploadManager {
 
@@ -137,6 +138,9 @@ class UploadManager {
 	// the return value an array of form array("success", "info"=>array("name", "path")) where "name" is the files original name and "path" is the path to the built file. success is false if there was an error with the current chunk.
 	// it names the files as [session_id]-[fileid]-[original name]. this means when a users session expires any incomplete chunks can be removed easily
 	private function buildFile() {
+		
+		$this->clearTempChunks();
+	
 		$returnVal = array("success" => false, "info" => null);
 		
 		// http://www.plupload.com/docs/Chunking
@@ -184,6 +188,28 @@ class UploadManager {
 			}
 		}	
 		return $returnVal;
+	}
+	
+	// removes any files that no longer belong to a session
+	private function clearTempChunks() {
+		$sessionModels = SessionModel::get();
+		$sessionIds = array();
+		foreach($sessionModels as $a) {
+			$sessionIds[] = $a->id;
+		}
+		
+		foreach (scandir(Config::get("custom.file_chunks_location")) as $filename) {
+			if ($filename !== "." && $filename !== "..") {
+				$parts = explode("-", $filename);
+				if (count($parts) >= 2) {
+					$sessionId = $parts[0];
+					if (!in_array($sessionId, $sessionIds, true)) {
+						// the session that created this file has expired. remove the file
+						unlink(Config::get("custom.file_chunks_location") . DIRECTORY_SEPARATOR . $filename);
+					}
+				}
+			}
+		}
 	}
 	
 	// get the Laravel response (json) object to be returned to the user
