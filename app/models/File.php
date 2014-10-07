@@ -2,7 +2,7 @@
 
 use EloquentHelpers;
 use Exception;
-use \Session;
+use \Session as SessionProvider;
 use Config;
 
 // FILE MODELS SHOULD NOT BE CREATED MANUALLY. They should be created and managed using the Upload service provider.
@@ -139,7 +139,7 @@ class File extends MyEloquent {
 	}
 	
 	public function isTemporaryFromCurrentSession() {
-		return !$this->in_use && $this->session_id === Session::getId();
+		return !$this->in_use && $this->session_id === SessionProvider::getId();
 	}
 	
 	public function getFinishedProcessing() {
