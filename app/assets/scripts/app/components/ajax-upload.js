@@ -78,7 +78,7 @@ define([
 		var maxFileLength = 50;
 		
 		var id = null;
-		var uploader;
+		var uploader = null;
 		var fileName = null;
 		var fileSize = null;
 		var processState = null;
