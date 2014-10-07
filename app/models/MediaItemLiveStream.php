@@ -1,6 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use \Session;
+use \Session as SessionProvider;
 use Carbon;
 use Config;
 
@@ -38,13 +38,13 @@ class MediaItemLiveStream extends MyEloquent {
 		}
 	
 		$sessionKey = "viewCount-".$this->id;
-		$lastTimeRegistered = Session::get($sessionKey, null);
+		$lastTimeRegistered = SessionProvider::get($sessionKey, null);
 		if (!is_null($lastTimeRegistered) && $lastTimeRegistered >= Carbon::now()->subMinutes(Config::get("custom.interval_between_registering_view_counts"))->timestamp) {
 			// already registered view not that long ago.
 			return;
 		}
 		$this->increment("view_count");
-		Session::set($sessionKey, Carbon::now()->timestamp);
+		SessionProvider::set($sessionKey, Carbon::now()->timestamp);
 	}
 	
 	// returns true if this should be shown with the parent media item. If false then it should like the MediaItem does not have a live stream component.
