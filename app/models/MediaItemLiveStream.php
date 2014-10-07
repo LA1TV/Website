@@ -1,6 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Session;
+use \Session;
 use Carbon;
 use Config;
 

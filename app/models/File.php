@@ -2,7 +2,7 @@
 
 use EloquentHelpers;
 use Exception;
-use Session;
+use \Session;
 use Config;
 
 // FILE MODELS SHOULD NOT BE CREATED MANUALLY. They should be created and managed using the Upload service provider.
