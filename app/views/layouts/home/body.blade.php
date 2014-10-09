@@ -25,7 +25,7 @@
 @yield('content')
 <div id="footer">
 	<div class="container">
-		<p class="text-muted footer-txt">&copy; <?=e(Carbon::now()->year)?> LA1:TV (The entire source code will be available soon on GitHub.)</p>
+		<p class="text-muted footer-txt"><a href="https://github.com/LA1TV/Website" target="_blank">Click here to view the source code on GitHub.</a></p>
 	</div>
 </div>
 @yield('promo', '')
