@@ -10,6 +10,7 @@ https://www.vagrantup.com/) at "https://github.com/LA1TV/Website-Homestead".
 
 "app/storage" is excluded from version control and should contain the following folders:
 - cache
+- file_chunks
 - files
 - logs
 - meta
