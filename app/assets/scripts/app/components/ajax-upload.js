@@ -50,7 +50,7 @@ define([
 			destroyed = true;
 			cancelUpload();
 			removeUpload();
-			cancelUpdateProcessStateChecks()
+			cancelUpdateProcessStateChecks();
 		};
 		
 		var $container = $("<div />").addClass("ajax-upload");
@@ -356,8 +356,8 @@ define([
 			drop_element: $container[0],
 			url: PageData.get("baseUrl")+"/admin/upload/index",
 			multi_selection: false,
-			flash_swf_url: '../../moxie/Moxie.swf',
-			silverlight_xap_url: '../../moxie/Moxie.xap',
+			flash_swf_url: PageData.get("assetsBaseUrl")+'assets/moxie/Moxie.swf',
+			silverlight_xap_url: PageData.get("assetsBaseUrl")+'assets/moxie/Moxie.xap',
 			filters: {
 				mime_types: [
 					{title: allowedExtensions.join(","), extensions: allowedExtensions.join(",")},
