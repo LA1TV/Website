@@ -32,6 +32,14 @@
 <li><a href="<?=e($guideUri);?>">Live Guide</a></li>
 <li><a href="<?=e($blogUri);?>">Blog</a></li>
 <li><a href="<?=e($contactUri);?>">Contact</a></li>
+<li class="dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Partners <b class="caret"></b></a>
+	<ul class="dropdown-menu">
+		<li><a href="http://scan.lusu.co.uk/" target="_blank">SCAN</a></li>
+		<li><a href="http://bailriggfm.co.uk/" target="_blank">Bailrigg FM</a></li>
+		<li><a href="http://lusu.co.uk/" target="_blank">LUSU</a></li>
+	</ul>
+</li>
 @stop
 
 @section('content')
