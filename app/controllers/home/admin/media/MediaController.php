@@ -45,7 +45,7 @@ class MediaController extends MediaBaseController {
 			return;
 		}
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "liveStreamItem.stateDefinition", "videoItem", "videoItem.sourceFile")->search($searchTerm)->usePagination()->orderBy("created_at", "desc")->orderBy("name", "asc")->orderBy("description", "asc")->sharedLock()->get();
+		$mediaItems = MediaItem::with("playlists", "liveStreamItem", "liveStreamItem.liveStream", "liveStreamItem.stateDefinition", "videoItem", "videoItem.sourceFile")->search($searchTerm)->usePagination()->orderBy("created_at", "desc")->orderBy("name", "asc")->orderBy("description", "asc")->sharedLock()->get();
 		
 		foreach($mediaItems as $a) {
 			$enabled = (boolean) $a->enabled;
@@ -77,11 +77,19 @@ class MediaController extends MediaBaseController {
 				$streamState = "[N/A]";
 			}
 			
+			$playlists = $a->playlists;
+			$names = array();
+			foreach($playlists as $playlist) {
+				$names[] = $playlist->generateName();
+			}
+			$playlistsStr = count($names) > 0 ? implode(", ", $names) : "[Not In A Playlist]";
+			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
+				"playlists"		=> $playlistsStr,
 				"hasVod"		=> $hasVodStr,
 				"hasVodCss"		=> $vodEnabled ? "text-success" : "text-danger",
 				"hasStream"		=> $hasStreamStr,
