@@ -207,9 +207,7 @@ class MediaItem extends MyEloquent {
 			
 			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
 				$q->whereHas("videoItem", function($q2) {
-					$q2->accessible()->whereHas("sourceFile", function($q3) {
-						$q3->finishedProcessing();
-					});
+					$q2->accessible();
 				})
 				->orWhereHas("liveStreamItem", function($q2) {
 					$q2->accessible()->showOver(false);
@@ -218,9 +216,7 @@ class MediaItem extends MyEloquent {
 			
 			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
 				$q->whereHas("videoItem", function($q2) {
-					$q2->live()->whereHas("sourceFile", function($q3) {
-						$q3->finishedProcessing();
-					});
+					$q2->live();
 				})
 				->orWhereHas("liveStreamItem", function($q2) {
 					$q2->accessible()->showOver(false);

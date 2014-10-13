@@ -10,6 +10,7 @@
 					<th>Enabled</th>
 					<th>Name</th>
 					<th>Description</th>
+					<th>Playlists</th>
 					<th>Has VOD</th>
 					<th>Has Live Stream</th>
 					<th>Live Stream State</th>
@@ -25,6 +26,7 @@
 					<td><span class="<?=e($a['enabledCss']);?>"><?=e($a['enabled']);?></span></td>
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
+					<td><?=e($a['playlists']);?></td>
 					<td><span class="<?=e($a['hasVodCss']);?>"><?=e($a['hasVod']);?></span></td>
 					<td><span class="<?=e($a['hasStreamCss']);?>"><?=e($a['hasStream']);?></span></td>
 					<td><?=e($a['streamState']);?></td>
@@ -36,6 +38,7 @@
 			<?php endforeach; ?>
 				<?php if ($editEnabled): ?>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
