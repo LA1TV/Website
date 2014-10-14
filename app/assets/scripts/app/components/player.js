@@ -383,6 +383,10 @@ define([
 				}, 0);
 			});
 			registerVideoJsEventHandlers();
+			if (isAutoPlayEnabled()) {
+				// tell it to play so that it then loads the metadata. this triggers the loadedmetadata event which then sets the play position
+				videoJsPlayer.play();
+			}
 			$container.append($player);
 		}
 		
@@ -404,17 +408,22 @@ define([
 			$(self).triggerHandler("playerDestroyed");
 		}
 		
+		function isAutoPlayEnabled() {
+			if (playerAutoPlayStartTime !== null) {
+				if (playerAutoPlayStartTime > videoJsPlayer.duration()) {
+					console.log("ERROR: The auto play start time was set to a value which is longer than the length of the video. Not auto playing.");
+					return false;
+				}
+				return true;
+			}
+			return false;
+		}
+		
 		function registerVideoJsEventHandlers() {
 			videoJsPlayer.on("loadedmetadata", function() {
-				if (playerAutoPlayStartTime !== null) {
-					if (playerAutoPlayStartTime > videoJsPlayer.duration()) {
-						console.log("ERROR: The auto play start time was set to a value which is longer than the length of the video. Not auto playing.");
-					}
-					else {
-						videoJsPlayer.currentTime(playerAutoPlayStartTime);
-						console.log("HERE");
-						videoJsPlayer.play();
-					}
+				if (isAutoPlayEnabled()) {
+					videoJsPlayer.currentTime(playerAutoPlayStartTime);
+					videoJsPlayer.play();
 				}
 			});
 			

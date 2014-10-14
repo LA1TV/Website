@@ -216,6 +216,8 @@ define([
 				setPlayerType("live");
 				setPlayerUris(data.streamUris);
 				setPlayerComponentPlayerUris(getPlayerUris().uris);
+				// if it's a stream auto play it.
+				playerComponent.setPlayerAutoPlayStartTime(0);
 			}
 			else if ((overrideModeEnabled && data.videoUris.length > 0) || data.vodLive) {
 				// video should be live
