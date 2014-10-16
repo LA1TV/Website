@@ -264,7 +264,10 @@ define([
 				streamState = data.streamState;
 				$(self).triggerHandler("streamStateChanged");
 			}
-			playerType = queuedPlayerType;
+			if (playerType !== queuedPlayerType) {
+				playerType = queuedPlayerType;
+				$(self).triggerHandler("playerTypeChanged");
+			}
 			playerComponent.render();
 		}
 		
@@ -306,7 +309,6 @@ define([
 			else {
 				playerComponent.setPlayerType(type).showPlayer(true);
 			}
-			$(self).triggerHandler("playerTypeChanged");
 		}
 		
 		function updateViewCounts() {
