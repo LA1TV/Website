@@ -111,6 +111,7 @@ define([
 		var timerId = null;
 		var playerComponent = null;
 		var playerType = null;
+		var currentUris = [];
 		var cachedData = null;
 		var vodViewCount = null;
 		var streamViewCount = null;
@@ -121,7 +122,6 @@ define([
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
-		var currentQualityId = null;
 		var viewCountRegistered = false;
 		
 		
@@ -203,18 +203,50 @@ define([
 				queuedPlayerType = "vod";
 			}
 			
-			if (queuedPlayerType !== playerType) {
-				// player type needs to change
-				setPlayerType(queuedPlayerType);
-				if (queuedPlayerType === "live") {
-					setPlayerComponentPlayerUris(data.streamUris);
-				}
-				else if (queuedPlayerType === "vod") {
-					setPlayerComponentPlayerUris(data.videoUris);
+			var uriGroups = [];
+			if (queuedPlayerType === "live") {
+				uriGroups = data.streamUris;
+			}
+			else if (queuedPlayerType === "vod") {
+				uriGroups = data.videoUris;
+			}
+			var chosenUris = getChosenUris(uriGroups);
+			
+			var urisChanged = false;
+			// only check if the uris have changes if it's still the same player type
+			if (queuedPlayerType === playerType) {
+				if (currentUris.length !== chosenUris.length) {
+					urisChanged = true;
 				}
 				else {
-					setPlayerComponentPlayerUris([]);
+					for(var i=0; i<chosenUris.length; i++) {
+						var current = currentUris[i];
+						var pending = chosenUris[i];
+						if (current.uri !== pending.uri || current.type !== pending.type || current.supportedDevices !== pending.supportedDevices) {
+							urisChanged = true;
+							break;
+						}
+					}
 				}
+			}
+			currentUris = chosenUris;
+			
+			if (queuedPlayerType !== playerType || urisChanged) {
+				// either the player type has changed, or the current uris for the player have changed.
+				// this may be down to the user changing quality or changed remotely for some reason
+				setPlayerType(queuedPlayerType);
+				if (queuedPlayerType === "live") {
+					// auto start live stream
+					playerComponent.setPlayerStartTime(0, true);
+				}
+				else if (queuedPlayerType === "vod") {
+					if (urisChanged) {
+						// reason we're here is because uris have changed. could be quality change or other reason
+						// but it makes sense to automatically resume playback from where the user was previously
+						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
+					}
+				}
+				playerComponent.setPlayerUris(chosenUris);
 			}
 			
 			if (queuedPlayerType === "ad") {
@@ -236,7 +268,9 @@ define([
 			playerComponent.render();
 		}
 		
-		function setPlayerComponentPlayerUris(uriGroups) {
+		// updates the quality selection component using uriGroups and then queries it to decide what uris should be used
+		function getChosenUris(uriGroups) {
+			var uris = [];
 			var qualities = [];
 			var qualityIds = [];
 			for (var i=0; i<uriGroups.length; i++) {
@@ -249,14 +283,16 @@ define([
 			}
 			qualitiesHandler.setAvailableQualities(qualities);
 			if (qualities.length > 0) {
-				currentQualityId = qualitiesHandler.getChosenQualityId();
+				var currentQualityId = qualitiesHandler.getChosenQualityId();
 				var chosenUriGroup = uriGroups[qualityIds.indexOf(currentQualityId)];
-				playerComponent.setPlayerUris(chosenUriGroup.uris);
+				uris = chosenUriGroup.uris;
 			}
-			else {
-				currentQualityId = null;
-				playerComponent.setPlayerUris([]);
-			}
+			return uris;
+		}
+		
+		// updates the quality selection component so it has the correct qualities, then asks it what quality to use, then sends the uri group corresponding to that quality to the player
+		function setPlayerComponentPlayerUris(uriGroups) {
+			playerComponent.setPlayerUris(getChosenUris(uriGroups));
 		}
 		
 		function setPlayerType(type) {
