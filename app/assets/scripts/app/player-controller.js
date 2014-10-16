@@ -86,7 +86,7 @@ define([
 		};
 		
 		this.getPlayerType = function() {
-			return currentPlayerType;
+			return playerType;
 		}
 		
 		// 1=not live, 2=live, 3=show over, null=no live stream
@@ -110,7 +110,8 @@ define([
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
-		var currentPlayerType = null;
+		var playerType = null;
+		var currentUris = [];
 		var cachedData = null;
 		var vodViewCount = null;
 		var streamViewCount = null;
@@ -121,10 +122,6 @@ define([
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
-		var playerUris = null;
-		var previousPlayerUris = null;
-		var currentQualityId = null;
-		var previousQualityId = null;
 		var viewCountRegistered = false;
 		
 		
@@ -185,6 +182,7 @@ define([
 				return;
 			}
 			data = cachedData;
+			
 			if (playerComponent === null) {
 				playerComponent = new PlayerComponent(data.coverUri, responsive);
 				$(self).triggerHandler("playerComponentElAvailable");
@@ -196,56 +194,83 @@ define([
 				});
 			}
 			
+			var queuedPlayerType = "ad";
+			// live streams take precedence over vod
+			if ((data.hasStream && data.streamState === 2) || (overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3)) {
+				queuedPlayerType = "live";
+			}
+			else if ((data.hasVod && data.vodLive && (!data.hasStream || data.streamState !== 1)) || (overrideModeEnabled && data.videoUris.length > 0)) {
+				queuedPlayerType = "vod";
+			}
+			
+			var uriGroups = [];
+			if (queuedPlayerType === "live") {
+				uriGroups = data.streamUris;
+			}
+			else if (queuedPlayerType === "vod") {
+				uriGroups = data.videoUris;
+			}
+			var chosenUris = getChosenUris(uriGroups);
+			
+			var urisChanged = false;
+			// only check if the uris have changes if it's still the same player type
+			if (queuedPlayerType === playerType) {
+				if (currentUris.length !== chosenUris.length) {
+					urisChanged = true;
+				}
+				else {
+					for(var i=0; i<chosenUris.length; i++) {
+						var current = currentUris[i];
+						var pending = chosenUris[i];
+						if (current.uri !== pending.uri || current.type !== pending.type || current.supportedDevices !== pending.supportedDevices) {
+							urisChanged = true;
+							break;
+						}
+					}
+				}
+			}
+			currentUris = chosenUris;
+			
+			if (queuedPlayerType !== playerType || urisChanged) {
+				// either the player type has changed, or the current uris for the player have changed.
+				// this may be down to the user changing quality or changed remotely for some reason
+				setPlayerType(queuedPlayerType);
+				if (queuedPlayerType === "live") {
+					// auto start live stream
+					playerComponent.setPlayerStartTime(0, true);
+				}
+				else if (queuedPlayerType === "vod") {
+					if (urisChanged) {
+						// reason we're here is because uris have changed. could be quality change or other reason
+						// but it makes sense to automatically resume playback from where the user was previously
+						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
+					}
+				}
+				playerComponent.setPlayerUris(chosenUris);
+			}
+			
+			if (queuedPlayerType === "ad") {
+				if (data.hasStream && data.streamState === 1) {
+					// show stream info message if the stream is enabled and is "not live"
+					playerComponent.setCustomMsg(data.streamInfoMsg);
+				}
+				qualitiesHandler.setAvailableQualities([]);
+			}
+			playerComponent.showStreamOver(data.hasStream && data.streamState === 3);
+			playerComponent.setCustomMsg(data.hasStream && data.streamState === 1 ? data.streamInfoMsg : "");
+			playerComponent.showVodAvailableShortly(data.hasStream && data.streamState === 3 && data.availableOnDemand);
+			playerComponent.setStartTime(data.scheduledPublishTime !== null && (!data.hasStream || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
 			if (data.streamState !== streamState) {
 				streamState = data.streamState;
 				$(self).triggerHandler("streamStateChanged");
 			}
-			
-			playerComponent.setStartTime(data.scheduledPublishTime !== null && data.streamState !== 3 ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
-			playerComponent.showStreamOver(data.streamState === 3);
-			playerComponent.showVodAvailableShortly(data.streamState === 3 && data.availableOnDemand);
-			playerComponent.setCustomMsg("");
-			playerComponent.setPlayerUris([]);
-			playerComponent.setPlayerAutoPlayStartTime(null);
-			if (data.streamState === 1) {
-				// show stream info message if the stream is enabled and is "not live"
-				playerComponent.setCustomMsg(data.streamInfoMsg);
-			}
-			if ((overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3) || data.streamState === 2) {
-				// stream should be live
-				setPlayerType("live");
-				setPlayerUris(data.streamUris);
-				setPlayerComponentPlayerUris(getPlayerUris().uris);
-				// if it's a stream auto play it.
-				playerComponent.setPlayerAutoPlayStartTime(0);
-			}
-			else if ((overrideModeEnabled && data.videoUris.length > 0) || data.vodLive) {
-				// video should be live
-				setPlayerType("vod");
-				setPlayerUris(data.videoUris);
-				setPlayerComponentPlayerUris(getPlayerUris().uris);
-				var autoPlayStartTime = null;
-				if (getPlayerUris().changedSinceLastRender && autoPlay) {
-					autoPlayStartTime = 0;
-				}
-				else {
-					if (previousQualityId !== currentQualityId) {
-						// quality is changing. set autoplay so start video from current point after player reloaded.
-						autoPlayStartTime = playerComponent.getPlayerCurrentTime();
-					}
-				}
-				playerComponent.setPlayerAutoPlayStartTime(autoPlayStartTime);
-			}
-			else {
-				setPlayerType("ad");
-				qualitiesHandler.setAvailableQualities([]);
-			}
+			playerType = queuedPlayerType;
 			playerComponent.render();
-			previousPlayerUris = getPlayerUris().uris;
-			previousQualityId = currentQualityId;
 		}
 		
-		function setPlayerComponentPlayerUris(uriGroups) {
+		// updates the quality selection component using uriGroups and then queries it to decide what uris should be used
+		function getChosenUris(uriGroups) {
+			var uris = [];
 			var qualities = [];
 			var qualityIds = [];
 			for (var i=0; i<uriGroups.length; i++) {
@@ -257,53 +282,23 @@ define([
 				qualityIds.push(uriGroup.quality.id);
 			}
 			qualitiesHandler.setAvailableQualities(qualities);
-			currentQualityId = qualitiesHandler.getChosenQualityId();
-			var chosenUriGroup = uriGroups[qualityIds.indexOf(currentQualityId)];
-			playerComponent.setPlayerUris(chosenUriGroup.uris);
+			if (qualities.length > 0) {
+				var currentQualityId = qualitiesHandler.getChosenQualityId();
+				var chosenUriGroup = uriGroups[qualityIds.indexOf(currentQualityId)];
+				uris = chosenUriGroup.uris;
+			}
+			return uris;
 		}
 		
-		// returns the current player uris
-		function getPlayerUris() {
-			var changed = false;
-			if (previousPlayerUris === null && playerUris === null) {
-				// intentional	
-			}
-			else if ((previousPlayerUris === null && playerUris !== null) || (previousPlayerUris !== null && playerUris === null)) {
-				changed = true;
-			}
-			else if (playerUris.length !== previousPlayerUris.length) {
-				changed = true;
-			}
-			else {
-				for (var i=0; i<previousPlayerUris.length; i++) {
-					var queuedUri = previousPlayerUris[i];
-					var uri = playerUris[i];
-					if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type) {
-						changed = true;
-					}
-				}
-			}
-			
-			return {
-				changedSinceLastRender: changed,
-				uris: playerUris
-			};
-		}
-		
-		function setPlayerUris(uriGroups) {
-			playerUris = uriGroups;
+		// updates the quality selection component so it has the correct qualities, then asks it what quality to use, then sends the uri group corresponding to that quality to the player
+		function setPlayerComponentPlayerUris(uriGroups) {
+			playerComponent.setPlayerUris(getChosenUris(uriGroups));
 		}
 		
 		function setPlayerType(type) {
 			if (type !== "live" && type !== "vod" && type !== "ad") {
 				throw "Type must be either 'live', 'vod' or 'ad'.";
 			}
-			
-			if (currentPlayerType === type) {
-				// not changed
-				return;
-			}
-			currentPlayerType = type;
 			
 			if (type === "ad") {
 				playerComponent.showPlayer(false);

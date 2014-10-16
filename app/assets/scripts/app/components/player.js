@@ -58,21 +58,25 @@ define([
 			return this;
 		};
 		
-		// if set the player will automatically start playing at this point (seconds) in the video once the player has loaded.
-		this.setPlayerAutoPlayStartTime = function(autoPlayStartTime) {
-			queuedPlayerAutoPlayStartTime = autoPlayStartTime;
-			return this;
-		};
-		
 		this.showPlayer = function(show) {
 			queuedShowAd = !show;
 			queuedShowPlayer = show;
 			return this;
 		};
 		
+		// set the player position to a certain time (in seconds) on the next render call.
+		// if startPlaying is true the player will start playing if it is not already.
+		this.setPlayerStartTime = function(time, startPlaying) {
+			queuedPlayerTime = time;
+			queuedPlayerTimeStartPlaying = startPlaying ? true : false;
+			return this;
+		};
+		
 		this.render = function() {
 			updateAd();
 			updatePlayer();
+			queuedPlayerTime = null;
+			queuedPlayerTimeStartPlaying = null;
 			return this;
 		};
 		
@@ -102,6 +106,13 @@ define([
 			}
 		};
 		
+		this.paused = function() {
+			if (videoJsPlayer !== null) {
+				return videoJsPlayer.paused();
+			}
+			return null;
+		};
+		
 		var showAd = null;
 		var queuedShowAd = true;
 		var startTime = null;
@@ -116,14 +127,15 @@ define([
 		var queuedShowVodAvailableShortly = false;
 		var currentAdTimeTxt = null;
 		var currentAdLiveAtTxt = null;
+		var videoJsLoadedMetadata = false;
 		var playerType = null;
 		var queuedPlayerType = null;
 		var playerPreload = null;
 		var queuedPlayerPreload = true;
 		var showPlayer = null;
 		var queuedShowPlayer = false;
-		var playerAutoPlayStartTime = null;
-		var queuedPlayerAutoPlayStartTime = null;
+		var queuedPlayerTime = null;
+		var queuedPlayerTimeStartPlaying = null;
 		var playerUris = null;
 		var queuedPlayerUris = [];
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
@@ -327,6 +339,21 @@ define([
 					playerType = queuedPlayerType;
 				}
 			}
+			
+			if (queuedPlayerTime !== null) {
+				(function(startTime, startPlaying) {
+					if (startPlaying) {
+						videoJsPlayer.play();
+					}
+					onVideoJsLoadedMetadata(function() {	
+						if (startTime > videoJsPlayer.duration()) {
+							console.log("ERROR: The start time was set to a value which is longer than the length of the video. Not changing time.");
+							return;
+						}
+						videoJsPlayer.currentTime(startTime);
+					});
+				})(queuedPlayerTime, queuedPlayerTimeStartPlaying);
+			}
 		}
 		
 		// creates the player
@@ -334,10 +361,6 @@ define([
 		function createPlayer() {
 			// destroy current player if there is one
 			destroyPlayer();
-			
-			if (playerAutoPlayStartTime !== queuedPlayerAutoPlayStartTime) {
-				playerAutoPlayStartTime = queuedPlayerAutoPlayStartTime;
-			}
 			
 			$player = $("<div />").addClass("player embed-responsive-item");
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
@@ -383,10 +406,6 @@ define([
 				}, 0);
 			});
 			registerVideoJsEventHandlers();
-			if (isAutoPlayEnabled()) {
-				// tell it to play so that it then loads the metadata. this triggers the loadedmetadata event which then sets the play position
-				videoJsPlayer.play();
-			}
 			$container.append($player);
 		}
 		
@@ -402,29 +421,15 @@ define([
 			$player.remove();
 			$player = null;
 			playerPreload = null;
-			playerAutoPlayStartTime = null;
 			playerUris = null;
 			playerType = null;
+			videoJsLoadedMetadata = false;
 			$(self).triggerHandler("playerDestroyed");
-		}
-		
-		function isAutoPlayEnabled() {
-			if (playerAutoPlayStartTime !== null) {
-				if (playerAutoPlayStartTime > videoJsPlayer.duration()) {
-					console.log("ERROR: The auto play start time was set to a value which is longer than the length of the video. Not auto playing.");
-					return false;
-				}
-				return true;
-			}
-			return false;
 		}
 		
 		function registerVideoJsEventHandlers() {
 			videoJsPlayer.on("loadedmetadata", function() {
-				if (isAutoPlayEnabled()) {
-					videoJsPlayer.currentTime(playerAutoPlayStartTime);
-					videoJsPlayer.play();
-				}
+				videoJsLoadedMetadata = true;
 			});
 			
 			videoJsPlayer.on("play", function() {
@@ -439,6 +444,19 @@ define([
 			videoJsPlayer.on("ended", function() {
 				$(self).triggerHandler("ended");
 			});
+		}
+		
+		// executes callback when metadata has been loaded.
+		// different to listening to event because will callback will always be executed even if event happened
+		function onVideoJsLoadedMetadata(callback) {
+			if (videoJsLoadedMetadata) {
+				callback();
+			}
+			else {
+				videoJsPlayer.one("loadedmetadata", function() {
+					callback();
+				});
+			}
 		}
 		
 		function havePlayerUrisChanged() {
