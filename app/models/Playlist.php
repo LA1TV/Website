@@ -92,17 +92,20 @@ class Playlist extends MyEloquent {
 	}
 	
 	// returns the media items name with an episode number if this playlist is a series in a show
-	public function generateEpisodeTitle($mediaItemParam) {
+	public function generateEpisodeTitle($mediaItemParam, $includePlaylistName=false) {
 		$mediaItem = $this->mediaItems->find($mediaItemParam->id);
 		if (is_null($mediaItem)) {
 			throw(new Exception("Playlist does not contain MediaItem."));
 		}
 		
+		$name = $includePlaylistName ? $this->generateName() . " - " : "";
 		if (is_null($this->show)) {
-			return $mediaItem->name;
+			$name .= $mediaItem->name;
 		}
-		
-		return $this->getEpisodeNumber($mediaItem) . ". " . $mediaItem->name;
+		else {
+			$name .= $this->getEpisodeNumber($mediaItem) . ". " . $mediaItem->name;
+		}
+		return $name;
 	}
 	
 	public function getEpisodeNumber($mediaItem) {
