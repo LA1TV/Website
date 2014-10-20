@@ -10,10 +10,6 @@ require.config({
 			exports: "ga"
 		}
 	}
-	},
-	shim: {
-		"lib/bootstrap": ["jquery"]
-	}
 });
 
 require([
