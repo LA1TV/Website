@@ -1,15 +1,25 @@
 define(["./page-data", "ga"], function(PageData, ga) {
-	if (!PageData.get("gaEnabled")) {
-		return;
-	}
 	
-	ga('create', 'UA-43879336-5', 'auto');
-	ga('send', 'pageview');
+	var enabled = PageData.get("gaEnabled");
+	// myGa gets set to the google analytics function if it should be enabled, otherwise just a stub
+	var myGa = enabled ? ga : function(){};
 	
-	function sendHeartbeat() {
-		ga('send', 'event', 'Heartbeat', 'Beat', {'nonInteraction': 1});
-		setTimeout(sendHeartbeat, 5*60*1000);
+	if (enabled) {
+		myGa('create', 'UA-43879336-5', 'auto');
+		myGa('send', 'pageview');
+		
+		function sendHeartbeat() {
+			myGa('send', 'event', 'Heartbeat', 'Beat', {'nonInteraction': 1});
+			setTimeout(sendHeartbeat, 5*60*1000);
+		}
+		sendHeartbeat();
 	}
-	sendHeartbeat();
+
+	
+	return {
+		registerModulesLoadTime: function(site, timeTaken) {
+			myGa('send', 'timing', site, 'RequireJS modules load time.', timeTaken);
+		}
+	};
 	
 });
