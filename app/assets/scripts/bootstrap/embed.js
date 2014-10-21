@@ -12,13 +12,19 @@ require.config({
 	}
 });
 
-require([
-	"lib/bootstrap",
-	"app/google-analytics",
-	"app/fit-text-handler",
-	"app/synchronised-time",
-	"app/video-js",
-	"app/pages/embed/player-page",
-], function() {
-	// everything loaded
-});
+(function() {
+	var startTime = new Date().getTime();
+
+	require([
+		"app/google-analytics",
+		"lib/bootstrap",
+		"app/fit-text-handler",
+		"app/synchronised-time",
+		"app/video-js",
+		"app/pages/embed/player-page",
+	], function(googleAnalytics) {
+		// everything loaded
+		googleAnalytics.registerModulesLoadTime("Embed", new Date().getTime() - startTime);
+	});
+
+})();
