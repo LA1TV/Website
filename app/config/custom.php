@@ -8,7 +8,7 @@ return array(
 	"base_url"			=> URL::to("/"),
 	"admin_base_url"	=> URL::to("/") . "/admin",
 	// the number of days an item can be considered active for
-	"num_days_active"	=> 14,
+	"num_days_active"	=> 21,
 	// items scheduled before the current date + this number of days will be considered active
 	"num_days_future_before_active"	=> 7,
 	// the time in minutes to cache certain query results. E.g the active shows and active playlists list.
