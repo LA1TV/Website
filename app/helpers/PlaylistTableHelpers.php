@@ -7,7 +7,7 @@ class PlaylistTableHelpers {
 			return null;
 		}
 		$mediaItem->load("liveStreamItem");
-		$isLive = !is_null($mediaItem->liveStreamItem) && $mediaItem->liveStreamItem->accessible();
+		$isLive = !is_null($mediaItem->liveStreamItem) && $mediaItem->liveStreamItem->getIsAccessible();
 		if ($isLive && intval($mediaItem->liveStreamItem->getResolvedStateDefinition()->id) !== 1) {
 			return null;
 		}
