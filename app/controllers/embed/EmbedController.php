@@ -27,8 +27,10 @@ class EmbedController extends EmbedBaseController {
 		else {
 			// true if a user is logged into the cms and has permission to view media items.
 			$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
-
-			$view->episodeTitle = $currentMediaItem->name;
+	
+			$title = $currentMediaItem->name;
+			
+			$view->episodeTitle = $title;
 			$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
 			$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
 			$view->registerLikeUri = $this->getRegisterLikeUri($playlistId, $mediaItemId);
