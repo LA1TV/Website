@@ -1,8 +1,6 @@
 <div class="heading-container clearfix">
 	<div class="logo-container">
-		<?php if ($hasVideo): ?>
-		<a href="<?=e($hyperlink);?>" target="_blank" title="Watch on LA1:TV's website."><img class="img-responsive" src="<?=asset("assets/img/logo.png");?>"/></a>
-		<?php else: ?>
+		<?php if (!$hasVideo): ?>
 		<a href="<?=e($hyperlink);?>" target="_blank"><img class="img-responsive" src="<?=asset("assets/img/logo.png");?>"/></a>
 		<?php endif; ?>
 	</div>
