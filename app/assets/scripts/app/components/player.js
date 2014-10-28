@@ -287,8 +287,7 @@ define([
 			destroyAd();
 			$ad = $("<div />").addClass("ad embed-responsive-item");
 			var $bg = $("<div />").addClass("bg");
-			var $img = $("<img />").attr("src", coverUri).addClass("img-responsive");
-			$bg.append($img);
+			$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
 			var $overlay = $("<div />").addClass("overlay");
 			$adLiveAt = $("<div />").addClass("live-at-header fit-text txt-shadow").attr("data-compressor", "1.5").hide();
 			$adStreamOver = $("<div />").addClass("stream-over-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Stream Has Now Finished").hide();
