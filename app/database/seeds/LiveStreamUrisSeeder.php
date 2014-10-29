@@ -21,7 +21,10 @@ class LiveStreamUrisSeeder extends Seeder {
 			array("http://{domain}/{appName}/{streamName}_240p/playlist/playlist.m3u8", 5, "application/x-mpegURL", "mobile"),
 			array("rtmp://{domain}/{appName}/{streamName}_160p", 6, "rtmp/mp4", null),
 			array("http://{domain}/{appName}/{streamName}_160p/playlist.m3u8", 6, "application/x-mpegURL", "mobile"),
-			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 7, "application/x-mpegURL", "mobile")
+			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 7, "application/x-mpegURL", "mobile"),
+			array("rtmp://{domain}/{appName}/{streamName}", 8, "rtmp/mp4", null),
+			array("http://{domain}/{appName}/{streamName}/playlist.m3u8", 8, "application/x-mpegURL", "mobile"),
+
 		);
 		
 		foreach($qualities as $b=>$a) {
