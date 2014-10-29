@@ -1,9 +1,13 @@
-.page-player .player-container-component-container {
-	margin-bottom: 10px;
+.page-player .broadcast-on-msg {
+	text-align: right;
+	font-style: italic;
+	font-size: 12px;
+	margin-top: 4px;
 }
 
 .page-player .description-container {
 	margin-bottom: 10px;
+	margin-top: 7px;
 }
 
 .page-player .admin-panel .my-row {
