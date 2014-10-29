@@ -211,8 +211,14 @@ class PlayerController extends HomeBaseController {
 		
 		$broadcastOnMsg = null;
 		$scheduledPublishTime = $currentMediaItem->scheduled_publish_time;
-		if ($scheduledPublishTime->isPast()) {
-			if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
+		$hasAccessibleLiveStream = !is_null($liveStreamItem) && $liveStreamItem->getIsAccessible();
+		$hasLiveLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 2;
+		$hasFinishedLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 3;
+		$currentMediaItem->load("videoItem");
+		$videoItem = $currentMediaItem->videoItem;
+		$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
+		if ($scheduledPublishTime->isPast() && (($hasAccessibleVod && !$hasAccessibleLiveStream) || ($hasLiveLiveStream || $hasFinishedLiveStream))) {
+			if ($hasFinishedLiveStream) {
 				$broadcastOnMsg = "Broadcast at ";
 			}
 			else {
