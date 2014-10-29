@@ -209,6 +209,25 @@ class PlayerController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		
+		$broadcastOnMsg = null;
+		$scheduledPublishTime = $currentMediaItem->scheduled_publish_time;
+		if ($scheduledPublishTime->isPast()) {
+			if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
+				$broadcastOnMsg = "Broadcast at ";
+			}
+			else {
+				$broadcastOnMsg = "Available since ";
+			}
+			$dateStr = $scheduledPublishTime->format('H:i') . " on ";
+			if ($scheduledPublishTime->year !== Carbon::now()->year) {
+				$dateStr .= $scheduledPublishTime->format('jS M y');
+			}
+			else {
+				$dateStr .= $scheduledPublishTime->format('jS M');
+			}
+			$broadcastOnMsg .= $dateStr;
+		}
+		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
@@ -224,6 +243,7 @@ class PlayerController extends HomeBaseController {
 		$view->seriesAd = $seriesAd;
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		$view->broadcastOnMsg = $broadcastOnMsg;
 		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name);
 	}
 	
