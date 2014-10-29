@@ -220,7 +220,7 @@ class PlayerController extends HomeBaseController {
 			}
 			$dateStr = $scheduledPublishTime->format('H:i') . " on ";
 			if ($scheduledPublishTime->year !== Carbon::now()->year) {
-				$dateStr .= $scheduledPublishTime->format('jS M y');
+				$dateStr .= $scheduledPublishTime->format('jS M Y');
 			}
 			else {
 				$dateStr .= $scheduledPublishTime->format('jS M');
