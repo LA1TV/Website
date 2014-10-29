@@ -109,6 +109,6 @@ Route::filter('setContentSecurityPolicyHeader', function($route, $request, $resp
 		}
 		$domainsString = implode(" ", $allowedDomains);
 	
-	//	$response->header("Content-Security-Policy", "default-src 'self'; media-src 'self' ".$domainsString."; script-src 'self' https://www.google-analytics.com; img-src *; frame-src 'none'");
+		$response->header("Content-Security-Policy-Report-Only", "default-src 'self'; media-src 'self' ".$domainsString."; script-src 'self' https://www.google-analytics.com; img-src *; frame-src 'none'");
 	}
 });
