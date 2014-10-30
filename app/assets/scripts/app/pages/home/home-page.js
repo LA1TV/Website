@@ -23,8 +23,8 @@ define([
 			
 			$(this).find(".footer").each(function() {
 				$footers.push($(this).first());
-				if ($footers.length > 1) {
-					$(this).css("opacity", 0);
+				if ($footers.length === 1) {
+					$(this).css("opacity", 1);
 				}
 			});
 			
