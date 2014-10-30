@@ -206,11 +206,7 @@ class MediaItem extends MyEloquent {
 			$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
 			
 			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
-				$q->whereHas("videoItem", function($q2) {
-					$q2->accessible()->whereHas("sourceFile", function($q3) {
-						$q3->finishedProcessing();
-					});
-				})
+				$q->has("liveStreamItem", "=", 0)
 				->orWhereHas("liveStreamItem", function($q2) {
 					$q2->accessible()->showOver(false);
 				});
