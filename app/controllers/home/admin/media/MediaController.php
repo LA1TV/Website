@@ -82,7 +82,7 @@ class MediaController extends MediaBaseController {
 			foreach($playlists as $playlist) {
 				$names[] = $playlist->generateName();
 			}
-			$playlistsStr = count($names) > 0 ? implode(", ", $names) : "[Not In A Playlist]";
+			$playlistsStr = count($names) > 0 ? '"'.implode('", "', $names).'"' : "[Not In A Playlist]";
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
@@ -436,15 +436,27 @@ class MediaController extends MediaBaseController {
 		$searchTerm = FormHelpers::getValue("term", "");
 		$mediaItems = null;
 		if (!empty($searchTerm)) {
-			$mediaItems = MediaItem::search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
+			$mediaItems = MediaItem::with("playlists")->search($searchTerm)->orderBy("created_at", "desc")->take(20)->get();
 		}
 		else {
-			$mediaItems = MediaItem::orderBy("created_at", "desc")->take(20)->get();
+			$mediaItems = MediaItem::with("playlists")->orderBy("created_at", "desc")->take(20)->get();
 		}
 		
 		$results = array();
 		foreach($mediaItems as $a) {
-			$results[] = array("id"=>intval($a->id), "text"=>$a->name);
+			$text = $a->name;
+			if (!is_null($a->description)) {
+				$text .= " (".str_limit($a->description, 60, '...').")";
+			}
+			$playlists = $a->playlists;
+			$names = array();
+			foreach($playlists as $playlist) {
+				$names[] = $playlist->generateName();
+			}
+			if (count($names) > 0) {
+				$text .= ' (In "'.implode('", "', $names).'")';
+			}
+			$results[] = array("id"=>intval($a->id), "text"=>$text);
 		}
 		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
 		$resp['success'] = true;
