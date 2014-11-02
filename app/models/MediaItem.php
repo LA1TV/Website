@@ -99,7 +99,7 @@ class MediaItem extends MyEloquent {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
-			return $model->name;
+			return $model->getNameWithInfo();
 		});
 		return $reorderableList->getInitialDataString();
 	}
@@ -118,6 +118,21 @@ class MediaItem extends MyEloquent {
 			return null;
 		}
 		return FormHelpers::formatDateForInput($this->scheduled_publish_time->timestamp);
+	}
+	
+	public function getNameWithInfo() {
+		$text = $this->name;
+		if (!is_null($this->description)) {
+			$text .= " (".str_limit($this->description, 60, '...').")";
+		}
+		$names = array();
+		foreach($this->playlists as $playlist) {
+			$names[] = $playlist->generateName();
+		}
+		if (count($names) > 0) {
+			$text .= ' (In "'.implode('", "', $names).'")';
+		}
+		return $text;
 	}
 	
 	public function registerLike($siteUser) {

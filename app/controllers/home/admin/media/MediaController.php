@@ -444,19 +444,7 @@ class MediaController extends MediaBaseController {
 		
 		$results = array();
 		foreach($mediaItems as $a) {
-			$text = $a->name;
-			if (!is_null($a->description)) {
-				$text .= " (".str_limit($a->description, 60, '...').")";
-			}
-			$playlists = $a->playlists;
-			$names = array();
-			foreach($playlists as $playlist) {
-				$names[] = $playlist->generateName();
-			}
-			if (count($names) > 0) {
-				$text .= ' (In "'.implode('", "', $names).'")';
-			}
-			$results[] = array("id"=>intval($a->id), "text"=>$text);
+			$results[] = array("id"=>intval($a->id), "text"=>$a->getNameWithInfo());
 		}
 		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
 		$resp['success'] = true;
