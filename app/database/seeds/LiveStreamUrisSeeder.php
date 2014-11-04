@@ -29,10 +29,6 @@ class LiveStreamUrisSeeder extends Seeder {
 		
 		foreach($qualities as $b=>$a) {
 			$qualityDefinition = QualityDefinition::find($a[1]);
-			$oldModel = LiveStreamUri::find($b+1);
-			if (!is_null($oldModel)) {
-				$oldModel->delete();
-			}
 			$model = new LiveStreamUri(array(
 				"position"		=> $b,
 				"uri_template"	=> $a[0],
@@ -42,7 +38,7 @@ class LiveStreamUrisSeeder extends Seeder {
 			$model->qualityDefinition()->associate($qualityDefinition);
 			$model->save();
 		}
-		$this->command->info('Live stream uris created/updated!');
+		$this->command->info('Live stream uris created!');
 	}
 
 }
