@@ -27,7 +27,8 @@ class FacebookManager {
 	
 		$this->initFacebookSession();
 		$loginHelper = new MyFacebookRedirectLoginHelper($authUri);
-		return Redirect::to($loginHelper->getLoginUrl());
+		// request the email permission as well as logging in
+		return Redirect::to($loginHelper->getLoginUrl(array("email")));
 	}
 	
 	public function getShareUri($url) {
@@ -143,6 +144,21 @@ class FacebookManager {
 		return $user;
 	}
 	
+	// returns true if successfully logged out
+	public function logout() {
+		if (!$this->isLoggedIn()) {
+			return false;
+		}
+		$this->clearOurStoredSecret();
+		return true;
+	}
+	
+	// updates the cached list of facebook permissions the user has granted access to from facebook on the user model
+	// returns true if permissions updated successfully or false if there was an error updating
+	public function updateUsersFacebookPermissions($user) {
+		// TODO
+	}
+	
 	// updates the user model with information from facebook
 	// does not save the model
 	private function updateUser($user, $fbSession) {
@@ -220,14 +236,5 @@ class FacebookManager {
 			$siteUser->save();
 		}
 		return $siteUser;
-	}
-	
-	// returns true if successfully logged out
-	public function logout() {
-		if (!$this->isLoggedIn()) {
-			return false;
-		}
-		$this->clearOurStoredSecret();
-		return true;
 	}
 }
