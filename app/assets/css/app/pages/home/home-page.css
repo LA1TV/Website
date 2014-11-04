@@ -52,7 +52,7 @@
 }
 
 .page-home .promo-carousel .item .content-container .footer .series-title {
-	font-size: 24px;
+	font-size: 18px;
 }
 
 .page-home .promo-carousel .item .content-container .footer .available-msg {
@@ -63,7 +63,11 @@
 	.page-home .promo-carousel .item .content-container .footer .title {
 		font-size: 28px
 	}
-
+	
+	.page-home .promo-carousel .item .content-container .footer .series-title {
+		font-size: 24px;
+	}
+	
 	.page-home .promo-carousel .item .content-container .footer .available-msg {
 		font-size: 20px;
 	}
