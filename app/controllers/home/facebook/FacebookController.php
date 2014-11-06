@@ -1,19 +1,27 @@
 <?php namespace uk\co\la1tv\website\controllers\home\facebook;
 
-use uk\co\la1tv\website\controllers\BaseController;
+use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use Config;
 use URL;
 use Facebook;
 use Redirect;
+use View;
+use App;
 use Session;
 use FormHelpers;
 
-class FacebookController extends BaseController {
+class FacebookController extends HomeBaseController {
+	
+	private $authUrl;
+	
+	public function __construct() {
+		$this->authUrl = URL::to("/facebook/auth");
+	}
 	
 	// Redirect the user to facebook to login (if necessary)
 	public function getLogin() {
 		$this->recordReturnUri();
-		return Facebook::getLoginRedirect(URL::to("/facebook/auth"));
+		return Facebook::getLoginRedirect($this->authUrl);
 	}
 	
 	// User bounced back to here from facebook.
@@ -27,6 +35,24 @@ class FacebookController extends BaseController {
 		$this->recordReturnUri();
 		Facebook::logout();
 		return Redirect::to($this->getReturnUri());
+	}
+	
+	// e.g. /request-permission?permissions=email,user_likes
+	public function getRequestPermission() {
+		if (!isset($_GET['permissions'])) {
+			App::abort(400); // bad request
+		}
+		$permissions = explode(",", $_GET['permissions']);
+		if (count($permissions) === 1 && empty($permissions[0])) {
+			App::abort(400); // bad request
+		}
+		$this->recordReturnUri();
+		return Facebook::getLoginRedirect($this->authUrl, $permissions);
+	}
+	
+	public function getPermissions() {
+		$view = View::make("home.facebook.permissions");
+		$this->setContent($view, "fbpermissions", "fbpermissions", array(), "Facebook Permissions");
 	}
 	
 	private function recordReturnUri() {
