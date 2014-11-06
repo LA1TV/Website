@@ -19,16 +19,19 @@ class FacebookManager {
 	private $siteUser = null;
 	private $siteUserCached = false;
 	
-	public function getLoginRedirect($authUri) {
+	public function getLoginRedirect($authUri, $requestedPermissionsParam=array()) {
 		
 		if (!Config::get("facebook.enabled")) {
 			throw(new Exception("Facebook login is currently disabled."));
 		}
-	
+		
+		// request the email permission as well as logging in
+		$requestedPermissions = array("email");
+		$requestedPermissions = array_unique(array_merge($requestedPermissions, $requestedPermissionsParam));
+		
 		$this->initFacebookSession();
 		$loginHelper = new MyFacebookRedirectLoginHelper($authUri);
-		// request the email permission as well as logging in
-		return Redirect::to($loginHelper->getLoginUrl(array("email")));
+		return Redirect::to($loginHelper->getLoginUrl($requestedPermissions));
 	}
 	
 	public function getShareUri($url) {
