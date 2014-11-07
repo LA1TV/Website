@@ -153,9 +153,8 @@ class FacebookManager {
 	// return the FacebookSession object for a user or null if this was not possible for some reason.
 	private function getFacebookSession($user) {
 		// first see if a session has already been created for this user. if it has return that.
-		$fbSession = self::getCachedFacebookSession($user->fb_access_token);
-		if (!is_null($fbSession)) {
-			return $fbSession;
+		if (self::hasCachedFacebookSession($user->fb_access_token)) {
+			return self::getCachedFacebookSession($user->fb_access_token);
 		}
 		$fbSession = new FacebookSession($user->fb_access_token);
 		$token = $fbSession->getAccessToken();
