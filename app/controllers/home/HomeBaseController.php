@@ -12,6 +12,7 @@ use Facebook;
 use Request;
 use MyResponse;
 use View;
+use URLHelpers;
 
 class HomeBaseController extends BaseController {
 
@@ -74,7 +75,7 @@ class HomeBaseController extends BaseController {
 		$view->openGraphProperties = $finalOpenGraphProperties;
 		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
-		$returnUri = implode("/", Request::segments());
+		$returnUri = URLHelpers::getPath();
 		$view->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
 		$view->logoutUri = Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode($returnUri);
 		$view->homeUri = Config::get("custom.base_url");

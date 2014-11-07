@@ -62,4 +62,8 @@ class URLHelpers {
 			
 		return $urlParts['scheme'] === $localUrlParts['scheme'] && $urlParts['host'] === $localUrlParts['host'] && $urlPort === $localUrlPort;
 	}
+	
+	public static function getPath() {
+		return implode("/", Request::segments());
+	}
 }
