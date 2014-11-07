@@ -22,7 +22,7 @@
 				<?php endif; ?>
 				</div>
 				<?php if (!$a['granted']): ?>
-				<a class="btn btn-primary btn-sm" href="<?=e($requestPermissionLink);?>">Provide This</button>
+				<a class="btn btn-primary btn-sm" href="<?=e($a['requestPermissionUri']);?>">Provide This</button>
 				<?php endif; ?>
 			</td>
 			<td class="permission-col"><?=e($a['name']);?></td>

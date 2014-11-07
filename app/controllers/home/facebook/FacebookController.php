@@ -68,7 +68,7 @@ class FacebookController extends HomeBaseController {
 					"granted"			=> in_array($a['id'], $providedPermissions),
 					"name"				=> $a['name'],
 					"description"		=> $a['description'],
-					"requestPermissionLink"	=> Config::get("custom.base_url") . "/facebook/request-permission?permissions=".urlencode($a['id'])."&amp;returnuri=".urlencode(URLHelpers::getPath())
+					"requestPermissionUri"	=> Config::get("custom.base_url") . "/facebook/request-permission?permissions=".urlencode($a['id'])."&amp;returnuri=".urlencode(URLHelpers::getPath())
 				);
 			}
 		}
