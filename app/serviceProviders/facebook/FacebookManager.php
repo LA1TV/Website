@@ -18,7 +18,7 @@ class FacebookManager {
 	private $sessionInitalized = false;
 	private $siteUser = null;
 	private $siteUserCached = false;
-	// each element is of form array("userId", "facebookSession") facebookSession can be null
+	// each element is of form array("accessToken", "facebookSession") facebookSession can be null. accessToken is the facebook access token
 	private $cachedFacebookSessions = array();
 	
 	public function getLoginRedirect($authUri, $requestedPermissionsParam=array()) {
@@ -70,6 +70,8 @@ class FacebookManager {
 			return false;
 		}
 		
+		$this->cacheFacebookSession((String) $token, $fbSession);
+		
 		// make a request to get the users uid
 		$profile = (new FacebookRequest(
 			$fbSession, 'GET', '/me?fields=id'
@@ -84,7 +86,7 @@ class FacebookManager {
 			$user->fb_last_update_time = Carbon::now();
 			$user->last_seen = Carbon::now();
 			// populate the model with the rest of the users information from facebook.
-			self::updateUser($user, $fbSession);
+			self::updateUser($user);
 		}
 		$ourSecret = str_random(40);
 		$hashedSecret = hash("sha256", $ourSecret);
@@ -151,10 +153,9 @@ class FacebookManager {
 	// return the FacebookSession object for a user or null if this was not possible for some reason.
 	private function getFacebookSession($user) {
 		// first see if a session has already been created for this user. if it has return that.
-		foreach($this->cachedFacebookSessions as $a) {
-			if ($a['userId'] === intval($user->id)) {
-				return $a['facebookSession'];
-			}
+		$fbSession = self::getCachedFacebookSession($user->fb_access_token);
+		if (!is_null($fbSession)) {
+			return $fbSession;
 		}
 		$fbSession = new FacebookSession($user->fb_access_token);
 		$token = $fbSession->getAccessToken();
@@ -165,11 +166,34 @@ class FacebookManager {
 			$fbSession = null;
 		}
 		// store in cache
+		$this->cacheFacebookSession($user->fb_access_token, $fbSession);
+		return $fbSession;
+	}
+	
+	private function cacheFacebookSession($accessTokenStr, $fbSession) {
+		if (!is_null($this->getCachedFacebookSession($accessTokenStr))) {
+			// session is already cached. remove it so it can be replaced with this one
+			$indexToRemove = null;
+			foreach($this->cachedFacebookSessions as $b=>$a) {
+				if ($a['accessToken'] === $accessTokenStr) {
+					$indexToRemove = $b;
+				}
+			}
+			unset($this->cachedFacebookSessions[$indexToRemove]);
+		}
 		$this->cachedFacebookSessions[] = array(
-			"userId"			=> intval($user->id),
+			"accessToken"		=> $accessTokenStr,
 			"facebookSession"	=> $fbSession
 		);
-		return $fbSession;
+	}
+	
+	private function getCachedFacebookSession($accessTokenStr) {
+		foreach($this->cachedFacebookSessions as $a) {
+			if ($a['accessToken'] === $accessTokenStr) {
+				return $a['facebookSession'];
+			}
+		}
+		return null;
 	}
 	
 	// returns true if successfully logged out
