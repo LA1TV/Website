@@ -7,6 +7,6 @@ return array(
 	// interval in minutes that must pass before the system checks facebook for updated profile info and whether token is still valid
 	"updateInterval"	=> 10,
 	"wantedPermissions"	=> array(
-		array("id"=> "email", "description"=> "We would like this permission in order to send you emails to the email address you registered with facebook.")
+		array("id"=> "email", "name"=> "Email", "description"=> "We would like this permission in order to send you emails to the email address you registered with facebook.")
 	)
 );

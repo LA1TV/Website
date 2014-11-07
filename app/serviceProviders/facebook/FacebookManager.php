@@ -18,6 +18,8 @@ class FacebookManager {
 	private $sessionInitalized = false;
 	private $siteUser = null;
 	private $siteUserCached = false;
+	// each element is of form array("userId", "facebookSession") facebookSession can be null
+	private $cachedFacebookSessions = array();
 	
 	public function getLoginRedirect($authUri, $requestedPermissionsParam=array()) {
 		
@@ -82,7 +84,7 @@ class FacebookManager {
 			$user->fb_last_update_time = Carbon::now();
 			$user->last_seen = Carbon::now();
 			// populate the model with the rest of the users information from facebook.
-			$this->updateUser($user, $fbSession);
+			self::updateUser($user, $fbSession);
 		}
 		$ourSecret = str_random(40);
 		$hashedSecret = hash("sha256", $ourSecret);
@@ -133,18 +135,41 @@ class FacebookManager {
 		}
 			
 		if ($this->isTimeForNextFacebookUpdate($user)) {
-			// check that the token is still valid and hasn't expired. This checks with facebook and fails if user has removed app.
-			$fbSession = new FacebookSession($user->fb_access_token);
-			$token = $fbSession->getAccessToken();
-			if (!$token->isValid()) {
+			// $fbSession will be null if it cannot be created for some reason. eg. token expiring.
+			$fbSession = $this->getFacebookSession($user);
+			if (is_null($fbSession)) {
 				$this->clearOurStoredSecret();
 				return;
 			}
-			$this->updateUser($user, $fbSession);
+			self::updateUser($user);
 			$user->save();
 		}
 		
 		return $user;
+	}
+	
+	// return the FacebookSession object for a user or null if this was not possible for some reason.
+	private function getFacebookSession($user) {
+		// first see if a session has already been created for this user. if it has return that.
+		foreach($this->cachedFacebookSessions as $a) {
+			if ($a['userId'] === intval($user->id)) {
+				return $a['facebookSession'];
+			}
+		}
+		$fbSession = new FacebookSession($user->fb_access_token);
+		$token = $fbSession->getAccessToken();
+		// check that the token is still valid and hasn't expired. This checks with facebook and fails if user has removed app.
+		if (!$token->isValid()) {
+			// if the token is invalid don't return the session.
+			// null should be cached in cachedFacebookSessions so that this check doesn't have to be made again on this request.
+			$fbSession = null;
+		}
+		// store in cache
+		$this->cachedFacebookSessions[] = array(
+			"userId"			=> intval($user->id),
+			"facebookSession"	=> $fbSession
+		);
+		return $fbSession;
 	}
 	
 	// returns true if successfully logged out
@@ -155,16 +180,21 @@ class FacebookManager {
 		$this->clearOurStoredSecret();
 		return true;
 	}
-	
-	// updates the cached list of facebook permissions the user has granted access to from facebook on the user model
-	// returns true if permissions updated successfully or false if there was an error updating
-	public function updateUsersFacebookPermissions($user) {
-		// TODO
-	}
-	
+
 	// updates the user model with information from facebook
 	// does not save the model
-	private function updateUser($user, $fbSession) {
+	private static function updateUser($user, $fbSession) {
+		self::updateUserOpenGraph($user, $fbSession);
+		self::updateUserPermissions($user, $fbSession);
+	}
+	
+	// updates the user model with information from opengraph
+	// returns true if this succeeds or false otherwise.
+	public static function updateUserOpenGraph($user) {
+		$fbSession = $this->getFacebookSession($user);
+		if (is_null($fbSession)) {
+			return false;
+		}
 		$profile = (new FacebookRequest(
 			$fbSession, 'GET', '/me?fields=first_name,last_name,name'
 		))->execute()->getGraphObject(GraphUser::className());
@@ -173,6 +203,18 @@ class FacebookManager {
 		$user->first_name = $profile->getFirstName();
 		$user->last_name = $profile->getLastName();
 		$user->name = $profile->getName();
+		return true;
+	}
+	
+	// updates the user model with information about the facebook permissions they have given
+	// returns true if this succeeds or false otherwise.
+	public static function updateUserPermissions($user) {
+		$fbSession = $this->getFacebookSession($user);
+		if (is_null($fbSession)) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	private function initFacebookSession() {
