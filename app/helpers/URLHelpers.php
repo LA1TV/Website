@@ -31,14 +31,17 @@ class URLHelpers {
 	
 	// returns the url if the referrer is set or NULL otherwise.
 	public static function getReferrerUrl() {
-//	dd($_SERVER);
 		$a = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
 		return !empty($a) ? $a : null;
 	}
 	
 	// true if the user came here from a link on the site, false if they came from an external address.
 	public static function hasInternalReferrer() {
-		return self::isUrlOnSameDomain(self::getReferrerUrl());
+		$url = self::getReferrerUrl();
+		if (is_null($url)) {
+			return false;
+		}
+		return self::isUrlOnSameDomain($url);
 	}
 	
 	// returns true if the provided url has the same domain as the server
