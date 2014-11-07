@@ -17,7 +17,7 @@
 }
 
 @media (min-width: 768px) {
-	.page-fbpermissions .permissions-table .permission-col {
+	.page-fbpermissions .permissions-table .status-col, .page-fbpermissions .permissions-table .permission-col {
 		width: 150px;
 	}
 }
