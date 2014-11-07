@@ -237,13 +237,14 @@ class FacebookManager {
 			return false;
 		}
 		$profile = (new FacebookRequest(
-			$fbSession, 'GET', '/me?fields=first_name,last_name,name,permissions'
+			$fbSession, 'GET', '/me?fields=first_name,last_name,name,email,permissions'
 		))->execute()->getGraphObject(GraphUser::className());
 	
 		// add/update details
 		$user->first_name = $profile->getFirstName();
 		$user->last_name = $profile->getLastName();
 		$user->name = $profile->getName();
+		$user->fb_email = $profile->getEmail();
 		
 		// update the permissions the user has granted
 		$grantedPermissions = array();
