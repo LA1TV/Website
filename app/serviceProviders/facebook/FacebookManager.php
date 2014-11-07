@@ -86,7 +86,7 @@ class FacebookManager {
 			$user->fb_last_update_time = Carbon::now();
 			$user->last_seen = Carbon::now();
 			// populate the model with the rest of the users information from facebook.
-			self::updateUser($user);
+			$this->updateUser($user);
 		}
 		$ourSecret = str_random(40);
 		$hashedSecret = hash("sha256", $ourSecret);
@@ -143,7 +143,7 @@ class FacebookManager {
 				$this->clearOurStoredSecret();
 				return;
 			}
-			self::updateUser($user);
+			$this->updateUser($user);
 			$user->save();
 		}
 		
@@ -215,14 +215,14 @@ class FacebookManager {
 
 	// updates the user model with information from facebook
 	// does not save the model
-	private static function updateUser($user) {
-		self::updateUserOpenGraph($user);
-		self::updateUserPermissions($user);
+	private function updateUser($user) {
+		$this->updateUserOpenGraph($user);
+		$this->updateUserPermissions($user);
 	}
 	
 	// updates the user model with information from opengraph
 	// returns true if this succeeds or false otherwise.
-	public static function updateUserOpenGraph($user) {
+	public function updateUserOpenGraph($user) {
 		$fbSession = $this->getFacebookSession($user);
 		if (is_null($fbSession)) {
 			return false;
