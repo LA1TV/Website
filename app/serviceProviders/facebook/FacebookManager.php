@@ -240,8 +240,8 @@ class FacebookManager {
 		// https://developers.facebook.com/docs/facebook-login/permissions/v2.2
 		$ogPermissions = $profile->getProperty("permissions")->asArray();
 		foreach($ogPermissions as $a) {
-			if ($a['status'] == "granted") {
-				$grantedPermissions[] = $a['permission'];
+			if ($a->status == "granted") {
+				$grantedPermissions[] = $a->permission;
 			}
 		}
 		$user->setFacebookPermissions($grantedPermissions);
