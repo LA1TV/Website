@@ -9,7 +9,17 @@
 }
 
 .page-fbpermissions .permissions-table .status-col, .page-fbpermissions .permissions-table .permission-col {
-	width: 150px;
+	width: 100px;
+}
+
+.page-fbpermissions .permissions-table .status-col .provide-permission-button {
+	white-space: inherit;
+}
+
+@media (min-width: 768px) {
+	.page-fbpermissions .permissions-table .permission-col {
+		width: 150px;
+	}
 }
 
 .page-fbpermissions .permissions-table .status-col .status-icon {
