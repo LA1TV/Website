@@ -217,10 +217,9 @@ class FacebookManager {
 	// does not save the model
 	private function updateUser($user) {
 		$this->updateUserOpenGraph($user);
-		$this->updateUserPermissions($user);
 	}
 	
-	// updates the user model with information from opengraph
+	// updates the user model with information from opengraph. this inculdes the users permissions
 	// returns true if this succeeds or false otherwise.
 	public function updateUserOpenGraph($user) {
 		$fbSession = $this->getFacebookSession($user);
@@ -228,24 +227,24 @@ class FacebookManager {
 			return false;
 		}
 		$profile = (new FacebookRequest(
-			$fbSession, 'GET', '/me?fields=first_name,last_name,name'
+			$fbSession, 'GET', '/me?fields=first_name,last_name,name,permissions'
 		))->execute()->getGraphObject(GraphUser::className());
 	
 		// add/update details
 		$user->first_name = $profile->getFirstName();
 		$user->last_name = $profile->getLastName();
 		$user->name = $profile->getName();
-		return true;
-	}
-	
-	// updates the user model with information about the facebook permissions they have given
-	// returns true if this succeeds or false otherwise.
-	public function updateUserPermissions($user) {
-		$fbSession = $this->getFacebookSession($user);
-		if (is_null($fbSession)) {
-			return false;
-		}
 		
+		// update the permissions the user has granted
+		$grantedPermissions = array();
+		// https://developers.facebook.com/docs/facebook-login/permissions/v2.2
+		$ogPermissions = $profile->getProperty("permissions")->asArray();
+		foreach($ogPermissions['data'] as $a) {
+			if ($a['status'] == "granted") {
+				$grantedPermissions[] = $a['permission'];
+			}
+		}
+		$user->setFacebookPermissions($grantedPermissions);
 		return true;
 	}
 	
