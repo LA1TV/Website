@@ -171,7 +171,7 @@ class FacebookManager {
 	}
 	
 	private function cacheFacebookSession($accessTokenStr, $fbSession) {
-		if (!is_null($this->getCachedFacebookSession($accessTokenStr))) {
+		if ($this->hasCachedFacebookSession($accessTokenStr)) {
 			// session is already cached. remove it so it can be replaced with this one
 			$indexToRemove = null;
 			foreach($this->cachedFacebookSessions as $b=>$a) {
@@ -193,7 +193,16 @@ class FacebookManager {
 				return $a['facebookSession'];
 			}
 		}
-		return null;
+		throw(new Exception("No session cached for that access token. You should use hasCachedFacebookSession() to check if one has been cached."));
+	}
+	
+	private function hasCachedFacebookSession($accessTokenStr) {
+		foreach($this->cachedFacebookSessions as $a) {
+			if ($a['accessToken'] === $accessTokenStr) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	// returns true if successfully logged out
