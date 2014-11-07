@@ -240,7 +240,7 @@ class FacebookManager {
 	
 	// updates the user model with information about the facebook permissions they have given
 	// returns true if this succeeds or false otherwise.
-	public static function updateUserPermissions($user) {
+	public function updateUserPermissions($user) {
 		$fbSession = $this->getFacebookSession($user);
 		if (is_null($fbSession)) {
 			return false;
