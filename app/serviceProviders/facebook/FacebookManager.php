@@ -13,9 +13,6 @@ use Carbon;
 use Cookie;
 use Exception;
 
-
-use Log; // REMOVE THIS
-
 class FacebookManager {
 	
 	private $sessionInitalized = false;
@@ -242,14 +239,12 @@ class FacebookManager {
 		$grantedPermissions = array();
 		// https://developers.facebook.com/docs/facebook-login/permissions/v2.2
 		$ogPermissions = $profile->getProperty("permissions")->asArray();
-		/*foreach($ogPermissions['data'] as $a) {
+		foreach($ogPermissions as $a) {
 			if ($a['status'] == "granted") {
 				$grantedPermissions[] = $a['permission'];
 			}
 		}
 		$user->setFacebookPermissions($grantedPermissions);
-		*/
-		Log::info(print_r($ogPermissions, true));
 		return true;
 	}
 	
