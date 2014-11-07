@@ -215,9 +215,9 @@ class FacebookManager {
 
 	// updates the user model with information from facebook
 	// does not save the model
-	private static function updateUser($user, $fbSession) {
-		self::updateUserOpenGraph($user, $fbSession);
-		self::updateUserPermissions($user, $fbSession);
+	private static function updateUser($user) {
+		self::updateUserOpenGraph($user);
+		self::updateUserPermissions($user);
 	}
 	
 	// updates the user model with information from opengraph
