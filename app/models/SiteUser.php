@@ -21,6 +21,9 @@ class SiteUser extends MyEloquent {
 	// returns an array of the facebook permission ids that this user has approved
 	public function getFacebookPermissions() {
 		$permissionsStr = $this->fb_permissions;
+		if (is_null($permissionsStr)) {
+			$permissionsStr = "";
+		}
 		$permissions = explode(",", $permissionsStr);
 		return $permissions;
 	}
