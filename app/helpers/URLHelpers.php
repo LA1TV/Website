@@ -28,5 +28,35 @@ class URLHelpers {
 		}
 		return $outputText;
 	}
-
+	
+	// returns the url if the referrer is set or NULL otherwise.
+	public static function getReferrerUrl() {
+//	dd($_SERVER);
+		$a = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
+		return !empty($a) ? $a : null;
+	}
+	
+	// true if the user came here from a link on the site, false if they came from an external address.
+	public static function hasInternalReferrer() {
+		return self::isUrlOnSameDomain(self::getReferrerUrl());
+	}
+	
+	// returns true if the provided url has the same domain as the server
+	public static function isUrlOnSameDomain($url) {
+		$urlParts = parse_url($url);
+		$localUrlParts = parse_url(URL::to("/"));
+		if ($urlParts === false || $localUrlParts === false) {
+			return false;
+		}
+		
+		if (!isset($urlParts['scheme']) || !isset($localUrlParts['scheme']) ||
+			!isset($urlParts['host']) || !isset($localUrlParts['host'])) {
+			return false;
+		}
+		
+		$urlPort = !isset($urlParts['port']) ? 80 : $urlParts['port'];
+		$localUrlPort = !isset($localUrlParts['port']) ? 80 : $localUrlParts['port'];
+			
+		return $urlParts['scheme'] === $localUrlParts['scheme'] && $urlParts['host'] === $localUrlParts['host'] && $urlPort === $localUrlPort;
+	}
 }

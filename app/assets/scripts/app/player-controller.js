@@ -183,7 +183,9 @@ define([
 			}
 			data = cachedData;
 			
+			var firstLoad = false;
 			if (playerComponent === null) {
+				firstLoad = true;
 				playerComponent = new PlayerComponent(data.coverUri, responsive);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
@@ -240,7 +242,11 @@ define([
 					playerComponent.setPlayerStartTime(0, true);
 				}
 				else if (queuedPlayerType === "vod") {
-					if (urisChanged) {
+					if (autoPlay && firstLoad) {
+						// this is the first load of the player, and the autoplay flag is set, so autoplay
+						playerComponent.setPlayerStartTime(0, true);
+					}
+					else if (urisChanged) {
 						// reason we're here is because uris have changed. could be quality change or other reason
 						// but it makes sense to automatically resume playback from where the user was previously
 						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
