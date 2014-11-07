@@ -21,19 +21,29 @@ class FacebookManager {
 	// each element is of form array("accessToken", "facebookSession") facebookSession can be null. accessToken is the facebook access token
 	private $cachedFacebookSessions = array();
 	
+	private $requiredPermissions = array("email");
+	
 	public function getLoginRedirect($authUri, $requestedPermissionsParam=array()) {
 		
 		if (!Config::get("facebook.enabled")) {
 			throw(new Exception("Facebook login is currently disabled."));
 		}
-		
-		// request the email permission as well as logging in
-		$requestedPermissions = array("email");
-		$requestedPermissions = array_unique(array_merge($requestedPermissions, $requestedPermissionsParam));
-		
+
+		$requestedPermissions = array_unique(array_merge($this->requiredPermissions, $requestedPermissionsParam));		
 		$this->initFacebookSession();
 		$loginHelper = new MyFacebookRedirectLoginHelper($authUri);
 		return Redirect::to($loginHelper->getLoginUrl($requestedPermissions));
+	}
+	
+	public function getPermissionRequestRedirect($authUri, $requestedPermissionsParam=array()) {
+		if (!Config::get("facebook.enabled")) {
+			throw(new Exception("Facebook login is currently disabled."));
+		}
+
+		$requestedPermissions = array_unique(array_merge($this->requiredPermissions, $requestedPermissionsParam));		
+		$this->initFacebookSession();
+		$loginHelper = new MyFacebookRedirectLoginHelper($authUri);
+		return Redirect::to($loginHelper->getReRequestUrl($requestedPermissions));
 	}
 	
 	public function getShareUri($url) {

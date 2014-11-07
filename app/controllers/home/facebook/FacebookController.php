@@ -48,7 +48,7 @@ class FacebookController extends HomeBaseController {
 			App::abort(400); // bad request
 		}
 		$this->recordReturnUri();
-		return Facebook::getLoginRedirect($this->authUrl, $permissions);
+		return Facebook::getPermissionRequestRedirect($this->authUrl, $permissions);
 	}
 	
 	public function getPermissions() {
