@@ -26,9 +26,10 @@ define([
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var embedded = true;
+			var autoPlay = false;
 		
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded);
+			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay);
 			
 			
 			playerContainer.onLoaded(function() {

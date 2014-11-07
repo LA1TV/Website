@@ -241,6 +241,7 @@ class PlayerController extends HomeBaseController {
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
+		$view->autoPlay = !URLHelpers::hasInternalReferrer(); // only autoplay if the user has come from an external site
 		$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
 		$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
 		$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
