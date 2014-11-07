@@ -9,6 +9,7 @@ use View;
 use App;
 use Session;
 use FormHelpers;
+use URLHelpers;
 
 class FacebookController extends HomeBaseController {
 	
@@ -47,11 +48,36 @@ class FacebookController extends HomeBaseController {
 			App::abort(400); // bad request
 		}
 		$this->recordReturnUri();
-		return Facebook::getLoginRedirect($this->authUrl, $permissions);
+		return Facebook::getPermissionRequestRedirect($this->authUrl, $permissions);
 	}
 	
 	public function getPermissions() {
+		$wantedPermissions = Config::get("facebook.wantedPermissions");
+		$permissionsTableContent = array();
+		$user = Facebook::getUser();
+		$loggedIn = !is_null($user);
+		if ($loggedIn) {
+			// force a request to happen to get the lastest permissions.
+			Facebook::updateUserOpengraph($user);
+			// save the model which may have just been updated
+			$user->save();
+			$providedPermissions = $user->getFacebookPermissions();
+			
+			foreach($wantedPermissions as $a) {
+				$permissionsTableContent[] = array(
+					"granted"			=> in_array($a['id'], $providedPermissions),
+					"name"				=> $a['name'],
+					"description"		=> $a['description'],
+					"requestPermissionUri"	=> Config::get("custom.base_url") . "/facebook/request-permission?permissions=".urlencode($a['id'])."&amp;returnuri=".urlencode(URLHelpers::getPath())
+				);
+			}
+		}
+		
 		$view = View::make("home.facebook.permissions");
+		$view->loggedIn = $loggedIn;
+		if ($loggedIn) {
+			$view->permissionsTableContent = $permissionsTableContent;
+		}
 		$this->setContent($view, "fbpermissions", "fbpermissions", array(), "Facebook Permissions");
 	}
 	
