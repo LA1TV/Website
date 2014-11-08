@@ -460,6 +460,7 @@ define([
 			}
 			cancelling = true;
 			uploader.stop();
+			uploader.splice(); // clear queue
 			errorOccurred();
 		}
 		
