@@ -6,7 +6,8 @@
 	"require": {
 		"laravel/framework": "4.2.*",
 		"doctrine/dbal": "*",
-		"facebook/php-sdk-v4" : "4.0.*"
+		"facebook/php-sdk-v4" : "4.0.*",
+		"indatus/dispatcher": "1.*"
 	},
 	"autoload": {
 		"classmap": [
