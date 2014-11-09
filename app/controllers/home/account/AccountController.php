@@ -5,6 +5,7 @@ use View;
 use URLHelpers;
 use Facebook;
 use App;
+use Response;
 
 class AccountController extends HomeBaseController {
 
