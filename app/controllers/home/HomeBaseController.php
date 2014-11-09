@@ -75,13 +75,12 @@ class HomeBaseController extends BaseController {
 		$view->openGraphProperties = $finalOpenGraphProperties;
 		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
-		$returnUri = URLHelpers::getPath();
-		$view->loginUri = Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode($returnUri);
-		$view->logoutUri = Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode($returnUri);
+		$view->loginUri = URLHelpers::generateLoginUrl();
 		$view->homeUri = Config::get("custom.base_url");
 		$view->guideUri = Config::get("custom.base_url") . "/guide";
 		$view->blogUri = Config::get("custom.blog_url");
 		$view->contactUri = Config::get("custom.base_url") . "/contact";
+		$view->accountUri = Config::get("custom.base_url") . "/account";
 		
 		// recent shows in dropdown
 		$shows = Show::getCachedActiveShows();
