@@ -124,6 +124,7 @@ return array(
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
+		'Indatus\Dispatcher\ServiceProvider',
 		
 		'uk\co\la1tv\website\serviceProviders\auth\AuthServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\facebook\FacebookServiceProvider',
