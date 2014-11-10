@@ -28,6 +28,10 @@ class SiteUser extends MyEloquent {
 		return $permissions;
 	}
 	
+	public function hasFacebookPermission($permission) {
+		return in_array($permission, $this->getFacebookPermissions(), true);
+	}
+	
 	// $permissions should be an array of the facebook permission ids
 	public function setFacebookPermissions($permissions) {
 		sort($permissions);
