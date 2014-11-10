@@ -9,7 +9,7 @@ define([
 		
 		var $pageContainer = $(this).first();
 		
-		$pageContainer.find(".facebook-notifications-button-group-container").each(function() {
+		$pageContainer.find(".email-notifications-button-group-container").each(function() {
 
 			var self = this;
 			
@@ -31,7 +31,7 @@ define([
 					return;
 				}
 				
-				jQuery.ajax(PageData.get("baseUrl")+"/account/set-facebook-notifications-state", {
+				jQuery.ajax(PageData.get("baseUrl")+"/account/set-email-notifications-state", {
 					cache: false,
 					dataType: "json",
 					data: {
