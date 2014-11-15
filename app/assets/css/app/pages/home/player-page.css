@@ -8,6 +8,7 @@
 .page-player .description-container {
 	margin-bottom: 10px;
 	margin-top: 7px;
+	overflow: auto;
 }
 
 .page-player .admin-panel .my-row {
