@@ -12,6 +12,10 @@
 */
 App::before(function($request)
 {
+	App::missing(function($exception) {
+		return App::make('uk\co\la1tv\website\controllers\home\ErrorController')->callAction("generate404", array());
+	});
+
 	$maxNestingLevel = ini_get('xdebug.max_nesting_level');
 	if (is_null($maxNestingLevel) || $maxNestingLevel === "" || $maxNestingLevel < 200) {
 		// when less than 100 was getting error and think it's related to the eloquent whereHas queries referencing other models with similar queries.
