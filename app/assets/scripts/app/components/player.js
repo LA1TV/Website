@@ -140,7 +140,9 @@ define([
 		var queuedPlayerUris = [];
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
 		var updateAdTimerId = null;
-		
+		var wasFullScreen = null;
+		var previousVolume = null;
+		var wasMuted = null;
 		
 		var $container = $("<div />").addClass("player-component embed-responsive");
 		if (responsive) {
@@ -359,7 +361,7 @@ define([
 		// if the player already exists it destroys the current one first.
 		function createPlayer() {
 			// destroy current player if there is one
-			destroyPlayer();
+			var playerExisted = destroyPlayer();
 			
 			$player = $("<div />").addClass("player embed-responsive-item");
 			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
@@ -400,8 +402,19 @@ define([
 			}, function() {
 				// called when player loaded.
 				setTimeout(function() {
-					// in timeout as needs videoJsPlayer needs to have been set before playerLoaded event.
-					$(self).triggerHandler("playerLoaded");
+					// in timeout as needs videoJsPlayer needs to have been set
+					if (playerExisted) {
+						// the player has just been destroyed before being recreated
+						if (wasFullScreen) {
+							// was previously full screen
+							// make it full screen again
+							videoJsPlayer.requestFullscreen();
+						}
+						// set the volume and mute state back to what it was
+						videoJsPlayer.muted(wasMuted);
+						videoJsPlayer.volume(previousVolume);
+						$(self).triggerHandler("playerLoaded");
+					}
 				}, 0);
 			});
 			registerVideoJsEventHandlers();
@@ -409,11 +422,15 @@ define([
 		}
 		
 		// removes the player
+		// returns true if player destroyed or false if there wasn't one to destroy
 		function destroyPlayer() {
 			if ($player === null) {
 				// player doesn't exist.
-				return;
+				return false;
 			}
+			wasFullScreen = videoJsPlayer.isFullscreen();
+			wasMuted = videoJsPlayer.muted();
+			previousVolume = videoJsPlayer.volume();
 			videoJsPlayer.exitFullscreen();
 			$(self).triggerHandler("playerDestroying");
 			videoJsPlayer.dispose();
@@ -425,6 +442,7 @@ define([
 			playerType = null;
 			videoJsLoadedMetadata = false;
 			$(self).triggerHandler("playerDestroyed");
+			return true;
 		}
 		
 		function registerVideoJsEventHandlers() {
