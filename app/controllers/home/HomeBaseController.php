@@ -18,7 +18,7 @@ class HomeBaseController extends BaseController {
 
 	protected $layout = null;
 	
-	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL) {
+	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200) {
 		
 		$description = "Lancaster University's Student Union TV station.";
 	
@@ -101,7 +101,7 @@ class HomeBaseController extends BaseController {
 		
 		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
 		
-		$response = new MyResponse($view);
+		$response = new MyResponse($view, $statusCode);
 		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
 		$this->layout = $response;
 	}
