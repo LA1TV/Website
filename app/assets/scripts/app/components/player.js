@@ -414,6 +414,7 @@ define([
 				// player doesn't exist.
 				return;
 			}
+			videoJsPlayer.exitFullscreen();
 			$(self).triggerHandler("playerDestroying");
 			videoJsPlayer.dispose();
 			videoJsPlayer = null;
@@ -441,6 +442,7 @@ define([
 				$(self).triggerHandler("timeUpdate");
 			});
 			videoJsPlayer.on("ended", function() {
+				videoJsPlayer.exitFullscreen();
 				$(self).triggerHandler("ended");
 			});
 		}
