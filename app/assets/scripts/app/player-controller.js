@@ -181,7 +181,7 @@ define([
 			if (cachedData === null) {
 				return;
 			}
-			data = cachedData;
+			var data = cachedData;
 			
 			var firstLoad = false;
 			if (playerComponent === null) {
