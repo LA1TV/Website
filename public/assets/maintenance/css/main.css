@@ -1,0 +1,16 @@
+.main-content {
+	text-align: center;
+}
+
+.main-content .logo-container {
+	margin-top: 20px;
+}
+
+.main-content .logo-container .logo {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.main-content .lead {
+	margin-bottom: 10px;
+}
