@@ -2,10 +2,14 @@
 
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
+use Config;
 
 class ContactController extends HomeBaseController {
 
 	public function getIndex() {
-		$this->setContent(View::make("home.contact.index"), "contact", "contact", array(), "Contact");
+		$view = View::make("home.contact.index");
+		$view->contactEmail = Config::get("contactEmails.general");
+		$view->developmentEmail = Config::get("contactEmails.development");
+		$this->setContent($view, "contact", "contact", array(), "Contact");
 	}
 }
