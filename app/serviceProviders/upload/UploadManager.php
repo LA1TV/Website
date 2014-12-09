@@ -98,13 +98,14 @@ class UploadManager {
 									throw(new Exception("Session has changed between transactions!"));
 								}
 								// move the file providing the file record created successfully.
-								// it is important there's always a file record for each file. if there ends up being a file record without a corresponding file that's ok as the record will just get deleted either.
+								// it is important there's always a file record for each file.
 								if (rename($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
 									// set ready_for_processing to true so that processing can start.
-									// this means if the file was copied and then the server crashed before here, the file will still get deleted in the future (when the linked session becomes null)
 									$fileDb->ready_for_processing = true;
 									$fileDb->save();
 									DB::commit();
+									
+									// if there is a failure before the ready_for_processing flag is set then it is possible for there to either be a file which will never be removed automatically, or no file for this record. I think this is the only place in the entire system where there could be an error which would require manual attention.
 									
 									// success
 									$success = true;
