@@ -8,8 +8,10 @@ define([
 	"jquery",
 	"./components/player",
 	"./page-data",
+	"./cookie-config",
+	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData) {
+], function($, PlayerComponent, PageData, CookieConfig) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -113,6 +115,8 @@ define([
 		var playerType = null;
 		var currentUris = [];
 		var cachedData = null;
+		var vodSourceId = null;
+		var vodRememberedStartTime = null;
 		var vodViewCount = null;
 		var streamViewCount = null;
 		var numLikes = null;
@@ -123,6 +127,7 @@ define([
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
 		var viewCountRegistered = false;
+		var currentTimeDbTimerId = null;
 		
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
@@ -142,13 +147,17 @@ define([
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
-					cachedData = data;
-					render();
-				}
-				
-				if (!destroyed) {
-					// schedule update again in 15 seconds
-					timerId = setTimeout(update, 15000);
+					getStoredTimeFromDb(data.vodSourceId, function(time) {
+						cachedData = data;
+						vodSourceId = data.vodSourceId;
+						vodRememberedStartTime = time;
+						render();
+					
+						if (!destroyed) {
+							// schedule update again in 15 seconds
+							timerId = setTimeout(update, 15000);
+						}
+					});
 				}
 			});
 		}
@@ -242,9 +251,17 @@ define([
 					playerComponent.setPlayerStartTime(0, true);
 				}
 				else if (queuedPlayerType === "vod") {
+					var autoPlayStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
+					
 					if (autoPlay && firstLoad) {
 						// this is the first load of the player, and the autoplay flag is set, so autoplay
-						playerComponent.setPlayerStartTime(0, true);
+						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
+						playerComponent.setPlayerStartTime(autoPlayStartTime, true, true);
+					}
+					else if (!urisChanged) {
+						// set the start time to the time the user was previously at.
+						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
+						playerComponent.setPlayerStartTime(autoPlayStartTime, false, true);
 					}
 					else if (urisChanged) {
 						// reason we're here is because uris have changed. could be quality change or other reason
@@ -266,6 +283,15 @@ define([
 			playerComponent.setCustomMsg(data.hasStream && data.streamState === 1 ? data.streamInfoMsg : "");
 			playerComponent.showVodAvailableShortly(data.hasStream && data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setStartTime(data.scheduledPublishTime !== null && (!data.hasStream || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
+			
+			if (queuedPlayerType === "vod") {
+				// start updating the local database with the users position in the video.
+				startCurrentTimeDbUpdateTimer();
+			}
+			else {
+				stopCurrentTimeDbUpdateTimer();
+			}
+			
 			if (data.streamState !== streamState) {
 				streamState = data.streamState;
 				$(self).triggerHandler("streamStateChanged");
@@ -315,6 +341,144 @@ define([
 			else {
 				playerComponent.setPlayerType(type).showPlayer(true);
 			}
+		}
+		
+		function startCurrentTimeDbUpdateTimer() {
+			if (currentTimeDbTimerId !== null) {
+				// timer already running
+				return;
+			}
+			var fn = function() {
+				updateCurrentTimeDb();
+			};
+			setTimeout(fn, 0); // run immediately as well as every 5 seconds
+			currentTimeDbTimerId = setInterval(fn, 5000);
+		}
+		
+		function stopCurrentTimeDbUpdateTimer() {
+			if (currentTimeDbTimerId === null) {
+				// timer isn't running
+				return;
+			}
+			clearInterval(currentTimeDbTimerId);
+			currentTimeDbTimerId = null;
+		}
+		
+		function updateCurrentTimeDb() {
+			function areConditionsMet() {
+				return !(playerType !== "vod" || vodSourceId === null || playerComponent === null || playerComponent.paused() || playerComponent.getPlayerCurrentTime() == null);
+			}
+			
+			if (!window.indexedDB) {
+				// browser does not have indexedDB support so do nothing
+				return;
+			}
+		
+			// store the current time into the vod in an object store using the vodSourceId as the identifier.
+			// vodSourceId is the id of the source file that the different qualities of the video were generated from
+			
+			
+			var request = createOpenPlaybackTimesDatabaseRequest();
+			request.onsuccess = function(event) {
+				var db = event.target.result;
+				var transaction = db.transaction(["playback-times"], "readwrite");
+				transaction.oncomplete = function(event) {
+					// success
+				};
+				
+				transaction.onerror = function(event) {
+					console.error("Error when trying to update \"playback-times\"  object store.");
+				};
+				
+				var objectStore = transaction.objectStore("playback-times");
+				
+				// first remove any old entries. (Entries older than 3 weeks)
+				var cutoffTime = new Date().getTime() - (21 * 24 * 60 * 60 * 1000);
+				objectStore.index("timeUpdated").openKeyCursor(IDBKeyRange.upperBound(cutoffTime, true)).onsuccess = function(event) {
+					var cursor = event.target.result;
+					if (cursor) {
+						objectStore.delete(cursor.primaryKey);
+						cursor.continue();
+					}
+				};
+				
+				// only update the time whilst the video is actually playing. This means if the user has the video open in several tabs the time will be updated for the one they are watching
+				if (areConditionsMet()) {	
+					var request = objectStore.put({
+						id: vodSourceId,
+						time: playerComponent.getPlayerCurrentTime(),
+						timeUpdated: new Date().getTime()
+					});
+					request.onerror = function(event) {
+						console.error("Error when trying to create/update object in \"playback-times\"  object store.");
+					};
+				}
+			};
+		}
+		
+		// get the time the user was up to in the current video last time they watched it.
+		// callback should take 1 param which will be the time or null if time could not be retrieved.
+		// id is the id of the source file
+		function getStoredTimeFromDb(id, callback) {
+			
+			if (!window.indexedDB) {
+				// browser does not have indexedDB support so do nothing
+				callback(null);
+				return;
+			}
+
+			var request = createOpenPlaybackTimesDatabaseRequest(function() {
+				// error connecting to database
+				callback(null);
+			});
+			
+			request.onsuccess = function(event) {
+				var db = event.target.result;
+				var transaction = db.transaction(["playback-times"]);
+				transaction.oncomplete = function(event) {
+					// success
+				};
+				
+				transaction.onerror = function(event) {
+					console.error("Error when trying to read from \"playback-times\"  object store.");
+					callback(null);
+				};
+				
+				var objectStore = transaction.objectStore("playback-times");
+				var resultRequest = objectStore.get(id);
+				
+				resultRequest.onerror = function(event) {
+					console.log("ERROR");
+					callback(null);
+				};
+				
+				resultRequest.onsuccess = function(event) {
+					var result = resultRequest.result;
+					callback(result ? result.time : null);
+				};
+				
+			};
+		}
+		
+		function createOpenPlaybackTimesDatabaseRequest(onErrorCallback) {
+			// open/create "PlaybackTimes" database
+			var request = window.indexedDB.open("PlaybackTimes", 6);
+			request.onerror = function(event) {
+				console.error("Error occurred when trying to create/open \"PlaybackTimes\" database.");
+				if (onErrorCallback) {
+					onErrorCallback(event);
+				}
+			};
+			request.onupgradeneeded = function(event) {
+				var db = event.target.result;
+				// Create an objectStore for this database
+				if (db.objectStoreNames.contains("playback-times")) {
+					db.deleteObjectStore("playback-times"); // remove old version first
+				}
+				var objectStore = db.createObjectStore("playback-times", { keyPath: "id" });
+				objectStore.createIndex("timeUpdated", "timeUpdated", { unique: false });
+			};
+			return request;
 		}
 		
 		function updateViewCounts() {

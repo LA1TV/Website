@@ -286,6 +286,7 @@ class PlayerController extends HomeBaseController {
 		
 		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "liveStreamItem.liveStream", "videoItem");
 		
+		$id = intval($mediaItem->id);
 		$liveStreamItem = $mediaItem->liveStreamItem;
 		if (!is_null($liveStreamItem) && !$liveStreamItem->getIsAccessible()) {
 			// should not be accessible so pretend doesn't exist
@@ -345,8 +346,10 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		$videoUris = array();
-		// return the uris if the item is accessible to the public or the logged in cms user has permission
+		$vodSourceId = null;
+		// return the uris (and vod source id) if the item is accessible to the public or the logged in cms user has permission
 		if ($hasVideoItem && ($vodLive || $userHasMediaItemsPermission)) {
+			$vodSourceId = intval($videoItem->sourceFile->id);
 			foreach($videoItem->getQualitiesWithUris() as $qualityWithUris) {
 				$videoUris[] = array(
 					"quality"	=> array(
@@ -359,6 +362,7 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		$data = array(
+			"id"					=> $id,
 			"scheduledPublishTime"	=> $publishTime,
 			"coverUri"				=> $coverArtUri,
 			"embedData"				=> $embedData,
@@ -369,6 +373,7 @@ class PlayerController extends HomeBaseController {
 			"availableOnDemand"		=> $availableOnDemand, // true if the stream is being recorded
 			"streamViewCount"		=> $streamViewCount,
 			"hasVod"				=> $hasVod, // true if this media item has a video.
+			"vodSourceId"			=> $vodSourceId, // the id of the vod source file.
 			"vodLive"				=> $vodLive, // true when the video should be live to the public
 			"videoUris"				=> $videoUris,
 			"vodViewCount"			=> $vodViewCount,

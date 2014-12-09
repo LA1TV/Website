@@ -66,9 +66,11 @@ define([
 		
 		// set the player position to a certain time (in seconds) on the next render call.
 		// if startPlaying is true the player will start playing if it is not already.
-		this.setPlayerStartTime = function(time, startPlaying) {
+		// if roundTimeToSafeRegion is true then this means any values that are not between 5 seconds into the video and 10 seconds from the end will the time will get set to 0
+		this.setPlayerStartTime = function(time, startPlaying, roundTimeToSafeRegion) {
 			queuedPlayerTime = time;
-			queuedPlayerTimeStartPlaying = startPlaying ? true : false;
+			queuedPlayerTimeStartPlaying = startPlaying ? true : false; // startPlaying could be undefined
+			queuedPlayerRoundStartTimeToSafeRegion = roundTimeToSafeRegion ? true : false; // could be undefined
 			return this;
 		};
 		
@@ -77,6 +79,7 @@ define([
 			updatePlayer();
 			queuedPlayerTime = null;
 			queuedPlayerTimeStartPlaying = null;
+			queuedPlayerRoundStartTimeToSafeRegion = null;
 			return this;
 		};
 		
@@ -93,6 +96,13 @@ define([
 			}
 			return null;
 		};
+		
+		this.getPlayerDuration = function() {
+			if (videoJsPlayer !== null) {
+				return vvideoJsPlayer.duration();
+			}
+			return null;
+		}
 		
 		this.play = function() {
 			if (videoJsPlayer !== null) {
@@ -136,6 +146,7 @@ define([
 		var queuedShowPlayer = false;
 		var queuedPlayerTime = null;
 		var queuedPlayerTimeStartPlaying = null;
+		var queuedPlayerRoundStartTimeToSafeRegion = null;
 		var playerUris = null;
 		var queuedPlayerUris = [];
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
@@ -342,18 +353,24 @@ define([
 			}
 			
 			if (queuedPlayerTime !== null) {
-				(function(startTime, startPlaying) {
+				(function(startTime, startPlaying, roundToSafeRegion) {
 					if (startPlaying) {
 						videoJsPlayer.play();
 					}
-					onVideoJsLoadedMetadata(function() {	
-						if (startTime > videoJsPlayer.duration()) {
+					onVideoJsLoadedMetadata(function() {
+						if (roundToSafeRegion) {
+							if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
+								// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
+								startTime = 0;
+							}
+						}
+						else if (startTime > videoJsPlayer.duration()) {
 							console.log("ERROR: The start time was set to a value which is longer than the length of the video. Not changing time.");
 							return;
 						}
 						videoJsPlayer.currentTime(startTime);
 					});
-				})(queuedPlayerTime, queuedPlayerTimeStartPlaying);
+				})(queuedPlayerTime, queuedPlayerTimeStartPlaying, queuedPlayerRoundStartTimeToSafeRegion);
 			}
 		}
 		

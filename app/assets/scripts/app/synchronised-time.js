@@ -2,7 +2,7 @@ define([
 	"jquery",
 	"./page-data",
 	"./cookie-config",
-	"../lib/jquery.cookie"
+	"lib/jquery.cookie"
 ], function($, PageData, cookieConfig) {
 
 	var SynchronisedTime = null;
