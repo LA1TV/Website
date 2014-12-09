@@ -29,7 +29,6 @@ define([
 			cancelUpload();
 			removeUpload();
 			id = stateParam.id;
-			$(self).triggerHandler("stateChanged");
 			fileName = stateParam.fileName;
 			fileSize = stateParam.fileSize;
 			processState = stateParam.processState;
@@ -39,6 +38,7 @@ define([
 				progress = 100;
 				state = processState !== 0 ? 2 : 4;
 			}
+			$(self).triggerHandler("stateChanged");
 			update();
 		};
 		
@@ -307,6 +307,9 @@ define([
 						str = 'Error processing '+fileStr+'.';
 					}
 				}
+				else if (processState === 3) { // file waiting to be reprocessed
+					str = fileStr+' is waiting to be reprocessed.';
+				}
 				else {
 					console.log("ERROR: Invalid process state.", processState);
 					return;
@@ -433,7 +436,6 @@ define([
 						
 						noUploads--;
 						id = result.id;
-						$(self).triggerHandler("stateChanged");
 						fileName = result.fileName;
 						fileSize = result.fileSize;
 						processState = result.processInfo.state;
@@ -441,6 +443,7 @@ define([
 						processMsg = result.processInfo.msg;
 						progress = 100;
 						state = processState !== 0 ? 2 : 4;
+						$(self).triggerHandler("stateChanged");
 						update();
 					}
 				},
@@ -470,7 +473,6 @@ define([
 			}
 			tmpId = id;
 			id = null;
-			$(self).triggerHandler("stateChanged");
 			fileName = null;
 			fileSize = null;
 			processState = null;
@@ -478,6 +480,7 @@ define([
 			processMsg = null;
 			doRemoteRemove(tmpId);
 			state = 0;
+			$(self).triggerHandler("stateChanged");
 		}
 		
 		function doRemoteRemove(id) {
