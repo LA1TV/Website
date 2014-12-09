@@ -8,10 +8,8 @@ define([
 	"jquery",
 	"./components/player",
 	"./page-data",
-	"./cookie-config",
-	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData, CookieConfig) {
+], function($, PlayerComponent, PageData) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:

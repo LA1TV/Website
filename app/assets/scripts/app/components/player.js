@@ -102,7 +102,7 @@ define([
 				return vvideoJsPlayer.duration();
 			}
 			return null;
-		}
+		};
 		
 		this.play = function() {
 			if (videoJsPlayer !== null) {
