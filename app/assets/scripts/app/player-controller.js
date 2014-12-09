@@ -145,7 +145,8 @@ define([
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
-					getStoredTimeFromDb(data.vodSourceId, function(time) {
+					
+					var callback = function(time) {
 						cachedData = data;
 						vodSourceId = data.vodSourceId;
 						vodRememberedStartTime = time;
@@ -155,7 +156,14 @@ define([
 							// schedule update again in 15 seconds
 							timerId = setTimeout(update, 15000);
 						}
-					});
+					};
+				
+					if (data.vodSourceId !== null) {
+						getStoredTimeFromDb(data.vodSourceId, callback);
+					}
+					else {
+						callback();
+					}
 				}
 			});
 		}
