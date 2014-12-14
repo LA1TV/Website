@@ -382,44 +382,48 @@ define([
 		
 			// store the current time into the vod in an object store using the vodSourceId as the identifier.
 			// vodSourceId is the id of the source file that the different qualities of the video were generated from
-			
-			
-			var request = createOpenPlaybackTimesDatabaseRequest();
-			request.onsuccess = function(event) {
-				var db = event.target.result;
-				var transaction = db.transaction(["playback-times"], "readwrite");
-				transaction.oncomplete = function(event) {
-					// success
-				};
-				
-				transaction.onerror = function(event) {
-					console.error("Error when trying to update \"playback-times\"  object store.");
-				};
-				
-				var objectStore = transaction.objectStore("playback-times");
-				
-				// first remove any old entries. (Entries older than 3 weeks)
-				var cutoffTime = new Date().getTime() - (21 * 24 * 60 * 60 * 1000);
-				objectStore.index("timeUpdated").openKeyCursor(IDBKeyRange.upperBound(cutoffTime, true)).onsuccess = function(event) {
-					var cursor = event.target.result;
-					if (cursor) {
-						objectStore.delete(cursor.primaryKey);
-						cursor.continue();
+			try {
+				var request = createOpenPlaybackTimesDatabaseRequest();
+				request.onsuccess = function(event) {
+					var db = event.target.result;
+					var transaction = db.transaction(["playback-times"], "readwrite");
+					transaction.oncomplete = function(event) {
+						// success
+					};
+					
+					transaction.onerror = function(event) {
+						console.error("Error when trying to update \"playback-times\"  object store.");
+					};
+					
+					var objectStore = transaction.objectStore("playback-times");
+					
+					// first remove any old entries. (Entries older than 3 weeks)
+					var cutoffTime = new Date().getTime() - (21 * 24 * 60 * 60 * 1000);
+					objectStore.index("timeUpdated").openKeyCursor(IDBKeyRange.upperBound(cutoffTime, true)).onsuccess = function(event) {
+						var cursor = event.target.result;
+						if (cursor) {
+							objectStore.delete(cursor.primaryKey);
+							cursor.continue();
+						}
+					};
+					
+					// only update the time whilst the video is actually playing. This means if the user has the video open in several tabs the time will be updated for the one they are watching
+					if (areConditionsMet()) {	
+						var request = objectStore.put({
+							id: vodSourceId,
+							time: playerComponent.getPlayerCurrentTime(),
+							timeUpdated: new Date().getTime()
+						});
+						request.onerror = function(event) {
+							console.error("Error when trying to create/update object in \"playback-times\"  object store.");
+						};
 					}
 				};
-				
-				// only update the time whilst the video is actually playing. This means if the user has the video open in several tabs the time will be updated for the one they are watching
-				if (areConditionsMet()) {	
-					var request = objectStore.put({
-						id: vodSourceId,
-						time: playerComponent.getPlayerCurrentTime(),
-						timeUpdated: new Date().getTime()
-					});
-					request.onerror = function(event) {
-						console.error("Error when trying to create/update object in \"playback-times\"  object store.");
-					};
-				}
-			};
+			}
+			catch(e) {
+				console.error("Exception thrown when trying to read from \"playback-times\" object store.");
+				callback(null);
+			}
 		}
 		
 		// get the time the user was up to in the current video last time they watched it.
@@ -432,59 +436,71 @@ define([
 				callback(null);
 				return;
 			}
-
-			var request = createOpenPlaybackTimesDatabaseRequest(function() {
-				// error connecting to database
-				callback(null);
-			});
 			
-			request.onsuccess = function(event) {
-				var db = event.target.result;
-				var transaction = db.transaction(["playback-times"]);
-				transaction.oncomplete = function(event) {
-					// success
-				};
-				
-				transaction.onerror = function(event) {
-					console.error("Error when trying to read from \"playback-times\"  object store.");
+			try {
+				var request = createOpenPlaybackTimesDatabaseRequest(function() {
+					// error connecting to database
 					callback(null);
+				});
+				
+				request.onsuccess = function(event) {
+					var db = event.target.result;
+					var transaction = db.transaction(["playback-times"]);
+					transaction.oncomplete = function(event) {
+						// success
+					};
+					
+					transaction.onerror = function(event) {
+						console.error("Error when trying to read from \"playback-times\" object store.");
+						callback(null);
+					};
+					
+					var objectStore = transaction.objectStore("playback-times");
+					var resultRequest = objectStore.get(id);
+					
+					resultRequest.onerror = function(event) {
+						console.error("Error when trying to request the playback time from the \"playback-times\" object store.");
+						callback(null);
+					};
+					
+					resultRequest.onsuccess = function(event) {
+						var result = resultRequest.result;
+						callback(result ? result.time : null);
+					};
+					
 				};
-				
-				var objectStore = transaction.objectStore("playback-times");
-				var resultRequest = objectStore.get(id);
-				
-				resultRequest.onerror = function(event) {
-					console.log("ERROR");
-					callback(null);
-				};
-				
-				resultRequest.onsuccess = function(event) {
-					var result = resultRequest.result;
-					callback(result ? result.time : null);
-				};
-				
-			};
+			}
+			catch(e) {
+				console.error("Exception thrown when trying to read from \"playback-times\" object store.");
+				callback(null);
+			}
 		}
 		
 		function createOpenPlaybackTimesDatabaseRequest(onErrorCallback) {
-			// open/create "PlaybackTimes" database
-			var request = window.indexedDB.open("PlaybackTimes", 6);
-			request.onerror = function(event) {
-				console.error("Error occurred when trying to create/open \"PlaybackTimes\" database.");
-				if (onErrorCallback) {
-					onErrorCallback(event);
-				}
-			};
-			request.onupgradeneeded = function(event) {
-				var db = event.target.result;
-				// Create an objectStore for this database
-				if (db.objectStoreNames.contains("playback-times")) {
-					db.deleteObjectStore("playback-times"); // remove old version first
-				}
-				var objectStore = db.createObjectStore("playback-times", { keyPath: "id" });
-				objectStore.createIndex("timeUpdated", "timeUpdated", { unique: false });
-			};
-			return request;
+			try {
+				// open/create "PlaybackTimes" database
+				var request = window.indexedDB.open("PlaybackTimes", 6);
+				request.onerror = function(event) {
+					console.error("Error occurred when trying to create/open \"PlaybackTimes\" database.");
+					if (onErrorCallback) {
+						onErrorCallback(event);
+					}
+				};
+				request.onupgradeneeded = function(event) {
+					var db = event.target.result;
+					// Create an objectStore for this database
+					if (db.objectStoreNames.contains("playback-times")) {
+						db.deleteObjectStore("playback-times"); // remove old version first
+					}
+					var objectStore = db.createObjectStore("playback-times", { keyPath: "id" });
+					objectStore.createIndex("timeUpdated", "timeUpdated", { unique: false });
+				};
+				return request;
+			}
+			catch(e) {
+				console.error("Exception occurred when trying to open/create the \"PlaybackTimes\" database.");
+				onErrorCallback(null);
+			}
 		}
 		
 		function updateViewCounts() {
