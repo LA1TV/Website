@@ -136,6 +136,14 @@ define([
 		update();
 		
 		function update() {
+		
+			var onComplete = function() {
+				if (!destroyed) {
+					// schedule update again in 15 seconds
+					timerId = setTimeout(update, 15000);
+				}
+			};
+		
 			jQuery.ajax(playerInfoUri, {
 				cache: false,
 				dataType: "json",
@@ -151,11 +159,7 @@ define([
 						vodSourceId = data.vodSourceId;
 						vodRememberedStartTime = time;
 						render();
-					
-						if (!destroyed) {
-							// schedule update again in 15 seconds
-							timerId = setTimeout(update, 15000);
-						}
+						onComplete();
 					};
 				
 					if (data.vodSourceId !== null) {
@@ -164,6 +168,9 @@ define([
 					else {
 						callback();
 					}
+				}
+				else {
+					onComplete();
 				}
 			});
 		}

@@ -50,7 +50,7 @@ class File extends MyEloquent {
 	
 	public function getProcessStateAttribute($state) {
 		$stateInt = intval($state, 10);
-		if ($stateInt < 0 || $stateInt > 2) {
+		if ($stateInt < 0 || $stateInt > 3) {
 			throw(new Exception("Invalid process state."));
 		}
 		return $state;
