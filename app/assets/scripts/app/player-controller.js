@@ -390,6 +390,7 @@ define([
 		// requires the latest version of the player info data from the response.
 		function getRememberedTime(data, callback) {
 			if (data.vodSourceId === null) {
+				callback(null);
 				return;
 			}
 			

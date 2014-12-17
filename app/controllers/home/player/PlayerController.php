@@ -10,7 +10,6 @@ use uk\co\la1tv\website\models\MediaItemComment;
 use uk\co\la1tv\website\models\LiveStreamStateDefinition;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\PlaybackTime;
-use uk\co\la1tv\website\models\SiteUser; //TODO: remove this
 use Response;
 use Config;
 use Carbon;
