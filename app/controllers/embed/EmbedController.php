@@ -37,6 +37,7 @@ class EmbedController extends EmbedBaseController {
 			$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
 			$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
 			$view->registerLikeUri = $this->getRegisterLikeUri($playlistId, $mediaItemId);
+			$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 			$view->loginRequiredMsg = "Please log in to our website to use this feature.";
 			$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 			$view->hyperlink = URL::route('player', array($playlistId, $mediaItemId));
@@ -55,6 +56,10 @@ class EmbedController extends EmbedBaseController {
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {
 		return Config::get("custom.embed_player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getUpdatePlaybackTimeBaseUri() {
+		return Config::get("custom.embed_player_update_playback_time_base_uri");
 	}
 	
 	public function missingMethod($parameters=array()) {

@@ -7,7 +7,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay) {
 
 		var self = this;
 	
@@ -71,7 +71,7 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, qualitySelectionComponent, responsive, autoPlay);
+		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlay);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);

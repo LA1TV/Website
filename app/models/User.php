@@ -35,6 +35,10 @@ class User extends MyEloquent {
 		return $this->belongsToMany(self::$p.'PermissionGroup', 'user_to_group', 'user_id', 'group_id');
 	}
 	
+	public function playbackTimes() {
+		return $this->hasMany(self::$p.'PlaybackTime', 'user_id');
+	}
+	
 	// $password should be null if there is one set, but is unknown
 	public static function generateContentForPasswordToggleableComponent($password) {
 		$componentState = is_null($password) ? null : array(

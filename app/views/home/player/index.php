@@ -43,7 +43,7 @@
 			</div>
 		</div>
 		<?php endif; ?>
-		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-autoplay="<?=$autoPlay?"1":"0"?>">
+		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-update-playback-time-base-uri="<?=e($updatePlaybackTimeBaseUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-autoplay="<?=$autoPlay?"1":"0"?>">
 			<div class="msg-container">
 				<div class="embed-responsive embed-responsive-16by9">
 					<div class="embed-responsive-item">

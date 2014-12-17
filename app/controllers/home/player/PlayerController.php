@@ -3,10 +3,14 @@
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use View;
 use App;
+use DB;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemComment;
 use uk\co\la1tv\website\models\LiveStreamStateDefinition;
+use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\PlaybackTime;
+use uk\co\la1tv\website\models\SiteUser; //TODO: remove this
 use Response;
 use Config;
 use Carbon;
@@ -237,6 +241,7 @@ class PlayerController extends HomeBaseController {
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
+		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$view->autoPlay = !URLHelpers::hasInternalReferrer(); // only autoplay if the user has come from an external site
@@ -314,9 +319,16 @@ class PlayerController extends HomeBaseController {
 		$hasVod = $hasVideoItem;
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
 		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
+		$user = Facebook::getUser();
+		$rememberedPlaybackTime = null;
+		if ($hasVideoItem && !is_null($user)) {
+			$playbackTime = $videoItem->sourceFile->playbackTimes()->where("user_id", $user->id)->first();
+			if (!is_null($playbackTime)) {
+				$rememberedPlaybackTime = intval($playbackTime->time);
+			}
+		}
 		$numLikes = $mediaItem->likes()->count();
 		$likeType = null;
-		$user = Facebook::getUser();
 		if (!is_null($user)) {
 			$like = $mediaItem->likes()->where("site_user_id", $user->id)->first();
 			if (!is_null($like)) {
@@ -360,23 +372,24 @@ class PlayerController extends HomeBaseController {
 		}
 		
 		$data = array(
-			"id"					=> $id,
-			"scheduledPublishTime"	=> $publishTime,
-			"coverUri"				=> $coverArtUri,
-			"embedData"				=> $embedData,
-			"hasStream"				=> $hasStream, // true if this media item has a live stream
-			"streamInfoMsg"			=> $streamInfoMsg,
-			"streamState"			=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
-			"streamUris"			=> $streamUris,
-			"availableOnDemand"		=> $availableOnDemand, // true if the stream is being recorded
-			"streamViewCount"		=> $streamViewCount,
-			"hasVod"				=> $hasVod, // true if this media item has a video.
-			"vodSourceId"			=> $vodSourceId, // the id of the vod source file.
-			"vodLive"				=> $vodLive, // true when the video should be live to the public
-			"videoUris"				=> $videoUris,
-			"vodViewCount"			=> $vodViewCount,
-			"numLikes"				=> $numLikes, // number of likes this media item has
-			"likeType"				=> $likeType // "like" if liked, "dislike" if disliked, or null otherwise
+			"id"						=> $id,
+			"scheduledPublishTime"		=> $publishTime,
+			"coverUri"					=> $coverArtUri,
+			"embedData"					=> $embedData,
+			"hasStream"					=> $hasStream, // true if this media item has a live stream
+			"streamInfoMsg"				=> $streamInfoMsg,
+			"streamState"				=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
+			"streamUris"				=> $streamUris,
+			"availableOnDemand"			=> $availableOnDemand, // true if the stream is being recorded
+			"streamViewCount"			=> $streamViewCount,
+			"hasVod"					=> $hasVod, // true if this media item has a video.
+			"vodSourceId"				=> $vodSourceId, // the id of the vod source file.
+			"vodLive"					=> $vodLive, // true when the video should be live to the public
+			"videoUris"					=> $videoUris,
+			"vodViewCount"				=> $vodViewCount,
+			"rememberedPlaybackTime"	=> $rememberedPlaybackTime,
+			"numLikes"					=> $numLikes, // number of likes this media item has
+			"likeType"					=> $likeType // "like" if liked, "dislike" if disliked, or null otherwise
 		);
 		
 		return Response::json($data);
@@ -454,6 +467,52 @@ class PlayerController extends HomeBaseController {
 					}
 				}
 			}
+		}
+		return Response::json(array("success"=>$success));
+	}
+	
+	public function postRegisterPlaybackTime($sourceFileId) {
+	
+		$user = Facebook::getUser();
+		if (is_null($user)) {
+			App::abort(403); // forbidden
+		}
+	
+		$file = File::find($sourceFileId);
+		if (is_null($file)) {
+			App::abort(404);
+		}
+		
+		$mediaItemVideo = $file->mediaItemVideoWithFile;
+		if (is_null($mediaItemVideo) || !$mediaItemVideo->getIsLive()) {
+			App::abort(404);
+		}
+		
+		$success = false;
+		
+		$time = isset($_POST['time']) ? intval($_POST['time']) : null;
+		if (!is_null($time) && $time >= 0) {
+			// create/update the record in the database.
+			DB::transaction(function() use (&$user, &$file, &$time, &$success) {
+				
+				$playbackTime = PlaybackTime::where("user_id", $user->id)->where("file_id", $file->id)->lockForUpdate()->first();
+				if (!is_null($playbackTime)) {
+					// record already exists. Update it
+					$playbackTime->time = $time;
+					$playbackTime->save();
+				}
+				else {
+					// record doesn't exist. Create it
+					$playbackTime = new PlaybackTime(array(
+						"time"	=> $time
+					));
+					$playbackTime->user()->associate($user);
+					$playbackTime->file()->associate($file);
+					$playbackTime->save();
+				}
+				$success = true;
+			});
+			
 		}
 		return Response::json(array("success"=>$success));
 	}
@@ -645,6 +704,10 @@ class PlayerController extends HomeBaseController {
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getUpdatePlaybackTimeBaseUri() {
+		return Config::get("custom.update_playback_time_base_uri");
 	}
 	
 	private function getGetCommentsUri($mediaItemId) {

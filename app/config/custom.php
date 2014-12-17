@@ -27,11 +27,13 @@ return array(
 	"player_info_base_uri"	=> URL::to("/") . "/player/player-info",
 	"player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
+	"update_playback_time_base_uri"	=> URL::to("/") . "/player/register-playback-time",
 	"player_base_uri"	=> URL::to("/") . "/player",
 	"embed_default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"embed_player_info_base_uri"	=> URL::to("/") . "/player/player-info",
 	"embed_player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"embed_player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
+	"embed_player_update_playback_time_base_uri"	=> URL::to("/") . "/player/register-playback-time",
 	// time in minutes that must pass between views on the same item being registered
 	"interval_between_registering_view_counts"	=> 5
 );
