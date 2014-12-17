@@ -99,7 +99,7 @@ class UploadManager {
 								}
 								// move the file providing the file record created successfully.
 								// it is important there's always a file record for each file.
-								if (rename($fileLocation, Config::get("custom.pending_files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
+								if (rename($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
 									// set ready_for_processing to true so that processing can start.
 									$fileDb->ready_for_processing = true;
 									$fileDb->save();
