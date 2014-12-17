@@ -17,12 +17,13 @@ define([
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
+			var updatePlaybackTimeBaseUri = $(this).attr("data-update-playback-time-base-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var autoPlay = $(this).attr("data-autoplay") === "1";
 			var embedded = false
 		
-			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay);
+			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay);
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());

@@ -1,8 +1,5 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use Exception;
-use App;
-
 class UserSession extends MyEloquent {
 
 	protected $table = 'users_sessions';

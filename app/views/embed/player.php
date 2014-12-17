@@ -15,7 +15,7 @@
 <?php endif; ?>
 </div>
 <?php if ($hasVideo): ?>
-<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-register-like-uri="<?=e($registerLikeUri);?>">
+<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-update-playback-time-base-uri="<?=e($updatePlaybackTimeBaseUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-register-like-uri="<?=e($registerLikeUri);?>">
 <?php else: ?>
 <div class="player-container-component-container">
 <?php endif; ?>

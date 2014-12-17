@@ -19,7 +19,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, qualitiesHandler, responsive, autoPlay) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay) {
 		
 		var self = this;
 		
@@ -125,7 +125,7 @@ define([
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
 		var viewCountRegistered = false;
-		var currentTimeDbTimerId = null;
+		var rememberedTimeTimerId = null;
 		
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
@@ -163,7 +163,7 @@ define([
 					};
 				
 					if (data.vodSourceId !== null) {
-						getStoredTimeFromDb(data.vodSourceId, callback);
+						getRememberedTime(data, callback);
 					}
 					else {
 						callback();
@@ -299,10 +299,10 @@ define([
 			
 			if (queuedPlayerType === "vod") {
 				// start updating the local database with the users position in the video.
-				startCurrentTimeDbUpdateTimer();
+				startRememberedTimeUpdateTimer();
 			}
 			else {
-				stopCurrentTimeDbUpdateTimer();
+				stopRememberedTimeUpdateTimer();
 			}
 			
 			if (data.streamState !== streamState) {
@@ -356,32 +356,57 @@ define([
 			}
 		}
 		
-		function startCurrentTimeDbUpdateTimer() {
-			if (currentTimeDbTimerId !== null) {
+		function startRememberedTimeUpdateTimer() {
+			if (rememberedTimeTimerId !== null) {
 				// timer already running
 				return;
 			}
 			var fn = function() {
-				updateCurrentTimeDb();
+				updateRememberedTime();
 			};
 			setTimeout(fn, 0); // run immediately as well as every 5 seconds
-			currentTimeDbTimerId = setInterval(fn, 5000);
+			rememberedTimeTimerId = setInterval(fn, 5000);
 		}
 		
-		function stopCurrentTimeDbUpdateTimer() {
-			if (currentTimeDbTimerId === null) {
+		function stopRememberedTimeUpdateTimer() {
+			if (rememberedTimeTimerId === null) {
 				// timer isn't running
 				return;
 			}
-			clearInterval(currentTimeDbTimerId);
-			currentTimeDbTimerId = null;
+			clearInterval(rememberedTimeTimerId);
+			rememberedTimeTimerId = null;
 		}
 		
-		function updateCurrentTimeDb() {
-			function areConditionsMet() {
-				return !(playerType !== "vod" || vodSourceId === null || playerComponent === null || playerComponent.paused() || playerComponent.getPlayerCurrentTime() == null);
+		function updateRememberedTime() {
+			if (!areRememberedTimeUpdateConditionsMet()) {
+				return;
 			}
 			
+			updateRememberedTimeInDb();
+			updateRememberedTimeOnServer();
+		}
+		
+		// get the time that the user was last up to in the vod (via a callback)
+		// requires the latest version of the player info data from the response.
+		function getRememberedTime(data, callback) {
+			if (data.vodSourceId === null) {
+				callback(null);
+				return;
+			}
+			
+			// first see if there is a remembered time in the servers info response
+			if (data.rememberedPlaybackTime !== null) {
+				callback(data.rememberedPlaybackTime);
+			}
+			else {
+				// could not get time from server. return the local one instead (or null)
+				getRememberedTimeFromDb(data.vodSourceId, function(result) {
+					callback(result);
+				});
+			}
+		}
+		
+		function updateRememberedTimeInDb() {
 			if (!window.indexedDB) {
 				// browser does not have indexedDB support so do nothing
 				return;
@@ -415,7 +440,7 @@ define([
 					};
 					
 					// only update the time whilst the video is actually playing. This means if the user has the video open in several tabs the time will be updated for the one they are watching
-					if (areConditionsMet()) {	
+					if (areRememberedTimeUpdateConditionsMet()) {	
 						var request = objectStore.put({
 							id: vodSourceId,
 							time: playerComponent.getPlayerCurrentTime(),
@@ -433,10 +458,28 @@ define([
 			}
 		}
 		
+		function updateRememberedTimeOnServer() {
+			if (!PageData.get("loggedIn")) {
+				// don't bother making the request if the user is not logged in.
+				return;
+			}
+			
+			// make request to update time on server.
+			jQuery.ajax(updatePlaybackTimeUri+"/"+vodSourceId, {
+				cache: false,
+				dataType: "json",
+				data: {
+					csrf_token: PageData.get("csrfToken"),
+					time: playerComponent.getPlayerCurrentTime()
+				},
+				type: "POST"
+			});
+		}
+		
 		// get the time the user was up to in the current video last time they watched it.
 		// callback should take 1 param which will be the time or null if time could not be retrieved.
 		// id is the id of the source file
-		function getStoredTimeFromDb(id, callback) {
+		function getRememberedTimeFromDb(id, callback) {
 			
 			if (!window.indexedDB) {
 				// browser does not have indexedDB support so do nothing
@@ -481,6 +524,10 @@ define([
 				console.error("Exception thrown when trying to read from \"playback-times\" object store.");
 				callback(null);
 			}
+		}
+		
+		function areRememberedTimeUpdateConditionsMet() {
+			return !(playerType !== "vod" || vodSourceId === null || playerComponent === null || playerComponent.paused() || playerComponent.getPlayerCurrentTime() == null);
 		}
 		
 		function createOpenPlaybackTimesDatabaseRequest(onErrorCallback) {
