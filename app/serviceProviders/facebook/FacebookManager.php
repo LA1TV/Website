@@ -98,13 +98,18 @@ class FacebookManager {
 			// populate the model with the rest of the users information from facebook.
 			$this->updateUser($user);
 		}
-		$ourSecret = str_random(40);
-		$hashedSecret = hash("sha256", $ourSecret);
+		
+		if (is_null($user->secret)) {
+			// don't have a secret assigned to this user yet. generate one
+			// in the future if the user can provide a matching secret this is used to log them in without them having to log into facebook again
+			$ourSecret = str_random(40);
+			$hashedSecret = hash("sha256", $ourSecret);
+			$user->secret = $hashedSecret;
+			$this->storeOurSecret($ourSecret);
+		}
 		$user->fb_access_token = (String) $token;
-		$user->secret = $hashedSecret;
 		$this->facebookTokenValid = true;
 		$user->save();
-		$this->storeOurSecret($ourSecret);
 	}
 	
 	public function isLoggedIn() {
