@@ -24,6 +24,7 @@ require.config({
 		"app/synchronised-time",
 		"app/video-js",
 		"app/jslink",
+		"app/confirmation-msg",
 		"app/pages/home/player-page",
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
