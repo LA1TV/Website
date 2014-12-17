@@ -3,7 +3,6 @@
 return array(
 	"files_location"	=> storage_path() . DIRECTORY_SEPARATOR ."files",
 	"file_chunks_location"	=> storage_path() . DIRECTORY_SEPARATOR ."file_chunks",
-	"pending_files_location"	=> storage_path() . DIRECTORY_SEPARATOR ."pending_files",
 	"items_per_page"	=> 12,
 	"base_url"			=> URL::to("/"),
 	"admin_base_url"	=> URL::to("/") . "/admin",
