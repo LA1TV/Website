@@ -105,7 +105,7 @@ class FacebookManager {
 			$ourSecret = hash("sha256", str_random(40));
 			$user->secret = $ourSecret;
 		}
-		$this->storeOurSecret($ourSecret);
+		$this->storeOurSecret($user->secret);
 		
 		$user->fb_access_token = (String) $token;
 		$this->facebookTokenValid = true;
