@@ -102,11 +102,11 @@ class FacebookManager {
 		if (is_null($user->secret)) {
 			// don't have a secret assigned to this user yet. generate one
 			// in the future if the user can provide a matching secret this is used to log them in without them having to log into facebook again
-			$ourSecret = str_random(40);
-			$hashedSecret = hash("sha256", $ourSecret);
-			$user->secret = $hashedSecret;
-			$this->storeOurSecret($ourSecret);
+			$ourSecret = hash("sha256", str_random(40));
+			$user->secret = $ourSecret;
 		}
+		$this->storeOurSecret($ourSecret);
+		
 		$user->fb_access_token = (String) $token;
 		$this->facebookTokenValid = true;
 		$user->save();
@@ -318,8 +318,7 @@ class FacebookManager {
 			return $this->siteUser;
 		}
 		
-		$hashedSecret = hash("sha256", $secret);
-		$siteUser = SiteUser::where("secret", $hashedSecret)->first();
+		$siteUser = SiteUser::where("secret", $secret)->first();
 		if (!is_null($siteUser)) {
 			$this->siteUser = $siteUser;
 			$this->siteUserCached = true;
