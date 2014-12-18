@@ -1,5 +1,7 @@
 <?php
 
+use uk\co\la1tv\website\commands\MediaItemEmailsCommand;
+
 /*
 |--------------------------------------------------------------------------
 | Register The Artisan Commands
@@ -11,3 +13,4 @@
 |
 */
 
+Artisan::add(new MediaItemEmailsCommand());

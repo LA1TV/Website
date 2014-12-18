@@ -69,6 +69,10 @@ class MediaItem extends MyEloquent {
 		return $this->belongsToMany(self::$p.'Playlist', 'related_item_to_playlist', 'related_media_item_id', 'media_item_id')->withPivot('position');
 	}
 	
+	public function emailTasksMediaItem() {
+		return $this->hasMany(self::$p.'EmailTasksMediaItem', 'media_item_id');
+	}
+	
 	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
 		$items = $this->relatedItems()->orderBy("related_item_to_media_item.position", "asc")->get();
