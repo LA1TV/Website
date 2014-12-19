@@ -1,30 +1,33 @@
 <?php namespace uk\co\la1tv\website\commands;
 
-use Illuminate\Console\Command;
+use Indatus\Dispatcher\Scheduling\ScheduledCommand;
+use Indatus\Dispatcher\Scheduling\Schedulable;
+use Indatus\Dispatcher\Drivers\Cron\Scheduler;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\EmailTasksMediaItem;
 use DB;
 use Carbon;
 use Config;
+use View;
+use URL;
 
-class MediaItemEmailsCommand extends Command {
+class MediaItemEmailsCommand extends ScheduledCommand {
 
 	/**
 	 * The console command name.
 	 *
 	 * @var string
 	 */
-	protected $name = 'mediaItemEmails:checkAndSend';
+	protected $name = 'mediaItemEmails:sendLiveShortly';
 
 	/**
 	 * The console command description.
 	 *
 	 * @var string
 	 */
-	protected $description = 'Determine what emails need sending and send them.';
+	protected $description = 'Determine what live shortly emails need sending and send them.';
 	
 	/**
 	 * Create a new command instance.
@@ -35,6 +38,18 @@ class MediaItemEmailsCommand extends Command {
 	{
 		parent::__construct();
 	}
+	
+	 /**
+     * When a command should run
+     *
+     * @param Scheduler $scheduler
+     * @return \Indatus\Dispatcher\Scheduling\Schedulable
+     */
+    public function schedule(Schedulable $scheduler)
+    {
+		// default is run every minute
+        return $scheduler;
+    }
 
 	/**
 	 * Execute the console command.
@@ -54,8 +69,12 @@ class MediaItemEmailsCommand extends Command {
 		$lowerBound = with(new Carbon($fifteenMinsAgo))->subSeconds(90);
 		$this->info($lowerBound);
 		$upperBound = new Carbon($fifteenMinsAgo);
+		$lowerBound->subYears(1); // TODO remove
+		// media items which have a live stream going live in 15 minutes.
 		$mediaItemsStartingInFifteen = DB::transaction(function() use (&$lowerBound, &$upperBound, &$messageTypeIds) {
-			$mediaItemsStartingInFifteen = MediaItem::accessible()->where(function($q) {
+			$mediaItemsStartingInFifteen = MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
+				$q->accessible()->notLive();
+			})->where(function($q) {
 				$q->whereHas("emailTasksMediaItem", function($q2) {
 					$q2->where("created_at", "<", Carbon::now()->subMinutes(15));
 				})->orHas("emailTasksMediaItem", 0);
@@ -66,7 +85,7 @@ class MediaItemEmailsCommand extends Command {
 					"message_type_id"	=> $messageTypeIds['liveInFifteen']
 				));
 				// create an entry in the tasks table for the emails that are going to be sent
-				$a->emailTasksMediaItem()->save($emailTask);
+				$a->emailTasksMediaItem()->save($emailTask); // TODO 
 			}
 			
 			return $mediaItemsStartingInFifteen;
@@ -78,10 +97,11 @@ class MediaItemEmailsCommand extends Command {
 			$this->info("Building and sending email for media item with id ".$a->id." and name \"".$a->name."\" which is starting in 15 minutes.");
 			$view = View::make("emails.mediaItem");
 			$view->heading = "Live shortly!";
-			$view->msg = "We will be live in less than 15 minutes!";
+			$view->msg = "We will be streaming live in less than 15 minutes!";
 			$coverResolution = Config::get("imageResolutions.coverArt")['email'];
 			$view->coverImgWidth = $coverResolution['w'];
 			$view->coverImgHeight = $coverResolution['h'];
+			$view->coverImgUri = $playlist->getMediaItemCoverArtUri($a, $coverResolution['w'], $coverResolution['h']);
 			$view->mediaItemTitle = $mediaItemTitle;
 			$view->mediaItemDescription = $a->description;
 			$view->mediaItemUri = $playlist->getMediaItemUri($a);
@@ -89,7 +109,7 @@ class MediaItemEmailsCommand extends Command {
 			$view->twitterUri = Config::get("socialMediaUris.twitter");
 			$view->contactEmail = Config::get("contactEmails.general");
 			$view->developmentEmail = Config::get("contactEmails.development");
-			$view->accountSettingsUri = URL::route('accountSettings');
+			$view->accountSettingsUri = URL::route('account');
 			$this->info("Sent emails.");
 		}
 		$this->info("Finished.");

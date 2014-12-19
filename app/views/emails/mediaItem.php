@@ -823,7 +823,7 @@ body.outlook p {
 
                             <h1><?=e($heading);?></h1>
                 			<p class="lead"><?=e($msg);?></p>
-                			<img width="<?=e($coverImgWidth);?>" height="<?=e($coverImgHeight);?>" src="<?=e($coverImageUri);?>">
+                			<a href="<?=e($mediaItemUri);?>"><img width="<?=e($coverImgWidth);?>" height="<?=e($coverImgHeight);?>" src="<?=e($coverImgUri);?>"></a>
 							<h3><?=e($mediaItemTitle);?></h3>
 							<?php if (!is_null($mediaItemDescription)): ?>
 							<p class="lead"><?=e($mediaItemDescription);?></p>
