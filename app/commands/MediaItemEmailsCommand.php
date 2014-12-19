@@ -115,21 +115,23 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 			// get all users that have emails enabled
 			$users = SiteUser::whereNotNull("fb_email")->where("email_notifications_enabled", true)->get();
 			foreach($users as $user) {
-				if (Facebook::updateUserOpenGraph($user)) {
-					// updated users details from facebook successfully
-					$email = $user->fb_email;
-					// check the email hasn't become null after the facebook update and that we have permission from facebook to use the email
-					if ($user->hasFacebookPermission("email") && !is_null($email)) {
-						$this->info("Sending email to user with id ".$user->id." and email \"".$email."\".");
-						// send the email
-						Mail::send('emails.mediaItem', $data, function($message) use (&$email, &$subject) {
-							$message->to($email)->subject($subject);
-						});
-						
-					}
+				
+				// attempt to update the users facebook info
+				Facebook::updateUserOpenGraph($user);
+				
+				// updated users details from facebook successfully
+				$email = $user->fb_email;
+				// check the email hasn't become null after the facebook update and that we have permission from facebook to use the email
+				// also check the last time the users details were updated successfully and if it is longer than a month ago then presume it's stale and the facebook token has expired and the user hasn't renewed it by logging back in for a long time
+				$cutOffTime = with(Carbon::now())->subMonths(1);
+				if ($user->hasFacebookPermission("email") && !is_null($email) && $user->fb_last_update_time->timestamp > $cutOffTime->timestamp) {
+					$this->info("Sending email to user with id ".$user->id." and email \"".$email."\".");
+					// send the email
+					Mail::send('emails.mediaItem', $data, function($message) use (&$email, &$subject) {
+						$message->to($email)->subject($subject);
+					});
 				}
 			}
-			
 			$this->info("Sent emails.");
 		}
 		$this->info("Finished.");
