@@ -58,7 +58,7 @@ class FacebookController extends HomeBaseController {
 		$loggedIn = !is_null($user);
 		if ($loggedIn) {
 			// force a request to happen to get the lastest permissions.
-			Facebook::updateUserOpengraph($user);
+			Facebook::updateUserOpengraph($user, true);
 			// save the model which may have just been updated
 			$user->save();
 			$providedPermissions = $user->getFacebookPermissions();
