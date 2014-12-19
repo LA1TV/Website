@@ -3,7 +3,7 @@
 class SiteUser extends MyEloquent {
 
 	protected $table = 'site_users';
-	protected $fillable = array('fb_uid', 'first_name', 'last_name', 'name', 'banned', 'fb_access_token', 'last_seen', 'fb_last_update_time', 'secret', 'fb_permissions', 'fb_email');
+	protected $fillable = array('fb_uid', 'first_name', 'last_name', 'name', 'banned', 'fb_access_token', 'last_seen', 'fb_last_update_time', 'secret', 'fb_permissions', 'fb_email', 'email_notifications_enabled');
 	
 	public function comments() {
 		return $this->hasMany(self::$p.'MediaItemComment', 'site_user_id');
@@ -26,6 +26,10 @@ class SiteUser extends MyEloquent {
 		}
 		$permissions = explode(",", $permissionsStr);
 		return $permissions;
+	}
+	
+	public function hasFacebookPermission($permission) {
+		return in_array($permission, $this->getFacebookPermissions(), true);
 	}
 	
 	// $permissions should be an array of the facebook permission ids

@@ -20,7 +20,8 @@ class CreatingPlaybackTimesTable extends Migration {
 			$table->integer("time")->unsigned();
 			$table->timestamps();
 			
-			$table->foreign("user_id", "playback_times_user_id_foreign")->references('id')->on('users')->onUpdate("restrict")->onDelete('cascade');$table->foreign("file_id", "playback_times_file_id_foreign")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("user_id", "playback_times_user_id_foreign")->references('id')->on('users')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("file_id", "playback_times_file_id_foreign")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 

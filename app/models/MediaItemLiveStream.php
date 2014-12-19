@@ -60,12 +60,26 @@ class MediaItemLiveStream extends MyEloquent {
 		});
 	}
 	
+	public function isNotLive() {
+		return intval($this->getResolvedStateDefinition()->id) === 1;
+	}
+	
 	public function isLive() {
 		return intval($this->getResolvedStateDefinition()->id) === 2;
 	}
 	
 	public function isOver() {
 		return intval($this->getResolvedStateDefinition()->id) === 3;
+	}
+	
+	public function scopeNotLive($q, $yes=true) {
+		if ($yes) {
+			$q->whereHas("liveStream", function($q2) {
+				$q2->accessible();
+			});
+		}
+		$q = $q->where("state_id", $yes ? "=" : "!=", 1);
+		return $q;
 	}
 	
 	public function scopeLive($q, $yes=true) {

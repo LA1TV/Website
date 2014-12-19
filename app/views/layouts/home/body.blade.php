@@ -17,7 +17,7 @@
 				<ul class="nav navbar-nav">
 					@yield('navbarList', '')
 				</ul>
-				<a class="btn <?=!$loggedIn ? "btn-primary" : "btn-default"?> navbar-btn navbar-right" href="<?=e($loggedIn ? $logoutUri : $loginUri);?>"<?=$loggedIn?' data-confirm="Are you sure you want to log out?"':''?>><?=$loggedIn ? "Logout" : '<img width="14" height="14" src="'.asset("assets/img/fb-icon.png").'"/> Login'?></a>
+				<a class="btn <?=!$loggedIn ? "btn-primary" : "btn-default"?> navbar-btn navbar-right" href="<?=e($loggedIn ? $accountUri : $loginUri);?>"><?=$loggedIn ? "Account" : '<img width="14" height="14" src="'.asset("assets/img/fb-icon.png").'"/> Login'?></a>
 			</div>
 		</div>
 	</nav>

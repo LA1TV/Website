@@ -7,9 +7,9 @@
 			<dt>Technical Support</dt>
 			<dd><a href="mailto:<?=e($developmentEmail);?>"><?=e($developmentEmail);?></a></dd>
 			<dt>Facebook</dt>
-			<dd><a href="https://www.facebook.com/LA1TV" target="_blank">https://www.facebook.com/LA1TV</a></dd>
+			<dd><a href="<?=e($facebookPageUri);?>" target="_blank"><?=e($facebookPageUri);?></a></dd>
 			<dt>Twitter</dt>
-			<dd><a href="https://twitter.com/LA1TV" target="_blank">https://twitter.com/LA1TV</a></dd>
+			<dd><a href="<?=e($twitterPageUri);?>" target="_blank"><?=e($twitterPageUri);?></a></dd>
 		</dl>
 	</div>
 	<div class="col-md-6">

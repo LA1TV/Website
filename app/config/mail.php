@@ -54,7 +54,7 @@ return array(
 	|
 	*/
 
-	'from' => array('address' => null, 'name' => null),
+	'from' => array('address' => "do-not-reply@la1tv.co.uk", 'name' => "LA1:TV"),
 
 	/*
 	|--------------------------------------------------------------------------
