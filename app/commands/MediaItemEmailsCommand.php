@@ -7,11 +7,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\EmailTasksMediaItem;
+use uk\co\la1tv\website\models\SiteUser;
 use DB;
 use Carbon;
 use Config;
 use View;
 use URL;
+use Mail;
+use Facebook;
 
 class MediaItemEmailsCommand extends ScheduledCommand {
 
@@ -45,11 +48,11 @@ class MediaItemEmailsCommand extends ScheduledCommand {
      * @param Scheduler $scheduler
      * @return \Indatus\Dispatcher\Scheduling\Schedulable
      */
-    public function schedule(Schedulable $scheduler)
-    {
+	public function schedule(Schedulable $scheduler)
+	{
 		// default is run every minute
-        return $scheduler;
-    }
+		return $scheduler;
+	}
 
 	/**
 	 * Execute the console command.
@@ -69,23 +72,20 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 		$lowerBound = with(new Carbon($fifteenMinsAgo))->subSeconds(90);
 		$this->info($lowerBound);
 		$upperBound = new Carbon($fifteenMinsAgo);
-		$lowerBound->subYears(1); // TODO remove
 		// media items which have a live stream going live in 15 minutes.
 		$mediaItemsStartingInFifteen = DB::transaction(function() use (&$lowerBound, &$upperBound, &$messageTypeIds) {
 			$mediaItemsStartingInFifteen = MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
 				$q->accessible()->notLive();
-			})->where(function($q) {
-				$q->whereHas("emailTasksMediaItem", function($q2) {
-					$q2->where("created_at", "<", Carbon::now()->subMinutes(15));
-				})->orHas("emailTasksMediaItem", 0);
-			})->where("scheduled_publish_time", ">=", $lowerBound)->where("scheduled_publish_time", "<", $upperBound)->orderBy("scheduled_publish_time", "desc")->lockForUpdate()->get();
+			})->whereHas("emailTasksMediaItem", function($q2) {
+				$q2->where("created_at", ">=", Carbon::now()->subMinutes(15));
+			}, "=", 0)->where("scheduled_publish_time", ">=", $lowerBound)->where("scheduled_publish_time", "<", $upperBound)->orderBy("scheduled_publish_time", "desc")->lockForUpdate()->get();
 			
 			foreach($mediaItemsStartingInFifteen as $a) {
 				$emailTask = new EmailTasksMediaItem(array(
 					"message_type_id"	=> $messageTypeIds['liveInFifteen']
 				));
 				// create an entry in the tasks table for the emails that are going to be sent
-				$a->emailTasksMediaItem()->save($emailTask); // TODO 
+				$a->emailTasksMediaItem()->save($emailTask);
 			}
 			
 			return $mediaItemsStartingInFifteen;
@@ -95,21 +95,42 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 			$playlist = $a->getDefaultPlaylist();
 			$mediaItemTitle = $playlist->generateEpisodeTitle($a);
 			$this->info("Building and sending email for media item with id ".$a->id." and name \"".$a->name."\" which is starting in 15 minutes.");
-			$view = View::make("emails.mediaItem");
-			$view->heading = "Live shortly!";
-			$view->msg = "We will be streaming live in less than 15 minutes!";
+			$subject = 'Live Shortly With "'.$mediaItemTitle.'"';
 			$coverResolution = Config::get("imageResolutions.coverArt")['email'];
-			$view->coverImgWidth = $coverResolution['w'];
-			$view->coverImgHeight = $coverResolution['h'];
-			$view->coverImgUri = $playlist->getMediaItemCoverArtUri($a, $coverResolution['w'], $coverResolution['h']);
-			$view->mediaItemTitle = $mediaItemTitle;
-			$view->mediaItemDescription = $a->description;
-			$view->mediaItemUri = $playlist->getMediaItemUri($a);
-			$view->facebookUri = Config::get("socialMediaUris.facebook");
-			$view->twitterUri = Config::get("socialMediaUris.twitter");
-			$view->contactEmail = Config::get("contactEmails.general");
-			$view->developmentEmail = Config::get("contactEmails.development");
-			$view->accountSettingsUri = URL::route('account');
+			$data = array(
+				"heading"				=> "Live shortly!",
+				"msg"					=> "We will be streaming live in less than 15 minutes!",
+				"coverImgWidth"			=> $coverResolution['w'],
+				"coverImgHeight"		=> $coverResolution['h'],
+				"coverImgUri"			=> $playlist->getMediaItemCoverArtUri($a, $coverResolution['w'], $coverResolution['h']),
+				"mediaItemTitle"		=> $mediaItemTitle,
+				"mediaItemDescription"	=> $a->description,
+				"mediaItemUri"			=> $playlist->getMediaItemUri($a),
+				"facebookUri"			=> Config::get("socialMediaUris.facebook"),
+				"twitterUri"			=> Config::get("socialMediaUris.twitter"),
+				"contactEmail"			=> Config::get("contactEmails.general"),
+				"developmentEmail"		=> Config::get("contactEmails.development"),
+				"accountSettingsUri"	=> URL::route('account')
+			);
+			
+			// get all users that have emails enabled
+			$users = SiteUser::whereNotNull("fb_email")->where("email_notifications_enabled", true)->get();
+			foreach($users as $user) {
+				if (Facebook::updateUserOpenGraph($user)) {
+					// updated users details from facebook successfully
+					$email = $user->fb_email;
+					// check the email hasn't become null after the facebook update and that we have permission from facebook to use the email
+					if ($user->hasFacebookPermission("email") && !is_null($email)) {
+						$this->info("Sending email to user with id ".$user->id." and email \"".$email."\".");
+						// send the email
+						Mail::send('emails.mediaItem', $data, function($message) use (&$email, &$subject) {
+							$message->to($email)->subject($subject);
+						});
+						
+					}
+				}
+			}
+			
 			$this->info("Sent emails.");
 		}
 		$this->info("Finished.");

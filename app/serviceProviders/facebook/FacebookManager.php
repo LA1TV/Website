@@ -231,15 +231,19 @@ class FacebookManager {
 	// updates the user model with information from facebook
 	// does not save the model
 	private function updateUser($user) {
-		$this->updateUserOpenGraph($user);
+		$this->updateUserOpenGraph($user, true);
 	}
 	
-	// updates the user model with information from opengraph. this inculdes the users permissions
+	// updates the user model with information from opengraph. this includes the users permissions
 	// returns true if this succeeds or false otherwise.
-	public function updateUserOpenGraph($user) {
+	public function updateUserOpenGraph($user, $forceUpdate=false) {
 		
 		if (!Config::get("facebook.enabled")) {
 			throw(new Exception("Facebook login is currently disabled."));
+		}
+	
+		if (!$forceUpdate && !$this->isTimeForNextFacebookUpdate($user)) {
+			return true;
 		}
 	
 		$fbSession = $this->getFacebookSession($user);
@@ -255,6 +259,7 @@ class FacebookManager {
 		$user->last_name = $profile->getLastName();
 		$user->name = $profile->getName();
 		$user->fb_email = $profile->getEmail();
+		$user->fb_last_update_time = Carbon::now();
 		
 		// update the permissions the user has granted
 		$grantedPermissions = array();
@@ -282,12 +287,7 @@ class FacebookManager {
 	}
 	
 	private function isTimeForNextFacebookUpdate($user) {
-		$timeForUpdate = $user->fb_last_update_time < Carbon::now()->subMinutes(Config::get("facebook.updateInterval"));
-		if ($timeForUpdate) {
-			$user->fb_last_update_time = Carbon::now();
-			$user->save();
-		}
-		return $timeForUpdate;
+		return $user->fb_last_update_time < Carbon::now()->subMinutes(Config::get("facebook.updateInterval"));
 	}
 	
 	private function getOurStoredSecret() {
