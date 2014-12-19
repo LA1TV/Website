@@ -72,13 +72,18 @@ class MediaItemLiveStream extends MyEloquent {
 		return intval($this->getResolvedStateDefinition()->id) === 3;
 	}
 	
+	// not live when has state_id of 1 or when has live state id but the live stream is nonexistent or inaccessible
 	public function scopeNotLive($q, $yes=true) {
+		$q = $q->where("state_id", $yes ? "=" : "!=", 1);
 		if ($yes) {
-			$q->whereHas("liveStream", function($q2) {
-				$q2->accessible();
+			$q->orWhere(function($q2) {
+				$q2->where("state_id", 2)
+				->whereHas("liveStream", function($q3) {
+					$q3->accessible();
+				}, "=", 0);
 			});
 		}
-		$q = $q->where("state_id", $yes ? "=" : "!=", 1);
+		
 		return $q;
 	}
 	
@@ -93,13 +98,7 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 	
 	public function scopeShowOver($q, $yes=true) {
-		if ($yes) {
-			$q->whereHas("liveStream", function($q2) {
-				$q2->accessible();
-			});
-		}
-		$q = $q->where("state_id", $yes ? "=" : "!=", 3);
-		return $q;
+		return $q->where("state_id", $yes ? "=" : "!=", 3);
 	}
 	
 	public function scopeSearch($q, $value) {
