@@ -119,7 +119,6 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 				// attempt to update the users facebook info
 				Facebook::updateUserOpenGraph($user);
 				
-				// updated users details from facebook successfully
 				$email = $user->fb_email;
 				// check the email hasn't become null after the facebook update and that we have permission from facebook to use the email
 				// also check the last time the users details were updated successfully and if it is longer than a month ago then presume it's stale and the facebook token has expired and the user hasn't renewed it by logging back in for a long time
