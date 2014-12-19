@@ -1,4 +1,8 @@
-define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, cookieConfig) {
+define([
+	"jquery",
+	"../cookie-config",
+	"../../lib/jquery.cookie"
+], function($, cookieConfig) {
 
 	var QualitySelectionComponent = function() {
 		
@@ -45,7 +49,7 @@ define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, co
 			}
 			else {
 				// if the previously quality id that was actively chosen is still available use that.
-				// otherwise if pevious quality id that was chosen is still available use that.
+				// otherwise if previous quality id that was chosen is still available use that.
 				// otherwise pick the first quality.
 				var foundActivelyChosen = false;
 				var foundChosen = false;
@@ -77,6 +81,8 @@ define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, co
 			$(self).triggerHandler("qualitiesChanged");
 		};
 		
+		var chosenQuaityIdCookieName = "chosenQualityId-v2"; // renamed because version 1 had wrong path and don't want old v1 cookies taking precedence.
+		
 		var $container = $("<div />").addClass("quality-selection-component").hide();
 		var $btnGroup = $("<div />").addClass("btn-group");
 		var $button = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs dropdown-toggle").attr("data-toggle", "dropdown");
@@ -95,7 +101,7 @@ define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, co
 		var chosenQuality = null;
 		// the quality that was last chosen by the user. could be one that is currently unavailable
 		var activelyChosenQuality = null;
-		var activelyChosenQualityIdFromCookie = $.cookie("chosenQualityId") || null;
+		var activelyChosenQualityIdFromCookie = $.cookie(chosenQuaityIdCookieName) || null;
 		if (activelyChosenQualityIdFromCookie !== null) {
 			activelyChosenQualityIdFromCookie = parseInt(activelyChosenQualityIdFromCookie);
 		}
@@ -104,7 +110,7 @@ define(["jquery", "../../lib/jquery.cookie", "../cookie-config"], function($, co
 		
 		function setActivelyChosenQuality(quality) {
 			activelyChosenQuality = quality;
-			$.cookie("chosenQualityId", quality.id, cookieConfig); 
+			$.cookie(chosenQuaityIdCookieName, quality.id, cookieConfig); 
 		}
 		
 		function getActivelyChosenQuality() {
