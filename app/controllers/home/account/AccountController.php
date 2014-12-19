@@ -28,8 +28,8 @@ class AccountController extends HomeBaseController {
 			$user = Facebook::getUser();
 			$emailNotificationsButtonsInitialId = $user->email_notifications_enabled ? "1" : "0";
 		
-			// force a request to happen to get the lastest permissions.
-			Facebook::updateUserOpengraph($user);
+			// force a request to happen to get the latest permissions.
+			Facebook::updateUserOpengraph($user, true);
 			// save the model which may have just been updated
 			$user->save();
 			$haveEmailPermission = $user->hasFacebookPermission("email");
