@@ -1,6 +1,6 @@
 define([
 	"jquery",
-	"app/page-protect",
+	"./page-protect",
 	"lib/domReady!"
 ], function($, PageProtect) {
 

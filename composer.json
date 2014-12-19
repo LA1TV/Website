@@ -18,6 +18,7 @@
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/helpers",
+			"app/cronjobs",
 			"app/tests/TestCase.php"
 		]
 	},

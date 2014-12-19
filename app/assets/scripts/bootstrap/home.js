@@ -26,6 +26,7 @@ require.config({
 		"app/jslink",
 		"app/confirmation-msg",
 		"app/pages/home/player-page",
+		"app/pages/home/account-page",
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
 		"app/pages/home/home-page",

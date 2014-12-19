@@ -237,6 +237,11 @@ class FacebookManager {
 	// updates the user model with information from opengraph. this inculdes the users permissions
 	// returns true if this succeeds or false otherwise.
 	public function updateUserOpenGraph($user) {
+		
+		if (!Config::get("facebook.enabled")) {
+			throw(new Exception("Facebook login is currently disabled."));
+		}
+	
 		$fbSession = $this->getFacebookSession($user);
 		if (is_null($fbSession)) {
 			return false;

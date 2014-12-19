@@ -66,4 +66,12 @@ class URLHelpers {
 	public static function getPath() {
 		return implode("/", Request::segments());
 	}
+	
+	public static function generateLoginUrl() {
+		return Config::get("custom.base_url") . "/facebook/login?returnuri=".urlencode(URLHelpers::getPath());
+	}
+	
+	public static function generateLogoutUrl() {
+		return Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode(URLHelpers::getPath());
+	}
 }
