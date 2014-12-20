@@ -241,7 +241,9 @@ class FacebookManager {
 		if (!Config::get("facebook.enabled")) {
 			throw(new Exception("Facebook login is currently disabled."));
 		}
-	
+		
+		$this->initFacebookSession();
+		
 		if (!$forceUpdate && !$this->isTimeForNextFacebookUpdate($user)) {
 			return true;
 		}
