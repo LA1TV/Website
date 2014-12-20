@@ -58,8 +58,9 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 	{
 		$this->info('Looking for media items that are starting in 15 minutes.');
 		$fifteenMinsAhead = Carbon::now()->addMinutes(15);
-		$lowerBound = new Carbon($fifteenMinsAhead);
-		$upperBound = with(new Carbon($fifteenMinsAhead))->addSeconds(90);
+		$lowerBound = (new Carbon($fifteenMinsAhead))->subSeconds(90);
+		$upperBound = new Carbon($fifteenMinsAhead);
+		$this->info($lowerBound);
 		// media items which have a live stream going live in 15 minutes.
 		$mediaItemsStartingInFifteen = DB::transaction(function() use (&$lowerBound, &$upperBound) {
 			$mediaItemsStartingInFifteen = MediaItem::accessible()->whereHas("liveStreamItem", function($q) {

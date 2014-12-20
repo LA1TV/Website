@@ -14,9 +14,9 @@ class EmailHelpers {
 		return self::$messageTypeIds;
 	}
 	
-	public static function sendMediaItemEmail($mediaItem, $heading, $msg) {
+	public static function sendMediaItemEmail($mediaItem, $subject, $heading, $msg) {
 		
-		$data = self::getMediaItemEmailData($mediaItem, $heading, $msg);
+		$data = self::getMediaItemEmailData($mediaItem, $subject, $heading, $msg);
 	
 		// get all users that have emails enabled
 		$users = SiteUser::whereNotNull("fb_email")->where("email_notifications_enabled", true)->get();
@@ -28,11 +28,11 @@ class EmailHelpers {
 			$email = $user->fb_email;
 			// check the email hasn't become null after the facebook update and that we have permission from facebook to use the email
 			// also check the last time the users details were updated successfully and if it is longer than a month ago then presume it's stale and the facebook token has expired and the user hasn't renewed it by logging back in for a long time
-			$cutOffTime = with(Carbon::now())->subMonths(1);
+			$cutOffTime = Carbon::now()->subMonths(1);
 			if ($user->hasFacebookPermission("email") && !is_null($email) && $user->fb_last_update_time->timestamp > $cutOffTime->timestamp) {
-				$this->info("Sending email to user with id ".$user->id." and email \"".$email."\".");
+				Log::info("Sending media item email to user with id ".$user->id." and email \"".$email."\".");
 				// send the email
-				Mail::send('emails.mediaItem', $data, function($message) use (&$email) {
+				Mail::send('emails.mediaItem', $data, function($message) use (&$email, &$data) {
 					$message->to($email)->subject($data['subject']);
 				});
 			}

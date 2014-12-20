@@ -42,6 +42,11 @@ App::after(function($request, $response)
 	}
 });
 
+App::finish(function() {
+	// now that the response has been sent to the user fire an event so that code that is now listening for this event can execute
+	Event::fire("app.finish");
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Filters
