@@ -6,7 +6,8 @@ class EmailHelpers {
 	
 	private static $messageTypeIds = array(
 		"liveInFifteen"	=> 1, // show live in 15 minutes
-		"liveNow"		=> 2  // show live/vod available now
+		"liveNow"		=> 2, // show live now
+		"availableNow"	=> 3  // show available on demand now
 	);
 	
 	public static function getMessageTypeIds() {

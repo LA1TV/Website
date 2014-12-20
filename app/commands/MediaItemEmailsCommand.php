@@ -65,7 +65,7 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 			$mediaItemsStartingInFifteen = MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
 				$q->accessible()->notLive();
 			})->whereHas("emailTasksMediaItem", function($q2) {
-				$q2->where("created_at", ">=", Carbon::now()->subMinutes(15));
+				$q2->where("message_type_id", EmailHelpers::getMessageTypeIds()['liveInFifteen'])->where("created_at", ">=", Carbon::now()->subMinutes(15));
 			}, "=", 0)->where("scheduled_publish_time", ">=", $lowerBound)->where("scheduled_publish_time", "<", $upperBound)->orderBy("scheduled_publish_time", "desc")->lockForUpdate()->get();
 			
 			foreach($mediaItemsStartingInFifteen as $a) {
