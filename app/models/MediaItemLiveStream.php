@@ -3,11 +3,28 @@
 use \Session as SessionProvider;
 use Carbon;
 use Config;
+use Queue;
+use Event;
 
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
 	protected $fillable = array('enabled', 'state_id', 'information_msg', 'being_recorded');
+	
+	protected static function boot() {
+		parent::boot();
+		self::saved(function($model) {
+		
+			if ($model->hasJustBecomeLive()) {
+				
+				// queue the email job once the response has been sent to the user just before the script ends
+				// this makes sure if this is currently in a transaction the transaction will have ended when the job is queued
+				Event::listen('app.finish', function() use (&$model) {
+					Queue::push("uk\co\la1tv\website\jobs\MediaItemLiveEmailsJob", array("mediaItemId"=>intval($model->mediaItem->id)));
+				});
+			}
+		});
+	}
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
@@ -22,8 +39,8 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 	
 	// if the state is set to "live" but there is no live stream attached to, or the attached live stream is not live, then the resolved version is "Not Live"
-	public function getResolvedStateDefinition() {
-		$stateDefinition = $this->stateDefinition;
+	public function getResolvedStateDefinition($stateDefinitionParam=null) {
+		$stateDefinition = is_null($stateDefinitionParam) ? $this->stateDefinition : $stateDefinitionParam;
 		if (intval($stateDefinition->id) === 2 && (is_null($this->liveStream) || !$this->liveStream->getIsAccessible())) {
 			// set to "live" but no live stream attached or live. Pretend "Not Live"
 			return LiveStreamStateDefinition::find(1);
@@ -64,8 +81,8 @@ class MediaItemLiveStream extends MyEloquent {
 		return intval($this->getResolvedStateDefinition()->id) === 1;
 	}
 	
-	public function isLive() {
-		return intval($this->getResolvedStateDefinition()->id) === 2;
+	public function isLive($stateDefinition=null) {
+		return intval($this->getResolvedStateDefinition($stateDefinition)->id) === 2;
 	}
 	
 	public function isOver() {
@@ -103,5 +120,9 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
+	
+	public function hasJustBecomeLive() {
+		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->original["state_id"])));
 	}
 }

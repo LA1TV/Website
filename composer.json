@@ -15,6 +15,7 @@
 			"app/controllers",
 			"app/models",
 			"app/serviceProviders",
+			"app/jobs",
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/helpers",

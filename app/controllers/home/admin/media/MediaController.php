@@ -518,4 +518,5 @@ class MediaController extends MediaBaseController {
 		$resp = array("infoMsg"=> $liveStreamItem->information_msg);
 		return Response::json($resp);
 	}
+
 }

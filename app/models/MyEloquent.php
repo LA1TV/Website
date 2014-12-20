@@ -9,22 +9,6 @@ class MyEloquent extends Eloquent {
 	
 	protected static $p = "uk\\co\\la1tv\\website\\models\\";
 	
-	public function push() {
-		$returnVal = NULL;
-		DB::transaction(function() use (&$returnVal) {
-			$returnVal = parent::push();
-		});
-		return $returnVal;
-	}
-	
-	public function save(array $options = array()) {
-		$returnVal = NULL;
-		DB::transaction(function() use (&$returnVal, &$options) {
-			$returnVal = parent::save($options);
-		});
-		return $returnVal;
-	}
-	
 	// $column can be a string or an array of strings to search multiple columns
 	// if you want to search on a column in a relation then pass in an array as the column with the first element being the relation name, and the second element being the column
 	public function scopeWhereContains($q, $column, $value, $fromLeft=false, $fromRight=false) {
