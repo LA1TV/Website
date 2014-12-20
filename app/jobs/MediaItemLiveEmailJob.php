@@ -39,7 +39,7 @@ class MediaItemLiveEmailsJob {
 			});
 			
 			if (!is_null($mediaItem)) {
-				EmailHelpers::sendMediaItemEmail($mediaItem, 'Live Now With "{title}"', "Live now!", "We are streaming live right now!");
+				EmailHelpers::sendMediaItemEmail($mediaItem, 'LA1:TV Are Live Now With "{title}"', "Live now!", "We are streaming live right now!");
 			}
 			
 		}

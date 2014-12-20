@@ -43,8 +43,9 @@ class EmailHelpers {
 		$playlist = $mediaItem->getDefaultPlaylist();
 		$coverResolution = Config::get("imageResolutions.coverArt")['email'];
 		$mediaItemTitle = $playlist->generateEpisodeTitle($mediaItem);
+		$mediaItemTitleWithPlaylist = $playlist->generateEpisodeTitle($mediaItem, true);
 		return array(
-			"subject"				=> str_replace("{title}", $mediaItemTitle, $subject),
+			"subject"				=> str_replace("{title}", $mediaItemTitleWithPlaylist, $subject),
 			"heading"				=> $heading,
 			"msg"					=> $msg,
 			"coverImgWidth"			=> $coverResolution['w'],
