@@ -32,7 +32,7 @@ class EmailHelpers {
 			if ($user->hasFacebookPermission("email") && !is_null($email) && $user->fb_last_update_time->timestamp > $cutOffTime->timestamp) {
 				Log::info("Sending media item email to user with id ".$user->id." and email \"".$email."\".");
 				// send the email
-				Mail::send('emails.mediaItem', $data, function($message) use (&$email, &$data) {
+				Mail::send(array("html"=>'emails.mediaItem'), $data, function($message) use (&$email, &$data) {
 					$message->to($email)->subject($data['subject']);
 				});
 			}

@@ -80,7 +80,7 @@ class MediaItemEmailsCommand extends ScheduledCommand {
 		
 		foreach($mediaItemsStartingInFifteen as $a) {
 			$this->info("Building and sending email for media item with id ".$a->id." and name \"".$a->name."\" which is starting in 15 minutes.");
-			EmailHelpers::sendMediaItemEmail($a, 'LA1:TV Are Live Shortly With "{title}"', "Live shortly!", "We will be streaming live in less than 15 minutes!");
+			EmailHelpers::sendMediaItemEmail($a, 'LA1:TV Live Shortly With "{title}"', "Live shortly!", "We will be streaming live in less than 15 minutes!");
 			$this->info("Sent email to users.");
 		}
 		$this->info("Finished.");
