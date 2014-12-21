@@ -58,7 +58,7 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 	{
 		$this->info('Looking for media items which contain VOD which has just gone live.');
 		// media items which have vod which is accessible, have the sent_vod_available_email flag set to 0, and have not had a email about this sent recently
-		$mediaItems = DB::transaction(function() use (&$lowerBound, &$upperBound) {
+		$mediaItems = DB::transaction(function() {
 			
 			$mediaItemsWantingEmail = array();
 			
