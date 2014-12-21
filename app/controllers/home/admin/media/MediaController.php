@@ -131,6 +131,7 @@ class MediaController extends MediaBaseController {
 			array("enabled", ObjectHelpers::getProp(true, $mediaItem, "enabled")?"y":""),
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
+			array("email-notifications-enabled", ObjectHelpers::getProp(true, $mediaItem, "email_notifications_enabled")?"y":""),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $mediaItem, "coverArtFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFile", "id")),
@@ -245,6 +246,7 @@ class MediaController extends MediaBaseController {
 					// an enabled media item should always have a published time.
 					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
 					$mediaItem->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();
+					$mediaItem->email_notifications_enabled = FormHelpers::toBoolean($formData['email-notifications-enabled']);
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $mediaItem->coverFile);

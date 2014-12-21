@@ -16,6 +16,10 @@ class EmailHelpers {
 	
 	public static function sendMediaItemEmail($mediaItem, $subject, $heading, $msg) {
 		
+		if (!$mediaItem->email_notifications_enabled) {
+			throw(new Exception("This method should not have been called as this media item has email notifications disabled."));
+		}
+		
 		$data = self::getMediaItemEmailData($mediaItem, $subject, $heading, $msg);
 	
 		// get all users that have emails enabled
