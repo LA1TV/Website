@@ -64,7 +64,7 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 			
 			$mediaItems = MediaItem::with("emailTasksMediaItem")->accessible()->whereHas("videoItem", function($q) {
 				$q->live();
-			})->where("sent_vod_available_email", false)->lockForUpdate()->get();
+			})->where("email_notifications_enabled", true)->where("sent_vod_available_email", false)->lockForUpdate()->get();
 			
 			foreach($mediaItems as $a) {
 				

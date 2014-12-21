@@ -25,7 +25,7 @@ class MediaItemLiveEmailsJob {
 					$q->accessible()->live();
 				})->whereHas("emailTasksMediaItem", function($q2) {
 					$q2->where("message_type_id", EmailHelpers::getMessageTypeIds()['liveNow'])->where("created_at", ">=", Carbon::now()->subMinutes(15));
-				}, "=", 0)->where("id", $mediaItemId)->lockForUpdate()->first();
+				}, "=", 0)->where("email_notifications_enabled", true)->where("id", $mediaItemId)->lockForUpdate()->first();
 				
 				if (!is_null($mediaItem)) {
 					$emailTask = new EmailTasksMediaItem(array(
