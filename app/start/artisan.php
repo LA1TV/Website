@@ -1,6 +1,7 @@
 <?php
 
-use uk\co\la1tv\website\commands\MediaItemEmailsCommand;
+use uk\co\la1tv\website\commands\MediaItemEmailsSendLiveShortlyCommand;
+use uk\co\la1tv\website\commands\MediaItemEmailsSendVodAvailableCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,4 +14,5 @@ use uk\co\la1tv\website\commands\MediaItemEmailsCommand;
 |
 */
 
-Artisan::add(new MediaItemEmailsCommand());
+Artisan::add(new MediaItemEmailsSendLiveShortlyCommand());
+Artisan::add(new MediaItemEmailsSendVodAvailableCommand());

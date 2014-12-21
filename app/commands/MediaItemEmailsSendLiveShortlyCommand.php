@@ -11,7 +11,7 @@ use DB;
 use Carbon;
 use EmailHelpers;
 
-class MediaItemEmailsCommand extends ScheduledCommand {
+class MediaItemEmailsSendLiveShortlyCommand extends ScheduledCommand {
 
 	/**
 	 * The console command name.
