@@ -14,6 +14,5 @@ https://www.vagrantup.com/) at "https://github.com/LA1TV/Website-Homestead".
 - files
 - logs
 - meta
-- pending_files
 - sessions
 - views
