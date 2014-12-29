@@ -19,6 +19,8 @@ return array(
 	"num_popular_items"	=> 8,
 	"num_playlists_per_page"	=> 20,
 	"num_shows_per_page"	=> 20,
+	"log_uri"			=> URL::to("/") . "/ajax/log", # where javascript log events should be posted to
+	"js_log_file_path"	=> storage_path() . DIRECTORY_SEPARATOR ."logs" . DIRECTORY_SEPARATOR . "js-log.log",
 	"blog_url"			=> "http://blog.la1tv.co.uk/",
 	"default_cover_uri"		=> asset("assets/img/default-cover.jpg"),
 	"open_graph_logo_uri"	=> asset("assets/img/og-logo.jpg"),

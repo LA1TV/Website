@@ -16,7 +16,9 @@ require.config({
 	var startTime = new Date().getTime();
 
 	require([
+		"app/logger",
 		"app/google-analytics",
+		"app/error-handler",
 		"lib/bootstrap",
 		"app/custom-accordian",
 		"app/default-button-group",
@@ -30,8 +32,9 @@ require.config({
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
 		"app/pages/home/home-page",
-	], function(googleAnalytics) {
+	], function(logger, googleAnalytics) {
 		// everything loaded
+		logger.info("Page loaded.");
 		googleAnalytics.registerModulesLoadTime("Home", new Date().getTime() - startTime);
 	});
 	

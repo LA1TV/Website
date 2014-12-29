@@ -27,7 +27,9 @@ require.config({
 	var startTime = new Date().getTime();
 	
 	require([
+		"app/logger",
 		"app/google-analytics",
+		"app/error-handler",
 		"lib/bootstrap",
 		"app/confirmation-msg",
 		"app/custom-accordian",
@@ -42,8 +44,9 @@ require.config({
 		"app/pages/admin/media-edit-page",
 		"app/pages/admin/playlist-edit-page",
 		"app/pages/admin/users-edit-page"
-	], function(googleAnalytics) {
+	], function(logger, googleAnalytics) {
 		// everything loaded
+		logger.info("Page loaded.");
 		googleAnalytics.registerModulesLoadTime("Admin", new Date().getTime() - startTime);
 	});
 	
