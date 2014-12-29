@@ -13,6 +13,7 @@ use Request;
 use MyResponse;
 use View;
 use URLHelpers;
+use DebugHelpers;
 
 class HomeBaseController extends BaseController {
 
@@ -42,6 +43,8 @@ class HomeBaseController extends BaseController {
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
+			"logUri"		=> Config::get("custom.log_uri"),
+			"debugId"		=> DebugHelpers::getDebugId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled")
