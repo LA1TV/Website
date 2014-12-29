@@ -2,11 +2,15 @@ define([
 	"./page-data",
 	"lib/log4javascript"
 ], function(PageData, log4Javascript) {
+	
+	log4Javascript.logLog.setQuietMode(true);
+	
 	var logUri = PageData.get("logUri");
 	if (logUri === null) {
 		// no uri to log to so disable logging
 		return log4Javascript.getNullLogger();
 	}
+	
 	var logger = log4Javascript.getLogger();
 	
 	// set up the logger
