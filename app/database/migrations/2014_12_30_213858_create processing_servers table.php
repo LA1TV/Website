@@ -16,7 +16,6 @@ class CreateProcessingServersTable extends Migration {
 		{
 			$table->integer('id')->unsigned()->primary()->unique();
 			$table->timestamp("heartbeat");
-			$table->timestamps();
 		});
 	}
 
