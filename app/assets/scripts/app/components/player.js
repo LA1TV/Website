@@ -199,6 +199,11 @@ define([
 				return;
 			}
 			
+			// only show the start time if there is one set or if stream over message is not visible/going visible
+			if (queuedShowStreamOver) {
+				// disable showing the time if stream over message visible
+				queuedStartTime = null;
+			}
 			if (queuedStartTime === null && startTime !== null) {
 				// hiding start time
 				$adLiveAt.hide().text("");
@@ -281,6 +286,11 @@ define([
 					$adStreamOver.hide();
 				}
 				showStreamOver = queuedShowStreamOver;
+			}
+			
+			if (!queuedShowStreamOver) {
+				// if the stream isn't marked as over disable vod available shortly message if set
+				queuedShowVodAvailableShortly = false;
 			}
 			if (showVodAvailableShortly !== queuedShowVodAvailableShortly) {
 				if (queuedShowVodAvailableShortly) {
