@@ -28,9 +28,10 @@ define([
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var embedded = true;
 			var autoPlay = false;
+			var ignoreExternalStreamUrl = $(this).attr("data-ignore-external-stream-url") === "1";
 		
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay);
+			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, ignoreExternalStreamUrl);
 			
 			
 			playerContainer.onLoaded(function() {

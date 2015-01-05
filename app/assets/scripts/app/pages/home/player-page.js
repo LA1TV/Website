@@ -21,9 +21,10 @@ define([
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var autoPlay = $(this).attr("data-autoplay") === "1";
+			var ignoreExternalStreamUrl = false;
 			var embedded = false
 		
-			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay);
+			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, ignoreExternalStreamUrl);
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());
