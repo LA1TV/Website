@@ -87,7 +87,7 @@ define([
 		
 		this.getPlayerType = function() {
 			return playerType;
-		}
+		};
 		
 		// 1=not live, 2=live, 3=show over, null=no live stream
 		this.getStreamState = function() {
@@ -218,23 +218,33 @@ define([
 				});
 			}
 			
+			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
-			if ((data.hasStream && data.streamState === 2) || (overrideModeEnabled && data.streamUris.length > 0 && data.streamState !== 3)) {
-				queuedPlayerType = "live";
+			if ((data.hasStream && data.streamState === 2) || (overrideModeEnabled && data.streamState !== 3)) {
+				if (externalStreamUrl !== null || data.streamUris.length > 0) {
+					queuedPlayerType = "live";
+				}
 			}
-			else if ((data.hasVod && data.vodLive && (!data.hasStream || data.streamState !== 1)) || (overrideModeEnabled && data.videoUris.length > 0)) {
-				queuedPlayerType = "vod";
+			else if ((data.hasVod && data.vodLive && (!data.hasStream || data.streamState !== 1)) || overrideModeEnabled) {
+				if (data.videoUris.length > 0) {
+					queuedPlayerType = "vod";
+					externalStreamUrl = null;
+				}
 			}
 			
-			var uriGroups = [];
-			if (queuedPlayerType === "live") {
-				uriGroups = data.streamUris;
+			var chosenUris = [];
+			if (externalStreamUrl === null) {
+				// the stream is being hosted in the player, or it's not a stream or ad
+				var uriGroups = [];
+				if (queuedPlayerType === "live") {
+					uriGroups = data.streamUris;
+				}
+				else if (queuedPlayerType === "vod") {
+					uriGroups = data.videoUris;
+				}
+				chosenUris = getChosenUris(uriGroups);
 			}
-			else if (queuedPlayerType === "vod") {
-				uriGroups = data.videoUris;
-			}
-			var chosenUris = getChosenUris(uriGroups);
 			
 			var urisChanged = false;
 			// only check if the uris have changes if it's still the same player type
@@ -296,9 +306,7 @@ define([
 			playerComponent.setCustomMsg(data.hasStream && data.streamState === 1 ? data.streamInfoMsg : "");
 			playerComponent.showVodAvailableShortly(data.hasStream && data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setStartTime(data.scheduledPublishTime !== null && (!data.hasStream || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
-			if (!ignoreExternalStreamUrl) {
-				playerComponent.setExternalStreamUrl(data.hasStream ? data.externalStreamUrl : null);
-			}
+			playerComponent.setExternalStreamUrl(externalStreamUrl);
 			
 			if (queuedPlayerType === "vod") {
 				// start updating the local database with the users position in the video.
