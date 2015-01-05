@@ -26,6 +26,9 @@
 						<?php if ($streamControlData['showStreamReadyForLiveMsg']): ?>
 						<div class="alert alert-success" role="alert"><span class="glyphicon glyphicon-ok"></span> This stream is all good to go live!</div>
 						<?php endif; ?>
+						<?php if ($streamControlData['showExternalStreamLocationMsg']): ?>
+						<div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign"></span> This stream is hosted at an external location. Users will be shown a button to take them to this location instead of the player.</div>
+						<?php endif; ?>
 						<div class="my-row stream-state-row">
 							<div>Stream state: <em>(Updates Instantly)</em></div>
 							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamControlData['streamStateButtonsData']));?>" data-chosenid="<?=e($streamControlData['streamStateChosenId']);?>"></div>

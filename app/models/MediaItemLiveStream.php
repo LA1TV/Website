@@ -39,9 +39,10 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 	
 	// if the state is set to "live" but there is no live stream attached to, or the attached live stream is not live, then the resolved version is "Not Live"
+	// the exception is if there is an external live stream url in which case a stream can be marked as live even if there no live stream attached or the attached live stream is inaccessible
 	public function getResolvedStateDefinition($stateDefinitionParam=null) {
 		$stateDefinition = is_null($stateDefinitionParam) ? $this->stateDefinition : $stateDefinitionParam;
-		if (intval($stateDefinition->id) === 2 && (is_null($this->liveStream) || !$this->liveStream->getIsAccessible())) {
+		if (is_null($this->external_stream_url) && intval($stateDefinition->id) === 2 && (is_null($this->liveStream) || !$this->liveStream->getIsAccessible())) {
 			// set to "live" but no live stream attached or live. Pretend "Not Live"
 			return LiveStreamStateDefinition::find(1);
 		}
@@ -94,7 +95,8 @@ class MediaItemLiveStream extends MyEloquent {
 		$q = $q->where("state_id", $yes ? "=" : "!=", 1);
 		if ($yes) {
 			$q->orWhere(function($q2) {
-				$q2->where("state_id", 2)
+				$q2->whereIsNull("external_stream_url")
+				->where("state_id", 2)
 				->whereHas("liveStream", function($q3) {
 					$q3->accessible();
 				}, "=", 0);
@@ -106,8 +108,11 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function scopeLive($q, $yes=true) {
 		if ($yes) {
-			$q->whereHas("liveStream", function($q2) {
-				$q2->accessible();
+			$q->where(function($q2) {
+				$q2->whereIsNull("external_stream_url")
+				->orWhereHas("liveStream", function($q3) {
+					$q3->accessible();
+				});
 			});
 		}
 		$q = $q->where("state_id", $yes ? "=" : "!=", 2);

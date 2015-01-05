@@ -137,6 +137,7 @@ class PlayerController extends HomeBaseController {
 				"showNoLiveStreamWarning"	=> is_null($liveStream),
 				"showLiveStreamNotAccessibleWarning"	=> !is_null($liveStream) && !$liveStream->getIsAccessible(),
 				"showStreamReadyForLiveMsg"	=> !is_null($liveStream) && $liveStream->getIsAccessible(),
+				"showExternalStreamLocationMsg"	=> !is_null($liveStreamItem->external_stream_url),
 				"streamStateButtonsData"	=> $streamStateButtonsData,
 				"streamStateChosenId"		=> $liveStreamItem->stateDefinition->id,
 				"streamInfoMsg"				=> !is_null($infoMsg) ? $infoMsg : ""
