@@ -9,7 +9,7 @@ use Event;
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('enabled', 'state_id', 'information_msg', 'being_recorded');
+	protected $fillable = array('enabled', 'state_id', 'information_msg', 'being_recorded', 'external_stream_url');
 	
 	protected static function boot() {
 		parent::boot();

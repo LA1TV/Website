@@ -314,6 +314,7 @@ class PlayerController extends HomeBaseController {
 		$streamInfoMsg = $hasLiveStreamItem ? $liveStreamItem->information_msg : null;
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
 		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
+		$externalStreamUrl = $hasLiveStreamItem ? $liveStreamItem->external_stream_url : null;
 		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
 		$hasVod = $hasVideoItem;
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
@@ -380,6 +381,7 @@ class PlayerController extends HomeBaseController {
 			"streamState"				=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
 			"streamUris"				=> $streamUris,
 			"availableOnDemand"			=> $availableOnDemand, // true if the stream is being recorded
+			"externalStreamUrl"			=> $externalStreamUrl, // the url to the page containing the live stream if hosted externally
 			"streamViewCount"			=> $streamViewCount,
 			"hasVod"					=> $hasVod, // true if this media item has a video.
 			"vodSourceId"				=> $vodSourceId, // the id of the vod source file.
