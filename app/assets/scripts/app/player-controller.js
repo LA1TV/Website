@@ -234,17 +234,17 @@ define([
 			}
 			
 			var chosenUris = [];
+			var uriGroups = [];
 			if (externalStreamUrl === null) {
 				// the stream is being hosted in the player, or it's not a stream or ad
-				var uriGroups = [];
 				if (queuedPlayerType === "live") {
 					uriGroups = data.streamUris;
 				}
 				else if (queuedPlayerType === "vod") {
 					uriGroups = data.videoUris;
 				}
-				chosenUris = getChosenUris(uriGroups);
 			}
+			var chosenUris = getChosenUris(uriGroups);
 			
 			var urisChanged = false;
 			// only check if the uris have changes if it's still the same player type
