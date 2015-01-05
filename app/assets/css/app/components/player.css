@@ -39,15 +39,26 @@
 	background-color: #000000;
 }
 
+.player-component .ad .overlay-top {
+	top: 0;
+}
+
+.player-component .ad .overlay-bottom {
+	bottom: 0;
+}
+
 .player-component .ad .overlay {
 	position: absolute;
-	bottom: 0;
 	left: 0;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.65);
 	overflow: auto;
 	max-height: 100%;
 	padding: 5px 0;
+}
+
+.player-component .ad .overlay .click-to-watch-btn-container {
+	padding: 10px;
 }
 
 .vjs-default-skin .vjs-big-play-button {
