@@ -48,6 +48,7 @@
 							<?=FormHelpers::getFormCheckInput(1, "Being Recorded For VOD", "stream-being-recorded", $form['stream-being-recorded']==="y", $formErrors);?>
 							<?=FormHelpers::getFormTxtAreaInput(1, "Information Message (Shown When Not Live) (Optional)", "stream-info-msg", $form['stream-info-msg'], $formErrors);?>
 							<?=FormHelpers::getFormSelectInput(1, "Stream", "stream-stream-id", $form['stream-stream-id'], $streamOptions, $formErrors);?>
+							<?=FormHelpers::getFormTxtInput(1, "External Stream Page Url (Optional)", "stream-external-stream-url", $form['stream-external-stream-url'], $formErrors);?>
 						</div>
 					</div>
 				</div>

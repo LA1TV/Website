@@ -30,9 +30,11 @@ class EmbedController extends EmbedBaseController {
 	
 			$title = $currentMediaItem->name;
 			
-			$showHeading = !isset($_GET['showheading']) || $_GET['showheading'] === "1";
+			$showHeading = !isset($_GET['showHeading']) || $_GET['showHeading'] === "1";
+			$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
 			
 			$view->showHeading = $showHeading;
+			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
 			$view->episodeTitle = $title;
 			$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
 			$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);

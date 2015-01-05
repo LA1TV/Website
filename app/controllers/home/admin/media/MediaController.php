@@ -146,6 +146,7 @@ class MediaController extends MediaBaseController {
 			array("stream-being-recorded", ObjectHelpers::getProp(false, $mediaItem, "liveStreamItem", "being_recorded")?"y":""),
 			array("stream-info-msg", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "information_msg")),
 			array("stream-stream-id", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "liveStream", "id")),
+			array("stream-external-stream-url", ObjectHelpers::getProp("", $mediaItem, "liveStreamItem", "external_stream_url")),
 			array("related-items", json_encode(array()))
 		), !$formSubmitted);
 		
@@ -209,6 +210,7 @@ class MediaController extends MediaBaseController {
 					'stream-state'	=> array('required', 'valid_stream_state_id'),
 					'stream-info-msg'	=> array('max:500'),
 					'stream-stream-id'	=> array('valid_stream_id'),
+					'stream-external-stream-url'=> array('url'),
 					'related-items'	=> array('required', 'valid_related_items')
 				), array(
 					'name.required'		=> FormHelpers::getRequiredMsg(),
@@ -226,6 +228,7 @@ class MediaController extends MediaBaseController {
 					'stream-state.valid_stream_state_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'stream-info-msg.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg(),
+					'stream-external-stream-url.url'	=> "This is not a valid url.",
 					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				
@@ -318,6 +321,9 @@ class MediaController extends MediaBaseController {
 						else {
 							EloquentHelpers::setForeignKeyNull($mediaItemLiveStream->liveStream());
 						}
+						
+						$mediaItemLiveStream->external_stream_url = FormHelpers::nullIfEmpty($formData['stream-external-stream-url']);
+						
 					}
 					else {
 						// remove livestream model if there is one

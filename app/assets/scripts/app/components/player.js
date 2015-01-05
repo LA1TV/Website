@@ -40,6 +40,16 @@ define([
 			return this;
 		};
 		
+		// set the url to a page where this stream is being hosted.
+		// if this is set the player will not load the stream.
+		// Instead it will show the text "Live Now" when the stream is marked as live
+		// and there will be a button at the top of the player which the user can click to
+		// go to the url provided whilst the stream state is "not live" or "live".
+		this.setExternalStreamUrl = function(url) {
+			queuedExternalLiveStreamUrl = url;
+			return this;
+		};
+		
 		this.setPlayerType = function(playerType) {
 			if (playerType !== "live" && playerType !== "vod") {
 				throw 'PlayerType must be "live" or "vod".';
@@ -47,7 +57,7 @@ define([
 			queuedPlayerType = playerType;
 			return this;
 		};
-		
+		 
 		this.setPlayerUris = function(uris) {
 			queuedPlayerUris = uris;
 			return this;
@@ -135,6 +145,9 @@ define([
 		var queuedShowStreamOver = false;
 		var showVodAvailableShortly = null;
 		var queuedShowVodAvailableShortly = false;
+		var adExternalLiveStreamUrl = null;
+		var externalStreamSlideExternalLiveStreamUrl = null;
+		var queuedExternalLiveStreamUrl = null;
 		var currentAdTimeTxt = null;
 		var currentAdLiveAtTxt = null;
 		var videoJsLoadedMetadata = false;
@@ -160,6 +173,7 @@ define([
 			$container.addClass("embed-responsive-16by9");
 		}
 		
+		// === AD ===
 		// reference to dom element which holds the ad
 		var $ad = null;
 		var $adTitle = null;
@@ -170,6 +184,16 @@ define([
 		var $adLiveIn = null;
 		var $adTime = null;
 		var $adCountdown = null;
+		
+		// === External Stream Slide ===
+		// reference to dom element which holds the slide which is shown when a stream is live but at an external location
+		var $externalStreamSlide = null;
+		
+		// === Shared Between AD and External Stream Slide ===
+		var $overlayBottom = null;
+		var $overlayTop = null;
+		var $clickToWatchBtnContainer = null;
+		var $clickToWatchBtn = null;
 		
 		// contains reference to videojs player
 		var videoJsPlayer = null;
@@ -201,9 +225,22 @@ define([
 			
 			// only show the start time if there is one set or if stream over message is not visible/going visible
 			if (queuedShowStreamOver) {
-				// disable showing the time if stream over message visible
+				// disable showing the time or external live stream url if stream over message visible
 				queuedStartTime = null;
+				queuedExternalLiveStreamUrl = null;
 			}
+			
+			if (queuedExternalLiveStreamUrl !== adExternalLiveStreamUrl) {
+				if (queuedExternalLiveStreamUrl !== null) {
+					$clickToWatchBtn.attr("href", queuedExternalLiveStreamUrl);
+					$overlayTop.show();
+				}
+				else {
+					$overlayTop.hide();
+				}
+				adExternalLiveStreamUrl = queuedExternalLiveStreamUrl;
+			}
+			
 			if (queuedStartTime === null && startTime !== null) {
 				// hiding start time
 				$adLiveAt.hide().text("");
@@ -311,19 +348,24 @@ define([
 			$ad = $("<div />").addClass("ad embed-responsive-item");
 			var $bg = $("<div />").addClass("bg");
 			$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
-			var $overlay = $("<div />").addClass("overlay");
-			$adLiveAt = $("<div />").addClass("live-at-header fit-text txt-shadow").attr("data-compressor", "1.5").hide();
+			$overlayTop = $("<div />").addClass("overlay overlay-top").hide();
+			createClickToWatchBtn(false);
+			$overlayTop.append($clickToWatchBtnContainer);
+			$overlayBottom = $("<div />").addClass("overlay overlay-bottom");
+			createAdLiveAtText();
 			$adStreamOver = $("<div />").addClass("stream-over-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Stream Has Now Finished").hide();
 			$adVodAvailableShortly = $("<div />").addClass("vod-available-shortly-msg fit-text txt-shadow").attr("data-compressor", "2.8").text("This Will Be Available To Watch On Demand Shortly").hide();
 			$adTime = $("<div />").addClass("live-time fit-text txt-shadow").attr("data-compressor", "2.1").hide();
 			$adCustomMsg = $("<div />").addClass("custom-msg fit-text txt-shadow").attr("data-compressor", "2.8").hide();
-			$overlay.append($adLiveAt);
-			$overlay.append($adStreamOver);
-			$overlay.append($adVodAvailableShortly);
-			$overlay.append($adTime);
-			$overlay.append($adCustomMsg);
+			$overlayBottom.append($adLiveAt);
+			$overlayBottom.append($adStreamOver);
+			$overlayBottom.append($adVodAvailableShortly);
+			$overlayBottom.append($adTime);
+			$overlayBottom.append($adCustomMsg);
+			
 			$ad.append($bg);
-			$ad.append($overlay);
+			$ad.append($overlayTop);
+			$ad.append($overlayBottom);
 			$container.append($ad);
 		}
 		
@@ -334,6 +376,7 @@ define([
 			}
 			$ad.remove();
 			$ad = null;
+			adExternalLiveStreamUrl = null;
 			startTime = null;
 			willBeLive = null;
 			customMsg = null;
@@ -343,44 +386,113 @@ define([
 			currentAdLiveAtTxt = null;
 		}
 		
-		// updates the player using the queued data.
-		// creates/destroys the player if necessary
+		function createExternalStreamSlide() {
+			// destroy the external stream slide first if necessary.
+			// there should never be the case where this is called and it's already there but best be safe.
+			destroyExternalStreamSlide();
+			$externalStreamSlide = $("<div />").addClass("ad embed-responsive-item");
+			var $bg = $("<div />").addClass("bg");
+			$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
+			$overlayTop = $("<div />").addClass("overlay overlay-top").hide();
+			createClickToWatchBtn(true);
+			$overlayTop.append($clickToWatchBtnContainer);
+			
+			$overlayBottom = $("<div />").addClass("overlay overlay-bottom");
+			createAdLiveAtText();
+			$adLiveAt.text("Live Now!");
+			$adLiveAt.show();
+			$overlayBottom.append($adLiveAt);
+			
+			$externalStreamSlide.append($bg);
+			$externalStreamSlide.append($overlayTop);
+			$externalStreamSlide.append($overlayBottom);
+			$container.append($externalStreamSlide);
+			FitTextHandler.register($adLiveAt);
+		}
+		
+		function destroyExternalStreamSlide() {
+			if ($externalStreamSlide === null) {
+				// external stream slide doesn't exist
+				return;
+			}
+			$externalStreamSlide.remove();
+			$externalStreamSlide = null;
+			externalStreamSlideExternalLiveStreamUrl = null;
+		}
+		
+		function createAdLiveAtText() {
+			$adLiveAt = $("<div />").addClass("live-at-header fit-text txt-shadow").attr("data-compressor", "1.5").hide();
+		}
+		
+		function createClickToWatchBtn(red) {
+			$clickToWatchBtnContainer = $("<div />").addClass("click-to-watch-btn-container");
+			$clickToWatchBtn = $("<a />").addClass("btn "+(red?"btn-danger":"btn-primary")+" btn-block click-to-watch-btn").attr("target", "_blank").text("Click To Go To Live Stream Page");
+			$clickToWatchBtnContainer.append($clickToWatchBtn);
+		}
+		
+		// updates the player or external stream slide using the queued data.
+		// creates/destroys the player or external stream slide if necessary
+		// the external stream slide will be shown instead of the player when an external stream url is present and player type is "live"
 		function updatePlayer() {
+			// true if the external stream slide is currently visible
+			var externalStreamSlideShown = playerType === "live" && externalStreamSlideExternalLiveStreamUrl !== null;
+			// true if the external stream slide should be shown instead of the player
+			var showExternalStreamSlide = queuedPlayerType === "live" && queuedExternalLiveStreamUrl !== null;
 			
 			// determine if the player has to be reloaded or the settings can be applied in place.
-			var reloadRequired = playerType !== queuedPlayerType || playerPreload !== queuedPlayerPreload || showPlayer !== queuedShowPlayer || havePlayerUrisChanged();
+			var reloadRequired = playerType !== queuedPlayerType || showPlayer !== queuedShowPlayer || (!showExternalStreamSlide && (playerPreload !== queuedPlayerPreload || havePlayerUrisChanged())) || externalStreamSlideShown !== showExternalStreamSlide;
 			
 			// player needs reloading
 			if (reloadRequired) {
 				showPlayer = queuedShowPlayer;
-				if (!showPlayer) {
-					destroyPlayer();
-				}
-				else {
-					createPlayer();
+				// destroy either the player or the external stream slide depending which is shown
+				destroyExternalStreamSlide();
+				externalStreamSlideShown = false;
+				destroyPlayer();
+				if (showPlayer) {
+					// create either the player or external stream slide depending whether the external stream url is present
+					if (showExternalStreamSlide) {
+						createExternalStreamSlide();
+					}
+					else {
+						createPlayer();
+					}
 					playerType = queuedPlayerType;
 				}
 			}
 			
-			if (queuedPlayerTime !== null) {
-				(function(startTime, startPlaying, roundToSafeRegion) {
-					if (startPlaying) {
-						videoJsPlayer.play();
-					}
-					onVideoJsLoadedMetadata(function() {
-						if (roundToSafeRegion) {
-							if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
-								// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
-								startTime = 0;
+			if (showExternalStreamSlide) {
+				// update external stream slide
+				// set the url on the button
+				$clickToWatchBtn.attr("href", queuedExternalLiveStreamUrl);
+				if (!externalStreamSlideShown) {
+					// slide just been created, now show it
+					$overlayTop.show();
+				}
+				externalStreamSlideExternalLiveStreamUrl = queuedExternalLiveStreamUrl;
+			}
+			else {
+				// update player
+				if (queuedPlayerTime !== null) {
+					(function(startTime, startPlaying, roundToSafeRegion) {
+						if (startPlaying) {
+							videoJsPlayer.play();
+						}
+						onVideoJsLoadedMetadata(function() {
+							if (roundToSafeRegion) {
+								if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
+									// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
+									startTime = 0;
+								}
 							}
-						}
-						else if (startTime > videoJsPlayer.duration()) {
-							console.log("ERROR: The start time was set to a value which is longer than the length of the video. Not changing time.");
-							return;
-						}
-						videoJsPlayer.currentTime(startTime);
-					});
-				})(queuedPlayerTime, queuedPlayerTimeStartPlaying, queuedPlayerRoundStartTimeToSafeRegion);
+							else if (startTime > videoJsPlayer.duration()) {
+								console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
+								return;
+							}
+							videoJsPlayer.currentTime(startTime);
+						});
+					})(queuedPlayerTime, queuedPlayerTimeStartPlaying, queuedPlayerRoundStartTimeToSafeRegion);
+				}
 			}
 		}
 		
