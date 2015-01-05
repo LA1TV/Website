@@ -233,7 +233,6 @@ define([
 				}
 			}
 			
-			var chosenUris = [];
 			var uriGroups = [];
 			if (externalStreamUrl === null) {
 				// the stream is being hosted in the player, or it's not a stream or ad
