@@ -22,7 +22,7 @@
 	<div class="msg-container embed-responsive">
 		<div class="embed-responsive-item">
 			<?php if ($hasVideo): ?>
-			<div class="msg msg-loading">Player Loading</div>
+			<div class="msg msg-loading">Loading<br /><img src="<?=asset("assets/img/loading.gif");?>"></div>
 			<?php else: ?>
 			<div class="msg msg-unavailable">Sorry this content is currently unavailable.<br /><a href="<?=e($hyperlink);?>" target="_blank">Click here to go to the LA1:TV website.</a></div>
 			<?php endif; ?>

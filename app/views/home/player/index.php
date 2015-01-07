@@ -50,7 +50,7 @@
 			<div class="msg-container">
 				<div class="embed-responsive embed-responsive-16by9">
 					<div class="embed-responsive-item">
-						<div class="msg msg-loading">Player Loading</div>
+						<div class="msg msg-loading">Loading<br /><img src="<?=asset("assets/img/loading.gif");?>"></div>
 					</div>
 				</div>
 			</div>
