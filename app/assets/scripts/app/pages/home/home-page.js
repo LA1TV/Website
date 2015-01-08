@@ -40,6 +40,7 @@ define([
 					dots: true,
 					autoplay: true,
 					autoplaySpeed: 4500,
+					infinite: false,
 					arrows: true,
 					fade: false,
 					pauseOnHover: true,
