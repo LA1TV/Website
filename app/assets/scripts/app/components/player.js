@@ -534,7 +534,7 @@ define([
 				height: "100%",
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
-				techOrder: ["html5", "flash"],
+				techOrder: ["html5", "hls", "flash"],
 				autoPlayStartTime: false, // implementing autoPlayStartTime manually using callback
 				poster: coverUri,
 				loop: false
