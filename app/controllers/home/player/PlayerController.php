@@ -314,6 +314,7 @@ class PlayerController extends HomeBaseController {
 		$hasStream = $hasLiveStreamItem;
 		$streamInfoMsg = $hasLiveStreamItem ? $liveStreamItem->information_msg : null;
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
+		$streamEndTime = $streamState === 3 && !is_null($liveStreamItem->end_time) ? $liveStreamItem->end_time->timestamp : null;
 		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
 		$externalStreamUrl = $hasLiveStreamItem ? $liveStreamItem->external_stream_url : null;
 		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
@@ -380,6 +381,7 @@ class PlayerController extends HomeBaseController {
 			"hasStream"					=> $hasStream, // true if this media item has a live stream
 			"streamInfoMsg"				=> $streamInfoMsg,
 			"streamState"				=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
+			"streamEndTime"				=> $streamEndTime, // the time the stream was marked as "stream over". null if not "stream over"
 			"streamUris"				=> $streamUris,
 			"availableOnDemand"			=> $availableOnDemand, // true if the stream is being recorded
 			"externalStreamUrl"			=> $externalStreamUrl, // the url to the page containing the live stream if hosted externally
