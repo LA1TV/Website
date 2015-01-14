@@ -109,7 +109,15 @@ define([
 		
 		this.getPlayerDuration = function() {
 			if (videoJsPlayer !== null) {
-				return vvideoJsPlayer.duration();
+				return videoJsPlayer.duration();
+			}
+			return null;
+		};
+		
+		// returns the error if an error has occurred with videojs playback or null otherwise.
+		this.getPlayerError = function() {
+			if (videoJsPlayer !== null) {
+				return videoJsPlayer.error();
 			}
 			return null;
 		};
@@ -556,6 +564,7 @@ define([
 					}
 				}, 0);
 			});
+			
 			registerVideoJsEventHandlers();
 			$container.append($player);
 		}
