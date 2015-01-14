@@ -596,6 +596,7 @@ define([
 		function registerVideoJsEventHandlers() {
 			videoJsPlayer.on("loadedmetadata", function() {
 				videoJsLoadedMetadata = true;
+				$(self).triggerHandler("loadedMetadata");
 			});
 			
 			videoJsPlayer.on("play", function() {

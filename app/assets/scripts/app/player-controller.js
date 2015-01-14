@@ -8,8 +8,9 @@ define([
 	"jquery",
 	"./components/player",
 	"./page-data",
+	"./synchronised-time",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData) {
+], function($, PlayerComponent, PageData, SynchronisedTime) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -121,6 +122,7 @@ define([
 		var numDislikes = null;
 		var likeType = null; // "like", "dislike" or null
 		var streamState = null;
+		var streamStartTime = null; // the time the user started watching the stream
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
@@ -214,6 +216,13 @@ define([
 					if (!viewCountRegistered) {
 						viewCountRegistered = true;
 						registerViewCount();
+					}
+				});
+				$(playerComponent).on("loadedMetadata", function() {
+					// called at the point when the browser starts receiving the stream/video
+					// update the stream start time if it is a live stream
+					if (playerType === "live") {
+						streamStartTime = SynchronisedTime.getDate();
 					}
 				});
 			}
