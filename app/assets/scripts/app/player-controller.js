@@ -8,8 +8,9 @@ define([
 	"jquery",
 	"./components/player",
 	"./page-data",
+	"./synchronised-time",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData) {
+], function($, PlayerComponent, PageData, SynchronisedTime) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -121,6 +122,7 @@ define([
 		var numDislikes = null;
 		var likeType = null; // "like", "dislike" or null
 		var streamState = null;
+		var streamStartTime = null; // the time the user started watching the stream
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
 		var embedData = null;
@@ -216,6 +218,13 @@ define([
 						registerViewCount();
 					}
 				});
+				$(playerComponent).on("loadedMetadata", function() {
+					// called at the point when the browser starts receiving the stream/video
+					// update the stream start time if it is a live stream
+					if (playerType === "live") {
+						streamStartTime = SynchronisedTime.getDate();
+					}
+				});
 			}
 			
 			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
@@ -230,6 +239,16 @@ define([
 				if (data.videoUris.length > 0) {
 					queuedPlayerType = "vod";
 					externalStreamUrl = null;
+				}
+			}
+			
+			// if the player type is currently live but going to ad, and the current stream state is "show over", and the stream is in the player, not on an external page, and there are still stream uris
+			if (playerType === "live" && queuedPlayerType === "ad" && data.hasStream && data.streamState === 3 && externalStreamUrl === null && data.streamUris.length > 0) {
+				// see if the user has gone past the point in their local version of the stream when the show was marked as over
+				// if they haven't then leave their player as "live" until this happens, or there is a videojs error.
+				if (playerComponent.getPlayerError() === null && streamStartTime !== null && data.streamEndTime !== null && (streamStartTime.getTime()/1000) + playerComponent.getPlayerCurrentTime() < data.streamEndTime) {
+					// keep as "live"
+					queuedPlayerType = "live";
 				}
 			}
 			

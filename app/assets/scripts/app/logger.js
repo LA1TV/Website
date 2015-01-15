@@ -24,6 +24,10 @@ define([
 	}
 	ajaxAppender.setLayout(layout);
 	ajaxAppender.setThreshold(log4Javascript.Level.ALL); // this logger should capture everything
+	ajaxAppender.setWaitForResponse(true); // wait for response from each request before sending new one. try to prevent overloading of server if something goes wrong
+	// only allow log messages to be sent 5 seconds apart. prevent dos.
+	ajaxAppender.setTimed(true);
+	ajaxAppender.setTimerInterval(5000);
 	logger.addAppender(ajaxAppender);
 	logger.debug("Logger initialised.");
 	return logger;

@@ -109,7 +109,15 @@ define([
 		
 		this.getPlayerDuration = function() {
 			if (videoJsPlayer !== null) {
-				return vvideoJsPlayer.duration();
+				return videoJsPlayer.duration();
+			}
+			return null;
+		};
+		
+		// returns the error if an error has occurred with videojs playback or null otherwise.
+		this.getPlayerError = function() {
+			if (videoJsPlayer !== null) {
+				return videoJsPlayer.error();
 			}
 			return null;
 		};
@@ -534,7 +542,7 @@ define([
 				height: "100%",
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
-				techOrder: ["html5", "flash"],
+				techOrder: ["html5", "hls", "flash"],
 				autoPlayStartTime: false, // implementing autoPlayStartTime manually using callback
 				poster: coverUri,
 				loop: false
@@ -556,6 +564,7 @@ define([
 					}
 				}, 0);
 			});
+			
 			registerVideoJsEventHandlers();
 			$container.append($player);
 		}
@@ -587,6 +596,7 @@ define([
 		function registerVideoJsEventHandlers() {
 			videoJsPlayer.on("loadedmetadata", function() {
 				videoJsLoadedMetadata = true;
+				$(self).triggerHandler("loadedMetadata");
 			});
 			
 			videoJsPlayer.on("play", function() {
