@@ -242,6 +242,16 @@ define([
 				}
 			}
 			
+			// if the player type is currently live but going to ad, and the current stream state is "show over", and the stream is in the player, not on an external page, and there are still stream uris
+			if (playerType === "live" && queuedPlayerType === "ad" && data.hasStream && data.streamState === 3 && externalStreamUrl === null && data.streamUris.length > 0) {
+				// see if the user has gone past the point in their local version of the stream when the show was marked as over
+				// if they haven't then leave their player as "live" until this happens, or there is a videojs error.
+				if (playerComponent.getPlayerError() === null && streamStartTime !== null && data.streamEndTime !== null && (streamStartTime.getTime()/1000) + playerComponent.getPlayerCurrentTime() < data.streamEndTime) {
+					// keep as "live"
+					queuedPlayerType = "live";
+				}
+			}
+			
 			var uriGroups = [];
 			if (externalStreamUrl === null) {
 				// the stream is being hosted in the player, or it's not a stream or ad

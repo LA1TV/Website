@@ -343,9 +343,11 @@ class PlayerController extends HomeBaseController {
 		// always return uris if there's a cms user with permission logged in because they should be able override the fact that it's not live
 		
 		$streamUris = array();
-		// return the uris if the live stream is enabled (live), or the logged in cms user has permission
+		// return the uris if there is a live stream which is accessible, and the media item live stream is marked as "live" or "show over"
+		// uris still need to be accessible to the user if when the show is over because of the dvr, and even if dvr is not enabled some users might be behind on the stream due to buffering etc.
+		// if a user is behind for some reason the player in the browser will continue to allow them to watch until they reach the point that the stream was marked as "show over".
 		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
-		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $userHasMediaItemsPermission)) {
+		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $streamState === 3)) {
 			foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
 				$streamUris[] = array(
 					"quality"	=> array(

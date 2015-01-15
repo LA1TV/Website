@@ -14,6 +14,7 @@ require.config({
 		// so this order is the order they are included on the demo page
 		// and I have given each one the above file as a dependency, meaning they should
 		// always be loaded in the same order that works.
+		// https://github.com/videojs/videojs-contrib-hls/blob/931130836c566704ae5c8d69fd8594410db7f5f2/example.html
 		"lib/videojs-media-sources": ["lib/video"],
 		"lib/videojs-contrib-hls/videojs-hls": ["lib/video", "lib/videojs-media-sources"],
 		"lib/videojs-contrib-hls/xhr": ["lib/videojs-contrib-hls/videojs-hls"],
