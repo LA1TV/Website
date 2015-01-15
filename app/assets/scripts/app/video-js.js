@@ -9,8 +9,6 @@ define([
 	videojs.options.flash.swf = PageData.get("baseUrl")+"/assets/video-js/flash/video-js.swf";
 	
 	// add hls support
-	// decrypter.js requires the pkcs7.unpad to be accessible at window.pkcs7.unpad
-	window.pkcs7 = {unpad: unpad};
 	require([
 		"lib/videojs-media-sources",
 		"lib/videojs-contrib-hls/videojs-hls",
