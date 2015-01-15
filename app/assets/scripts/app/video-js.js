@@ -1,8 +1,9 @@
 define([
+	"require",
 	"lib/video",
 	"./page-data",
 	"lib/pkcs7.unpad"
-], function(videojs, PageData, unpad) {
+], function(require, videojs, PageData, unpad) {
 
 	// register the swf for flash playback
 	videojs.options.flash.swf = PageData.get("baseUrl")+"/assets/video-js/flash/video-js.swf";
