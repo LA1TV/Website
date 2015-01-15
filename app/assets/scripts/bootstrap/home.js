@@ -15,7 +15,7 @@ require.config({
 		// and I have given each one the above file as a dependency, meaning they should
 		// always be loaded in the same order that works.
 		// https://github.com/videojs/videojs-contrib-hls/blob/931130836c566704ae5c8d69fd8594410db7f5f2/example.html
-		"lib/videojs-media-sources": ["lib/video"],
+		"lib/videojs-media-sources": ["lib/video", "lib/pkcs7.unpad"],
 		"lib/videojs-contrib-hls/videojs-hls": ["lib/video", "lib/videojs-media-sources"],
 		"lib/videojs-contrib-hls/xhr": ["lib/videojs-contrib-hls/videojs-hls"],
 		"lib/videojs-contrib-hls/flv-tag": ["lib/videojs-contrib-hls/xhr"],

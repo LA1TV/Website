@@ -347,7 +347,7 @@ class PlayerController extends HomeBaseController {
 		// uris still need to be accessible to the user if when the show is over because of the dvr, and even if dvr is not enabled some users might be behind on the stream due to buffering etc.
 		// if a user is behind for some reason the player in the browser will continue to allow them to watch until they reach the point that the stream was marked as "show over".
 		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
-		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $streamState === 3)) {
+		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $streamState === 3 || ($streamState === 1 && $userHasMediaItemsPermission))) {
 			foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
 				$streamUris[] = array(
 					"quality"	=> array(
