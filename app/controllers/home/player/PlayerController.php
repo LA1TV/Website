@@ -314,6 +314,7 @@ class PlayerController extends HomeBaseController {
 		$hasStream = $hasLiveStreamItem;
 		$streamInfoMsg = $hasLiveStreamItem ? $liveStreamItem->information_msg : null;
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
+		$streamEndTime = $streamState === 3 && !is_null($liveStreamItem->end_time) ? $liveStreamItem->end_time->timestamp : null;
 		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
 		$externalStreamUrl = $hasLiveStreamItem ? $liveStreamItem->external_stream_url : null;
 		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
@@ -342,9 +343,11 @@ class PlayerController extends HomeBaseController {
 		// always return uris if there's a cms user with permission logged in because they should be able override the fact that it's not live
 		
 		$streamUris = array();
-		// return the uris if the live stream is enabled (live), or the logged in cms user has permission
+		// return the uris if there is a live stream which is accessible, and the media item live stream is marked as "live" or "show over"
+		// uris still need to be accessible to the user if when the show is over because of the dvr, and even if dvr is not enabled some users might be behind on the stream due to buffering etc.
+		// if a user is behind for some reason the player in the browser will continue to allow them to watch until they reach the point that the stream was marked as "show over".
 		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
-		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $userHasMediaItemsPermission)) {
+		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $streamState === 3)) {
 			foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
 				$streamUris[] = array(
 					"quality"	=> array(
@@ -380,6 +383,7 @@ class PlayerController extends HomeBaseController {
 			"hasStream"					=> $hasStream, // true if this media item has a live stream
 			"streamInfoMsg"				=> $streamInfoMsg,
 			"streamState"				=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
+			"streamEndTime"				=> $streamEndTime, // the time the stream was marked as "stream over". null if not "stream over"
 			"streamUris"				=> $streamUris,
 			"availableOnDemand"			=> $availableOnDemand, // true if the stream is being recorded
 			"externalStreamUrl"			=> $externalStreamUrl, // the url to the page containing the live stream if hosted externally

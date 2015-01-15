@@ -9,12 +9,19 @@ use Event;
 class MediaItemLiveStream extends MyEloquent {
 
 	protected $table = 'media_items_live_stream';
-	protected $fillable = array('enabled', 'state_id', 'information_msg', 'being_recorded', 'external_stream_url');
+	protected $fillable = array('enabled', 'state_id', 'information_msg', 'being_recorded', 'external_stream_url', 'end_time');
 	
 	protected static function boot() {
 		parent::boot();
-		self::saved(function($model) {
+		self::saving(function($model) {
+			if ($model->hasJustBecomeStreamOver()) {
+				// record the time that the stream is being marked as over
+				$model->end_time = Carbon::now();
+			}
+			return true;
+		});
 		
+		self::saved(function($model) {
 			if ($model->hasJustBecomeLive()) {
 				
 				// queue the email job once the response has been sent to the user just before the script ends
@@ -127,7 +134,17 @@ class MediaItemLiveStream extends MyEloquent {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
 	
+	public function getDates() {
+		return array_merge(parent::getDates(), array('end_time'));
+	}
+	
+	// has gone from "not live" or "stream over" to "live"
 	public function hasJustBecomeLive() {
 		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->original["state_id"])));
+	}
+	
+	// has gone from "live" to "stream over"
+	public function hasJustBecomeStreamOver() {
+		return !$this->isLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
 	}
 }
