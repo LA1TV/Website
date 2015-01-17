@@ -237,6 +237,7 @@ class PlayerController extends HomeBaseController {
 			}
 			$broadcastOnMsg .= $dateStr;
 		}
+		$commentsEnabled = $currentMediaItem->comments_enabled;
 		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
@@ -245,11 +246,14 @@ class PlayerController extends HomeBaseController {
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$view->autoPlay = !URLHelpers::hasInternalReferrer(); // only autoplay if the user has come from an external site
-		$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
-		$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
-		$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
-		$view->canCommentAsFacebookUser = Facebook::isLoggedIn() && Facebook::getUserState() === 0;
-		$view->canCommentAsStation = $userHasCommentsPermission;
+		$view->commentsEnabled = $commentsEnabled;
+		if ($commentsEnabled) {
+			$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
+			$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
+			$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
+			$view->canCommentAsFacebookUser = Facebook::isLoggedIn() && Facebook::getUserState() === 0;
+			$view->canCommentAsStation = $userHasCommentsPermission;
+		}
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;
@@ -329,7 +333,8 @@ class PlayerController extends HomeBaseController {
 				$rememberedPlaybackTime = intval($playbackTime->time);
 			}
 		}
-		$numLikes = $mediaItem->likes()->count();
+		$numLikes = $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", true)->count() : null;
+		$numDislikes = $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", false)->count() : null;
 		$likeType = null;
 		if (!is_null($user)) {
 			$like = $mediaItem->likes()->where("site_user_id", $user->id)->first();
@@ -395,6 +400,7 @@ class PlayerController extends HomeBaseController {
 			"vodViewCount"				=> $vodViewCount,
 			"rememberedPlaybackTime"	=> $rememberedPlaybackTime,
 			"numLikes"					=> $numLikes, // number of likes this media item has
+			"numDislikes"				=> $numDislikes, // number of dislikes this media item has
 			"likeType"					=> $likeType // "like" if liked, "dislike" if disliked, or null otherwise
 		);
 		
@@ -530,6 +536,10 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
+		if (!$mediaItem->comments_enabled) {
+			App::abort(403); // forbidden
+		}
+		
 		// X = a number of comments
 		// id = the id of the comment to start at. -1 means return the last X comments. loadLaterComments must be false in this case
 		// load_later_comments = if true return all comments from the specified id otherwise load comments before it.
@@ -602,6 +612,10 @@ class PlayerController extends HomeBaseController {
 		$mediaItem = MediaItem::accessible()->find($mediaItemId);
 		if (is_null($mediaItem)) {
 			App::abort(404);
+		}
+		
+		if (!$mediaItem->comments_enabled) {
+			App::abort(403); // forbidden
 		}
 		
 		// true if a user is logged into the cms and has permission to manage comments and post as station.

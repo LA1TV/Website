@@ -40,10 +40,12 @@ define([
 			return null;
 		};
 		
+		// total number of likes or null if like total is disabled.
 		this.getNumLikes = function() {
 			return numLikes;
 		};
 		
+		// total number of dislikes or null if dislike total is disabled
 		this.getNumDislikes = function() {
 			return numDisikes;
 		};

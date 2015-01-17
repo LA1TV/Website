@@ -11,7 +11,7 @@ use Cache;
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled');
 	protected $appends = array("related_items_for_orderable_list", "related_items_for_input", "scheduled_publish_time_for_input");
 	
 	protected static function boot() {
