@@ -132,6 +132,8 @@ class MediaController extends MediaBaseController {
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("email-notifications-enabled", ObjectHelpers::getProp(true, $mediaItem, "email_notifications_enabled")?"y":""),
+			array("likes-enabled", ObjectHelpers::getProp(true, $mediaItem, "likes_enabled")?"y":""),
+			array("comments-enabled", ObjectHelpers::getProp(true, $mediaItem, "comments_enabled")?"y":""),
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $mediaItem, "coverArtFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFile", "id")),
@@ -250,6 +252,17 @@ class MediaController extends MediaBaseController {
 					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
 					$mediaItem->scheduled_publish_time = !is_null($scheduledPublishTime) ? $scheduledPublishTime : Carbon::now();
 					$mediaItem->email_notifications_enabled = FormHelpers::toBoolean($formData['email-notifications-enabled']);
+					$mediaItem->likes_enabled = FormHelpers::toBoolean($formData['likes-enabled']);
+					// if comments are being disabled then remove any existing comments.
+					$commentsEnabled = FormHelpers::toBoolean($formData['comments-enabled']);
+					$currentCommentsEnabled = $mediaItem->comments_enabled;
+					$mediaItem->comments_enabled = $commentsEnabled;
+					if ($currentCommentsEnabled !== $commentsEnabled) {
+						// remove when changing from enabled to disabled and vice versa
+						// I think it might be possible for someone to make a comment during this transaction when going from enabled to disable.
+						// deleting when going from disabled to enabled should always catch any that this happens to
+						$mediaItem->comments()->delete();
+					}
 					
 					$coverImageId = FormHelpers::nullIfEmpty($formData['cover-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverImage"), $coverImageId, $mediaItem->coverFile);
