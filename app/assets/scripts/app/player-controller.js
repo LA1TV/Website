@@ -230,12 +230,12 @@ define([
 			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
-			if ((data.hasStream && data.streamState === 2) || (overrideModeEnabled && data.streamState !== 3)) {
+			if (data.hasStream && (data.streamState === 2 || (overrideModeEnabled && data.streamState === 1))) {
 				if (externalStreamUrl !== null || data.streamUris.length > 0) {
 					queuedPlayerType = "live";
 				}
 			}
-			else if ((data.hasVod && data.vodLive && (!data.hasStream || data.streamState !== 1)) || overrideModeEnabled) {
+			else if (data.hasVod && (data.vodLive && (!data.hasStream || data.streamState !== 1)) || overrideModeEnabled) {
 				if (data.videoUris.length > 0) {
 					queuedPlayerType = "vod";
 					externalStreamUrl = null;
