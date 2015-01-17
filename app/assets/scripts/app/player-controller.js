@@ -670,35 +670,35 @@ define([
 							var dislikesChanged = false;
 							if (previousLikeType === null) {
 								if (type === "like") {
-									numLikes++;
+									if (numLikes !== null) numLikes++;
 									likesChanged = true;
 								}
 								else if (type === "dislike") {
-									numDislikes++;
+									if (numDislikes !== null) numDislikes++;
 									dislikesChanged = true;
 								}
 							}
 							else if (previousLikeType === "like") {
 								if (type === "dislike") {
-									numLikes--;
+									if (numLikes !== null) numLikes--;
 									likesChanged = true;
-									numDislikes++;
+									if (numDislikes !== null) numDislikes++;
 									dislikesChanged = true;
 								}
 								else if (type === "reset") {
-									numLikes--;
+									if (numLikes !== null) numLikes--;
 									likesChanged = true;
 								}
 							}
 							else if (previousLikeType === "dislike") {
 								if (type === "like") {
-									numLikes++;
+									if (numLikes !== null) numLikes++;
 									likesChanged = true;
-									numDislikes--;
+									if (numDislikes !== null) numDislikes--;
 									dislikesChanged = true;
 								}
 								else if (type === "reset") {
-									numDisikes--;
+									if (numDislikes !== null) numDisikes--;
 									dislikesChanged = true;
 								}
 							}
