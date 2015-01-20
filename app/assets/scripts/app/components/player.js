@@ -259,13 +259,23 @@ define([
 			}
 			else if (queuedStartTime !== null) {
 				var currentDate = SynchronisedTime.getDate();
+				var tomorrowDate = new Date(currentDate.valueOf());
+				tomorrowDate.setDate(currentDate.getDate()+1);
 				var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
 				var timePassed = currentDate.getTime() >= queuedStartTime.getTime();
 				
 				var txt = null;
 				if (!timePassed) {
 					if (!showCountdown) {
-						txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
+						if (queuedStartTime.getDate() === currentDate.getDate()) {
+							txt = "Today at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
+						}
+						else if (queuedStartTime.getDate() === tomorrowDate.getDate()) {
+							txt = "Tomorrow at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
+						}
+						else {
+							txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
+						}
 					}
 					else {
 						var secondsToGo = Math.ceil((queuedStartTime.getTime() - currentDate.getTime()) / 1000);
