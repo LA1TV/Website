@@ -215,7 +215,8 @@ define([
 				playerComponent = new PlayerComponent(data.coverUri, responsive);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
-					if (!viewCountRegistered) {
+					if (!viewCountRegistered && !overrideModeEnabled) {
+						// register view count first time play occurs if user not in admin override mode
 						viewCountRegistered = true;
 						registerViewCount();
 					}
