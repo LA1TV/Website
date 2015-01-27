@@ -386,7 +386,7 @@ class MediaItem extends MyEloquent {
 		if (!$this->enabled) {
 			return false;
 		}
-		if ($this->playlists()->accessible()->count() === 0) {
+		if ($this->playlists()->accessibleToPublic()->count() === 0) {
 			return false;
 		}
 		$sideBannerFile = $this->sideBannerFile;
@@ -406,7 +406,7 @@ class MediaItem extends MyEloquent {
 	
 	public function scopeAccessible($q) {
 		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
-			$q2->accessible();
+			$q2->accessibleToPublic();
 		})->where(function($q2) {
 			$q2->has("sideBannerFile", "=", 0)
 			->orWhereHas("sideBannerFile", function($q3) {
