@@ -264,13 +264,17 @@ define([
 				var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
 				var timePassed = currentDate.getTime() >= queuedStartTime.getTime();
 				
+				var sameMonthAndYear = function(a, b) {
+					return a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+				};
+				
 				var txt = null;
 				if (!timePassed) {
 					if (!showCountdown) {
-						if (queuedStartTime.getDate() === currentDate.getDate()) {
+						if (queuedStartTime.getDate() === currentDate.getDate() && sameMonthAndYear(queuedStartTime, currentDate)) {
 							txt = "Today at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
 						}
-						else if (queuedStartTime.getDate() === tomorrowDate.getDate()) {
+						else if (queuedStartTime.getDate() === tomorrowDate.getDate() && sameMonthAndYear(queuedStartTime, tomorrowDate)) {
 							txt = "Tomorrow at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
 						}
 						else {
