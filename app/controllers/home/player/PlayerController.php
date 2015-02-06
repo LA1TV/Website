@@ -325,6 +325,22 @@ class PlayerController extends HomeBaseController {
 		$hasVod = $hasVideoItem;
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
 		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
+		$minNumberOfViews = Config::get("custom.min_number_of_views");
+		if (!$userHasMediaItemsPermission) {
+			$viewCountTotal = 0;
+			if (!is_null($vodViewCount)) {
+				$viewCountTotal += $vodViewCount;
+			}
+			if (!is_null($streamViewCount)) {
+				$viewCountTotal += $streamViewCount;
+			}
+			if ($viewCountTotal < $minNumberOfViews) {
+				// the combined number of views is less than the amount required for it to be sent to the client
+				// send null instead
+				$vodViewCount = $streamViewCount = null;
+			}
+		}
+		
 		$user = Facebook::getUser();
 		$rememberedPlaybackTime = null;
 		if ($hasVideoItem && !is_null($user)) {
