@@ -69,12 +69,18 @@ define([
 		
 		this.getViewCount = function() {
 			if (cachedData !== null) {
-				var count = 0;
-				if (self.getStreamViewCount() !== null) {
-					count += self.getStreamViewCount();
+				var streamCount = self.getStreamViewCount();
+				var vodCount = self.getVodViewCount();
+				if (streamCount === null && vodCount === null) {
+					return null;
 				}
-				if (self.getVodViewCount() !== null) {
-					count += self.getVodViewCount();
+				
+				var count = 0;
+				if (streamCount !== null) {
+					count += streamCount;
+				}
+				if (vodCount !== null) {
+					count += vodCount;
 				}
 				return count;
 			}
