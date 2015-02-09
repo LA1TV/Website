@@ -116,7 +116,7 @@ class MediaItemLiveStream extends MyEloquent {
 	public function scopeLive($q, $yes=true) {
 		if ($yes) {
 			$q->where(function($q2) {
-				$q2->whereNull("external_stream_url")
+				$q2->whereNotNull("external_stream_url")
 				->orWhereHas("liveStream", function($q3) {
 					$q3->accessible();
 				});
