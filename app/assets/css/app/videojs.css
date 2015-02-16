@@ -1,0 +1,4 @@
+/* fix so that if cover art doesn't fill player black will be shown behind it instead of being transparent */
+.vjs-poster {
+	background-color: #000000;
+}

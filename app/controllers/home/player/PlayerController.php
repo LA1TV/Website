@@ -239,13 +239,19 @@ class PlayerController extends HomeBaseController {
 		}
 		$commentsEnabled = $currentMediaItem->comments_enabled;
 		
+		$vodPlayStartTime = $this->getVodStartTimeFromUrl();
+		
+		// only autoplay if the user has come from an external site, or specified a start time
+		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
+		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
-		$view->autoPlay = !URLHelpers::hasInternalReferrer(); // only autoplay if the user has come from an external site
+		$view->autoPlay = $autoPlay;
+		$view->vodPlayStartTime = is_null($vodPlayStartTime) ? "" : $vodPlayStartTime;
 		$view->commentsEnabled = $commentsEnabled;
 		if ($commentsEnabled) {
 			$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
@@ -261,6 +267,25 @@ class PlayerController extends HomeBaseController {
 		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$view->broadcastOnMsg = $broadcastOnMsg;
 		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name);
+	}
+	
+	private function getVodStartTimeFromUrl() {
+		if (!isset($_GET['t'])) {
+			return null;
+		}
+		
+		$input = $_GET['t'];
+		$matches = null;
+		if (preg_match("/^([0-9]+)m([0-9]+)s$/", $input, $matches) !== 1) {
+			return null;
+		}
+		$m = intval($matches[1]);
+		$s = intval($matches[2]);
+		if ($s > 59) {
+			return null;
+		}
+		$time = ($m*60)+$s;
+		return intval($time);
 	}
 	
 	// should return ajax response with information for the player.
