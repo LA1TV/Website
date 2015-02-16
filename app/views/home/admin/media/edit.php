@@ -29,6 +29,10 @@
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "vod-enabled", $form['vod-enabled']==="y", $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $additionalForm['vodVideoFile']['name'], $additionalForm['vodVideoFile']['size'], !$additionalForm['vodVideoFile']['inUse'], $additionalForm['vodVideoFile']['processState'], $additionalForm['vodVideoFile']['processPercentage'], $additionalForm['vodVideoFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional) (Must Be Empty When Recording Of Live Stream)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
+							<?=FormHelpers::getFormGroupStart("vod-chapters", $formErrors);
+							?><label class="control-label">Chapters</label><div class="form-control form-vod-chapters" data-initialdata="<?=e($additionalForm['vodChaptersInitialData'])?>"></div><?php
+							echo(FormHelpers::getFormHiddenInput(1, "vod-chapters", $additionalForm['vodChaptersInput']));
+							echo(FormHelpers::getErrMsgHTML($formErrors, "vod-chapters"));?></div>
 						</div>
 					</div>
 				</div>

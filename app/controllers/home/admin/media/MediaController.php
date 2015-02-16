@@ -158,6 +158,8 @@ class MediaController extends MediaBaseController {
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
+			"vodChaptersInput"		=> "", // TODO change
+			"vodChaptersInitialData"	=> "[]", // TODO change
 			"relatedItemsInput"		=> null,
 			"relatedItemsInitialData"	=> null
 		);

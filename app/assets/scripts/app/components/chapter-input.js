@@ -66,7 +66,11 @@ define(["jquery"], function($) {
 		$minuteEl.on("keyup change", onChange);
 		$secondEl.on("keyup change", onChange);
 		$titleEl.on("keyup change", function() {
-			enteredTitle = $(this).val();
+			var val = $(this).val();
+			if (val !== enteredTitle) {
+				enteredTitle = val;
+				$(self).triggerHandler("stateChanged");
+			}
 		});
 		
 		function onChange() {
