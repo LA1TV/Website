@@ -20,7 +20,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, ignoreExternalStreamUrl) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl) {
 		
 		var self = this;
 		
@@ -301,17 +301,24 @@ define([
 					playerComponent.setPlayerStartTime(0, true);
 				}
 				else if (queuedPlayerType === "vod") {
-					var autoPlayStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
-					
+					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
 					if (autoPlay && firstLoad) {
 						// this is the first load of the player, and the autoplay flag is set, so autoplay
-						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
-						playerComponent.setPlayerStartTime(autoPlayStartTime, true, true);
+						if (vodPlayStartTime !== null) {
+							playerComponent.setPlayerStartTime(vodPlayStartTime, true, false);
+						}
+						else {
+							// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
+							playerComponent.setPlayerStartTime(computedStartTime, true, true);
+						}
+					}
+					else if (vodPlayStartTime !== null && firstLoad) {
+						playerComponent.setPlayerStartTime(vodPlayStartTime, false, false);
 					}
 					else if (!urisChanged) {
 						// set the start time to the time the user was previously at.
 						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
-						playerComponent.setPlayerStartTime(autoPlayStartTime, false, true);
+						playerComponent.setPlayerStartTime(computedStartTime, false, true);
 					}
 					else if (urisChanged) {
 						// reason we're here is because uris have changed. could be quality change or other reason

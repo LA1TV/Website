@@ -7,7 +7,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, ignoreExternalStreamUrl) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl) {
 
 		var self = this;
 	
@@ -71,7 +71,7 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlay, ignoreExternalStreamUrl);
+		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);
