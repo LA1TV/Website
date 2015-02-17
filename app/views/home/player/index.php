@@ -69,7 +69,7 @@
 	<?php foreach($vodChapters as $a): ?>
 			<tr data-time="<?=e($a['time']);?>">
 				<td><?=e($a['num']);?>)</td>
-				<td><?=e($a['title']);?> (<?=e($a['timeStr']);?>)</td>
+				<td><?=e($a['title']);?> <span class="time-str">(<?=e($a['timeStr']);?>)</span></td>
 			</tr>
 	<?php endforeach; ?>
 		</tbody>
