@@ -31,3 +31,7 @@
 .page-player .chapter-selection-table tr {
 	cursor: pointer;
 }
+
+.page-player .chapter-selection-table tr .time-str{
+	font-style: italic;
+}

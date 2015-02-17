@@ -11,8 +11,14 @@ class MediaItemVideoChapter extends MyEloquent {
 	}
 	
 	public function getTimeStrAttribute() {
-		$minutes = floor($this->time / 60);
+		$hours = floor($this->time / (60*60));
+		$minutes = floor($this->time / 60) % 60;
 		$seconds = $this->time % 60;
-		return $minutes."m ".$seconds."s";
+		$str = "";
+		if ($hours > 0) {
+			$str = $hours."h ";
+		}
+		$str .= $minutes."m ".$seconds."s";
+		return $str;
 	}
 }

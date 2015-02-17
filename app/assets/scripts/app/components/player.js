@@ -145,14 +145,16 @@ define([
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
 			if (videoJsPlayer !== null && playerType === "vod") {
-				if (time > videoJsPlayer.duration()) {
-					console.error("The time to jump to was set to a value which is longer than the length of the video.");
-					return;
-				}
-				videoJsPlayer.currentTime(time);
-				if (startPlaying) {
-					videoJsPlayer.play();
-				}
+				onVideoJsLoadedMetadata(function() {
+					if (time > videoJsPlayer.duration()) {
+						console.error("The time to jump to was set to a value which is longer than the length of the video.");
+						return;
+					}
+					videoJsPlayer.currentTime(time);
+					if (startPlaying) {
+						videoJsPlayer.play();
+					}
+				});
 			}
 		};
 		
