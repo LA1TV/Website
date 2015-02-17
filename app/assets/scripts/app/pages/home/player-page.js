@@ -7,6 +7,8 @@ define([
 	"lib/domReady!"
 ], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData) {
 	
+	var playerController = null;
+	
 	$(".page-player").first().each(function() {
 		
 		var $pageContainer = $(this).first();
@@ -29,6 +31,7 @@ define([
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());
+				playerController = playerContainer.getPlayerController();
 			});
 		});
 		
@@ -149,6 +152,18 @@ define([
 			var commentsComponent = new CommentsComponent(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation);
 			$(this).empty(); // remove loading message.
 			$(this).append(commentsComponent.getEl());
+		});
+		
+		$pageContainer.find(".chapter-selection-table").each(function() {
+			$(this).find("tr").each(function() {
+				var time = parseInt($(this).attr("data-time"));
+				$(this).click(function() {
+					if (playerController !== null) {
+						// jump to the time in the player and start playing if not already.
+						playerController.jumpToTime(time, true);
+					}
+				});
+			});
 		});
 		
 	});
