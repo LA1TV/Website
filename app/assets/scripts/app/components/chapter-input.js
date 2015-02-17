@@ -32,7 +32,7 @@ define(["jquery"], function($) {
 				enteredSecond = null;
 			}
 			else {
-				enteredMinute = floor(state.time/60);
+				enteredMinute = Math.floor(state.time/60);
 				enteredSecond = state.time%60;
 			}
 			

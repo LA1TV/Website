@@ -4,12 +4,13 @@ use FormHelpers;
 use \Session as SessionProvider;
 use Carbon;
 use Config;
+use uk\co\la1tv\website\helpers\reorderableList\ChaptersReorderableList;
 
 class MediaItemVideo extends MyEloquent {
 
 	protected $table = 'media_items_video';
 	protected $fillable = array('time_recorded', 'enabled');
-	protected $appends = array("time_recorded_for_input");
+	protected $appends = array("time_recorded_for_input", "chapters_for_orderable_list", "chapters_for_input");
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');
@@ -17,6 +18,10 @@ class MediaItemVideo extends MyEloquent {
 	
 	public function sourceFile() {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
+	}
+	
+	public function chapters() {
+		return $this->hasMany(self::$p.'MediaItemVideoChapter', 'media_item_video_id');
 	}
 	
 	public function getTimeRecordedForInputAttribute() {
@@ -118,6 +123,41 @@ class MediaItemVideo extends MyEloquent {
 				$q3->finishedProcessing();
 			});
 		});
+	}
+	
+	private function getChaptersDataForReorderableList() {
+		$chapterModels = $this->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get();
+		$data = array();
+		foreach($chapterModels as $a) {
+			$data[] = array(
+				"title"	=> $a->title,
+				"time"	=> intval($a->time)
+			);
+		}
+		return $data;
+	}	
+
+	public function getChaptersForOrderableListAttribute() {
+		return self::generateInitialDataForChaptersOrderableList($this->getChaptersDataForReorderableList());
+	}
+	
+	public function getChaptersForInputAttribute() {
+		return self::generateInputValueForChaptersOrderableList($this->getChaptersDataForReorderableList());
+	}
+	
+	public static function isValidDataFromChaptersOrderableList($data) {
+		$reorderableList = new ChaptersReorderableList($data);
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForChaptersOrderableList($data) {
+		$reorderableList = new ChaptersReorderableList($data);
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForChaptersOrderableList($data) {
+		$reorderableList = new ChaptersReorderableList($data);
+		return $reorderableList->getStringForInput();
 	}
 	
 }

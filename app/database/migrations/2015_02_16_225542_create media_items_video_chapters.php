@@ -15,12 +15,12 @@ class CreateMediaItemsVideoChapters extends Migration {
 		Schema::create('media_items_video_chapters', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->integer("media_item_id")->unsigned();
+			$table->integer("media_item_video_id")->unsigned();
 			$table->integer("time")->unsigned();
 			$table->text("title");
 			$table->timestamps();
 			
-			$table->foreign("media_item_id", "media_items_video_chapters_media_item_id_foreign")->references('id')->on('media_items')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("media_item_video_id", "media_items_video_chapters_media_item_video_id_foreign")->references('id')->on('media_items_video')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
