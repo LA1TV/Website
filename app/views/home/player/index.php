@@ -61,6 +61,20 @@
 <?php if (!is_null($episodeDescriptionEscaped)): ?>
 		<div class="description-container"><?=$episodeDescriptionEscaped;?></div>
 <?php endif; ?>
+<?php if (count($vodChapters) > 0): ?>
+	<h2>Chapter Selection</h2>
+	<p>Click on a chapter to jump to a specific point in the video.</p>
+	<table class="chapter-selection-table table table-bordered table-hover table-striped">
+		<tbody>	
+	<?php foreach($vodChapters as $a): ?>
+			<tr data-time="<?=e($a['time']);?>">
+				<td><?=e($a['num']);?>)</td>
+				<td><?=e($a['title']);?> (<?=e($a['timeStr']);?>)</td>
+			</tr>
+	<?php endforeach; ?>
+		</tbody>
+	</table>
+<?php endif; ?>
 <?php if ($commentsEnabled): ?>
 		<h2>Comments</h2>
 		<div class="comments-container" data-media-item-id="<?=e($mediaItemId);?>" data-get-uri="<?=e($getCommentsUri);?>" data-post-uri="<?=e($postCommentUri);?>" data-delete-uri="<?=e($deleteCommentUri);?>" data-can-comment-as-facebook-user="<?=$canCommentAsFacebookUser?"1":"0"?>" data-can-comment-as-station="<?=$canCommentAsStation?"1":"0"?>">

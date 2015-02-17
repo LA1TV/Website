@@ -218,7 +218,7 @@ class PlayerController extends HomeBaseController {
 		$hasAccessibleLiveStream = !is_null($liveStreamItem) && $liveStreamItem->getIsAccessible();
 		$hasLiveLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 2;
 		$hasFinishedLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 3;
-		$currentMediaItem->load("videoItem");
+		$currentMediaItem->load("videoItem", "videoItem.chapters");
 		$videoItem = $currentMediaItem->videoItem;
 		$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
 		if ($scheduledPublishTime->isPast() && (($hasAccessibleVod && !$hasAccessibleLiveStream) || ($hasLiveLiveStream || $hasFinishedLiveStream))) {
@@ -241,6 +241,18 @@ class PlayerController extends HomeBaseController {
 		
 		$vodPlayStartTime = $this->getVodStartTimeFromUrl();
 		
+		$vodChapters = array();
+		if ($hasAccessibleVod) {
+			foreach($videoItem->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
+				$vodChapters[] = array(
+					"num"		=> $b+1,
+					"title"		=> $a->title,
+					"timeStr"	=> $a->time_str,
+					"time"		=> $a->time
+				);
+			}
+		}
+		
 		// only autoplay if the user has come from an external site, or specified a start time
 		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
 		
@@ -252,6 +264,7 @@ class PlayerController extends HomeBaseController {
 		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$view->autoPlay = $autoPlay;
 		$view->vodPlayStartTime = is_null($vodPlayStartTime) ? "" : $vodPlayStartTime;
+		$view->vodChapters = $vodChapters;
 		$view->commentsEnabled = $commentsEnabled;
 		if ($commentsEnabled) {
 			$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);

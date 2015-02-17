@@ -28,6 +28,10 @@ define([
 			}
 		};
 		
+		this.getPlayerController = function() {
+			return playerController;
+		};
+		
 		var $container = $("<div />").addClass("player-container");
 		if (embedded) {
 			$container.addClass("embedded-player-container");
