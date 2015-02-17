@@ -18,6 +18,7 @@ use JsonHelpers;
 use Carbon;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\MediaItemVideo;
+use uk\co\la1tv\website\models\MediaItemVideoChapter;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
@@ -142,6 +143,7 @@ class MediaController extends MediaBaseController {
 			array("vod-enabled", ObjectHelpers::getProp(true, $mediaItem, "videoItem", "enabled")?"y":""),
 			array("vod-video-id", ObjectHelpers::getProp("", $mediaItem, "videoItem", "sourceFile", "id")),
 			array("vod-time-recorded",  ObjectHelpers::getProp("", $mediaItem, "videoItem", "time_recorded_for_input")),
+			array("vod-chapters", json_encode(array())),
 			array("stream-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "liveStreamItem"))?"1":"0"),
 			array("stream-enabled", ObjectHelpers::getProp(true, $mediaItem, "liveStreamItem", "enabled")?"y":""),
 			array("stream-state", ObjectHelpers::getProp(LiveStreamStateDefinition::first()->id, $mediaItem, "liveStreamItem", "stateDefinition", "id")),
@@ -158,6 +160,8 @@ class MediaController extends MediaBaseController {
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
+			"vodChaptersInput"		=> null,
+			"vodChaptersInitialData"	=> null,
 			"relatedItemsInput"		=> null,
 			"relatedItemsInitialData"	=> null
 		);
@@ -170,6 +174,15 @@ class MediaController extends MediaBaseController {
 		else {
 			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
 			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
+		}
+		
+		if (!$formSubmitted && !is_null($mediaItem->videoItem)) {
+			$additionalFormData['vodChaptersInput'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "videoItem", "chapters_for_input");
+			$additionalFormData['vodChaptersInitialData'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "videoItem", "chapters_for_orderable_list");
+		}
+		else {
+			$additionalFormData['vodChaptersInput'] = MediaItemVideo::generateInputValueForChaptersOrderableList(JsonHelpers::jsonDecodeOrNull($formData['vod-chapters'], true));
+			$additionalFormData['vodChaptersInitialData'] = MediaItemVideo::generateInitialDataForChaptersOrderableList(JsonHelpers::jsonDecodeOrNull($formData['vod-chapters'], true));
 		}
 		
 		$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
@@ -191,6 +204,9 @@ class MediaController extends MediaBaseController {
 			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
+			Validator::extend('valid_vod_chapters', function($attribute, $value, $parameters) {
+				return MediaItemVideo::isValidDataFromChaptersOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+			});
 			Validator::extend('valid_stream_state_id', function($attribute, $value, $parameters) {
 				return !is_null(LiveStreamStateDefinition::find(intval($value)));
 			});
@@ -209,6 +225,7 @@ class MediaController extends MediaBaseController {
 					'publish-time'	=> array('my_date'),
 					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
 					'vod-time-recorded'	=> array('my_date'),
+					'vod-chapters'	=> array('required', 'valid_vod_chapters'),
 					'stream-state'	=> array('required', 'valid_stream_state_id'),
 					'stream-info-msg'	=> array('max:500'),
 					'stream-stream-id'	=> array('valid_stream_id'),
@@ -226,11 +243,14 @@ class MediaController extends MediaBaseController {
 					'vod-video-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'vod-time-recorded.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'vod-time-recorded.not_specified'	=> "This cannot be set if this is a recording of a live stream. The time will be inferred from the scheduled live time.",
+					'vod-chapters.required'	=> FormHelpers::getGenericInvalidMsg(),
+					'vod-chapters.valid_vod_chapters'	=> FormHelpers::getGenericInvalidMsg(),
 					'stream-state.required'	=> FormHelpers::getRequiredMsg(),
 					'stream-state.valid_stream_state_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'stream-info-msg.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'stream-stream-id.valid_stream_id'	=> FormHelpers::getInvalidStreamMsg(),
 					'stream-external-stream-url.url'	=> "This is not a valid url.",
+					'related-items.required'	=> FormHelpers::getGenericInvalidMsg(),
 					'related-items.valid_related_items'	=> FormHelpers::getGenericInvalidMsg()
 				));
 				
@@ -294,6 +314,21 @@ class MediaController extends MediaBaseController {
 						$vodVideoId = FormHelpers::nullIfEmpty($formData['vod-video-id']);
 						$file = Upload::register(Config::get("uploadPoints.vodVideo"), $vodVideoId, $mediaItemVideo->sourceFile);
 						EloquentHelpers::associateOrNull($mediaItemVideo->sourceFile(), $file);
+						
+						if ($mediaItemVideo->chapters()->count() > 0) {
+							if (!$mediaItemVideo->chapters()->delete()) { // remove all chapters
+								throw(new Exception("Error deleting MediaItemVideo chapters."));
+							}
+						}
+						// now add the chapters again
+						$chapterData = json_decode($formData['vod-chapters'], true);
+						foreach($chapterData as $chapter) {
+							$chapterModel = new MediaItemVideoChapter(array(
+								"title"	=> trim($chapter['title']),
+								"time"	=> $chapter['time']
+							));
+							$mediaItemVideo->chapters()->save($chapterModel);
+						}
 					}
 					else {
 						// remove video model if there is one

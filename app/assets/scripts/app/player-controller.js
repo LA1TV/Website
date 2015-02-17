@@ -98,6 +98,14 @@ define([
 			return playerType;
 		};
 		
+		// jump to a specific time (seconds) in the video if it's vod
+		// if startPlaying is true then it will start playing if it isn't currently
+		this.jumpToTime = function(time, startPlaying) {
+			if (playerComponent !== null) {
+				playerComponent.jumpToTime(time, startPlaying);
+			}
+		};
+		
 		// 1=not live, 2=live, 3=show over, null=no live stream
 		this.getStreamState = function() {
 			return streamState;

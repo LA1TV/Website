@@ -27,3 +27,7 @@
 .page-player .related-items {
 	margin-top: 15px;
 }
+
+.page-player .chapter-selection-table tr {
+	cursor: pointer;
+}

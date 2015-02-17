@@ -6,8 +6,9 @@ define([
 	"../../components/reorderable-list",
 	"../../components/ajax-select",
 	"../../components/ajax-upload",
+	"../../components/chapter-input",
 	"lib/domReady!"
-], function($, PageData, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload) {
+], function($, PageData, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload, ChapterInput) {
 	
 	$(".page-media-edit").first().each(function() {
 	
@@ -76,6 +77,25 @@ define([
 			}, initialData);
 			$(reorderableList).on("stateChanged", function() {
 				$destinationEl.val(JSON.stringify(reorderableList.getIds()));
+			});
+			$container.append(reorderableList.getEl());
+		});
+		
+		$(this).find(".form-vod-chapters").each(function() {
+			var $container = $(this).first();
+			var $destinationEl = $container.parent().find('[name="vod-chapters"]').first();
+			var initialDataStr = $(this).attr("data-initialdata");
+			var initialData = jQuery.parseJSON(initialDataStr);
+			
+			
+			var reorderableList = new ReorderableList(true, true, true, function(state) {
+				return new ChapterInput(state);
+			}, {
+				title: "",
+				time: null
+			}, initialData);
+			$(reorderableList).on("stateChanged", function() {
+				$destinationEl.val(JSON.stringify(reorderableList.getState()));
 			});
 			$container.append(reorderableList.getEl());
 		});

@@ -141,6 +141,21 @@ define([
 			return null;
 		};
 		
+		// jump to a specific time (seconds) in the video if it's vod
+		// if startPlaying is true then it will start playing if it isn't currently
+		this.jumpToTime = function(time, startPlaying) {
+			if (videoJsPlayer !== null && playerType === "vod") {
+				if (time > videoJsPlayer.duration()) {
+					console.error("The time to jump to was set to a value which is longer than the length of the video.");
+					return;
+				}
+				videoJsPlayer.currentTime(time);
+				if (startPlaying) {
+					videoJsPlayer.play();
+				}
+			}
+		};
+		
 		var showAd = null;
 		var queuedShowAd = true;
 		var startTime = null;
