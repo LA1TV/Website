@@ -4,8 +4,9 @@ define([
 	"../../components/comments",
 	"../../components/player-container",
 	"../../page-data",
+	"../../helpers/build-get-uri",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData, buildGetUri) {
 	
 	var playerController = null;
 	
@@ -155,12 +156,36 @@ define([
 		});
 		
 		$pageContainer.find(".chapter-selection-table").each(function() {
+			
+			function supportsHistoryApi() {
+				return !!(window.history && history.pushState);
+			}
+			
 			$(this).find("tr").each(function() {
 				var time = parseInt($(this).attr("data-time"));
 				$(this).click(function() {
 					if (playerController !== null) {
 						// jump to the time in the player and start playing if not already.
 						playerController.jumpToTime(time, true);
+						if (supportsHistoryApi()) {
+							var uri = window.location.href;
+							var uriWithoutParams = null;
+							var startPos = uri.indexOf("?");
+							if (startPos !== -1) {
+								uriWithoutParams = uri.substr(0, startPos);
+							}
+							else {
+								uriWithoutParams = uri;
+							}
+							
+							var minutes = Math.floor(time/60);
+							var seconds = time % 60;
+							
+							var newUri = uriWithoutParams + buildGetUri({
+								t: minutes+"m"+seconds+"s"
+							});
+							window.history.replaceState({}, "", newUri);
+						}
 					}
 				});
 			});
