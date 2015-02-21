@@ -624,7 +624,7 @@ define([
 				},
 				markerStyle: {
 					width: '7px',
-					'background-color': '#ffffff'
+					'background-color': '#cccccc'
 				},
 				markers: []
 			});
