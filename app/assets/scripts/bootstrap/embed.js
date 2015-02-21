@@ -9,6 +9,7 @@ require.config({
 		"ga": {
 			exports: "ga"
 		},
+		"lib/videojs-markers": ["lib/video"],
 		// VIDEOJS HLS STUFF
 		// can't be bothered trying to figure out which files have dependencies on which,
 		// so this order is the order they are included on the demo page
