@@ -84,6 +84,12 @@ define([
 			return this;
 		};
 		
+		// array of {time, title} (time is in seconds)
+		this.setChapters = function(chapters) {
+			queuedChapters = chapters;
+			return this;
+		};
+		
 		this.render = function() {
 			updateAd();
 			updatePlayer();
@@ -184,6 +190,8 @@ define([
 		var queuedShowPlayer = false;
 		var queuedPlayerTime = null;
 		var queuedPlayerTimeStartPlaying = null;
+		var chapters = [];
+		var queuedChapters = [];
 		var queuedPlayerRoundStartTimeToSafeRegion = null;
 		var playerUris = null;
 		var queuedPlayerUris = [];
@@ -512,6 +520,13 @@ define([
 			}
 			else {
 				// update player
+				
+				// update the chapters
+				if (haveChaptersChanged()) {
+					updateVideoJsMarkers();
+				}
+				
+				// set the new time
 				if (queuedPlayerTime !== null) {
 					(function(startTime, startPlaying, roundToSafeRegion) {
 						if (startPlaying) {
@@ -596,6 +611,25 @@ define([
 				}, 0);
 			});
 			
+			// initialise markers plugin
+			videoJsPlayer.markers({
+				markerTip: {
+					display: true,
+					text: function(marker) {
+						return marker.text;
+					}
+				},
+				breakOverlay:{
+					display: false
+				},
+				markerStyle: {
+					width: '7px',
+					'background-color': '#ffffff'
+				},
+				markers: []
+			});
+			updateVideoJsMarkers();
+			
 			registerVideoJsEventHandlers();
 			$container.append($player);
 		}
@@ -658,6 +692,21 @@ define([
 			}
 		}
 		
+		function updateVideoJsMarkers() {
+			var markers = [];
+			for (var i=0; i<queuedChapters.length; i++) {
+				var chapter = queuedChapters[i];
+				markers.push({
+					time: chapter.time,
+					text: chapter.title
+				});
+			}
+			onVideoJsLoadedMetadata(function() {
+				videoJsPlayer.markers.reset(markers);
+			});
+			chapters = queuedChapters;
+		}
+		
 		function havePlayerUrisChanged() {
 			if ((queuedPlayerUris === null && playerUris !== null) || (queuedPlayerUris !== null && playerUris === null)) {
 				return true;
@@ -671,6 +720,21 @@ define([
 				var queuedUri = queuedPlayerUris[i];
 				var uri = playerUris[i];
 				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		function haveChaptersChanged() {
+			if (queuedChapters.length !== chapters.length) {
+				return true;
+			}
+			
+			for (var i=0; i<queuedChapters.length; i++) {
+				var queuedChapter = queuedChapters[i];
+				var chapter = chapters[i];
+				if (queuedChapter.time !== chapter.time || queuedChapter.title !== chapter.title) {
 					return true;
 				}
 			}

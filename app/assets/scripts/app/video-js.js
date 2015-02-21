@@ -8,6 +8,9 @@ define([
 	// register the swf for flash playback
 	videojs.options.flash.swf = PageData.get("baseUrl")+"/assets/video-js/flash/video-js.swf";
 	
+	// add chapters plugin
+	require(["lib/videojs-markers"]);
+	
 	// add hls support
 	require([
 		"lib/videojs-media-sources",
