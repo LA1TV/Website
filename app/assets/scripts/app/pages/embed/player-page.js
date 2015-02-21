@@ -6,12 +6,31 @@ define([
 
 	$(".page-player").first().each(function() {
 		
-		var $pageContainer = $(this).first();
-		
+		var $pageContainer = $(this).first();	
 		var $headingContainer = $pageContainer.find(".heading-container");
+	
 		
 		$pageContainer.find(".player-container-component-container").each(function() {
+			
+			function inIframe() {
+				try {
+					return window.self !== window.top;
+				} catch (e) {
+					// fail safe
+					return true;
+				}
+			}
+			
 			var self = this;
+			
+			var siteUri = $(this).attr("data-site-uri");
+			if (!inIframe()) {
+				// this is not in an iframe. it should be
+				alert("This content is not embedded correctly.\n\nYou will now be redirected to our website instead.");
+				// redirect the user to the corresponding page on the main site
+				window.location = siteUri;
+				return;
+			}
 			
 			var playerContainer = null;
 			var $playerContainer = $(this).find(".msg-container");
