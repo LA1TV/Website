@@ -248,7 +248,7 @@ class PlayerController extends HomeBaseController {
 					"num"		=> $b+1,
 					"title"		=> $a->title,
 					"timeStr"	=> $a->time_str,
-					"time"		=> $a->time
+					"time"		=> intval($a->time)
 				);
 			}
 		}
@@ -369,7 +369,7 @@ class PlayerController extends HomeBaseController {
 			foreach($videoItem->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
 				$vodChapters[] = array(
 					"title"		=> $a->title,
-					"time"		=> $a->time
+					"time"		=> intval($a->time)
 				);
 			}
 		}
