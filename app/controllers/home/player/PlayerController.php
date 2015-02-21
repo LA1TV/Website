@@ -329,7 +329,7 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "liveStreamItem.liveStream", "videoItem");
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
 		
 		$id = intval($mediaItem->id);
 		$liveStreamItem = $mediaItem->liveStreamItem;
@@ -363,6 +363,17 @@ class PlayerController extends HomeBaseController {
 		$hasVod = $hasVideoItem;
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
 		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
+		$vodChapters = null;
+		if ($hasVideoItem && ($vodLive || $userHasMediaItemsPermission)) {
+			$vodChapters = array();
+			foreach($videoItem->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
+				$vodChapters[] = array(
+					"title"		=> $a->title,
+					"time"		=> $a->time
+				);
+			}
+		}
+		
 		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		if (!$userHasMediaItemsPermission) {
 			$viewCountTotal = 0;
@@ -452,6 +463,7 @@ class PlayerController extends HomeBaseController {
 			"vodLive"					=> $vodLive, // true when the video should be live to the public
 			"videoUris"					=> $videoUris,
 			"vodViewCount"				=> $vodViewCount,
+			"vodChapters"				=> $vodChapters,
 			"rememberedPlaybackTime"	=> $rememberedPlaybackTime,
 			"numLikes"					=> $numLikes, // number of likes this media item has
 			"numDislikes"				=> $numDislikes, // number of dislikes this media item has

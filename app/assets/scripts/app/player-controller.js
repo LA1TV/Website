@@ -344,6 +344,14 @@ define([
 				}
 				qualitiesHandler.setAvailableQualities([]);
 			}
+			
+			if (queuedPlayerType === "vod" && data.vodChapters !== null) {
+				playerComponent.setChapters(data.vodChapters);
+			}
+			else {
+				playerComponent.setChapters([]);
+			}
+			
 			playerComponent.showStreamOver(data.hasStream && data.streamState === 3);
 			playerComponent.setCustomMsg(data.hasStream && data.streamState === 1 ? data.streamInfoMsg : "");
 			playerComponent.showVodAvailableShortly(data.hasStream && data.streamState === 3 && data.availableOnDemand);
