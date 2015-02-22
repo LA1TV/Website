@@ -2,22 +2,23 @@ require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
 		jquery: "lib/jquery",
-		ga: "https://www.google-analytics.com/analytics"
+		ga: "https://www.google-analytics.com/analytics",
+		videojs: "lib/video"
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"],
 		"ga": {
 			exports: "ga"
 		},
-		"lib/videojs-markers": ["lib/video"],
+		"lib/videojs-markers": ["videojs"],
 		// VIDEOJS HLS STUFF
 		// can't be bothered trying to figure out which files have dependencies on which,
 		// so this order is the order they are included on the demo page
 		// and I have given each one the above file as a dependency, meaning they should
 		// always be loaded in the same order that works.
 		// https://github.com/videojs/videojs-contrib-hls/blob/931130836c566704ae5c8d69fd8594410db7f5f2/example.html
-		"lib/videojs-media-sources": ["lib/video"],
-		"lib/videojs-contrib-hls/videojs-hls": ["lib/video", "lib/videojs-media-sources"],
+		"lib/videojs-media-sources": ["videojs"],
+		"lib/videojs-contrib-hls/videojs-hls": ["videojs", "lib/videojs-media-sources"],
 		"lib/videojs-contrib-hls/xhr": ["lib/videojs-contrib-hls/videojs-hls"],
 		"lib/videojs-contrib-hls/flv-tag": ["lib/videojs-contrib-hls/xhr"],
 		"lib/videojs-contrib-hls/exp-golomb": ["lib/videojs-contrib-hls/flv-tag"],

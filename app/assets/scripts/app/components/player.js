@@ -1,7 +1,7 @@
 define([
 	"jquery",
 	"../fit-text-handler",
-	"lib/video",
+	"videojs",
 	"../synchronised-time",
 	"../device-detection",
 	"../helpers/nl2br",
