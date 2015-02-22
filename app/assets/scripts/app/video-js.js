@@ -1,6 +1,6 @@
 define([
 	"require",
-	"lib/video",
+	"videojs",
 	"./page-data",
 	"lib/pkcs7.unpad"
 ], function(require, videojs, PageData, unpad) {
