@@ -176,7 +176,7 @@ class MediaController extends MediaBaseController {
 			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
 		}
 		
-		if (!$formSubmitted && !is_null($mediaItem->videoItem)) {
+		if (!$formSubmitted && !is_null($mediaItem) && !is_null($mediaItem->videoItem)) {
 			$additionalFormData['vodChaptersInput'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "videoItem", "chapters_for_input");
 			$additionalFormData['vodChaptersInitialData'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "videoItem", "chapters_for_orderable_list");
 		}
