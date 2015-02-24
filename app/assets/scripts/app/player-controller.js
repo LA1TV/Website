@@ -20,7 +20,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId) {
 		
 		var self = this;
 		
@@ -147,7 +147,14 @@ define([
 		
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
-			updatePlayer();
+			// this can be fired as a result of the quality being changed in updatePlayer()
+			// meaning updatePlayer() would get called again before the first updatePlayer()
+			// finished which could cause an infinite loop.
+			// use setTimeout to make sure setPlayer() has finished executing before it is
+			// called again
+			setTimeout(function() {
+				updatePlayer();
+			}, 0);
 		});
 		
 		// kick it off
@@ -279,6 +286,29 @@ define([
 					uriGroups = data.videoUris;
 				}
 			}
+			
+			// if the player type isn't changing then make sure the quality selection
+			// component doesn't switch the quality to another when new ones are loaded in.
+			var tryAndStickWithCurrentQuality = queuedPlayerType === playerType;
+			updateQualitySelectionComponent(uriGroups, tryAndStickWithCurrentQuality);
+			if (queuedPlayerType === "vod" && playerType !== "vod") {
+				// changing to vod from something else
+				if (initialVodQualityId !== null) {
+					// set the quality to the one provided
+					if (qualitiesHandler.hasQuality(initialVodQualityId)) {
+						qualitiesHandler.setQuality(initialVodQualityId, false);
+					}
+				}
+			}
+			if (queuedPlayerType === "live" && playerType !== "live") {
+				// changing to live from something else
+				if (initialStreamQualityId !== null) {
+					// set the quality to the one provided
+					if (qualitiesHandler.hasQuality(initialStreamQualityId)) {
+						qualitiesHandler.setQuality(initialStreamQualityId, false);
+					}
+				}
+			}
 			var chosenUris = getChosenUris(uriGroups);
 			
 			var urisChanged = false;
@@ -377,31 +407,33 @@ define([
 			playerComponent.render();
 		}
 		
-		// updates the quality selection component using uriGroups and then queries it to decide what uris should be used
-		function getChosenUris(uriGroups) {
-			var uris = [];
+		// updates the quality selection component with the qualities determined from the uri groups
+		function updateQualitySelectionComponent(uriGroups, tryAndStickWithCurrentQuality) {
 			var qualities = [];
-			var qualityIds = [];
 			for (var i=0; i<uriGroups.length; i++) {
 				var uriGroup = uriGroups[i];
 				qualities.push({
 					id:		uriGroup.quality.id,
 					name:	uriGroup.quality.name
 				});
+			}
+			qualitiesHandler.setAvailableQualities(qualities, tryAndStickWithCurrentQuality);
+		}
+		
+		// retueens the uri group that should be used for the chosen quality
+		function getChosenUris(uriGroups) {
+			var uris = [];
+			var qualityIds = [];
+			for (var i=0; i<uriGroups.length; i++) {
+				var uriGroup = uriGroups[i];
 				qualityIds.push(uriGroup.quality.id);
 			}
-			qualitiesHandler.setAvailableQualities(qualities);
-			if (qualities.length > 0) {
+			if (qualityIds.length > 0) {
 				var currentQualityId = qualitiesHandler.getChosenQualityId();
 				var chosenUriGroup = uriGroups[qualityIds.indexOf(currentQualityId)];
 				uris = chosenUriGroup.uris;
 			}
 			return uris;
-		}
-		
-		// updates the quality selection component so it has the correct qualities, then asks it what quality to use, then sends the uri group corresponding to that quality to the player
-		function setPlayerComponentPlayerUris(uriGroups) {
-			playerComponent.setPlayerUris(getChosenUris(uriGroups));
 		}
 		
 		function setPlayerType(type) {
