@@ -4,6 +4,7 @@ use uk\co\la1tv\website\controllers\BaseController;
 use URL;
 use Csrf;
 use Config;
+use App;
 use Facebook;
 use DebugHelpers;
 
@@ -29,7 +30,8 @@ class EmbedBaseController extends BaseController {
 			"debugId"		=> DebugHelpers::getDebugId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
-			"gaEnabled"		=> Config::get("googleAnalytics.enabled")
+			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
+			"env"			=> App::environment()
 		);
 	}
 

@@ -30,10 +30,13 @@ class EmbedController extends EmbedBaseController {
 	
 			$title = $currentMediaItem->name;
 			
-			$showHeading = !isset($_GET['showHeading']) || $_GET['showHeading'] === "1";
+			$flushMode = isset($_GET['flush']) && $_GET['flush'] === "1";
+			$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
+			$hideBottomBar = $flushMode;
 			$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
 			
 			$view->showHeading = $showHeading;
+			$view->hideBottomBar = $hideBottomBar;
 			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
 			$view->episodeTitle = $title;
 			$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
