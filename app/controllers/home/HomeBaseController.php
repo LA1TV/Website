@@ -5,6 +5,7 @@ use URL;
 use Csrf;
 use Auth;
 use Config;
+use App;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\LiveStream;
@@ -47,7 +48,8 @@ class HomeBaseController extends BaseController {
 			"debugId"		=> DebugHelpers::getDebugId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
-			"gaEnabled"		=> Config::get("googleAnalytics.enabled")
+			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
+			"env"			=> App::environment()
 		);
 		$facebookAppId = Config::get("facebook.appId");
 		$defaultOpenGraphProperties = array();

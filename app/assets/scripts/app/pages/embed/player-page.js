@@ -1,8 +1,9 @@
 define([
 	"jquery",
+	"../../page-data",
 	"../../components/player-container",
 	"lib/domReady!"
-], function($, PlayerContainer) {
+], function($, PageData, PlayerContainer) {
 
 	$(".page-player").first().each(function() {
 		
@@ -24,7 +25,7 @@ define([
 			var self = this;
 			
 			var siteUri = $(this).attr("data-site-uri");
-			if (!inIframe()) {
+			if (PageData.get("env") !== "local" && !inIframe()) {
 				// this is not in an iframe. it should be
 				alert("This content is not embedded correctly.\n\nYou will now be redirected to our website instead.");
 				// redirect the user to the corresponding page on the main site
@@ -49,9 +50,12 @@ define([
 			var autoPlay = false;
 			var vodPlayStartTime = null;
 			var ignoreExternalStreamUrl = $(this).attr("data-ignore-external-stream-url") === "1";
+			var hideBottomBar = $(this).attr("data-hide-bottom-bar") === "1";
+			var initialVodQualityId = $(this).attr("data-initial-vod-quality-id") === "" ? null : parseInt($(this).attr("data-initial-vod-quality-id"));
+			var initialStreamQualityId = $(this).attr("data-initial-stream-quality-id") === "" ? null : parseInt($(this).attr("data-initial-stream-quality-id"));
 		
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl);
+			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId);
 			
 			
 			playerContainer.onLoaded(function() {

@@ -18,7 +18,15 @@ class EmbedController extends EmbedBaseController {
 		
 		$view = View::make("embed.player");
 		$title = null;
+			
+		$flushMode = isset($_GET['flush']) && $_GET['flush'] === "1";
+		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
+		$hideBottomBar = $flushMode;
+		$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
+		$initialVodQualityId = isset($_GET['vodQualityId']) && ctype_digit($_GET['vodQualityId']) ? $_GET['vodQualityId'] : "";
+		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
 		
+		$view->showHeading = $showHeading;
 		if (is_null($currentMediaItem)) {
 			$title = "LA1:TV- [Content Unavailable]";
 			$view->hyperlink = URL::route('home');
@@ -27,13 +35,12 @@ class EmbedController extends EmbedBaseController {
 		else {
 			// true if a user is logged into the cms and has permission to view media items.
 			$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
-	
+			
 			$title = $currentMediaItem->name;
 			
-			$showHeading = !isset($_GET['showHeading']) || $_GET['showHeading'] === "1";
-			$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
-			
-			$view->showHeading = $showHeading;
+			$view->hideBottomBar = $hideBottomBar;
+			$view->initialVodQualityId = $initialVodQualityId;
+			$view->initialStreamQualityId = $initialStreamQualityId;
 			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
 			$view->episodeTitle = $title;
 			$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);

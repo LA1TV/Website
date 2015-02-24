@@ -7,7 +7,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId) {
 
 		var self = this;
 	
@@ -75,11 +75,13 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl);
+		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);
-			$container.append($bottomContainer);
+			if (!hideBottomBar) {
+				$container.append($bottomContainer);
+			}
 			renderOverrideMode();
 			renderOverrideButton();
 			renderShareButton();
@@ -140,7 +142,7 @@ define([
 				return;
 			}
 			var containerHeight = $container.innerHeight();
-			var bottomContainerHeight = $bottomContainer.outerHeight(true);
+			var bottomContainerHeight = !hideBottomBar ? $bottomContainer.outerHeight(true) : 0;
 			var playerComponentPadding = $playerComponent.outerHeight(true) - $playerComponent.height();
 			$playerComponent.height(Math.max(containerHeight - bottomContainerHeight - playerComponentPadding, 0));
 		}

@@ -41,7 +41,11 @@ define([
 			$(self).triggerHandler("chosenQualityChanged");
 		};
 		
-		this.setAvailableQualities = function(qualities) {
+		// if doNotChangeQuality is true this means the active quality will remain the active quality,
+		// providing it is still in the new list.
+		// ie if the current quality is not one a user chosen one and the new list contains the previous
+		// user chosen one that would normally be switched to.
+		this.setAvailableQualities = function(qualities, doNotChangeQuality) {
 			availableQualities = qualities;
 			
 			if (!self.hasQualities()) {
@@ -60,13 +64,12 @@ define([
 					var quality = availableQualities[i];
 					if (quality.id === activelyChosenQualityId) {
 						foundActivelyChosen = true;
-						break;
 					}
 					else if (quality.id === chosenQualityId) {
 						foundChosen = true;
 					}
 				}
-				if (foundActivelyChosen) {
+				if (foundActivelyChosen && !doNotChangeQuality) {
 					chosenQuality = theActivelyChosenQuality;
 				}
 				else if (foundChosen) {
@@ -77,8 +80,12 @@ define([
 					chosenQuality = availableQualities[0];
 				}
 			}
-			render();
+			render()
 			$(self).triggerHandler("qualitiesChanged");
+		};
+		
+		this.hasQuality = function(qualityId) {
+			return getQualityFromId(qualityId) !== null;
 		};
 		
 		var chosenQuaityIdCookieName = "chosenQualityId-v2"; // renamed because version 1 had wrong path and don't want old v1 cookies taking precedence.
