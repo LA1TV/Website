@@ -65,7 +65,7 @@ define([
 					if (quality.id === activelyChosenQualityId) {
 						foundActivelyChosen = true;
 					}
-					else if (quality.id === chosenQualityId) {
+					if (quality.id === chosenQualityId) {
 						foundChosen = true;
 					}
 				}
