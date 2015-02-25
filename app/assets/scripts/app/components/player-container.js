@@ -4,6 +4,7 @@ define([
 	"./share-modal",
 	"../player-controller",
 	"../page-data",
+	"lib/jquery.hotkeys",
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
@@ -85,9 +86,16 @@ define([
 			renderOverrideMode();
 			renderOverrideButton();
 			renderShareButton();
-			$overrideButton.click(function() {
-				playerController.enableOverrideMode(!playerController.getOverrideModeEnabled());
-			});
+			if (enableAdminOverride) {
+				$overrideButton.click(function() {
+					playerController.enableOverrideMode(!playerController.getOverrideModeEnabled());
+				});
+				// toggle override mode with alt+o hotkey
+				// would be better to bind it to $container but this didn't seem to work.
+				$(document).bind('keydown', 'alt+o', function() {
+					playerController.enableOverrideMode(!playerController.getOverrideModeEnabled());
+				});
+			}
 			updatePlayerComponentSize();
 			loaded = true;
 			$(self).triggerHandler("loaded");
