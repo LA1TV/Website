@@ -7,6 +7,7 @@ require.config({
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"],
+		"lib/jquery.hotkeys": ["jquery"],
 		"ga": {
 			exports: "ga"
 		},
