@@ -2,3 +2,8 @@
 .vjs-poster {
 	background-color: #000000;
 }
+
+.vjs-poster {
+	/* make the cover fill the player */
+	background-size: cover;
+}
