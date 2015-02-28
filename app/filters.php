@@ -83,9 +83,7 @@ Route::filter('csrf', function() {
 	}
 	
 	// throws exception if token invalid
-	
-	// TODO: reenable this
-	// Csrf::check();
+	Csrf::check();
 });
 
 
@@ -121,5 +119,22 @@ Route::filter('setContentSecurityPolicyHeader', function($route, $request, $resp
 		$domainsString = implode(" ", $allowedDomains);
 	
 		$response->header("Content-Security-Policy-Report-Only", "default-src 'self' ".$domainsString."; media-src 'self'; script-src 'self' https://www.google-analytics.com; img-src *; frame-src 'none'");
+	}
+});
+
+/*
+|--------------------------------------------------------------------------
+| P3P Header Filter
+|--------------------------------------------------------------------------
+|
+| Adds a p3p header so that ie is happy.
+| Otherwise embeddable player has issues with cookies not being saved in ie.
+| http://stackoverflow.com/a/16475093/1048589
+|
+*/
+
+Route::filter('setP3PHeader', function($route, $request, $response) {
+	if (get_class($response) === "Illuminate\Http\Response") {
+		$response->header("P3P", 'CP="Clifford"');
 	}
 });
