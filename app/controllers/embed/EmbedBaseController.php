@@ -5,23 +5,28 @@ use URL;
 use Csrf;
 use Config;
 use App;
+use View;
+use uk\co\la1tv\website\models\LiveStream;
+use MyResponse;
 use Facebook;
 use DebugHelpers;
 
 class EmbedBaseController extends BaseController {
 
-	protected $layout = "layouts.embed.master";
+	protected $layout = null;
 	
 	protected function setContent($content, $cssPageId, $title=NULL) {
-		$this->layout->baseUrl = URL::to("/");
-		$this->layout->cssPageId = $cssPageId;
-		$this->layout->title = !is_null($title) ? $title : "LA1:TV";
-		$this->layout->description = "";
-		$this->layout->content = $content;
-		$this->layout->allowRobots = false;
-		$this->layout->cssBootstrap = asset("assets/css/bootstrap/embed.css");
-		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");	
-		$this->layout->pageData = array(
+		$view = View::make("layouts.embed.master");
+		
+		$view->baseUrl = URL::to("/");
+		$view->cssPageId = $cssPageId;
+		$view->title = !is_null($title) ? $title : "LA1:TV";
+		$view->description = "";
+		$view->content = $content;
+		$view->allowRobots = false;
+		$view->cssBootstrap = asset("assets/css/bootstrap/embed.css");
+		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");	
+		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
@@ -33,6 +38,11 @@ class EmbedBaseController extends BaseController {
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"env"			=> App::environment()
 		);
+		
+		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
+		$response = new MyResponse($view);
+		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
+		$this->layout = $response;
 	}
 
 }

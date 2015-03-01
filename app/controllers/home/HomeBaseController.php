@@ -104,7 +104,6 @@ class HomeBaseController extends BaseController {
 		$view->playlistsUri = Config::get("custom.base_url") . "/playlists";
 		
 		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
-		
 		$response = new MyResponse($view, $statusCode);
 		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
 		$this->layout = $response;
