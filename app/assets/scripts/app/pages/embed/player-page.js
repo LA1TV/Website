@@ -47,7 +47,7 @@ define([
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var embedded = true;
-			var autoPlay = false;
+			var autoPlay = $(this).attr("data-autoplay") === "1";
 			var vodPlayStartTime = null;
 			var ignoreExternalStreamUrl = $(this).attr("data-ignore-external-stream-url") === "1";
 			var hideBottomBar = $(this).attr("data-hide-bottom-bar") === "1";
