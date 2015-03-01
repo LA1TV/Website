@@ -19,6 +19,7 @@ class EmbedController extends EmbedBaseController {
 		$view = View::make("embed.player");
 		$title = null;
 			
+		$autoPlay = isset($_GET['autoPlay']) && $_GET['autoPlay'] === "1";
 		$flushMode = isset($_GET['flush']) && $_GET['flush'] === "1";
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
@@ -39,6 +40,7 @@ class EmbedController extends EmbedBaseController {
 			$title = $currentMediaItem->name;
 			
 			$view->hideBottomBar = $hideBottomBar;
+			$view->autoPlay = $autoPlay;
 			$view->initialVodQualityId = $initialVodQualityId;
 			$view->initialStreamQualityId = $initialStreamQualityId;
 			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
