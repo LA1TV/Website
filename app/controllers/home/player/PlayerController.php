@@ -168,7 +168,7 @@ class PlayerController extends HomeBaseController {
 			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.episode");
 			$openGraphProperties[] = array("name"=> "video:series", "content"=> $playlist->getUri());
 		}
-		$embeddablePlayerUri = $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlay=1";
+		$embeddablePlayerUri = $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlay=1&showHeading=0";
 		$openGraphProperties[] = array("name"=> "og:video:url", "content"=> $embeddablePlayerUri);
 		$openGraphProperties[] = array("name"=> "og:video:secure_url", "content"=> $embeddablePlayerUri);
 		$openGraphProperties[] = array("name"=> "og:video:type", "content"=> "text/html");
