@@ -159,7 +159,11 @@ class PlayerController extends HomeBaseController {
 		
 		$episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
 		$openGraphCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+		$twitterCardCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
 			
+		$twitterProperties = array();
+		$twitterProperties[] = array("name"=> "card", "content"=> "player");
+		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 		$openGraphProperties = array();
 		if (is_null($playlist->show)) {
 			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
@@ -168,19 +172,26 @@ class PlayerController extends HomeBaseController {
 			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.episode");
 			$openGraphProperties[] = array("name"=> "video:series", "content"=> $playlist->getUri());
 		}
-		$embeddablePlayerUri = $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlay=1&showHeading=0";
-		$openGraphProperties[] = array("name"=> "og:video:url", "content"=> $embeddablePlayerUri);
-		$openGraphProperties[] = array("name"=> "og:video:secure_url", "content"=> $embeddablePlayerUri);
+		$fbOgEmbeddablePlayerUri = $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlay=1&showHeading=0";
+		$openGraphProperties[] = array("name"=> "og:video:url", "content"=> $fbOgEmbeddablePlayerUri);
+		$openGraphProperties[] = array("name"=> "og:video:secure_url", "content"=> $fbOgEmbeddablePlayerUri);
+		$twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlay=0&showHeading=0");
 		$openGraphProperties[] = array("name"=> "og:video:type", "content"=> "text/html");
 		$openGraphProperties[] = array("name"=> "og:video:width", "content"=> "1280");
 		$openGraphProperties[] = array("name"=> "og:video:height", "content"=> "720");
+		$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
+		$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
+		
 		
 		if (!is_null($currentMediaItem->description)) {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
+			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($currentMediaItem->description, 197, "..."));
 		}
-		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());
-		$openGraphProperties[] = array("name"=> "og:title", "content"=> $playlist->generateEpisodeTitle($currentMediaItem));
+		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());;
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $episodeTitle);
+		$twitterProperties[] = array("name"=> "title", "content"=> $episodeTitle);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
 		if (!is_null($playlist->show)) {
 			if (!is_null($playlistNextItemUri)) {
 				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistNextItemUri);
@@ -286,7 +297,7 @@ class PlayerController extends HomeBaseController {
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$view->broadcastOnMsg = $broadcastOnMsg;
-		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name);
+		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name, 200, $twitterProperties);
 	}
 	
 	private function getVodStartTimeFromUrl() {
