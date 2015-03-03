@@ -47,15 +47,17 @@ define([
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var embedded = true;
-			var autoPlay = $(this).attr("data-autoplay") === "1";
+			var autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
+			var autoPlayStream = $(this).attr("data-auto-play-stream") === "1";
 			var vodPlayStartTime = null;
 			var ignoreExternalStreamUrl = $(this).attr("data-ignore-external-stream-url") === "1";
 			var hideBottomBar = $(this).attr("data-hide-bottom-bar") === "1";
 			var initialVodQualityId = $(this).attr("data-initial-vod-quality-id") === "" ? null : parseInt($(this).attr("data-initial-vod-quality-id"));
 			var initialStreamQualityId = $(this).attr("data-initial-stream-quality-id") === "" ? null : parseInt($(this).attr("data-initial-stream-quality-id"));
-		
+			var disableFullScreen = $(this).attr("data-disable-full-screen") === "1";
+			
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId);
+			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen);
 			
 			
 			playerContainer.onLoaded(function() {

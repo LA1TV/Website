@@ -90,6 +90,11 @@ define([
 			return this;
 		};
 		
+		this.disableFullScreen = function(disable) {
+			queuedDisableFullScreen = disable;
+			return this;
+		};
+		
 		this.render = function() {
 			updateAd();
 			updatePlayer();
@@ -190,6 +195,8 @@ define([
 		var queuedShowPlayer = false;
 		var queuedPlayerTime = null;
 		var queuedPlayerTimeStartPlaying = null;
+		var disableFullScreen = null;
+		var queuedDisableFullScreen = false;
 		var chapters = [];
 		var queuedChapters = [];
 		var queuedPlayerRoundStartTimeToSafeRegion = null;
@@ -520,6 +527,9 @@ define([
 			}
 			else {
 				// update player
+				if (queuedDisableFullScreen !== disableFullScreen) {
+					updateFullScreenState();
+				}
 				
 				// update the chapters
 				if (haveChaptersChanged()) {
@@ -611,6 +621,8 @@ define([
 				}, 0);
 			});
 			
+			updateFullScreenState();
+			
 			// initialise markers plugin
 			videoJsPlayer.markers({
 				markerTip: {
@@ -690,6 +702,17 @@ define([
 					callback();
 				});
 			}
+		}
+		
+		function updateFullScreenState() {
+			if (queuedDisableFullScreen) {
+				$player.attr("data-full-screen-enabled", "0");
+				videoJsPlayer.exitFullscreen();
+			}
+			else {
+				$player.attr("data-full-screen-enabled", "1");
+			}
+			disableFullScreen = queuedDisableFullScreen;
 		}
 		
 		function updateVideoJsMarkers() {

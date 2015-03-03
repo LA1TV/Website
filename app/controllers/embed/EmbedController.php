@@ -19,11 +19,13 @@ class EmbedController extends EmbedBaseController {
 		$view = View::make("embed.player");
 		$title = null;
 			
-		$autoPlay = isset($_GET['autoPlay']) && $_GET['autoPlay'] === "1";
+		$autoPlayVod = isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1";
+		$autoPlayStream = !isset($_GET['autoPlayStream']) || $_GET['autoPlayStream'] === "1";
 		$flushMode = isset($_GET['flush']) && $_GET['flush'] === "1";
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
 		$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
+		$disableFullScreen = isset($_GET['disableFullScreen']) && $_GET['disableFullScreen'] === "1";
 		$initialVodQualityId = isset($_GET['vodQualityId']) && ctype_digit($_GET['vodQualityId']) ? $_GET['vodQualityId'] : "";
 		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
 		
@@ -40,7 +42,9 @@ class EmbedController extends EmbedBaseController {
 			$title = $currentMediaItem->name;
 			
 			$view->hideBottomBar = $hideBottomBar;
-			$view->autoPlay = $autoPlay;
+			$view->autoPlayVod = $autoPlayVod;
+			$view->autoPlayStream = $autoPlayStream;
+			$view->disableFullScreen = $disableFullScreen;
 			$view->initialVodQualityId = $initialVodQualityId;
 			$view->initialStreamQualityId = $initialStreamQualityId;
 			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
