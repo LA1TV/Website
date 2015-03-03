@@ -20,7 +20,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen) {
 		
 		var self = this;
 		
@@ -335,12 +335,14 @@ define([
 				// this may be down to the user changing quality or changed remotely for some reason
 				setPlayerType(queuedPlayerType);
 				if (queuedPlayerType === "live") {
-					// auto start live stream
-					playerComponent.setPlayerStartTime(0, true);
+					if (autoPlayStream) {
+						// auto start live stream
+						playerComponent.setPlayerStartTime(0, true);
+					}
 				}
 				else if (queuedPlayerType === "vod") {
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
-					if (autoPlay && firstLoad) {
+					if (autoPlayVod && firstLoad) {
 						// this is the first load of the player, and the autoplay flag is set, so autoplay
 						if (vodPlayStartTime !== null) {
 							playerComponent.setPlayerStartTime(vodPlayStartTime, true, false);
