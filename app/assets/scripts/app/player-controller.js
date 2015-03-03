@@ -20,7 +20,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlay, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen) {
 		
 		var self = this;
 		
@@ -387,6 +387,7 @@ define([
 			playerComponent.showVodAvailableShortly(data.hasStream && data.streamState === 3 && data.availableOnDemand);
 			playerComponent.setStartTime(data.scheduledPublishTime !== null && (!data.hasStream || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
 			playerComponent.setExternalStreamUrl(externalStreamUrl);
+			playerComponent.disableFullScreen(disableFullScreen);
 			
 			if (queuedPlayerType === "vod") {
 				// start updating the local database with the users position in the video.

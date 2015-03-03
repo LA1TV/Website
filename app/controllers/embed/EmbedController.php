@@ -24,6 +24,7 @@ class EmbedController extends EmbedBaseController {
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
 		$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
+		$disableFullScreen = isset($_GET['disableFullScreen']) && $_GET['disableFullScreen'] === "1";
 		$initialVodQualityId = isset($_GET['vodQualityId']) && ctype_digit($_GET['vodQualityId']) ? $_GET['vodQualityId'] : "";
 		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
 		
@@ -41,6 +42,7 @@ class EmbedController extends EmbedBaseController {
 			
 			$view->hideBottomBar = $hideBottomBar;
 			$view->autoPlay = $autoPlay;
+			$view->disableFullScreen = $disableFullScreen;
 			$view->initialVodQualityId = $initialVodQualityId;
 			$view->initialStreamQualityId = $initialStreamQualityId;
 			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;

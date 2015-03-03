@@ -75,5 +75,5 @@
 }
 
 .player-component .player[data-full-screen-enabled="0"] .vjs-volume-control {
-	margin-right: 10px;
+	margin-right: 15px;
 }

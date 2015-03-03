@@ -15,7 +15,7 @@
 <?php endif; ?>
 </div>
 <?php if ($hasVideo): ?>
-<div class="player-container-component-container" data-site-uri="<?=e($hyperlink);?>" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-update-playback-time-base-uri="<?=e($updatePlaybackTimeBaseUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-ignore-external-stream-url="<?=$ignoreExternalStreamUrl?"1":"0"?>" data-hide-bottom-bar="<?=$hideBottomBar?"1":"0"?>" data-autoplay="<?=$autoPlay?"1":"0"?>" data-initial-vod-quality-id="<?=$initialVodQualityId?>" data-initial-stream-quality-id="<?=$initialStreamQualityId?>">
+<div class="player-container-component-container" data-site-uri="<?=e($hyperlink);?>" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-update-playback-time-base-uri="<?=e($updatePlaybackTimeBaseUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-ignore-external-stream-url="<?=$ignoreExternalStreamUrl?"1":"0"?>" data-hide-bottom-bar="<?=$hideBottomBar?"1":"0"?>" data-autoplay="<?=$autoPlay?"1":"0"?>" data-disable-full-screen="<?=$disableFullScreen?"1":"0"?>" data-initial-vod-quality-id="<?=$initialVodQualityId?>" data-initial-stream-quality-id="<?=$initialStreamQualityId?>">
 <?php else: ?>
 <div class="player-container-component-container" data-site-uri="<?=e($hyperlink);?>">
 <?php endif; ?>
