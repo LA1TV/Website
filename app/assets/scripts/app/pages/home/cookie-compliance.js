@@ -14,7 +14,6 @@ define([
 	var modal = new CookieComplianceModal();
 	$(modal).on("hidden", function() {
 		var config = $.extend({}, CookieConfig, {expires: 365*5});
-		console.log(config);
 		$.cookie("closedCookieComplianceModal", "1", config)
 		Logger.info("User okayed cookies compliance modal.");
 	});
