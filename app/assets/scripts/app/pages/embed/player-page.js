@@ -25,7 +25,8 @@ define([
 			var self = this;
 			
 			var siteUri = $(this).attr("data-site-uri");
-			if (PageData.get("env") !== "local" && !inIframe()) {
+			var disableRedirect = $(this).attr("data-disable-redirect") === "1";
+			if (PageData.get("env") !== "local" && !disableRedirect && !inIframe()) {
 				// this is not in an iframe. it should be
 				alert("This content is not embedded correctly.\n\nYou will now be redirected to our website instead.");
 				// redirect the user to the corresponding page on the main site
