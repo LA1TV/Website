@@ -175,7 +175,7 @@ class PlayerController extends HomeBaseController {
 		$fbOgEmbeddablePlayerUri = $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=1&autoPlayStream=1&showHeading=0";
 		$openGraphProperties[] = array("name"=> "og:video:url", "content"=> $fbOgEmbeddablePlayerUri);
 		$openGraphProperties[] = array("name"=> "og:video:secure_url", "content"=> $fbOgEmbeddablePlayerUri);
-		$twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&showHeading=0&disableFullScreen=1");
+		$twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&showHeading=0&disableFullScreen=1&disableRedirect=1");
 		$openGraphProperties[] = array("name"=> "og:video:type", "content"=> "text/html");
 		$openGraphProperties[] = array("name"=> "og:video:width", "content"=> "1280");
 		$openGraphProperties[] = array("name"=> "og:video:height", "content"=> "720");
