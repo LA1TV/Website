@@ -61,11 +61,19 @@
 	padding: 10px;
 }
 
-.vjs-default-skin .vjs-big-play-button {
+.player-component .player .vjs-default-skin .vjs-big-play-button {
 	bottom: .5em;
 	top: inherit;
 }
 
-.vjs-default-skin .vjs-play-progress, .vjs-default-skin .vjs-volume-level {
+.player-component .player .vjs-default-skin .vjs-play-progress, .vjs-default-skin .vjs-volume-level {
 	background-color: #9C0000;
+}
+
+.player-component .player[data-full-screen-enabled="0"] .vjs-fullscreen-control {
+	display: none;
+}
+
+.player-component .player[data-full-screen-enabled="0"] .vjs-volume-control {
+	margin-right: 10px;
 }
