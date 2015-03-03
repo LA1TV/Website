@@ -20,8 +20,7 @@ class HomeBaseController extends BaseController {
 
 	protected $layout = null;
 	
-	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200) {
-		
+	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=array()) {
 		$description = "Lancaster University's Student Union TV station.";
 	
 		$view = View::make("layouts.home.master");
@@ -78,6 +77,7 @@ class HomeBaseController extends BaseController {
 			}
 		}
 		$view->openGraphProperties = $finalOpenGraphProperties;
+		$view->twitterProperties = $twitterProperties;
 		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
 		$view->loginUri = URLHelpers::generateLoginUrl();

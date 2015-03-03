@@ -13,6 +13,11 @@
 		<meta property="<?=e($a['name']);?>" content="<?=e($a['content']);?>">
 		<?php endforeach; ?>
 		<?php endif; ?>
+		<?php if (isset($twitterProperties)): ?>
+		<?php foreach($twitterProperties as $a): ?>
+		<meta name="twitter:<?=e($a['name']);?>" content="<?=e($a['content']);?>">
+		<?php endforeach; ?>
+		<?php endif; ?>
 		<link rel="shortcut icon" href="<?=asset("assets/img/favicon.ico");?>">
 		<?php if (!$allowRobots): ?>
 		<meta name="robots" content="noindex, nofollow">
