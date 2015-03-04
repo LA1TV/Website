@@ -20,6 +20,7 @@ use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\Show;
+use uk\co\la1tv\website\models\CustomUri;
 
 class PlaylistsController extends PlaylistsBaseController {
 
@@ -42,7 +43,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			return;
 		}
 		
-		$playlists = Playlist::with("show", "mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$playlists = Playlist::with("show", "mediaItems", "customUri")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($playlists as $a) {
 			$enabled = (boolean) $a->enabled;
@@ -50,6 +51,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			$noPlaylistItems = $a->mediaItems->count();
 			$show = $a->show;
 			$showStr = !is_null($show) ? $show->name . " (" . $a->series_no . ")" : "[Not Part Of Show]";
+			$customUri = $a->custom_uri_name;
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
@@ -58,6 +60,7 @@ class PlaylistsController extends PlaylistsBaseController {
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"show"			=> $showStr,
 				"noPlaylistItems"	=> $noPlaylistItems,
+				"customUri"		=> !is_null($customUri) ? $customUri : "[No Custom URI]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/playlists/edit/" . $a->id,
 				"id"			=> $a->id
@@ -79,7 +82,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$playlist = null;
 		$editing = false;
 		if (!is_null($id)) {
-			$playlist = Playlist::with("coverFile", "sideBannerFile", "coverArtFile", "mediaItems")->find($id);
+			$playlist = Playlist::with("coverFile", "sideBannerFile", "coverArtFile", "mediaItems", "customUri")->find($id);
 			if (is_null($playlist)) {
 				App::abort(404);
 				return;
@@ -96,6 +99,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			array("series-no", ObjectHelpers::getProp("", $playlist, "series_no")),
 			array("name", ObjectHelpers::getProp("", $playlist, "name")),
 			array("description", ObjectHelpers::getProp("", $playlist, "description")),
+			array("custom-uri", ObjectHelpers::getProp("", $playlist, "custom_uri_name")),
 			array("cover-image-id", ObjectHelpers::getProp("", $playlist, "coverFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $playlist, "coverArtFile", "id")),
@@ -145,6 +149,16 @@ class PlaylistsController extends PlaylistsBaseController {
 			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
+			Validator::extend('unique_custom_uri', function($attribute, $value, $parameters) use (&$playlist) {
+				$q = CustomUri::where("name", $value);
+				if (!is_null($playlist)) {
+					$currentCustomUri = $playlist->custom_uri_name;
+					if (!is_null($currentCustomUri)) {
+						$q = $q->where("name", "!=", $currentCustomUri);
+					}
+				}
+				return $q->count() === 0;
+			});
 			
 			$modelCreated = DB::transaction(function() use (&$formData, &$playlist, &$errors) {
 				
@@ -153,6 +167,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'series-no'		=> array('required_with:show-id', 'integer'),
 					'name'		=> array('required_without:show-id', 'max:50'),
 					'description'	=> array('max:500'),
+					'custom-uri'		=> array('alpha_dash', 'max:50', 'unique_custom_uri'),
 					'cover-image-id'	=> array('valid_file_id'),
 					'side-banners-image-id'	=> array('valid_file_id'),
 					'description'	=> array('max:500'),
@@ -167,6 +182,9 @@ class PlaylistsController extends PlaylistsBaseController {
 					'name.required_without'		=> FormHelpers::getRequiredMsg(),
 					'name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
+					'custom-uri.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
+					'custom-uri.max'	=> FormHelpers::getLessThanCharactersMsg(50),
+					'custom-uri.unique_custom_uri'	=> "This is already in use.",
 					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
@@ -234,6 +252,26 @@ class PlaylistsController extends PlaylistsBaseController {
 						
 						if ($playlist->save() === false) {
 							throw(new Exception("Error saving Playlist."));
+						}
+						
+						$customUri = FormHelpers::nullIfEmpty($formData['custom-uri']);
+						$currentCustomUriModel = $playlist->customUri;
+						if (!is_null($customUri)) {
+							if ($playlist->custom_uri_name !== $customUri) {
+								// change needed
+								if (!is_null($currentCustomUriModel)) {
+									// remove the current one first
+									$currentCustomUriModel->delete();
+								}
+								$customUriModel = new CustomUri(array("name"=>$customUri));
+								$playlist->customUri()->save($customUriModel);
+							}
+						}
+						else {
+							if (!is_null($currentCustomUriModel)) {
+								// remove the current one
+								$currentCustomUriModel->delete();
+							}
 						}
 						
 						$playlist->mediaItems()->detach(); // detaches all
@@ -305,6 +343,11 @@ class PlaylistsController extends PlaylistsBaseController {
 						$playlist->coverFile,
 						$playlist->coverArtFile
 					));
+					
+					$customUriModel = $playlist->customUri;
+					if (!is_null($customUriModel)) {
+						$customUriModel->delete();
+					}
 					
 					if ($playlist->delete() === false) {
 						throw(new Exception("Error deleting Playlist."));

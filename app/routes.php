@@ -60,6 +60,12 @@ Route::group(array('after' => array('setContentSecurityPolicyHeader', 'setP3PHea
 			Route::controller('/account', $p.'home\account\AccountController');
 			// here for named route
 			Route::get('/account', array("as"=>"account", "uses"=>$p.'home\account\AccountController@getIndex'));
+			
+			Route::pattern('slug', '[A-Za-z0-9\-]+');
+			
+			// this must not go higher up as it is important that everything above takes priority
+			Route::controller("/{slug}", $p.'home\SlugController');
+			
 			// this is here so the named route can be retrieved in EmbedController
 			Route::get('/', array("as"=>"home", "uses"=>$p.'home\HomeController@getIndex'));
 			Route::controller('/', $p.'home\HomeController');

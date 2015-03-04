@@ -12,7 +12,7 @@ class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
 	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no');
-	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_list", "playlist_content_for_input");
+	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_list", "playlist_content_for_input", "custom_uri_name");
 	
 	protected static function boot() {
 		parent::boot();
@@ -63,6 +63,18 @@ class Playlist extends MyEloquent {
 	
 	public function itemsRelatedTo() {
 		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_playlist', 'related_media_item_id', 'media_item_id')->withPivot('position');
+	}
+	
+	public function customUri() {
+		return $this->morphOne('uk\co\la1tv\website\models\CustomUri', 'uriable');
+	}
+	
+	public function getCustomUriNameAttribute() {
+		$customUri = $this->customUri;
+		if (is_null($customUri)) {
+			return null;
+		}
+		return $customUri->name;
 	}
 	
 	public function getScheduledPublishTimeForInputAttribute() {
