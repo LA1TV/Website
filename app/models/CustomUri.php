@@ -6,7 +6,7 @@ class CustomUri extends MyEloquent {
 	protected $fillable = array('id', 'name');
 	
 	public function uriable() {
-		$this->morphTo();
+		return $this->morphTo();
 	}
 
 }

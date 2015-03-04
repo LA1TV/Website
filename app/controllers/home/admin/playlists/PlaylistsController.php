@@ -43,7 +43,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			return;
 		}
 		
-		$playlists = Playlist::with("show", "mediaItems")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
+		$playlists = Playlist::with("show", "mediaItems", "customUri")->search($searchTerm)->usePagination()->orderBy("name", "asc")->orderBy("description", "asc")->orderBy("created_at", "desc")->sharedLock()->get();
 		
 		foreach($playlists as $a) {
 			$enabled = (boolean) $a->enabled;
@@ -51,6 +51,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			$noPlaylistItems = $a->mediaItems->count();
 			$show = $a->show;
 			$showStr = !is_null($show) ? $show->name . " (" . $a->series_no . ")" : "[Not Part Of Show]";
+			$customUri = $a->custom_uri_name;
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
@@ -59,6 +60,7 @@ class PlaylistsController extends PlaylistsBaseController {
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"show"			=> $showStr,
 				"noPlaylistItems"	=> $noPlaylistItems,
+				"customUri"		=> !is_null($customUri) ? $customUri : "[No Custom URI]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/playlists/edit/" . $a->id,
 				"id"			=> $a->id
@@ -80,7 +82,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$playlist = null;
 		$editing = false;
 		if (!is_null($id)) {
-			$playlist = Playlist::with("coverFile", "sideBannerFile", "coverArtFile", "mediaItems")->find($id);
+			$playlist = Playlist::with("coverFile", "sideBannerFile", "coverArtFile", "mediaItems", "customUri")->find($id);
 			if (is_null($playlist)) {
 				App::abort(404);
 				return;
@@ -227,26 +229,6 @@ class PlaylistsController extends PlaylistsBaseController {
 						$playlist->description = FormHelpers::nullIfEmpty($formData['description']);
 						$playlist->enabled = FormHelpers::toBoolean($formData['enabled']);
 						
-						$customUri = FormHelpers::nullIfEmpty($formData['custom-uri']);
-						$currentCustomUriModel = $playlist->customUri;
-						if (!is_null($customUri)) {
-							if ($playlist->custom_uri_name !== $customUri) {
-								// change needed
-								if (!is_null($currentCustomUriModel)) {
-									// remove the current one first
-									$currentCustomUriModel->delete();
-								}
-								$customUriModel = new CustomUri(array("name"=>$customUri));
-								$playlist->customUri()->save($customUriModel);
-							}
-						}
-						else {
-							if (!is_null($currentCustomUriModel)) {
-								// remove the current one
-								$currentCustomUriModel->delete();
-							}
-						}
-						
 						// if the scheduled publish time is empty and this playlist is enabled, set it to the current time.
 						// an enabled playlist should always have a published time.
 						$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));
@@ -270,6 +252,26 @@ class PlaylistsController extends PlaylistsBaseController {
 						
 						if ($playlist->save() === false) {
 							throw(new Exception("Error saving Playlist."));
+						}
+						
+						$customUri = FormHelpers::nullIfEmpty($formData['custom-uri']);
+						$currentCustomUriModel = $playlist->customUri;
+						if (!is_null($customUri)) {
+							if ($playlist->custom_uri_name !== $customUri) {
+								// change needed
+								if (!is_null($currentCustomUriModel)) {
+									// remove the current one first
+									$currentCustomUriModel->delete();
+								}
+								$customUriModel = new CustomUri(array("name"=>$customUri));
+								$playlist->customUri()->save($customUriModel);
+							}
+						}
+						else {
+							if (!is_null($currentCustomUriModel)) {
+								// remove the current one
+								$currentCustomUriModel->delete();
+							}
 						}
 						
 						$playlist->mediaItems()->detach(); // detaches all
@@ -341,6 +343,11 @@ class PlaylistsController extends PlaylistsBaseController {
 						$playlist->coverFile,
 						$playlist->coverArtFile
 					));
+					
+					$customUriModel = $playlist->customUri;
+					if (!is_null($customUriModel)) {
+						$customUriModel->delete();
+					}
 					
 					if ($playlist->delete() === false) {
 						throw(new Exception("Error deleting Playlist."));
