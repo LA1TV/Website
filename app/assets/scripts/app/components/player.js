@@ -525,7 +525,7 @@ define([
 				}
 				externalStreamSlideExternalLiveStreamUrl = queuedExternalLiveStreamUrl;
 			}
-			else {
+			else if (showPlayer) {
 				// update player
 				if (queuedDisableFullScreen !== disableFullScreen) {
 					updateFullScreenState();
