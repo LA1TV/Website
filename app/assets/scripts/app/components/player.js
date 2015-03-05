@@ -11,7 +11,7 @@ define([
 	"../video-js"
 ], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e, pad) {
 	
-	var PlayerComponent = function(coverUri, responsive) {
+	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 		
 		var self = this;
 		
@@ -502,14 +502,14 @@ define([
 				// destroy either the player or the external stream slide depending which is shown
 				destroyExternalStreamSlide();
 				externalStreamSlideShown = false;
-				destroyPlayer();
 				if (showPlayer) {
 					// create either the player or external stream slide depending whether the external stream url is present
 					if (showExternalStreamSlide) {
+						destroyPlayer();
 						createExternalStreamSlide();
 					}
 					else {
-						createPlayer();
+						createPlayer(); // this will call destroyPlayer()
 					}
 					playerType = queuedPlayerType;
 				}
@@ -604,13 +604,23 @@ define([
 				loop: false
 			}, function() {
 				// called when player loaded.
+				if (qualitySelectionComponent !== null) {
+					$player.find(".vjs-control-bar").each(function() {
+						var $item = $("<div />").addClass("quality-selection-control");
+						$item.append(qualitySelectionComponent.getEl());
+						$(this).append($item);
+					});
+				}
+				
 				setTimeout(function() {
 					// in timeout as needs videoJsPlayer needs to have been set
+
 					if (playerExisted) {
 						// the player has just been destroyed before being recreated
 						if (wasFullScreen) {
 							// was previously full screen
 							// make it full screen again
+							// this may fail if the browser decides that this must be from a user interaction
 							videoJsPlayer.requestFullscreen();
 						}
 						// set the volume and mute state back to what it was

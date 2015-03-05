@@ -56,9 +56,10 @@ define([
 			var initialVodQualityId = $(this).attr("data-initial-vod-quality-id") === "" ? null : parseInt($(this).attr("data-initial-vod-quality-id"));
 			var initialStreamQualityId = $(this).attr("data-initial-stream-quality-id") === "" ? null : parseInt($(this).attr("data-initial-stream-quality-id"));
 			var disableFullScreen = $(this).attr("data-disable-full-screen") === "1";
+			var placeQualitySelectionComponentInPlayer = hideBottomBar; // if the bottom bar is not visible put the quality selection inside the player
 			
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen);
+			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer);
 			
 			
 			playerContainer.onLoaded(function() {
@@ -72,6 +73,7 @@ define([
 			
 			
 			function updatePlayerContainerHeight() {
+				console.log("resizing");
 				var containerHeight = $pageContainer.innerHeight();
 				var headingHeight = $headingContainer.outerHeight(true);
 				$playerContainer.height(Math.max(containerHeight - headingHeight, 0));

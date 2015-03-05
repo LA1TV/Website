@@ -8,7 +8,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer) {
 
 		var self = this;
 	
@@ -69,14 +69,17 @@ define([
 		var responsive = !embedded;
 		
 		var qualitySelectionComponent = new QualitySelectionComponent();
-		$(qualitySelectionComponent).on("qualitiesChanged", function() {
+		if (!placeQualitySelectionComponentInPlayer) {
+			// quality selection component should be added to bottom row.
+			$(qualitySelectionComponent).on("qualitiesChanged", function() {
+				renderQualitySelectionComponent();
+			});
 			renderQualitySelectionComponent();
-		});
-		renderQualitySelectionComponent();
+		}
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen);
+		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);
