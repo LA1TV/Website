@@ -21,7 +21,7 @@ class HomeBaseController extends BaseController {
 	protected $layout = null;
 	
 	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=array()) {
-		$description = "Lancaster University's Student Union TV station.";
+		$description = Config::get("custom.site_description");
 	
 		$view = View::make("layouts.home.master");
 	

@@ -73,17 +73,28 @@ class PlaylistController extends HomeBaseController {
 		$coverUri = $playlist->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$playlistName = $playlist->generateName();
 		$openGraphCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+		$twitterCardCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
+		
+		$twitterProperties = array();
+		$twitterProperties[] = array("name"=> "card", "content"=> "summary_large_image");
+		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 		
 		$openGraphProperties = array();
 		if (!is_null($playlist->show)) {
 			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.tv_show");
 		}
 		if (!is_null($playlist->description)) {
+			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($playlist->description, 197, "..."));
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $playlist->description);
 		}
+		else {
+			$twitterProperties[] = array("name"=> "description", "content"=> str_limit(Config::get("custom.site_description"), 197, "..."));
+		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $playlist->scheduled_publish_time->toISO8601String());
+		$twitterProperties[] = array("name"=> "title", "content"=> $playlistName);
 		$openGraphProperties[] = array("name"=> "og:title", "content"=> $playlistName);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
 		foreach($playlistTableData as $a) {
 			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
 		}
@@ -110,7 +121,7 @@ class PlaylistController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		$view->seriesUri = !is_null($playlist->show) ? $playlist->show->getUri() : null;
-		$this->setContent($view, "playlist", "playlist", $openGraphProperties, $playlistName);
+		$this->setContent($view, "playlist", "playlist", $openGraphProperties, $playlistName, 200, $twitterProperties);
 	}
 	
 	public function missingMethod($parameters=array()) {
