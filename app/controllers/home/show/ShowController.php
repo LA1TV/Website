@@ -36,15 +36,25 @@ class ShowController extends HomeBaseController {
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$openGraphCoverArtUri = $show->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+		$twitterCardCoverArtUri = $show->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
 		
+		$twitterProperties = array();
+		$twitterProperties[] = array("name"=> "card", "content"=> "summary_large_image");
+		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 	
 		$openGraphProperties = array();
 		if (!is_null($show->description)) {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $show->description);
+			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($show->description, 197, "..."));
+		}
+		else {
+			$twitterProperties[] = array("name"=> "description", "content"=> str_limit(Config::get("custom.site_description"), 197, "..."));
 		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> null);
+		$twitterProperties[] = array("name"=> "title", "content"=> $show->name);
 		$openGraphProperties[] = array("name"=> "og:title", "content"=> $show->name);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
 		foreach($showTableData as $a) {
 			$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
 		}
@@ -58,7 +68,7 @@ class ShowController extends HomeBaseController {
 			"headerRowData"	=> null,
 			"tableData"		=> $showTableData
 		)) : null;
-		$this->setContent($view, "show", "show", $openGraphProperties, $show->name);
+		$this->setContent($view, "show", "show", $openGraphProperties, $show->name, 200, $twitterProperties);
 	}
 	
 	public function missingMethod($parameters=array()) {
