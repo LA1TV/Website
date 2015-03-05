@@ -606,7 +606,7 @@ define([
 				// called when player loaded.
 				if (qualitySelectionComponent !== null) {
 					$player.find(".vjs-control-bar").each(function() {
-						var $item = $("<div />").addClass("quality-selection-control");
+						var $item = $("<div />").addClass("quality-selection-control").attr("tabindex", "0").attr("aria-live", "polite");
 						$item.append(qualitySelectionComponent.getEl());
 						$(this).append($item);
 					});
