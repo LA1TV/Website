@@ -44,7 +44,7 @@ define([
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
-			var updatePlaybackTimeUri = $(this).attr("data-update-playback-time-uri");
+			var updatePlaybackTimeBaseUri = $(this).attr("data-update-playback-time-base-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var embedded = true;
@@ -59,7 +59,7 @@ define([
 			var placeQualitySelectionComponentInPlayer = hideBottomBar; // if the bottom bar is not visible put the quality selection inside the player
 			
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer);
+			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer);
 			
 			playerContainer.onLoaded(function() {
 				
