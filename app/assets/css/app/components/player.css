@@ -77,3 +77,15 @@
 .player-component .player[data-full-screen-enabled="0"] .vjs-volume-control {
 	margin-right: 15px;
 }
+
+.player-component .player .vjs-fullscreen .quality-selection-control {
+	/* if the player has to be reloaded whilst full screen there seems to be a bug where the browser
+	   still thinks it's full screen when it isn't, meaning things get rendered wrong.
+	   So disable changing quality whilst in full screen. */
+	display: none;
+}
+
+.player-component .player .quality-selection-control {
+	float: right;
+	margin: 4px 0;
+}

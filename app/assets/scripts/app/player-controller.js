@@ -20,7 +20,7 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer) {
 		
 		var self = this;
 		
@@ -233,7 +233,7 @@ define([
 			var firstLoad = false;
 			if (playerComponent === null) {
 				firstLoad = true;
-				playerComponent = new PlayerComponent(data.coverUri, responsive);
+				playerComponent = new PlayerComponent(data.coverUri, responsive, placeQualitySelectionComponentInPlayer ? qualitiesHandler : null);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
 					if (!viewCountRegistered && !overrideModeEnabled) {
