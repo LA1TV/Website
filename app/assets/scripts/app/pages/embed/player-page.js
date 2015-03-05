@@ -73,7 +73,6 @@ define([
 			
 			
 			function updatePlayerContainerHeight() {
-				console.log("resizing");
 				var containerHeight = $pageContainer.innerHeight();
 				var headingHeight = $headingContainer.outerHeight(true);
 				$playerContainer.height(Math.max(containerHeight - headingHeight, 0));
