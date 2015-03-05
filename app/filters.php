@@ -97,7 +97,7 @@ Route::filter('csrf', function() {
 */
 
 Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
-	if (get_class($response) === "Illuminate\Http\Response") {
+	if (is_a($response, "Illuminate\Http\Response")) {
 		$response->header("X-Frame-Options", "deny");
 	}
 });
@@ -134,7 +134,7 @@ Route::filter('setContentSecurityPolicyHeader', function($route, $request, $resp
 */
 
 Route::filter('setP3PHeader', function($route, $request, $response) {
-	if (get_class($response) === "Illuminate\Http\Response") {
+	if (is_a($response, "Illuminate\Http\Response")) {
 		$response->header("P3P", 'CP="Clifford"');
 	}
 });
