@@ -61,7 +61,6 @@ define([
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
 			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer);
 			
-			
 			playerContainer.onLoaded(function() {
 				
 				$(self).empty();
