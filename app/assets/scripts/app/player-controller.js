@@ -627,29 +627,43 @@ define([
 		}
 		
 		function createOpenPlaybackTimesDatabaseRequest(onErrorCallback) {
+			var onErrorCallbackCalled = false;
 			try {
 				// open/create "PlaybackTimes" database
 				var request = window.indexedDB.open("PlaybackTimes", 6);
 				request.onerror = function(event) {
 					console.error("Error occurred when trying to create/open \"PlaybackTimes\" database.");
-					if (onErrorCallback) {
+					if (onErrorCallback && !onErrorCallbackCalled) {
+						onErrorCallbackCalled = true;
 						onErrorCallback(event);
 					}
 				};
 				request.onupgradeneeded = function(event) {
-					var db = event.target.result;
-					// Create an objectStore for this database
-					if (db.objectStoreNames.contains("playback-times")) {
-						db.deleteObjectStore("playback-times"); // remove old version first
+					try {
+						var db = event.target.result;
+						// Create an objectStore for this database
+						if (db.objectStoreNames.contains("playback-times")) {
+							db.deleteObjectStore("playback-times"); // remove old version first
+						}
+						var objectStore = db.createObjectStore("playback-times", { keyPath: "id" });
+						objectStore.createIndex("timeUpdated", "timeUpdated", { unique: false });
 					}
-					var objectStore = db.createObjectStore("playback-times", { keyPath: "id" });
-					objectStore.createIndex("timeUpdated", "timeUpdated", { unique: false });
+					catch(e) {
+						console.error("Exception occurred when trying to upgrade the \"PlaybackTimes\" database.");
+						if (onErrorCallback && !onErrorCallbackCalled) {
+							onErrorCallbackCalled = true;
+							onErrorCallback(null);
+						}
+					}
 				};
 				return request;
 			}
 			catch(e) {
 				console.error("Exception occurred when trying to open/create the \"PlaybackTimes\" database.");
-				onErrorCallback(null);
+				if (onErrorCallback && !onErrorCallbackCalled) {
+					onErrorCallbackCalled = true;
+					onErrorCallback(null);
+				}
 			}
 		}
 		
