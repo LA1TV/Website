@@ -18,6 +18,7 @@ class EmbedBaseController extends BaseController {
 	protected function setContent($content, $cssPageId, $title=NULL) {
 		$view = View::make("layouts.embed.master");
 		
+		$view->version = DebugHelpers::getVersion();
 		$view->baseUrl = URL::to("/");
 		$view->cssPageId = $cssPageId;
 		$view->title = !is_null($title) ? $title : "LA1:TV";
@@ -36,7 +37,8 @@ class EmbedBaseController extends BaseController {
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
-			"env"			=> App::environment()
+			"env"			=> App::environment(),
+			"version"		=> DebugHelpers::getVersion()
 		);
 		
 		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();

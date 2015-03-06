@@ -25,6 +25,7 @@ class HomeBaseController extends BaseController {
 	
 		$view = View::make("layouts.home.master");
 	
+		$view->version = DebugHelpers::getVersion();
 		$view->baseUrl = URL::to("/");
 		$view->currentNavPage = $navPage;
 		$view->cssPageId = $cssPageId;
@@ -48,7 +49,8 @@ class HomeBaseController extends BaseController {
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
-			"env"			=> App::environment()
+			"env"			=> App::environment(),
+			"version"		=> DebugHelpers::getVersion()
 		);
 		$facebookAppId = Config::get("facebook.appId");
 		$defaultOpenGraphProperties = array();

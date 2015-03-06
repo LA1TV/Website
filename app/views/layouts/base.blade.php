@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: <?=e($version);?> -->
 <html lang="en">
 	<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# video: http://ogp.me/ns/video#">
 		<meta charset="utf-8">

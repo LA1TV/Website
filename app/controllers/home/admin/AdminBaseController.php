@@ -12,6 +12,7 @@ class AdminBaseController extends BaseController {
 	protected $layout = "layouts.home.admin.master";
 	
 	protected function setContent($content, $navPage, $cssPageId, $title=NULL) {
+		$this->layout->version = DebugHelpers::getVersion();
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
 		$this->layout->title = !is_null($title) ? $title : "LA1:TV CMS";
@@ -29,7 +30,8 @@ class AdminBaseController extends BaseController {
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
 			"csrfToken"		=> Csrf::getToken(),
-			"gaEnabled"		=> Config::get("googleAnalytics.enabled")
+			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
+			"version"		=> DebugHelpers::getVersion()
 		);
 		
 		$this->layout->mainMenuItems = array();
