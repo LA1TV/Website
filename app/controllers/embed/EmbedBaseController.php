@@ -18,7 +18,7 @@ class EmbedBaseController extends BaseController {
 	protected function setContent($content, $cssPageId, $title=NULL) {
 		$view = View::make("layouts.embed.master");
 		
-		$view->version = DebugHelpers::getVersion();
+		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
 		$view->baseUrl = URL::to("/");
 		$view->cssPageId = $cssPageId;
 		$view->title = !is_null($title) ? $title : "LA1:TV";

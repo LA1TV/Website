@@ -25,7 +25,7 @@ class HomeBaseController extends BaseController {
 	
 		$view = View::make("layouts.home.master");
 	
-		$view->version = DebugHelpers::getVersion();
+		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
 		$view->baseUrl = URL::to("/");
 		$view->currentNavPage = $navPage;
 		$view->cssPageId = $cssPageId;
