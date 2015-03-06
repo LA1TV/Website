@@ -576,49 +576,63 @@ define([
 		// callback should take 1 param which will be the time or null if time could not be retrieved.
 		// id is the id of the source file
 		function getRememberedTimeFromDb(id, callback) {
+			var callbackCalled = false;
+			var callCallback = function(result) {
+				// make sure the callback is only called once.
+				if (!callbackCalled) {
+					callbackCalled = true;
+					callback(result);
+				}
+			};
+			
 			
 			if (!window.indexedDB) {
 				// browser does not have indexedDB support so do nothing
-				callback(null);
+				callCallback(null);
 				return;
 			}
 			
 			try {
 				var request = createOpenPlaybackTimesDatabaseRequest(function() {
 					// error connecting to database
-					callback(null);
+					callCallback(null);
 				});
 				
 				request.onsuccess = function(event) {
 					var db = event.target.result;
-					var transaction = db.transaction(["playback-times"]);
-					transaction.oncomplete = function(event) {
-						// success
-					};
-					
-					transaction.onerror = function(event) {
-						console.error("Error when trying to read from \"playback-times\" object store.");
-						callback(null);
-					};
-					
-					var objectStore = transaction.objectStore("playback-times");
-					var resultRequest = objectStore.get(id);
-					
-					resultRequest.onerror = function(event) {
-						console.error("Error when trying to request the playback time from the \"playback-times\" object store.");
-						callback(null);
-					};
-					
-					resultRequest.onsuccess = function(event) {
-						var result = resultRequest.result;
-						callback(result ? result.time : null);
-					};
-					
+					try {
+						var transaction = db.transaction(["playback-times"]);
+						transaction.oncomplete = function(event) {
+							// success
+						};
+						
+						transaction.onerror = function(event) {
+							console.error("Error when trying to read from \"playback-times\" object store.");
+							callCallback(null);
+						};
+						
+						var objectStore = transaction.objectStore("playback-times");
+						var resultRequest = objectStore.get(id);
+						
+						resultRequest.onerror = function(event) {
+							console.error("Error when trying to request the playback time from the \"playback-times\" object store.");
+							callCallback(null);
+						};
+						
+						resultRequest.onsuccess = function(event) {
+							var result = resultRequest.result;
+							callCallback(result ? result.time : null);
+						};
+					}
+					catch(e) {
+						console.error("Exception occurred when trying to request the playback time from the \"playback-times\" object store.");
+						callCallback(null);
+					}
 				};
 			}
 			catch(e) {
 				console.error("Exception thrown when trying to read from \"playback-times\" object store.");
-				callback(null);
+				callCallback(null);
 			}
 		}
 		
