@@ -40,12 +40,13 @@ require.config({
 	require([
 		"app/logger",
 		"app/google-analytics",
+		"app/version-log",
 		"app/error-handler",
 		"lib/bootstrap",
 		"app/fit-text-handler",
 		"app/synchronised-time",
 		"app/video-js",
-		"app/pages/embed/player-page",
+		"app/pages/embed/player-page"
 	], function(logger, googleAnalytics) {
 		// everything loaded
 		logger.info("Embeddable player loaded.");

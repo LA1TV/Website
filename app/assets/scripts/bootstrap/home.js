@@ -40,6 +40,7 @@ require.config({
 	require([
 		"app/logger",
 		"app/google-analytics",
+		"app/version-log",
 		"app/error-handler",
 		"lib/bootstrap",
 		"app/custom-accordian",
@@ -54,7 +55,7 @@ require.config({
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
 		"app/pages/home/home-page",
-		"app/pages/home/cookie-compliance",
+		"app/pages/home/cookie-compliance"
 	], function(logger, googleAnalytics) {
 		// everything loaded
 		logger.info("Page loaded.");

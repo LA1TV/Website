@@ -29,6 +29,7 @@ require.config({
 	require([
 		"app/logger",
 		"app/google-analytics",
+		"app/version-log",
 		"app/error-handler",
 		"lib/bootstrap",
 		"app/confirmation-msg",
