@@ -25,7 +25,7 @@ class DebugHelpers {
 		}
 		self::$versionRetrieved = true;
 		
-		$location = realpath(dirname(__FILE__) . ".." . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "version");
+		$location = app_path() . DIRECTORY_SEPARATOR . "version";
 		if (!is_readable($location)) {
 			return null;
 		}
