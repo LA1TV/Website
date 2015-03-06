@@ -12,7 +12,7 @@ class AdminBaseController extends BaseController {
 	protected $layout = "layouts.home.admin.master";
 	
 	protected function setContent($content, $navPage, $cssPageId, $title=NULL) {
-		$this->layout->version = DebugHelpers::getVersion();
+		$this->layout->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
 		$this->layout->currentNavPage = $navPage;
 		$this->layout->cssPageId = $cssPageId;
 		$this->layout->title = !is_null($title) ? $title : "LA1:TV CMS";
