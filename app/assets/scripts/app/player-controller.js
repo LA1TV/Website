@@ -512,45 +512,54 @@ define([
 			// vodSourceId is the id of the source file that the different qualities of the video were generated from
 			try {
 				var request = createOpenPlaybackTimesDatabaseRequest();
+				if (request === null) {
+					// could not be created for some reason.
+					// error should have been logged from creation function
+					return;
+				}
 				request.onsuccess = function(event) {
-					var db = event.target.result;
-					var transaction = db.transaction(["playback-times"], "readwrite");
-					transaction.oncomplete = function(event) {
-						// success
-					};
-					
-					transaction.onerror = function(event) {
-						console.error("Error when trying to update \"playback-times\"  object store.");
-					};
-					
-					var objectStore = transaction.objectStore("playback-times");
-					
-					// first remove any old entries. (Entries older than 3 weeks)
-					var cutoffTime = new Date().getTime() - (21 * 24 * 60 * 60 * 1000);
-					objectStore.index("timeUpdated").openKeyCursor(IDBKeyRange.upperBound(cutoffTime, true)).onsuccess = function(event) {
-						var cursor = event.target.result;
-						if (cursor) {
-							objectStore.delete(cursor.primaryKey);
-							cursor.continue();
-						}
-					};
-					
-					// only update the time whilst the video is actually playing. This means if the user has the video open in several tabs the time will be updated for the one they are watching
-					if (areRememberedTimeUpdateConditionsMet()) {	
-						var request = objectStore.put({
-							id: vodSourceId,
-							time: playerComponent.getPlayerCurrentTime(),
-							timeUpdated: new Date().getTime()
-						});
-						request.onerror = function(event) {
-							console.error("Error when trying to create/update object in \"playback-times\"  object store.");
+					try {
+						var db = event.target.result;
+						var transaction = db.transaction(["playback-times"], "readwrite");
+						transaction.oncomplete = function(event) {
+							// success
 						};
+						
+						transaction.onerror = function(event) {
+							console.error("Error when trying to update \"playback-times\"  object store.");
+						};
+						
+						var objectStore = transaction.objectStore("playback-times");
+						
+						// first remove any old entries. (Entries older than 3 weeks)
+						var cutoffTime = new Date().getTime() - (21 * 24 * 60 * 60 * 1000);
+						objectStore.index("timeUpdated").openKeyCursor(IDBKeyRange.upperBound(cutoffTime, true)).onsuccess = function(event) {
+							var cursor = event.target.result;
+							if (cursor) {
+								objectStore.delete(cursor.primaryKey);
+								cursor.continue();
+							}
+						};
+						
+						// only update the time whilst the video is actually playing. This means if the user has the video open in several tabs the time will be updated for the one they are watching
+						if (areRememberedTimeUpdateConditionsMet()) {	
+							var request = objectStore.put({
+								id: vodSourceId,
+								time: playerComponent.getPlayerCurrentTime(),
+								timeUpdated: new Date().getTime()
+							});
+							request.onerror = function(event) {
+								console.error("Error when trying to create/update object in \"playback-times\"  object store.");
+							};
+						}
+					}
+					catch(e) {
+						console.error("Exception thrown when trying to update \"playback-times\" object store.");
 					}
 				};
 			}
 			catch(e) {
-				console.error("Exception thrown when trying to read from \"playback-times\" object store.");
-				callback(null);
+				console.error("Exception thrown when trying to update \"playback-times\" object store.");
 			}
 		}
 		
@@ -679,6 +688,7 @@ define([
 					onErrorCallback(null);
 				}
 			}
+			return null;
 		}
 		
 		function updateViewCounts() {
