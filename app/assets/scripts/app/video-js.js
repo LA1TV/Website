@@ -1,10 +1,8 @@
 define([
-	"require",
 	"videojs",
 	"./page-data",
-	"lib/pkcs7.unpad",
 	"lib/videojs-markers"
-], function(require, videojs, PageData, unpad) {
+], function(videojs, PageData) {
 
 	// register the swf for flash playback
 	videojs.options.flash.swf = PageData.get("baseUrl")+"/assets/video-js/flash/mangui-video-js.swf";
