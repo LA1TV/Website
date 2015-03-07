@@ -539,9 +539,6 @@ define([
 				// set the new time
 				if (queuedPlayerTime !== null) {
 					(function(startTime, startPlaying, roundToSafeRegion) {
-						if (startPlaying) {
-							videoJsPlayer.play();
-						}
 						onVideoJsLoadedMetadata(function() {
 							if (roundToSafeRegion) {
 								if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
@@ -554,6 +551,9 @@ define([
 								return;
 							}
 							videoJsPlayer.currentTime(startTime);
+							if (startPlaying) {
+								videoJsPlayer.play();
+							}
 						});
 					})(queuedPlayerTime, queuedPlayerTimeStartPlaying, queuedPlayerRoundStartTimeToSafeRegion);
 				}
@@ -598,7 +598,7 @@ define([
 				height: "100%",
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
-				techOrder: ["html5", "hls", "flash"],
+				techOrder: ["html5", "flash"],
 				autoPlayStartTime: false, // implementing autoPlayStartTime manually using callback
 				poster: coverUri,
 				loop: false
