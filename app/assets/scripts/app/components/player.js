@@ -12,7 +12,7 @@ define([
 ], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
-		
+	
 		var self = this;
 		
 		this.getEl = function() {
@@ -37,6 +37,19 @@ define([
 		
 		this.showVodAvailableShortly = function(show) {
 			queuedShowVodAvailableShortly = show;
+			return this;
+		};
+		
+		this.setTitle = function(title, linkUri) {
+			title = title === "" ? null : title;
+			if (title === null && linkUri !== null) {
+				throw "If the title is null then the link uri must also be null.";
+			}
+			else if (title !== null && linkUri === null) {
+				throw "A link uri must be provided.";
+			}
+			queuedTitle = title;
+			queuedTitleLinkUri = linkUri;
 			return this;
 		};
 		
@@ -181,6 +194,10 @@ define([
 		var queuedShowStreamOver = false;
 		var showVodAvailableShortly = null;
 		var queuedShowVodAvailableShortly = false;
+		var title = null;
+		var titleLinkUri = null;
+		var queuedTitle = null;
+		var queuedTitleLinkUri = null;
 		var adExternalLiveStreamUrl = null;
 		var externalStreamSlideExternalLiveStreamUrl = null;
 		var queuedExternalLiveStreamUrl = null;
@@ -239,6 +256,7 @@ define([
 		var videoJsPlayer = null;
 		// reference to the dom element which contains the video tag
 		var $player = null;
+		var $playerTopBarHeading = null;
 		
 		
 		// this is necessary so that countdown is updated
@@ -531,8 +549,15 @@ define([
 					updateFullScreenState();
 				}
 				
+				if (queuedTitle !== title) {
+					title = queuedTitle;
+					titleLinkUri = queuedTitleLinkUri;
+					updatePlayerTitle();
+				}
+				
 				// update the chapters
 				if (haveChaptersChanged()) {
+					chapters = queuedChapters;
 					updateVideoJsMarkers();
 				}
 				
@@ -653,6 +678,19 @@ define([
 			updateVideoJsMarkers();
 			
 			registerVideoJsEventHandlers();
+			
+			var $topBar = $("<div />").addClass("player-top-bar");
+			$playerTopBarHeading = $("<div />").addClass("heading").text("");
+			$playerTopBarHeading.click(function() {
+				if (titleLinkUri !== null) {
+					window.open(titleLinkUri, "_blank");
+				}
+			});
+			$topBar.append($playerTopBarHeading);
+			updatePlayerTitle();
+			
+			$player.find(".video-js").append($topBar);
+			
 			$container.append($player);
 		}
 		
@@ -672,6 +710,7 @@ define([
 			videoJsPlayer = null;
 			$player.remove();
 			$player = null;
+			$playerTopBarHeading = null;
 			playerPreload = null;
 			playerUris = null;
 			playerType = null;
@@ -727,8 +766,8 @@ define([
 		
 		function updateVideoJsMarkers() {
 			var markers = [];
-			for (var i=0; i<queuedChapters.length; i++) {
-				var chapter = queuedChapters[i];
+			for (var i=0; i<chapters.length; i++) {
+				var chapter = chapters[i];
 				markers.push({
 					time: chapter.time,
 					text: chapter.title
@@ -737,7 +776,10 @@ define([
 			onVideoJsLoadedMetadata(function() {
 				videoJsPlayer.markers.reset(markers);
 			});
-			chapters = queuedChapters;
+		}
+		
+		function updatePlayerTitle() {
+			$playerTopBarHeading.text(title !== null ? title : "");
 		}
 		
 		function havePlayerUrisChanged() {

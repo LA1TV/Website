@@ -350,6 +350,8 @@ class PlayerController extends HomeBaseController {
 		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
 		
 		$id = intval($mediaItem->id);
+		$title = $playlist->generateEpisodeTitle($mediaItem);
+		$uri = $playlist->getMediaItemUri($mediaItem);
 		$liveStreamItem = $mediaItem->liveStreamItem;
 		if (!is_null($liveStreamItem) && !$liveStreamItem->getIsAccessible()) {
 			// should not be accessible so pretend doesn't exist
@@ -465,6 +467,8 @@ class PlayerController extends HomeBaseController {
 		
 		$data = array(
 			"id"						=> $id,
+			"title"						=> $title,
+			"uri"						=> $uri,
 			"scheduledPublishTime"		=> $publishTime,
 			"coverUri"					=> $coverArtUri,
 			"embedData"					=> $embedData,
