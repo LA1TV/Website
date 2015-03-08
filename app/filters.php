@@ -138,3 +138,19 @@ Route::filter('setP3PHeader', function($route, $request, $response) {
 		$response->header("P3P", 'CP="Clifford"');
 	}
 });
+
+/*
+|--------------------------------------------------------------------------
+| "Live Check" Filter
+|--------------------------------------------------------------------------
+|
+| Returns the maintenance response if the site should not be live at the
+| moment for some reason.
+|
+*/
+
+Route::filter('liveCheck', function() {
+	if (!DebugHelpers::shouldSiteBeLive()) {
+		return DebugHelpers::generateMaintenanceModeResponse();
+	}
+});

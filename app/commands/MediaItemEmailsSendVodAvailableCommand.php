@@ -10,6 +10,7 @@ use uk\co\la1tv\website\models\EmailTasksMediaItem;
 use DB;
 use Carbon;
 use EmailHelpers;
+use DebugHelpers;
 
 class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 
@@ -56,6 +57,11 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 	 */
 	public function fire()
 	{
+		if (!DebugHelpers::shouldSiteBeLive()) {
+			$this->info('Not running because site should not be live at the moment.');
+			return;
+		}
+		
 		$this->info('Looking for media items which contain VOD which has just gone live.');
 		// media items which have vod which is accessible, have the sent_vod_available_email flag set to 0, and have not had a email about this sent recently
 		$mediaItems = DB::transaction(function() {

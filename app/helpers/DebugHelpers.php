@@ -38,4 +38,26 @@ class DebugHelpers {
 		return $version;
 	}
 	
+	public static function shouldSiteBeLive() {
+		// site should not be live if the version cannot be retrieved.
+		// the version file is removed before the build process starts and recreated when the build process finishes
+		return !App::isDownForMaintenance() && (!is_null(self::getVersion()) || App::environment() === "local");
+	}
+	
+	public static function generateMaintenanceModeResponse() {
+		$view = View::make("layouts.maintenance.body");
+		$view->title = "LA1:TV";
+		$view->allowRobots = false;
+		$view->version = !is_null(self::getVersion()) ? self::getVersion() : "[Unknown]";
+		$view->cssFiles = array(
+			asset("/assets/maintenance/css/bootstrap.css"),
+			asset("/assets/maintenance/css/main.css")
+			
+		);
+		$view->content = View::make("maintenance", array(
+			"developmentEmail"	=> Config::get("contactEmails.development")
+		));
+		return new MyResponse($view, 503);
+	}
+	
 }
