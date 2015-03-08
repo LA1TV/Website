@@ -686,6 +686,7 @@ define([
 					window.open(titleLinkUri, "_blank");
 				}
 			});
+			$playerTopBarHeading.hide();
 			$topBar.append($playerTopBarHeading);
 			updatePlayerTitle();
 			
@@ -780,6 +781,12 @@ define([
 		
 		function updatePlayerTitle() {
 			$playerTopBarHeading.text(title !== null ? title : "");
+			if (title !== null) {
+				$playerTopBarHeading.show();
+			}
+			else {
+				$playerTopBarHeading.hide();
+			}
 		}
 		
 		function havePlayerUrisChanged() {
