@@ -89,3 +89,37 @@
 	float: right;
 	margin: 4px 0;
 }
+
+.player-component .player .player-top-bar {
+	display: block;
+	visibility: visible;
+	opacity: 1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(7, 20, 30, 0.7);
+	color: #cccccc;
+}
+
+.player-component .player .player-top-bar .heading {
+	font-size: 2.2em;
+	line-height: 1.4em;
+	font-weight: bold;
+	margin: 0 10px;
+}
+
+.player-component .player .player-top-bar .heading:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.player-component .player .vjs-has-started.vjs-user-inactive.vjs-playing  .player-top-bar {
+	display: block;
+	visibility: hidden;
+	opacity: 0;
+	-webkit-transition: visibility 1s, opacity 1s;
+	-moz-transition: visibility 1s, opacity 1s;
+	-o-transition: visibility 1s, opacity 1s;
+	transition: visibility 1s, opacity 1s;
+}
