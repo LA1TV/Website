@@ -64,18 +64,7 @@ App::error(function(Exception $exception, $code)
 
 App::down(function()
 {
-	$view = View::make("layouts.maintenance.body");
-	$view->title = "LA1:TV";
-	$view->allowRobots = false;
-	$view->cssFiles = array(
-		asset("/assets/maintenance/css/bootstrap.css"),
-		asset("/assets/maintenance/css/main.css")
-		
-	);
-	$view->content = View::make("maintenance", array(
-		"developmentEmail"	=> Config::get("contactEmails.development")
-	));
-	return new MyResponse($view, 503);
+	return DebugHelpers::generateMaintenanceModeResponse();
 });
 
 /*

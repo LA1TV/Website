@@ -10,6 +10,7 @@ use uk\co\la1tv\website\models\EmailTasksMediaItem;
 use DB;
 use Carbon;
 use EmailHelpers;
+use DebugHelpers;
 
 class MediaItemEmailsSendLiveShortlyCommand extends ScheduledCommand {
 
@@ -56,6 +57,12 @@ class MediaItemEmailsSendLiveShortlyCommand extends ScheduledCommand {
 	 */
 	public function fire()
 	{
+		
+		if (!DebugHelpers::shouldSiteBeLive()) {
+			$this->info('Not running because site should not be live at the moment.');
+			return;
+		}
+		
 		$this->info('Looking for media items that are starting in 15 minutes.');
 		$fifteenMinsAhead = Carbon::now()->addMinutes(15);
 		$lowerBound = (new Carbon($fifteenMinsAhead))->subSeconds(90);
