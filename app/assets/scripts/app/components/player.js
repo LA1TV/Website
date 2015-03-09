@@ -683,6 +683,7 @@ define([
 			$playerTopBarHeading = $("<div />").addClass("heading").text("");
 			$playerTopBarHeading.click(function() {
 				if (titleLinkUri !== null) {
+					self.pause(); // pause if something is playing
 					window.open(titleLinkUri, "_blank");
 				}
 			});
