@@ -281,6 +281,12 @@ define([
 				return;
 			}
 			
+			if (queuedTitle !== title) {
+				title = queuedTitle;
+				titleLinkUri = queuedTitleLinkUri;
+				updatePlayerTitle();
+			}
+			
 			// only show the start time if there is one set or if stream over message is not visible/going visible
 			if (queuedShowStreamOver) {
 				// disable showing the time or external live stream url if stream over message visible
@@ -291,10 +297,10 @@ define([
 			if (queuedExternalLiveStreamUrl !== adExternalLiveStreamUrl) {
 				if (queuedExternalLiveStreamUrl !== null) {
 					$clickToWatchBtn.attr("href", queuedExternalLiveStreamUrl);
-					$overlayTop.show();
+					$clickToWatchBtnContainer.show();
 				}
 				else {
-					$overlayTop.hide();
+					$clickToWatchBtnContainer.hide();
 				}
 				adExternalLiveStreamUrl = queuedExternalLiveStreamUrl;
 			}
@@ -420,7 +426,9 @@ define([
 			$ad = $("<div />").addClass("ad embed-responsive-item");
 			var $bg = $("<div />").addClass("bg");
 			$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
-			$overlayTop = $("<div />").addClass("overlay overlay-top").hide();
+			$overlayTop = $("<div />").addClass("player-top-bar");
+			createPlayerHeading();
+			$overlayTop.append($playerTopBarHeading);
 			createClickToWatchBtn(false);
 			$overlayTop.append($clickToWatchBtnContainer);
 			$overlayBottom = $("<div />").addClass("overlay overlay-bottom");
@@ -436,8 +444,8 @@ define([
 			$overlayBottom.append($adCustomMsg);
 			
 			$ad.append($bg);
-			$ad.append($overlayTop);
 			$ad.append($overlayBottom);
+			$ad.append($overlayTop);
 			$container.append($ad);
 		}
 		
@@ -456,6 +464,7 @@ define([
 			showVodAvailableShortly = null;
 			currentAdTimeTxt = null;
 			currentAdLiveAtTxt = null;
+			title = null;
 		}
 		
 		function createExternalStreamSlide() {
@@ -465,7 +474,9 @@ define([
 			$externalStreamSlide = $("<div />").addClass("ad embed-responsive-item");
 			var $bg = $("<div />").addClass("bg");
 			$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
-			$overlayTop = $("<div />").addClass("overlay overlay-top").hide();
+			$overlayTop = $("<div />").addClass("player-top-bar");
+			createPlayerHeading();
+			$overlayTop.append($playerTopBarHeading);
 			createClickToWatchBtn(true);
 			$overlayTop.append($clickToWatchBtnContainer);
 			
@@ -476,8 +487,8 @@ define([
 			$overlayBottom.append($adLiveAt);
 			
 			$externalStreamSlide.append($bg);
-			$externalStreamSlide.append($overlayTop);
 			$externalStreamSlide.append($overlayBottom);
+			$externalStreamSlide.append($overlayTop);
 			$container.append($externalStreamSlide);
 			FitTextHandler.register($adLiveAt);
 		}
@@ -490,6 +501,7 @@ define([
 			$externalStreamSlide.remove();
 			$externalStreamSlide = null;
 			externalStreamSlideExternalLiveStreamUrl = null;
+			title = null;
 		}
 		
 		function createAdLiveAtText() {
@@ -497,7 +509,7 @@ define([
 		}
 		
 		function createClickToWatchBtn(red) {
-			$clickToWatchBtnContainer = $("<div />").addClass("click-to-watch-btn-container");
+			$clickToWatchBtnContainer = $("<div />").addClass("click-to-watch-btn-container").hide();
 			$clickToWatchBtn = $("<a />").addClass("btn "+(red?"btn-danger":"btn-primary")+" btn-block click-to-watch-btn").attr("target", "_blank").text("Click To Go To Live Stream Page");
 			$clickToWatchBtnContainer.append($clickToWatchBtn);
 		}
@@ -538,11 +550,18 @@ define([
 			
 			if (showExternalStreamSlide) {
 				// update external stream slide
+				// update title
+				if (queuedTitle !== title) {
+					title = queuedTitle;
+					titleLinkUri = queuedTitleLinkUri;
+					updatePlayerTitle();
+				}
+				
 				// set the url on the button
 				$clickToWatchBtn.attr("href", queuedExternalLiveStreamUrl);
 				if (!externalStreamSlideShown) {
 					// slide just been created, now show it
-					$overlayTop.show();
+					$clickToWatchBtnContainer.show();
 				}
 				externalStreamSlideExternalLiveStreamUrl = queuedExternalLiveStreamUrl;
 			}
@@ -683,16 +702,8 @@ define([
 			registerVideoJsEventHandlers();
 			
 			var $topBar = $("<div />").addClass("player-top-bar");
-			$playerTopBarHeading = $("<div />").addClass("heading").text("");
-			$playerTopBarHeading.click(function() {
-				if (titleLinkUri !== null) {
-					self.pause(); // pause if something is playing
-					window.open(titleLinkUri, "_blank");
-				}
-			});
-			$playerTopBarHeading.hide();
+			createPlayerHeading();
 			$topBar.append($playerTopBarHeading);
-			updatePlayerTitle();
 			
 			$player.find(".video-js").append($topBar);
 			
@@ -719,6 +730,7 @@ define([
 			playerPreload = null;
 			playerUris = null;
 			playerType = null;
+			title = null;
 			videoJsLoadedMetadata = false;
 			$(self).triggerHandler("playerDestroyed");
 			return true;
@@ -756,6 +768,18 @@ define([
 					callback();
 				});
 			}
+		}
+		
+		function createPlayerHeading() {
+			$playerTopBarHeading = $("<div />").addClass("heading").text("");
+			$playerTopBarHeading.click(function() {
+				if (titleLinkUri !== null) {
+					self.pause(); // pause if something is playing
+					window.open(titleLinkUri, "_blank");
+				}
+			});
+			$playerTopBarHeading.hide();
+			updatePlayerTitle();
 		}
 		
 		function updateFullScreenState() {

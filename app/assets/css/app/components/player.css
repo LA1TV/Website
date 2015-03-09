@@ -39,10 +39,6 @@
 	background-color: #000000;
 }
 
-.player-component .ad .overlay-top {
-	top: 0;
-}
-
 .player-component .ad .overlay-bottom {
 	bottom: 0;
 }
@@ -57,7 +53,7 @@
 	padding: 5px 0;
 }
 
-.player-component .ad .overlay .click-to-watch-btn-container {
+.player-component .ad .player-top-bar .click-to-watch-btn-container {
 	padding: 10px;
 }
 
@@ -90,7 +86,8 @@
 	margin: 4px 0;
 }
 
-.player-component .player .player-top-bar {
+/* ad and player */
+.player-component .player-top-bar {
 	display: block;
 	visibility: visible;
 	opacity: 1;
@@ -102,13 +99,16 @@
 	color: #cccccc;
 }
 
-.player-component .player .player-top-bar .heading {
+/* ad and player */
+.player-component .player-top-bar .heading {
 	font-size: 2.2em;
 	font-weight: bold;
 	margin: 5px 10px;
+	text-align: left;
 }
 
-.player-component .player .player-top-bar .heading:hover {
+/* ad and player */
+.player-component .player-top-bar .heading:hover {
 	text-decoration: underline;
 	cursor: pointer;
 }
