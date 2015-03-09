@@ -531,6 +531,9 @@ define([
 					}
 					playerType = queuedPlayerType;
 				}
+				else {
+					destroyPlayer();
+				}
 			}
 			
 			if (showExternalStreamSlide) {
