@@ -726,7 +726,6 @@ define([
 			videoJsPlayer = null;
 			$player.remove();
 			$player = null;
-			$playerTopBarHeading = null;
 			playerPreload = null;
 			playerUris = null;
 			playerType = null;
