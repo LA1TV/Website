@@ -67,7 +67,7 @@ class FacebookManager {
 		try {
 			$fbSession = $helper->getSessionFromRedirect();
 		}
-		catch(FacebookRequestException $e) {
+		catch(Exception $e) {
 			return false;
 		}
 		
