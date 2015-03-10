@@ -68,6 +68,7 @@ class FacebookManager {
 			$fbSession = $helper->getSessionFromRedirect();
 		}
 		catch(Exception $e) {
+			Log::error('Exception when trying to get facebook session from redirect.', array('exception' => $e));
 			return false;
 		}
 		
