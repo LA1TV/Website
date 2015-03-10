@@ -12,6 +12,7 @@ use Request;
 use Carbon;
 use Cookie;
 use Exception;
+use Log;
 
 class FacebookManager {
 	
@@ -182,6 +183,7 @@ class FacebookManager {
 			}
 		}
 		catch(Exception $e) {
+			Log::error('Exception when trying to get facebook session.', array('exception' => $e));
 			$fbSession = null;
 		}
 		// store in cache
