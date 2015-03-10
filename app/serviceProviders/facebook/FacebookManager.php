@@ -84,10 +84,17 @@ class FacebookManager {
 		$this->cacheFacebookSession((String) $token, $fbSession);
 		
 		// make a request to get the users uid
-		$profile = (new FacebookRequest(
-			$fbSession, 'GET', '/me?fields=id'
-		))->execute()->getGraphObject(GraphUser::className());
-
+		$profile = null;
+		try {
+			$profile = (new FacebookRequest(
+				$fbSession, 'GET', '/me?fields=id'
+			))->execute()->getGraphObject(GraphUser::className());
+		}
+		catch(Exception $e) {
+			Log::error('Exception when trying to make facebook opengraph request.', array('exception' => $e));
+			return false;
+		}
+		
 		// lookup user with that uid
 		$user = SiteUser::where("fb_uid", $profile->getId())->first();
 		if (is_null($user)) {
@@ -259,10 +266,17 @@ class FacebookManager {
 		if (is_null($fbSession)) {
 			return false;
 		}
-		$profile = (new FacebookRequest(
-			$fbSession, 'GET', '/me?fields=first_name,last_name,name,email,permissions'
-		))->execute()->getGraphObject(GraphUser::className());
-	
+		
+		$profile = null;
+		try {
+			$profile = (new FacebookRequest(
+				$fbSession, 'GET', '/me?fields=first_name,last_name,name,email,permissions'
+			))->execute()->getGraphObject(GraphUser::className());
+		}
+		catch(Exception $e) {
+			Log::error('Exception when trying to make facebook opengraph request.', array('exception' => $e));
+			return false;
+		}
 		// add/update details
 		$user->first_name = $profile->getFirstName();
 		$user->last_name = $profile->getLastName();
