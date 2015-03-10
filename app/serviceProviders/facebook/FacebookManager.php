@@ -171,12 +171,17 @@ class FacebookManager {
 		if (self::hasCachedFacebookSession($user->fb_access_token)) {
 			return self::getCachedFacebookSession($user->fb_access_token);
 		}
-		$fbSession = new FacebookSession($user->fb_access_token);
-		$token = $fbSession->getAccessToken();
-		// check that the token is still valid and hasn't expired. This checks with facebook and fails if user has removed app.
-		if (!$token->isValid()) {
-			// if the token is invalid don't return the session.
-			// null should be cached in cachedFacebookSessions so that this check doesn't have to be made again on this request.
+		try {
+			$fbSession = new FacebookSession($user->fb_access_token);
+			$token = $fbSession->getAccessToken();
+			// check that the token is still valid and hasn't expired. This checks with facebook and fails if user has removed app.
+			if (!$token->isValid()) {
+				// if the token is invalid don't return the session.
+				// null should be cached in cachedFacebookSessions so that this check doesn't have to be made again on this request.
+				$fbSession = null;
+			}
+		}
+		catch(Exception $e) {
 			$fbSession = null;
 		}
 		// store in cache
