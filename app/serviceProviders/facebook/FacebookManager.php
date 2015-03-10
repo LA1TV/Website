@@ -78,7 +78,13 @@ class FacebookManager {
 		
 		$token = $fbSession->getAccessToken();
 		
-		if (!$token->isValid()) {
+		try {
+			if (!$token->isValid()) {
+				return false;
+			}
+		}
+		catch(Exception $e) {
+			Log::error('Exception when trying to check if facebook token is valid.', array('exception' => $e));
 			return false;
 		}
 		
