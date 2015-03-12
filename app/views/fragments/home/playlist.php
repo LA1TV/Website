@@ -31,19 +31,19 @@
 		<table class="playlist-table table table-bordered <?=$stripedTable?"table-striped":""?> table-hover">
 			<tbody>
 				<?php foreach($tableData as $row):?>
-				<tr class="<?=$row['active'] ? "chosen" : ""?>">
+				<tr class="<?=$row['active'] ? "chosen" : ""?>" data-link="<?=e($row['uri']);?>">
 					<?php if (!is_null($row['episodeNo'])): ?>
 					<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
 					<?php endif; ?>
-					<td class="col-thumbnail">
-						<div class="thumbnail-container">
-							<a href="<?=e($row['uri']);?>"><img class="img-responsive" src="<?=e($row['thumbnailUri']);?>"/></a>
-							<?php if (!is_null($row['thumbnailFooter'])): ?>
-							<div class="footer">
-								<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
-								<div><?=e($row['thumbnailFooter']['dateTxt']);?></div>
-							</div>
-							<?php endif; ?>
+					<td class="col-thumbnail" data-thumbnailuri="<?=e($row['thumbnailUri']);?>">
+						<div class="height-helper"></div>
+						<?php if (!is_null($row['thumbnailFooter'])): ?>
+						<div class="footer">
+							<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
+							<div><?=e($row['thumbnailFooter']['dateTxt']);?></div>
+						</div>
+						<?php endif; ?>
+						<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
 						</div>
 					</td>
 					<td class="col-title clearfix">

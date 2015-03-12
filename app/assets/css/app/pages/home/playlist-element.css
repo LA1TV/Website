@@ -52,15 +52,27 @@
 .playlist-element .playlist-table .col-thumbnail {
 	width: 107px;
 	padding: 0;
+	position: relative;
+	background-color: #000000 !important;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-position: center;
+	background-size: cover;
 }
 
-.playlist-element .playlist-table .col-thumbnail .thumbnail-container {
-	position: relative;
-	overflow: hidden;
+.playlist-element .playlist-table .col-thumbnail .height-helper {
 	min-height: 60px;
 }
 
-.playlist-element .playlist-table .col-thumbnail .thumbnail-container .footer {
+.playlist-element .playlist-table .col-thumbnail .hyperlink {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.playlist-element .playlist-table .col-thumbnail .footer {
 	position: absolute;
 	bottom: 0;
 	left: 0;
