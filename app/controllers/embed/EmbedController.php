@@ -32,6 +32,7 @@ class EmbedController extends EmbedBaseController {
 		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
 		
 		$view->showHeading = $showHeading;
+		$view->disableRedirect = $disableRedirect;
 		if (is_null($currentMediaItem)) {
 			$title = "LA1:TV- [Content Unavailable]";
 			$view->hyperlink = URL::route('home');
@@ -48,7 +49,6 @@ class EmbedController extends EmbedBaseController {
 			$view->autoPlayStream = $autoPlayStream;
 			$view->disableFullScreen = $disableFullScreen;
 			$view->showTitleInPlayer = $showTitleInPlayer;
-			$view->disableRedirect = $disableRedirect;
 			$view->initialVodQualityId = $initialVodQualityId;
 			$view->initialStreamQualityId = $initialStreamQualityId;
 			$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
