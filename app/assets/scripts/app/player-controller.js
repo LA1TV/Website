@@ -259,9 +259,6 @@ define([
 			// live streams take precedence over vod
 			if (data.hasStream && (data.streamState === 2 || (overrideModeEnabled && data.streamState === 1))) {
 				if (externalStreamUrl !== null || deviceStreamUriGroups.length > 0) {
-					// TODO add method which returns array of uris and qualities that are allowed on this device,
-					// use this method to build the quality selection list
-					// then just give this array to the player
 					queuedPlayerType = "live";
 				}
 			}
