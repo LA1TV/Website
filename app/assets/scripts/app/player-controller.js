@@ -9,8 +9,9 @@ define([
 	"./components/player",
 	"./page-data",
 	"./synchronised-time",
+	"./device-detection",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData, SynchronisedTime) {
+], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -145,7 +146,6 @@ define([
 		var viewCountRegistered = false;
 		var rememberedTimeTimerId = null;
 		
-		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			// this can be fired as a result of the quality being changed in updatePlayer()
 			// meaning updatePlayer() would get called again before the first updatePlayer()
@@ -251,16 +251,19 @@ define([
 				});
 			}
 			
+			var deviceStreamUriGroups = data.streamUris !== null ? extractUrisForDevice(data.streamUris) : null;
+			var deviceVideoUriGroups = data.videoUris !== null ? extractUrisForDevice(data.videoUris) : null;
+			
 			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
 			if (data.hasStream && (data.streamState === 2 || (overrideModeEnabled && data.streamState === 1))) {
-				if (externalStreamUrl !== null || data.streamUris.length > 0) {
+				if (externalStreamUrl !== null || deviceStreamUriGroups.length > 0) {
 					queuedPlayerType = "live";
 				}
 			}
 			else if (data.hasVod && (data.vodLive && (!data.hasStream || data.streamState !== 1)) || overrideModeEnabled) {
-				if (data.videoUris.length > 0) {
+				if (deviceVideoUriGroups.length > 0) {
 					queuedPlayerType = "vod";
 					externalStreamUrl = null;
 				}
@@ -270,10 +273,10 @@ define([
 			if (externalStreamUrl === null) {
 				// the stream is being hosted in the player, or it's not a stream or ad
 				if (queuedPlayerType === "live") {
-					uriGroups = data.streamUris;
+					uriGroups = deviceStreamUriGroups;
 				}
 				else if (queuedPlayerType === "vod") {
-					uriGroups = data.videoUris;
+					uriGroups = deviceVideoUriGroups;
 				}
 			}
 			
@@ -404,6 +407,37 @@ define([
 				$(self).triggerHandler("playerTypeChanged");
 			}
 			playerComponent.render();
+		}
+		
+		// returns an array of uri groups with any uris that aren't supported on this device stripped out.
+		// any uri groups that become empty because of this will be stripped out as well.
+		function extractUrisForDevice(uriGroups) {
+			var deviceUriGroups = [];
+			for (var i=0; i<uriGroups.length; i++) {
+				var uriGroup = uriGroups[i];
+				var newUriGroup = {
+						uris: [],
+						quality: uriGroup.quality
+				};
+				for (var j=0; j<uriGroup.uris.length; j++) {
+					var uri = uriGroup.uris[j];
+					var supportedDevices = uri.supportedDevices;
+					// if supportedDevices is null then that means all devices are supported. Otherwise only the devices listed are supported.
+					if (supportedDevices !== null) {
+						supportedDevices = supportedDevices.split(",");
+					}
+					var currentDevice = DeviceDetection.isMobile() ? "mobile" : "desktop";
+					if (supportedDevices !== null && jQuery.inArray(currentDevice, supportedDevices) === -1) {
+						// uri not supported on this device
+						continue;
+					}
+					newUriGroup.uris.push(uri);
+				}
+				if (newUriGroup.uris.length > 0) {
+					deviceUriGroups.push(newUriGroup);
+				}
+			}
+			return deviceUriGroups;
 		}
 		
 		// updates the quality selection component with the qualities determined from the uri groups
