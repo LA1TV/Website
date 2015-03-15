@@ -3,13 +3,12 @@ define([
 	"../fit-text-handler",
 	"videojs",
 	"../synchronised-time",
-	"../device-detection",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat",
 	"../video-js"
-], function($, FitTextHandler, videojs, SynchronisedTime, DeviceDetection, nl2br, e, pad) {
+], function($, FitTextHandler, videojs, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -624,16 +623,6 @@ define([
 			playerUris = queuedPlayerUris;
 			for (var i=0; i<playerUris.length; i++) {
 				var uri = playerUris[i];
-				var supportedDevices = uri.supportedDevices;
-				// if supportedDevices is null then that means all devices are supported. Otherwise only the devices listed are supported.
-				if (supportedDevices !== null) {
-					supportedDevices = supportedDevices.split(",");
-				}
-				var currentDevice = DeviceDetection.isMobile() ? "mobile" : "desktop";
-				if (supportedDevices !== null && jQuery.inArray(currentDevice, supportedDevices) === -1) {
-					// uri not supported on this device
-					continue;
-				}
 				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
 				$video.append($source);
 			}
