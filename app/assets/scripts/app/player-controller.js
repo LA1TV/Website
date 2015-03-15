@@ -146,7 +146,6 @@ define([
 		var viewCountRegistered = false;
 		var rememberedTimeTimerId = null;
 		
-		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			// this can be fired as a result of the quality being changed in updatePlayer()
 			// meaning updatePlayer() would get called again before the first updatePlayer()
@@ -254,7 +253,6 @@ define([
 			
 			var deviceStreamUriGroups = data.streamUris !== null ? extractUrisForDevice(data.streamUris) : null;
 			var deviceVideoUriGroups = data.videoUris !== null ? extractUrisForDevice(data.videoUris) : null;
-			
 			
 			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
