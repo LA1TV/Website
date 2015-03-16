@@ -585,6 +585,12 @@ define([
 				// set the new time
 				if (queuedPlayerTime !== null) {
 					(function(startTime, startPlaying, roundToSafeRegion) {
+						if (startPlaying) {
+							// sometimes (eg with rtmp) the metadata only starts loading after the play call,
+							// so call play here as well as in the callback.
+							videoJsPlayer.play();
+						}
+						
 						onVideoJsLoadedMetadata(function() {
 							if (roundToSafeRegion) {
 								if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
@@ -596,7 +602,9 @@ define([
 								console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
 								return;
 							}
+							
 							videoJsPlayer.currentTime(startTime);
+							
 							if (startPlaying) {
 								videoJsPlayer.play();
 							}
