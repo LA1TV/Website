@@ -17,7 +17,7 @@ class ShowController extends HomeBaseController {
 		}
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 	
-		$playlists = $show->playlists()->accessibleToPublic()->get();
+		$playlists = $show->playlists()->accessibleToPublic()->orderBy("series_no", "asc")->orderBy("name", "asc")->orderBy("description", "asc")->get();
 		$showTableData = array();
 		foreach($playlists as $i=>$item) {
 			$thumbnailUri = $item->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
