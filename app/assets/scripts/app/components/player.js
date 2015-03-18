@@ -39,16 +39,16 @@ define([
 			return this;
 		};
 		
-		this.setTitle = function(title, linkUri) {
+		this.setTitle = function(title, linkUriCallback) {
 			title = title === "" ? null : title;
-			if (title === null && linkUri !== null) {
-				throw "If the title is null then the link uri must also be null.";
+			if (title === null && linkUriCallback !== null) {
+				throw "If the title is null then the link uri callback must also be null.";
 			}
-			else if (title !== null && linkUri === null) {
-				throw "A link uri must be provided.";
+			else if (title !== null && linkUriCallback === null) {
+				throw "A link uri callback must be provided.";
 			}
 			queuedTitle = title;
-			queuedTitleLinkUri = linkUri;
+			queuedTitleLinkUriCallback = linkUriCallback;
 			return this;
 		};
 		
@@ -194,9 +194,9 @@ define([
 		var showVodAvailableShortly = null;
 		var queuedShowVodAvailableShortly = false;
 		var title = null;
-		var titleLinkUri = null;
+		var titleLinkUriCallback = null;
 		var queuedTitle = null;
-		var queuedTitleLinkUri = null;
+		var queuedTitleLinkUriCallback = null;
 		var adExternalLiveStreamUrl = null;
 		var externalStreamSlideExternalLiveStreamUrl = null;
 		var queuedExternalLiveStreamUrl = null;
@@ -280,9 +280,9 @@ define([
 				return;
 			}
 			
-			if (queuedTitle !== title) {
+			if (queuedTitle !== title || queuedTitleLinkUriCallback !== titleLinkUriCallback) {
 				title = queuedTitle;
-				titleLinkUri = queuedTitleLinkUri;
+				titleLinkUriCallback = queuedTitleLinkUriCallback;
 				updatePlayerTitle();
 			}
 			
@@ -550,9 +550,9 @@ define([
 			if (showExternalStreamSlide) {
 				// update external stream slide
 				// update title
-				if (queuedTitle !== title) {
+				if (queuedTitle !== title  || queuedTitleLinkUriCallback !== titleLinkUriCallback) {
 					title = queuedTitle;
-					titleLinkUri = queuedTitleLinkUri;
+					titleLinkUriCallback = queuedTitleLinkUriCallback;
 					updatePlayerTitle();
 				}
 				
@@ -570,9 +570,9 @@ define([
 					updateFullScreenState();
 				}
 				
-				if (queuedTitle !== title) {
+				if (queuedTitle !== title || queuedTitleLinkUriCallback !== titleLinkUriCallback) {
 					title = queuedTitle;
-					titleLinkUri = queuedTitleLinkUri;
+					titleLinkUriCallback = queuedTitleLinkUriCallback;
 					updatePlayerTitle();
 				}
 				
@@ -769,9 +769,10 @@ define([
 		function createPlayerHeading() {
 			$playerTopBarHeading = $("<div />").addClass("heading").text("");
 			$playerTopBarHeading.click(function() {
-				if (titleLinkUri !== null) {
+				if (titleLinkUriCallback !== null) {
 					self.pause(); // pause if something is playing
-					window.open(titleLinkUri, "_blank");
+					// get the url from the callback
+					window.open(titleLinkUriCallback(), "_blank");
 				}
 			});
 			$playerTopBarHeading.hide();

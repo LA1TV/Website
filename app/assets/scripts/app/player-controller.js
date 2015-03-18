@@ -10,8 +10,9 @@ define([
 	"./page-data",
 	"./synchronised-time",
 	"./device-detection",
+	"./helpers/build-get-uri",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection) {
+], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, buildGetUri) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -378,7 +379,25 @@ define([
 			}
 			
 			if (showTitleInPlayer) {
-				playerComponent.setTitle(data.title, data.uri);
+				playerComponent.setTitle(data.title, function() {
+					var uri = data.uri;
+					if (playerType === "vod") {
+						// append the auo play start time parameters to the uri
+						var currentTime = playerComponent.getPlayerCurrentTime();
+						if (currentTime !== null && currentTime > 0) {
+							var timeParamValue = Math.floor(currentTime/60)+"m"+Math.floor(currentTime%60)+"s";
+							var query = buildGetUri({
+								t: timeParamValue
+							}, uri);
+							var tmp = uri.lastIndexOf("?");
+							if (tmp !== -1) {
+								uri = uri.substr(0, tmp);
+							}
+							uri += query;
+						}
+					}
+					return uri;
+				});
 			}
 			else {
 				playerComponent.setTitle(null, null);
