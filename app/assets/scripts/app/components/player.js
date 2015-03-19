@@ -743,6 +743,15 @@ define([
 			});
 			videoJsPlayer.on("pause", function() {
 				$(self).triggerHandler("pause");
+				
+				if (playerType === "live") {
+					// reload the stream when resuming
+					// otherwise player resumes playing from cache and is not at live point.
+					videoJsPlayer.one("play", function() {
+						videoJsPlayer.load();
+						videoJsPlayer.play();
+					});
+				}
 			});
 			videoJsPlayer.on("timeupdate", function() {
 				$(self).triggerHandler("timeUpdate");
