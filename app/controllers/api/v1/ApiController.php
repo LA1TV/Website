@@ -84,7 +84,7 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getMediaItem($playlistId, $mediaItemId) {
-		$playlist = Playlist::with("mediaItems")->accessible()->find(intval($playlistId));
+		$playlist = Playlist::with("mediaItems", "mediaItems.videoItem", "mediaItems.videoItem.chapters", "mediaItems.liveStreamItem",  "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.likes")->accessible()->find(intval($playlistId));
 		if (is_null($playlist)) {
 			return $this->respondNotFound();
 		}

@@ -21,8 +21,8 @@ class PlaylistTransformer extends Transformer {
 			"name"			=> $playlist->name,
 			"description"	=> $playlist->description,
 			"show"			=> $showInfo,
-			"siteUri"		=> $playlist->getUri(),
-			"coverArtUris"	=> $coverArtUris,
+			"siteUrl"		=> $playlist->getUri(),
+			"coverArtUrls"	=> $coverArtUris,
 			"timeUpdated"	=> $playlist->updated_at->timestamp
 		];
 	}
