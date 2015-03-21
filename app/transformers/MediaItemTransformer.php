@@ -12,6 +12,7 @@ class MediaItemTransformer extends Transformer {
 		}
 		$playlist = $mediaItemAndPlaylist[0];
 		$mediaItem = $mediaItemAndPlaylist[1];
+		
 		$mediaItemVideo = $mediaItem->videoItem;
 		$mediaItemLiveStream = $mediaItem->liveStreamItem;
 		
@@ -42,6 +43,8 @@ class MediaItemTransformer extends Transformer {
 		$numDislikes = $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", false)->count() : null;
 		
 		$liveStreamDetails = $vodDetails = null;
+		
+		
 		if (!is_null($mediaItemVideo) && $mediaItemVideo->getIsAccessible()) {
 			$vodAvailable = $mediaItemVideo->getIsLive();
 			$vodChapters = null;

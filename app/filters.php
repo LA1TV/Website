@@ -35,6 +35,7 @@ App::before(function($request)
 
 App::after(function($request, $response)
 {
+	
 	if (Config::get("ssl.enabled") && Request::secure()) {
 		if (is_a($response, "Illuminate\Http\Response")) {
 			$response->header("Strict-Transport-Security", "max-age=5256000");
