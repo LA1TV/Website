@@ -9,8 +9,8 @@ class PlaylistTransformer extends Transformer {
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
 		$showInfo = is_null($playlist->show_id) ? null : [
-			"id"			=> $playlist->show_id,
-			"seriesNumber"	=> $playlist->series_no
+			"id"			=> intval($playlist->show_id),
+			"seriesNumber"	=> intval($playlist->series_no)
 		];
 		$coverArtUris = [
 			"thumbnail"		=> $playlist->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
