@@ -13,6 +13,8 @@
 
 $p = "uk\\co\\la1tv\\website\\controllers\\";
 
+Route::pattern('slug', '[A-Za-z0-9\-]+');
+
 Route::group(array('before' => array("liveCheck"), 'after' => array('setContentSecurityPolicyHeader', 'setP3PHeader')), function() use(&$p) {
 
 	// www.la1tv.co.uk
@@ -61,7 +63,19 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			// here for named route
 			Route::get('/account', array("as"=>"account", "uses"=>$p.'home\account\AccountController@getIndex'));
 			
-			Route::pattern('slug', '[A-Za-z0-9\-]+');
+			// API
+			Route::group(array('prefix' => "/api/v1"), function() use(&$p) {
+				Route::get('service', array("uses"=>$p.'api\v1\ApiController@getService'));
+				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
+				Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
+				Route::get('playlists/{id}', array("uses"=>$p.'api\v1\ApiController@getPlaylist'));
+				Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
+				Route::get('mediaItem/{id}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
+				
+				// show a json 404
+				Route::get('{a?}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
+			});
+			
 			
 			// this must not go higher up as it is important that everything above takes priority
 			Route::controller("/{slug}", $p.'home\SlugController');
@@ -88,5 +102,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::get('/{a}/{b}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@getIndex'));
 		});
 	});
+	
+	// api.
 	
 });
