@@ -65,7 +65,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::get('/account', array("as"=>"account", "uses"=>$p.'home\account\AccountController@getIndex'));
 			
 			// API
-			Route::group(array('prefix' => "/api/v1"), function() use(&$p) {
+			Route::group(array('prefix' => "/api/v1", "before" => array("apiEnabledCheck")), function() use(&$p) {
 				Route::get('service', array("uses"=>$p.'api\v1\ApiController@getService'));
 				Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
 				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));

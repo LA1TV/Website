@@ -154,3 +154,18 @@ Route::filter('liveCheck', function() {
 		return DebugHelpers::generateMaintenanceModeResponse();
 	}
 });
+
+/*
+|--------------------------------------------------------------------------
+| "Api Enabled Check" Filter
+|--------------------------------------------------------------------------
+|
+| Returns a service unavailable response if the api is disabled.
+|
+*/
+
+Route::filter('apiEnabledCheck', function() {
+	if (!Config::get("api.enabled")) {
+		return App::make('uk\co\la1tv\website\controllers\api\ApiBaseController')->callAction("respondWithServiceUnavalable", array());
+	}
+});

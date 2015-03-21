@@ -55,6 +55,10 @@ class ApiBaseController extends BaseController {
 		return $this->setStatusCode(500)->respond(["message"=>$message], true);
 	}
 	
+	public function respondWithServiceUnavalable($message=null) {
+		return $this->setStatusCode(503)->respond(["message"=>$message], true);
+	}
+	
 	// if $error is true then this will be returned with an "error" key instead of "data" key
 	public function respond($data, $error=false) {
 		
@@ -70,6 +74,9 @@ class ApiBaseController extends BaseController {
 				}
 				else if ($this->statusCode === 500) {
 					$data['message'] = 'Server error. Contact "'.Config::get("contactEmails.development").'" for support.';
+				}
+				else if ($this->statusCode === 503) {
+					$data['message'] = 'Service unavailable. Contact "'.Config::get("contactEmails.development").'" for support.';
 				}
 			}
 			
