@@ -88,7 +88,7 @@ class ApiBaseController extends BaseController {
 		$responseData = array(
 			"info"		=> [
 				"statusCode"	=> $this->statusCode,
-				"time"			=> microtime(true)
+				"timeGenerated"	=> microtime(true)
 			]
 		);
 		
