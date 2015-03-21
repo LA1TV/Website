@@ -235,9 +235,9 @@ class Playlist extends MyEloquent {
 	// get the uri that should be used as the media items cover art.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns the uri to the default cover
-	public function getMediaItemCoverArtUri($mediaItemParam, $width, $height) {
-		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
-		if (is_null($mediaItem)) {
+	public function getMediaItemCoverArtUri($mediaItem, $width, $height) {
+		$mediaItemTmp = $this->mediaItems()->find($mediaItem->id);
+		if (is_null($mediaItemTmp)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
 		
@@ -256,9 +256,9 @@ class Playlist extends MyEloquent {
 	// get the uri that should be used for the media item side banners.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
-	public function getMediaItemSideBannerUri($mediaItemParam, $width, $height) {
-		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
-		if (is_null($mediaItem)) {
+	public function getMediaItemSideBannerUri($mediaItem, $width, $height) {
+		$mediaItemTmp = $this->mediaItems()->find($mediaItem->id);
+		if (is_null($mediaItemTmp)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
 		
@@ -296,9 +296,9 @@ class Playlist extends MyEloquent {
 	// get the uri that should be used for the media item cover.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
-	public function getMediaItemCoverUri($mediaItemParam, $width, $height) {
-		$mediaItem = $this->mediaItems()->find($mediaItemParam->id);
-		if (is_null($mediaItem)) {
+	public function getMediaItemCoverUri($mediaItem, $width, $height) {
+		$mediaItemTmp = $this->mediaItems()->find($mediaItem->id);
+		if (is_null($mediaItemTmp)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
 		

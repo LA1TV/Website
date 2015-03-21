@@ -61,10 +61,11 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getPlaylist($id) {
-		$playlist = Playlist::with("mediaItems")->accessible()->find(intval($id));
+		$playlist = Playlist::accessible()->find(intval($id));
 		if (is_null($playlist)) {
 			return $this->respondNotFound();
 		}
+		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
 		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
 		$data = [
 			"playlist"		=> $this->playlistTransformer->transform($playlist),
@@ -74,24 +75,27 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getPlaylistMediaItems($id) {
-		$playlist = Playlist::with("mediaItems")->accessible()->find(intval($id));
+		$playlist = Playlist::accessible()->find(intval($id));
 		if (is_null($playlist)) {
 			return $this->respondNotFound();
 		}
+		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
 		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
 		$data = $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems));
 		return $this->respond($data);
 	}
 	
 	public function getMediaItem($playlistId, $mediaItemId) {
-		$playlist = Playlist::with("mediaItems", "mediaItems.videoItem", "mediaItems.videoItem.chapters", "mediaItems.liveStreamItem",  "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.likes")->accessible()->find(intval($playlistId));
+		$playlist = Playlist::accessible()->find(intval($playlistId));
 		if (is_null($playlist)) {
 			return $this->respondNotFound();
 		}
+		
 		$mediaItem = $playlist->mediaItems()->accessible()->find(intval($mediaItemId));
 		if (is_null($mediaItem)) {
 			return $this->respondNotFound();
 		}
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
 		$data = $this->mediaItemTransformer->transform([$playlist, $mediaItem]);
 		return $this->respond($data);
 	}
