@@ -106,6 +106,4 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 		});
 	});
 	
-	// api.
-	
 });
