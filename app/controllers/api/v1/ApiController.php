@@ -1,9 +1,22 @@
 <?php namespace uk\co\la1tv\website\controllers\api\v1;
 
 use uk\co\la1tv\website\controllers\api\ApiBaseController;
+use uk\co\la1tv\website\transformers\ShowTransformer;
+use uk\co\la1tv\website\transformers\PlaylistTransformer;
+use uk\co\la1tv\website\models\Show;
+use uk\co\la1tv\website\models\Playlist;
 use DebugHelpers;
 
 class ApiController extends ApiBaseController {
+
+	private $showTransformer = null;
+	private $playlistTransformer = null;
+
+	public function __construct(ShowTransformer $showTransformer, PlaylistTransformer $playlistTransformer) {
+		parent::__construct();
+		$this->showTransformer = $showTransformer;
+		$this->playlistTransformer = $playlistTransformer;
+	}
 
 	public function getService() {
 		$data = [
@@ -14,13 +27,20 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getShows() {
-		// TODO
-		return $this->respondNotFound();
+		$data = $this->showTransformer->transformCollection(Show::accessible()->orderBy("id")->get()->all());
+		return $this->respond($data);
 	}
 	
 	public function getShow($id) {
-		// TODO
-		return $this->respondNotFound();
+		$show = Show::with("playlists")->accessible()->find(intval($id));
+		if (is_null($show)) {
+			return $this->respondNotFound();
+		}
+		$data = array(
+			"show"		=> $this->showTransformer->transform($show),
+			"playlists"	=> $this->playlistTransformer->transformCollection(Playlist::accessibleToPublic()->orderBy("id")->get()->all())
+		);
+		return $this->respond($data);
 	}
 	
 	public function getPlaylists() {
