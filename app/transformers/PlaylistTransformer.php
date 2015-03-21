@@ -6,8 +6,6 @@ use Config;
 class PlaylistTransformer extends Transformer {
 	
 	public function transform($playlist) {
-	//	return $playlist->toArray();
-		
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
 		$showInfo = is_null($playlist->show_id) ? null : [

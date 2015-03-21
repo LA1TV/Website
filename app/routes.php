@@ -14,6 +14,7 @@
 $p = "uk\\co\\la1tv\\website\\controllers\\";
 
 Route::pattern('slug', '[A-Za-z0-9\-]+');
+Route::pattern('catchAll', '.*');
 
 Route::group(array('before' => array("liveCheck"), 'after' => array('setContentSecurityPolicyHeader', 'setP3PHeader')), function() use(&$p) {
 
@@ -66,14 +67,16 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			// API
 			Route::group(array('prefix' => "/api/v1"), function() use(&$p) {
 				Route::get('service', array("uses"=>$p.'api\v1\ApiController@getService'));
+				Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
 				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
 				Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
+				Route::get('playlists/{playlistId}/mediaItems/{mediaItemId}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
+				Route::get('playlists/{id}/mediaItems', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItems'));
 				Route::get('playlists/{id}', array("uses"=>$p.'api\v1\ApiController@getPlaylist'));
 				Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
-				Route::get('mediaItem/{id}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
 				
 				// show a json 404
-				Route::get('{a?}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
+				Route::get('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
 			});
 			
 			
