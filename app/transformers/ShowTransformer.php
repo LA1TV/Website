@@ -9,6 +9,7 @@ class ShowTransformer extends Transformer {
 			"id"			=> intval($show->id),
 			"name"			=> $show->name,
 			"description"	=> $show->description,
+			"siteUri"		=> $show->getUri(),
 			"timeUpdated"	=> $show->updated_at->timestamp
 		];
 	}
