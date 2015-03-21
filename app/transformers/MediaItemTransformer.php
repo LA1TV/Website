@@ -82,18 +82,19 @@ class MediaItemTransformer extends Transformer {
 			$infoMsg = $stateDefinition === 1 ? $mediaItemLiveStream->information_msg : null;
 			
 			$liveStream = $mediaItemLiveStream->liveStream;
-			$streamUrlData = array();
+			$streamUrlData = null;
 			// TODO: only add uris if authenticated
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
 			if (!is_null($liveStream) && $stateDefinition === 2) {
+				$streamUrlData = [];
 				foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
-					$streamUrlData[] = array(
-						"quality"	=> array(
+					$streamUrlData[] = [
+						"quality"	=> [
 							"id"	=> intval($qualityWithUris['qualityDefinition']->id),
 							"name"	=> $qualityWithUris['qualityDefinition']->name
-						),
+						],
 						"urls"		=> $qualityWithUris['uris']
-					);
+					];
 				}
 			}
 			
