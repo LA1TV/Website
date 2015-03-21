@@ -63,6 +63,10 @@ class MediaItemTransformer extends Transformer {
 			];
 		}
 		
+		$embedDetails = [
+			"iframeUrl"	=> $playlist->getMediaItemEmbedUri($mediaItem)
+		];
+		
 		if (!is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible()) {
 			$stateDefinition = intval($mediaItemLiveStream->getResolvedStateDefinition()->id);
 			$state = null;
@@ -114,7 +118,8 @@ class MediaItemTransformer extends Transformer {
 			"id"				=> intval($mediaItem->id),
 			"name"				=> $mediaItem->name,
 			"description"		=> $mediaItem->description,
-			"siteUrl"			=> $playlist->getMediaItemUri($mediaItem),
+			"siteUrl"			=> $playlist->getMediaItemUri($mediaItem),#
+			"embed"				=> $embedDetails,
 			"coverArtUrls"		=> $coverArtUris,
 			"episodeNumber"		=> $playlist->getEpisodeNumber($mediaItem),
 			"scheduledPublishTime"	=> $mediaItem->scheduled_publish_time->timestamp,
