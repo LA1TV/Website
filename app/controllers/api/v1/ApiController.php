@@ -38,14 +38,14 @@ class ApiController extends ApiBaseController {
 		}
 		$data = array(
 			"show"		=> $this->showTransformer->transform($show),
-			"playlists"	=> $this->playlistTransformer->transformCollection(Playlist::accessibleToPublic()->orderBy("id")->get()->all())
+			"playlists"	=> $this->playlistTransformer->transformCollection($show->playlists()->accessibleToPublic()->orderBy("id")->get()->all())
 		);
 		return $this->respond($data);
 	}
 	
 	public function getPlaylists() {
-		// TODO
-		return $this->respondNotFound();
+		$data = $this->playlistTransformer->transformCollection(Playlist::accessibleToPublic()->orderBy("id")->get()->all());
+		return $this->respond($data);
 	}
 	
 	public function getPlaylist($id) {
