@@ -49,7 +49,20 @@ class SmartCacheManager {
 			}
 		}
 		
-	
+		if (!is_null($responseAndTime)) {
+			if (Carbon::now()->timestamp - $responseAndTime["time"] > $seconds / 2) {
+				// refresh the cache in the background as > half the time has passed
+				// before a refresh would be required
+				// the app.finish event is fired after the response has been returned to the user.
+				Event::listen('app.finish', function() use (&$key, &$seconds, &$callback) {
+					Queue::push("uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheQueueJob", [
+						"key"		=> $key,
+						"seconds"	=> $seconds,
+						"callback"	=> $callback
+					]);
+				});
+			}
+		}
 		
 		if (is_null($responseAndTime)) {
 			// create the key which will be checked to determine that work is being done.

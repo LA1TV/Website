@@ -1,9 +1,9 @@
 <?php namespace uk\co\la1tv\website\controllers\api\v1;
 
 use uk\co\la1tv\website\controllers\api\ApiBaseController;
-use uk\co\la1tv\website\transformers\ShowTransformer;
-use uk\co\la1tv\website\transformers\PlaylistTransformer;
-use uk\co\la1tv\website\transformers\MediaItemTransformer;
+use uk\co\la1tv\website\api\transformers\ShowTransformer;
+use uk\co\la1tv\website\api\transformers\PlaylistTransformer;
+use uk\co\la1tv\website\api\transformers\MediaItemTransformer;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
 use DebugHelpers;

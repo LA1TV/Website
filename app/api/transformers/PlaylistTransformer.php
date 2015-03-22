@@ -1,4 +1,4 @@
-<?php namespace uk\co\la1tv\website\transformers;
+<?php namespace uk\co\la1tv\website\api\transformers;
 
 use uk\co\la1tv\website\models\Playlist;
 use Config;
