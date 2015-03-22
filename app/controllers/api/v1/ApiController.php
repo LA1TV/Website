@@ -30,14 +30,14 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getShows() {
-		return $this->withCache("api-shows", 15, function() {
+		return $this->withCache("shows", 15, function() {
 			$data = $this->showTransformer->transformCollection(Show::accessible()->orderBy("id")->get()->all());
 			return $this->respond($data);
 		});
 	}
 	
 	public function getShow($id) {
-		return $this->withCache("api-show-".$id, 15, function() use (&$id) {
+		return $this->withCache("show-".$id, 15, function() use (&$id) {
 			$show = Show::with("playlists")->accessible()->find(intval($id));
 			if (is_null($show)) {
 				return $this->respondNotFound();
@@ -51,7 +51,7 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getShowPlaylists($id) {
-		return $this->withCache("api-show-playlist-".$id, 15, function() use (&$id) {
+		return $this->withCache("show-playlist-".$id, 15, function() use (&$id) {
 			$show = Show::with("playlists")->accessible()->find(intval($id));
 			if (is_null($show)) {
 				return $this->respondNotFound();
@@ -62,14 +62,14 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getPlaylists() {
-		return $this->withCache("api-playlists", 15, function() {
+		return $this->withCache("playlists", 15, function() {
 			$data = $this->playlistTransformer->transformCollection(Playlist::accessibleToPublic()->orderBy("id")->get()->all());
 			return $this->respond($data);
 		});
 	}
 	
 	public function getPlaylist($id) {
-		return $this->withCache("api-playlist-".$id, 8, function() use (&$id) {
+		return $this->withCache("playlist-".$id, 8, function() use (&$id) {
 			$playlist = Playlist::accessible()->find(intval($id));
 			if (is_null($playlist)) {
 				return $this->respondNotFound();
@@ -85,7 +85,7 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getPlaylistMediaItems($id) {
-		return $this->withCache("api-playlist-media-items-".$id, 8, function() use (&$id) {
+		return $this->withCache("playlist-media-items-".$id, 8, function() use (&$id) {
 			$playlist = Playlist::accessible()->find(intval($id));
 			if (is_null($playlist)) {
 				return $this->respondNotFound();
@@ -98,7 +98,7 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getMediaItem($playlistId, $mediaItemId) {
-		return $this->withCache("api-media-item-".$playlistId."-".$mediaItemId, 4, function() use (&$playlistId, &$mediaItemId) {
+		return $this->withCache("media-item-".$playlistId."-".$mediaItemId, 4, function() use (&$playlistId, &$mediaItemId) {
 			$playlist = Playlist::accessible()->find(intval($playlistId));
 			if (is_null($playlist)) {
 				return $this->respondNotFound();
