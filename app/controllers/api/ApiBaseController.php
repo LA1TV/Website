@@ -6,6 +6,7 @@ use Config;
 use Cache;
 use Carbon;
 use Closure;
+use Event;
 
 class ApiBaseController extends BaseController {
 
@@ -106,7 +107,8 @@ class ApiBaseController extends BaseController {
 	
 	// if the response is cached and not old return cached version.
 	// otherwise cache response and return it
-	protected function withCache($key, $seconds, Closure $callback) {
+	// $forceRefresh will force cache to be updated
+	protected function withCache($key, $seconds, Closure $callback, $forceRefresh=false) {
 		// the first time the : must appear must be straight before $key
 		// otherwise there could be conflicts
 		$keyStart = "api.v1.".($this->prettyPrint?"1":"0");
@@ -120,6 +122,9 @@ class ApiBaseController extends BaseController {
 		$creationTimeout = 60;
 		$timeStartedCreating = Cache::get($creatingCacheKey, null);
 		if (!is_null($timeStartedCreating) && $timeStartedCreating >= $now-$creationTimeout) {
+			// no point forcing a refresh as a refresh is already happening,
+			// so the latest version will be retrieved anyway
+			$forceRefresh = false;
 			// wait for cache to contain item, or timeout creating item
 			for ($i=0; $i<($creationTimeout-($now-$timeStartedCreating))*10; $i++) {
 				usleep(100 * 1000); // 0.1 seconds
@@ -130,7 +135,8 @@ class ApiBaseController extends BaseController {
 			}
 		}
 		
-		$responseAndTime = Cache::get($fullKey, null);
+		// get the cached version if there is one
+		$responseAndTime = !$forceRefresh ? Cache::get($fullKey, null): null;
 		if (!is_null($responseAndTime)) {
 			// check it hasn't expired
 			// cache driver only works in minutes which is why this is necessary
@@ -140,9 +146,24 @@ class ApiBaseController extends BaseController {
 			}
 		}
 		
+		if (!is_null($responseAndTime)) {
+			if (Carbon::now()->timestamp - $responseAndTime["time"] > $seconds / 2) {
+				// refresh the cache in the background as > half the time has passed
+				// before a refresh would be required
+				// the app.finish event is fired after the response has been returned to the user.
+				Event::listen('app.finish', function() use (&$key, &$seconds, &$callback) {
+					// this will force the cache to be updated.
+					$this->withCache($key, $seconds, $callback, true);
+				});
+			}
+		}
+		
 		if (is_null($responseAndTime)) {
 			// create the key which will be checked to determine that work is being done.
-			Cache::put($creatingCacheKey, Carbon::now()->timestamp, 1);
+			// it is possible for this point in the code to be reached by several processes at the same time,
+			// but it is unlikely, and if it happens it just means the cache will be updated several times
+			// which isn't a huge issue. Otherwise would need to use Semaphores and this gets a bit messy in php
+			Cache::put($creatingCacheKey, Carbon::now()->timestamp, ceil($creationTimeout/60));
 			$responseAndTime = [
 				"time"		=> Carbon::now()->timestamp,
 				"response"	=> $callback()
