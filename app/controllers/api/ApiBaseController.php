@@ -107,7 +107,7 @@ class ApiBaseController extends BaseController {
 	// if the response is cached and not old return cached version.
 	// otherwise cache response and return it
 	protected function withCache($key, $seconds, Closure $callback) {
-		$fullKey = "api.".$key;
+		$fullKey = "api.v1.".($this->prettyPrint?"1":"0").".".$key;
 		$responseAndTime = Cache::get($fullKey, null);
 		if (!is_null($responseAndTime)) {
 			// check it hasn't expired
