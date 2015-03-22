@@ -3,6 +3,9 @@
 use uk\co\la1tv\website\controllers\BaseController;
 use Response;
 use Config;
+use Cache;
+use Carbon;
+use Closure;
 
 class ApiBaseController extends BaseController {
 
@@ -99,5 +102,29 @@ class ApiBaseController extends BaseController {
 			$responseData["error"] = $data;
 		}
 		return Response::json($responseData, $this->statusCode, $this->headers, $this->prettyPrint ? JSON_PRETTY_PRINT : 0);
+	}
+	
+	// if the response is cached and not old return cached version.
+	// otherwise cache response and return it
+	protected function withCache($key, $seconds, Closure $callback) {
+		$fullKey = "api.".$key;
+		$responseAndTime = Cache::get($fullKey, null);
+		if (!is_null($responseAndTime)) {
+			// check it hasn't expired
+			// cache driver only works in minutes which is why this is necessary
+			if ($responseAndTime["time"] < Carbon::now()->timestamp - $seconds) {
+				// it's expired. pretend it's not in the cache
+				$responseAndTime = null;
+			}
+		}
+		if (is_null($responseAndTime)) {
+			$responseAndTime = [
+				"time"		=> Carbon::now()->timestamp,
+				"response"	=> $callback()
+			];
+			// the cache driver only works in minutes
+			Cache::put($fullKey, $responseAndTime, ceil($seconds/60));
+		}
+		return $responseAndTime["response"];
 	}
 }
