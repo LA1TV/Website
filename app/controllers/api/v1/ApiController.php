@@ -30,74 +30,88 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getShows() {
-		$data = $this->showTransformer->transformCollection(Show::accessible()->orderBy("id")->get()->all());
-		return $this->respond($data);
+		return $this->withCache("api-shows", 15, function() {
+			$data = $this->showTransformer->transformCollection(Show::accessible()->orderBy("id")->get()->all());
+			return $this->respond($data);
+		});
 	}
 	
 	public function getShow($id) {
-		$show = Show::with("playlists")->accessible()->find(intval($id));
-		if (is_null($show)) {
-			return $this->respondNotFound();
-		}
-		$data = [
-			"show"		=> $this->showTransformer->transform($show),
-			"playlists"	=> $this->playlistTransformer->transformCollection($show->playlists()->accessibleToPublic()->orderBy("id")->get()->all())
-		];
-		return $this->respond($data);
+		return $this->withCache("api-show-".$id, 15, function() use (&$id) {
+			$show = Show::with("playlists")->accessible()->find(intval($id));
+			if (is_null($show)) {
+				return $this->respondNotFound();
+			}
+			$data = [
+				"show"		=> $this->showTransformer->transform($show),
+				"playlists"	=> $this->playlistTransformer->transformCollection($show->playlists()->accessibleToPublic()->orderBy("id")->get()->all())
+			];
+			return $this->respond($data);
+		});
 	}
 	
 	public function getShowPlaylists($id) {
-		$show = Show::with("playlists")->accessible()->find(intval($id));
-		if (is_null($show)) {
-			return $this->respondNotFound();
-		}
-		$data = $this->playlistTransformer->transformCollection($show->playlists()->accessibleToPublic()->orderBy("id")->get()->all());
-		return $this->respond($data);
+		return $this->withCache("api-show-playlist-".$id, 15, function() use (&$id) {
+			$show = Show::with("playlists")->accessible()->find(intval($id));
+			if (is_null($show)) {
+				return $this->respondNotFound();
+			}
+			$data = $this->playlistTransformer->transformCollection($show->playlists()->accessibleToPublic()->orderBy("id")->get()->all());
+			return $this->respond($data);
+		});
 	}
 	
 	public function getPlaylists() {
-		$data = $this->playlistTransformer->transformCollection(Playlist::accessibleToPublic()->orderBy("id")->get()->all());
-		return $this->respond($data);
+		return $this->withCache("api-playlists", 15, function() {
+			$data = $this->playlistTransformer->transformCollection(Playlist::accessibleToPublic()->orderBy("id")->get()->all());
+			return $this->respond($data);
+		});
 	}
 	
 	public function getPlaylist($id) {
-		$playlist = Playlist::accessible()->find(intval($id));
-		if (is_null($playlist)) {
-			return $this->respondNotFound();
-		}
-		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
-		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
-		$data = [
-			"playlist"		=> $this->playlistTransformer->transform($playlist),
-			"mediaItems"	=> $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems))
-		];
-		return $this->respond($data);
+		return $this->withCache("api-playlist-".$id, 8, function() use (&$id) {
+			$playlist = Playlist::accessible()->find(intval($id));
+			if (is_null($playlist)) {
+				return $this->respondNotFound();
+			}
+			$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
+			$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
+			$data = [
+				"playlist"		=> $this->playlistTransformer->transform($playlist),
+				"mediaItems"	=> $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems))
+			];
+			return $this->respond($data);
+		});
 	}
 	
 	public function getPlaylistMediaItems($id) {
-		$playlist = Playlist::accessible()->find(intval($id));
-		if (is_null($playlist)) {
-			return $this->respondNotFound();
-		}
-		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
-		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
-		$data = $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems));
-		return $this->respond($data);
+		return $this->withCache("api-playlist-media-items-".$id, 8, function() use (&$id) {
+			$playlist = Playlist::accessible()->find(intval($id));
+			if (is_null($playlist)) {
+				return $this->respondNotFound();
+			}
+			$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
+			$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
+			$data = $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems));
+			return $this->respond($data);
+		});
 	}
 	
 	public function getMediaItem($playlistId, $mediaItemId) {
-		$playlist = Playlist::accessible()->find(intval($playlistId));
-		if (is_null($playlist)) {
-			return $this->respondNotFound();
-		}
-		
-		$mediaItem = $playlist->mediaItems()->accessible()->find(intval($mediaItemId));
-		if (is_null($mediaItem)) {
-			return $this->respondNotFound();
-		}
-		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
-		$data = $this->mediaItemTransformer->transform([$playlist, $mediaItem]);
-		return $this->respond($data);
+		return $this->withCache("api-media-item-".$playlistId."-".$mediaItemId, 4, function() use (&$playlistId, &$mediaItemId) {
+			$playlist = Playlist::accessible()->find(intval($playlistId));
+			if (is_null($playlist)) {
+				return $this->respondNotFound();
+			}
+			
+			$mediaItem = $playlist->mediaItems()->accessible()->find(intval($mediaItemId));
+			if (is_null($mediaItem)) {
+				return $this->respondNotFound();
+			}
+			$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
+			$data = $this->mediaItemTransformer->transform([$playlist, $mediaItem]);
+			return $this->respond($data);
+		});
 	}
 	
 	private function createMediaItemsWithPlaylists($playlist, $mediaItems) {

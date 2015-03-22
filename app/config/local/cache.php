@@ -2,5 +2,5 @@
 
 return array(
 
-	'driver' => 'array', // effectively disable caching
+	'driver' => 'file', // effectively disable caching
 );
