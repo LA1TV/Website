@@ -107,7 +107,29 @@ class ApiBaseController extends BaseController {
 	// if the response is cached and not old return cached version.
 	// otherwise cache response and return it
 	protected function withCache($key, $seconds, Closure $callback) {
-		$fullKey = "api.v1.".($this->prettyPrint?"1":"0").".".$key;
+		// the first time the : must appear must be straight before $key
+		// otherwise there could be conflicts
+		$keyStart = "api.v1.".($this->prettyPrint?"1":"0");
+		$fullKey = $keyStart . ":" . $key;
+		// the key that will exist if the cache item is currently being created
+		$creatingCacheKey = $keyStart . ".creating:" . $key;
+		$now = Carbon::now()->timestamp;
+		
+		// time to wait in seconds before presuming item could not be created in cache because
+		// there was an issue.
+		$creationTimeout = 60;
+		$timeStartedCreating = Cache::get($creatingCacheKey, null);
+		if (!is_null($timeStartedCreating) && $timeStartedCreating >= $now-$creationTimeout) {
+			// wait for cache to contain item, or timeout creating item
+			for ($i=0; $i<($creationTimeout-($now-$timeStartedCreating))*10; $i++) {
+				usleep(100 * 1000); // 0.1 seconds
+				if (is_null(Cache::get($creatingCacheKey, null))) {
+					// item created or key removed because timed out
+					break;
+				}
+			}
+		}
+		
 		$responseAndTime = Cache::get($fullKey, null);
 		if (!is_null($responseAndTime)) {
 			// check it hasn't expired
@@ -117,13 +139,17 @@ class ApiBaseController extends BaseController {
 				$responseAndTime = null;
 			}
 		}
+		
 		if (is_null($responseAndTime)) {
+			// create the key which will be checked to determine that work is being done.
+			Cache::put($creatingCacheKey, Carbon::now()->timestamp, 1);
 			$responseAndTime = [
 				"time"		=> Carbon::now()->timestamp,
 				"response"	=> $callback()
 			];
 			// the cache driver only works in minutes
 			Cache::put($fullKey, $responseAndTime, ceil($seconds/60));
+			Cache::forget($creatingCacheKey);
 		}
 		return $responseAndTime["response"];
 	}
