@@ -55,12 +55,11 @@ class SmartCacheManager {
 				// before a refresh would be required
 				// the app.finish event is fired after the response has been returned to the user.
 				Event::listen('app.finish', function() use (&$key, &$seconds, &$callback) {
-					Queue::push(function($job) use (&$key, &$seconds, &$callback) {
-						$job->delete();
-						
-						// this will force the cache to be updated.
-						SmartCache::get($key, $seconds, $callback, true);
-					});
+					Queue::push("uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheQueueJob", [
+						"key"		=> $key,
+						"seconds"	=> $seconds,
+						"callback"	=> $callback
+					]);
 				});
 			}
 		}
