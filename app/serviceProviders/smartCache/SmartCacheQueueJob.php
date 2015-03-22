@@ -2,7 +2,7 @@
 
 use SmartCache;
 
-class SmartCacheQueueJob extends Facade {
+class SmartCacheQueueJob {
 	
 	public function fire($job, $data) {	
 		$job->delete();
