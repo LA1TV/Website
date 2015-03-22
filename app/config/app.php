@@ -130,6 +130,7 @@ return array(
 		'uk\co\la1tv\website\serviceProviders\facebook\FacebookServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\upload\UploadServiceProvider',
+		'uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheServiceProvider',
 	),
 
 	/*
@@ -201,7 +202,7 @@ return array(
 		'Facebook'        => 'uk\co\la1tv\website\serviceProviders\facebook\FacebookFacade',
 		'Csrf'            => 'uk\co\la1tv\website\serviceProviders\csrf\CsrfFacade',
 		'Upload'          => 'uk\co\la1tv\website\serviceProviders\upload\UploadFacade',
-
+		'SmartCache'      => 'uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheFacade',
 	),
 
 );

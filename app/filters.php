@@ -45,6 +45,8 @@ App::after(function($request, $response)
 
 App::finish(function() {
 	// now that the response has been sent to the user fire an event so that code that is now listening for this event can execute
+	// depending on the server configuration the response might still not have been sent though as the server software may wait
+	// until the php process finishes before sending the response.
 	Event::fire("app.finish");
 });
 
