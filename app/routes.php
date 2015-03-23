@@ -15,6 +15,10 @@ $p = "uk\\co\\la1tv\\website\\controllers\\";
 
 Route::pattern('slug', '[A-Za-z0-9\-]+');
 Route::pattern('catchAll', '.*');
+$idRegex = '\d+';
+Route::pattern('id', $idRegex);
+// not great but can't see another way
+Route::pattern('id2', $idRegex);
 
 Route::group(array('before' => array("liveCheck"), 'after' => array('setContentSecurityPolicyHeader', 'setP3PHeader')), function() use(&$p) {
 
@@ -70,7 +74,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 				Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
 				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
 				Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
-				Route::get('playlists/{playlistId}/mediaItems/{mediaItemId}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
+				Route::get('playlists/{id}/mediaItems/{id2}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
 				Route::get('playlists/{id}/mediaItems', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItems'));
 				Route::get('playlists/{id}', array("uses"=>$p.'api\v1\ApiController@getPlaylist'));
 				Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
