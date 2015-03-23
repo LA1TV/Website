@@ -16,6 +16,8 @@ class MediaItemTransformer extends Transformer {
 		$mediaItemVideo = $mediaItem->videoItem;
 		$mediaItemLiveStream = $mediaItem->liveStreamItem;
 		
+		$scheduledPublishTime = $mediaItem->scheduled_publish_time->timestamp;
+		
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
 		$coverArtUris = [
@@ -43,30 +45,12 @@ class MediaItemTransformer extends Transformer {
 		$numDislikes = $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", false)->count() : null;
 		
 		$liveStreamDetails = $vodDetails = null;		
-		if (!is_null($mediaItemVideo) && $mediaItemVideo->getIsAccessible()) {
-			$vodAvailable = $mediaItemVideo->getIsLive();
-			$vodChapters = null;
-			if ($vodAvailable) {
-				$vodChapters = array();
-				foreach($mediaItemVideo->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
-					$vodChapters[] = array(
-						"title"		=> $a->title,
-						"time"		=> intval($a->time)
-					);
-				}
-			}
-			
-			$vodDetails = [
-				"available"	=> $vodAvailable,
-				"chapters"	=> $vodChapters,
-				"viewCount"	=> $vodViewCount
-			];
-		}
 		
 		$embedDetails = [
 			"iframeUrl"	=> $playlist->getMediaItemEmbedUri($mediaItem)
 		];
 		
+		$stateDefinition = null;
 		if (!is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible()) {
 			$stateDefinition = intval($mediaItemLiveStream->getResolvedStateDefinition()->id);
 			$state = null;
@@ -88,7 +72,6 @@ class MediaItemTransformer extends Transformer {
 			
 			$liveStream = $mediaItemLiveStream->liveStream;
 			$streamUrlData = null;
-			// TODO: only add uris if authenticated
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
 			if (!is_null($liveStream) && $stateDefinition === 2) {
 				$streamUrlData = [];
@@ -114,15 +97,46 @@ class MediaItemTransformer extends Transformer {
 				"urlData"				=> $streamUrlData
 			];
 		}
+		
+		if (!is_null($mediaItemVideo) && $mediaItemVideo->getIsAccessible()) {
+			$vodAvailable = $mediaItemVideo->getIsLive();
+			$vodChapters = null;
+			if ($vodAvailable) {
+				$vodChapters = array();
+				foreach($mediaItemVideo->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
+					$vodChapters[] = array(
+						"title"		=> $a->title,
+						"time"		=> intval($a->time)
+					);
+				}
+			}
+			$vodTimeRecorded = null;
+			if (!is_null($mediaItemVideo->time_recorded)) {
+				$vodTimeRecorded = $mediaItemVideo->time_recorded->timestamp;
+			}
+			else if ($stateDefinition === 3) {
+				// has live stream and show over.
+				// this must be the recording of that so set to the match the publish time
+				$vodTimeRecorded = $scheduledPublishTime;
+			}
+			
+			$vodDetails = [
+				"available"		=> $vodAvailable,
+				"timeRecorded"	=> $vodTimeRecorded,
+				"chapters"		=> $vodChapters,
+				"viewCount"		=> $vodViewCount
+			];
+		}
+		
 		return [
 			"id"				=> intval($mediaItem->id),
 			"name"				=> $mediaItem->name,
 			"description"		=> $mediaItem->description,
-			"siteUrl"			=> $playlist->getMediaItemUri($mediaItem),#
+			"siteUrl"			=> $playlist->getMediaItemUri($mediaItem),
 			"embed"				=> $embedDetails,
 			"coverArtUrls"		=> $coverArtUris,
 			"episodeNumber"		=> $playlist->getEpisodeNumber($mediaItem),
-			"scheduledPublishTime"	=> $mediaItem->scheduled_publish_time->timestamp,
+			"scheduledPublishTime"	=> $scheduledPublishTime,
 			"liveStream"		=> $liveStreamDetails,
 			"vod"				=> $vodDetails,
 			"viewCount"			=> $viewCountTotal,

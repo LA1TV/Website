@@ -81,7 +81,7 @@ class MediaItemVideo extends MyEloquent {
 	}
 	
 	public function getDates() {
-		return array_merge(parent::getDates(), array('time_recorded', 'scheduled_publish_time'));
+		return array_merge(parent::getDates(), array('time_recorded'));
 	}
 	
 	// returns true if this should be shown with the parent media item. If false it should look like the MediaItem does not have a video component.
