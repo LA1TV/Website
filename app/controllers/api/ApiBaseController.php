@@ -1,10 +1,11 @@
 <?php namespace uk\co\la1tv\website\controllers\api;
 
 use uk\co\la1tv\website\controllers\BaseController;
+use uk\co\la1tv\website\api\ApiResponseData;
 use Response;
 use Config;
-use Closure;
 use SmartCache;
+use Carbon;
 
 class ApiBaseController extends BaseController {
 
@@ -50,19 +51,30 @@ class ApiBaseController extends BaseController {
 	}
 	
 	public function respondNotFound() {
-		return $this->setStatusCode(404)->respond([], true);
+		return $this->setStatusCode(404)->respond([]);
 	}
 	
 	public function respondServerError($message=null) {
-		return $this->setStatusCode(500)->respond(["message"=>$message], true);
+		return $this->setStatusCode(500)->respond(["message"=>$message]);
 	}
 	
 	public function respondWithServiceUnavalable($message=null) {
-		return $this->setStatusCode(503)->respond(["message"=>$message], true);
+		return $this->setStatusCode(503)->respond(["message"=>$message]);
 	}
 	
-	// if $error is true then this will be returned with an "error" key instead of "data" key
-	public function respond($data, $error=false) {
+	public function createResponseFromApiResponseData(ApiResponseData $apiResponseData) {
+		return $this->setStatusCode($apiResponseData->getStatusCode())->respond($apiResponseData->getData(), $apiResponseData->getTimeCreated());
+	}
+	
+	public function respond($data, $timeDataCreated=null) {
+		
+		// presume if the status code isn't 200 then the data represents information about
+		// an error that has occurred.
+		$error = $this->statusCode !== 200;
+		
+		if (is_null($timeDataCreated)) {
+			$timeDataCreated = Carbon::now();
+		}
 		
 		if ($error) {
 			if ($this->statusCode === 200) {
@@ -90,7 +102,7 @@ class ApiBaseController extends BaseController {
 		$responseData = array(
 			"info"		=> [
 				"statusCode"	=> $this->statusCode,
-				"timeGenerated"	=> microtime(true)
+				"timeGenerated"	=> $timeDataCreated->timestamp
 			]
 		);
 		
@@ -103,11 +115,9 @@ class ApiBaseController extends BaseController {
 		return Response::json($responseData, $this->statusCode, $this->headers, $this->prettyPrint ? JSON_PRETTY_PRINT : 0);
 	}
 	
-	// if the response is cached and not old return cached version.
-	// otherwise cache response and return it
 	// $forceRefresh will force cache to be updated
-	protected function withCache($key, $seconds, Closure $callback, $forceRefresh=false) {
-		$fullKey = "api.v1.".($this->prettyPrint?"1":"0") . ":" . $key;
-		return SmartCache::get($fullKey, $seconds, $callback, $forceRefresh);
+	protected function withCache($key, $seconds, $providerMethod, $providerArgs, $forceRefresh=false) {
+		$fullKey = "api.v1:" . $key;
+		return SmartCache::get($fullKey, $seconds, "apiResponseDataGenerator", $providerMethod, $providerArgs, $forceRefresh);
 	}
 }

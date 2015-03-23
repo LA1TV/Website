@@ -2,16 +2,19 @@
 
 use Cache;
 use Carbon;
-use Closure;
 use Event;
 use Queue;
+use App;
 
 class SmartCacheManager {
 	
 	// if the object is cached and not old return cached version.
 	// otherwise cache object and return it
 	// $forceRefresh will force cache to be updated
-	public function get($key, $seconds, Closure $callback, $forceRefresh=false) {
+	// $providerName is the name registered in the IOC container.
+	// $providerMethod is the name of the method to call on the provider
+	// $providerMethodArgs is an array of arguments to supply to the provider method
+	public function get($key, $seconds, $providerName, $providerMethod, $providerMethodArgs=array(), $forceRefresh=false) {
 		// the first time the : must appear must be straight before $key
 		// otherwise there could be conflicts
 		$keyStart = "smartCache";
@@ -54,11 +57,13 @@ class SmartCacheManager {
 				// refresh the cache in the background as > half the time has passed
 				// before a refresh would be required
 				// the app.finish event is fired after the response has been returned to the user.
-				Event::listen('app.finish', function() use (&$key, &$seconds, &$callback) {
+				Event::listen('app.finish', function() use (&$key, &$seconds, &$providerName, &$providerMethod, &$providerMethodArgs) {
 					Queue::push("uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheQueueJob", [
-						"key"		=> $key,
-						"seconds"	=> $seconds,
-						"callback"	=> $callback
+						"key"					=> $key,
+						"seconds"				=> $seconds,
+						"providerName"			=> $providerName,
+						"providerMethod"		=> $providerMethod,
+						"providerMethodArgs"	=> $providerMethodArgs
 					]);
 				});
 			}
@@ -72,7 +77,7 @@ class SmartCacheManager {
 			Cache::put($creatingCacheKey, Carbon::now()->timestamp, ceil($creationTimeout/60));
 			$responseAndTime = [
 				"time"		=> Carbon::now()->timestamp,
-				"response"	=> $callback()
+				"response"	=> call_user_func_array([App::make($providerName), $providerMethod], $providerMethodArgs)
 			];
 			// the cache driver only works in minutes
 			Cache::put($fullKey, $responseAndTime, ceil($seconds/60));
