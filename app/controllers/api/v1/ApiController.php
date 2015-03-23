@@ -2,26 +2,14 @@
 
 use uk\co\la1tv\website\controllers\api\ApiBaseController;
 use uk\co\la1tv\website\api\ApiResponseDataGenerator;
-use uk\co\la1tv\website\api\transformers\ShowTransformer;
-use uk\co\la1tv\website\api\transformers\PlaylistTransformer;
-use uk\co\la1tv\website\api\transformers\MediaItemTransformer;
-use uk\co\la1tv\website\models\Show;
-use uk\co\la1tv\website\models\Playlist;
 
 class ApiController extends ApiBaseController {
 
-	private $showTransformer = null;
-	private $playlistTransformer = null;
-	private $mediaItemTransformer = null;
+	private $apiResponseDataGenerator = null;
 
-	public function __construct(ShowTransformer $showTransformer, PlaylistTransformer $playlistTransformer, MediaItemTransformer $mediaItemTransformer, ApiResponseDataGenerator $apiResponseDataGenerator) {
+	public function __construct(ApiResponseDataGenerator $apiResponseDataGenerator) {
 		parent::__construct();
 		$this->apiResponseDataGenerator = $apiResponseDataGenerator;
-		
-		// TODO remove rest
-		$this->showTransformer = $showTransformer;
-		$this->playlistTransformer = $playlistTransformer;
-		$this->mediaItemTransformer = $mediaItemTransformer;
 	}
 
 	public function getService() {
