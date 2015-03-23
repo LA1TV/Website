@@ -21,6 +21,9 @@ class SmartCacheManager {
 		$fullKey = $keyStart . ":" . $key;
 		// the key that will exist if the cache item is currently being created
 		$creatingCacheKey = $keyStart . ".creating:" . $key;
+		// time to wait in seconds before presuming item could not be created in cache because
+		// there was an issue.
+		$creationTimeout = 60;
 		
 		// get the cached version if there is one
 		$responseAndTime = Cache::get($fullKey, null);
@@ -37,9 +40,6 @@ class SmartCacheManager {
 		if (is_null($responseAndTime)) {
 			// check to see if the cache is currently being updated and wait, then try agian, if it is
 			$now = Carbon::now()->timestamp;
-			// time to wait in seconds before presuming item could not be created in cache because
-			// there was an issue.
-			$creationTimeout = 60;
 			$timeStartedCreating = Cache::get($creatingCacheKey, null);
 			if (!is_null($timeStartedCreating) && $timeStartedCreating >= $now-$creationTimeout) {
 				// no point forcing a refresh as a refresh is already happening,
