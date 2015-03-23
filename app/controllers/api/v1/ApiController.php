@@ -48,7 +48,7 @@ class ApiController extends ApiBaseController {
 	}
 	
 	public function getMediaItem($playlistId, $mediaItemId) {
-		$this->log("Request for media item  with id ".$mediaItemId." in playlist with id ".$playlistId.".");
+		$this->log("Request for media item with id ".$mediaItemId." in playlist with id ".$playlistId.".");
 		return $this->createResponseFromApiResponseData($this->withCache("media-item-".$playlistId."-".$mediaItemId, 5, "generateMediaItemResponseData", [$playlistId, $mediaItemId]));
 	}
 }
