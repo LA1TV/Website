@@ -37,7 +37,7 @@ App::after(function($request, $response)
 {
 	
 	if (Config::get("ssl.enabled") && Request::secure()) {
-		if (is_a($response, "Illuminate\Http\Response")) {
+		if (method_exists($response, "header")) {
 			$response->header("Strict-Transport-Security", "max-age=5256000");
 		}
 	}
@@ -100,8 +100,24 @@ Route::filter('csrf', function() {
 */
 
 Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
-	if (is_a($response, "Illuminate\Http\Response")) {
+	if (method_exists($response, "header")) {
 		$response->header("X-Frame-Options", "deny");
+	}
+});
+
+/*
+|--------------------------------------------------------------------------
+| Cors Header Filter
+|--------------------------------------------------------------------------
+|
+| Add headers to allow cross origin requests.
+|
+*/
+
+Route::filter('setCorsHeaders', function($route, $request, $response) {
+
+	if (method_exists($response, "header")) {
+		$response->header("Access-Control-Allow-Origin", "*");
 	}
 });
 
@@ -112,7 +128,7 @@ Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
 */
 
 Route::filter('setContentSecurityPolicyHeader', function($route, $request, $response) {
-	if (is_a($response, "Illuminate\Http\Response")) {
+	if (method_exists($response, "header")) {
 	
 		$allowedDomains = array();
 		
@@ -137,7 +153,7 @@ Route::filter('setContentSecurityPolicyHeader', function($route, $request, $resp
 */
 
 Route::filter('setP3PHeader', function($route, $request, $response) {
-	if (is_a($response, "Illuminate\Http\Response")) {
+	if (method_exists($response, "header")) {
 		$response->header("P3P", 'CP="Clifford"');
 	}
 });
