@@ -6,6 +6,8 @@ use Response;
 use Config;
 use SmartCache;
 use Carbon;
+use Log;
+use Request;
 
 class ApiBaseController extends BaseController {
 
@@ -119,5 +121,9 @@ class ApiBaseController extends BaseController {
 	protected function withCache($key, $seconds, $providerMethod, $providerArgs, $forceRefresh=false) {
 		$fullKey = "api.v1:" . $key;
 		return SmartCache::get($fullKey, $seconds, "apiResponseDataGenerator", $providerMethod, $providerArgs, $forceRefresh);
+	}
+	
+	protected function log($msg) {
+		Log::info("API request from " . Request::ip() . ": " . $msg);
 	}
 }
