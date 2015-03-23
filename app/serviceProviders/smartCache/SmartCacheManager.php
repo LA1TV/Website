@@ -21,28 +21,10 @@ class SmartCacheManager {
 		$fullKey = $keyStart . ":" . $key;
 		// the key that will exist if the cache item is currently being created
 		$creatingCacheKey = $keyStart . ".creating:" . $key;
-		$now = Carbon::now()->timestamp;
-		
-		// time to wait in seconds before presuming item could not be created in cache because
-		// there was an issue.
-		$creationTimeout = 60;
-		$timeStartedCreating = Cache::get($creatingCacheKey, null);
-		if (!is_null($timeStartedCreating) && $timeStartedCreating >= $now-$creationTimeout) {
-			// no point forcing a refresh as a refresh is already happening,
-			// so the latest version will be retrieved anyway
-			$forceRefresh = false;
-			// wait for cache to contain item, or timeout creating item
-			for ($i=0; $i<($creationTimeout-($now-$timeStartedCreating))*10; $i++) {
-				usleep(100 * 1000); // 0.1 seconds
-				if (is_null(Cache::get($creatingCacheKey, null))) {
-					// item created or key removed because timed out
-					break;
-				}
-			}
-		}
 		
 		// get the cached version if there is one
 		$responseAndTime = Cache::get($fullKey, null);
+		
 		if (!is_null($responseAndTime)) {
 			// check it hasn't expired
 			// cache driver only works in minutes which is why this is necessary
@@ -50,6 +32,30 @@ class SmartCacheManager {
 				// it's expired. pretend it's not in the cache
 				$responseAndTime = null;
 			}
+		}
+		
+		if (is_null($responseAndTime)) {
+			// check to see if the cache is currently being updated and wait, then try agian, if it is
+			$now = Carbon::now()->timestamp;
+			// time to wait in seconds before presuming item could not be created in cache because
+			// there was an issue.
+			$creationTimeout = 60;
+			$timeStartedCreating = Cache::get($creatingCacheKey, null);
+			if (!is_null($timeStartedCreating) && $timeStartedCreating >= $now-$creationTimeout) {
+				// no point forcing a refresh as a refresh is already happening,
+				// so the latest version will be retrieved anyway
+				$forceRefresh = false;
+				// wait for cache to contain item, or timeout creating item
+				for ($i=0; $i<($creationTimeout-($now-$timeStartedCreating))*10; $i++) {
+					usleep(100 * 1000); // 0.1 seconds
+					if (is_null(Cache::get($creatingCacheKey, null))) {
+						// item created or key removed because timed out
+						break;
+					}
+				}
+				// try again
+				return $this->get($key, $seconds, $providerName, $providerMethod, $providerMethodArgs, $forceRefresh);
+			}	
 		}
 		
 		if ($forceRefresh && !is_null($responseAndTime)) {
@@ -76,7 +82,7 @@ class SmartCacheManager {
 			}
 		}
 		
-		if (is_null($responseAndTime)) {
+		if (is_null($responseAndTime) || $forceRefresh) {
 			// create the key which will be checked to determine that work is being done.
 			// it is possible for this point in the code to be reached by several processes at the same time,
 			// but it is unlikely, and if it happens it just means the cache will be updated several times
