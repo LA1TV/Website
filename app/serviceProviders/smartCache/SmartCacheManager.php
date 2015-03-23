@@ -10,7 +10,7 @@ class SmartCacheManager {
 	
 	// if the object is cached and not old return cached version.
 	// otherwise cache object and return it
-	// $forceRefresh will force cache to be updated
+	// $forceRefresh will force cache to be updated if it is older than half of the timeout period
 	// $providerName is the name registered in the IOC container.
 	// $providerMethod is the name of the method to call on the provider
 	// $providerMethodArgs is an array of arguments to supply to the provider method
@@ -42,13 +42,20 @@ class SmartCacheManager {
 		}
 		
 		// get the cached version if there is one
-		$responseAndTime = !$forceRefresh ? Cache::get($fullKey, null): null;
+		$responseAndTime = Cache::get($fullKey, null);
 		if (!is_null($responseAndTime)) {
 			// check it hasn't expired
 			// cache driver only works in minutes which is why this is necessary
 			if ($responseAndTime["time"] < Carbon::now()->timestamp - $seconds) {
 				// it's expired. pretend it's not in the cache
 				$responseAndTime = null;
+			}
+		}
+		
+		if ($forceRefresh && !is_null($responseAndTime)) {
+			if (Carbon::now()->timestamp - $responseAndTime["time"] <= $seconds / 2) {
+				// don't force a refresh because the cache isn't older than half the time period
+				$forceRefresh = false;
 			}
 		}
 		
