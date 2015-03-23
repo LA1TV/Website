@@ -15,7 +15,7 @@
 			"app/commands",
 			"app/controllers",
 			"app/models",
-			"app/transformers",
+			"app/api",
 			"app/serviceProviders",
 			"app/jobs",
 			"app/database/migrations",

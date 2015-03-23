@@ -131,6 +131,7 @@ return array(
 		'uk\co\la1tv\website\serviceProviders\csrf\CsrfServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\upload\UploadServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheServiceProvider',
+		'uk\co\la1tv\website\api\ApiResponseDataGeneratorServiceProvider',
 	),
 
 	/*
