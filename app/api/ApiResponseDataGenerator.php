@@ -23,7 +23,6 @@ class ApiResponseDataGenerator {
 	
 	public function generateServiceResponseData() {
 		$data = [
-			"apiVersion"			=> 1,
 			"applicationVersion"	=> DebugHelpers::getVersion()
 		];
 		return new ApiResponseData($data);
