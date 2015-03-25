@@ -3,9 +3,9 @@
 - All responses from the api are json.
 - By default responses are pretty printed but you can append "?pretty=0" to disable this.
 - If an error occurs for some reason or something is unavailable a http status code other than 200 will be returned and we can no longer guarantee a json response if this is the case. For example, if we go into maintenence mode you will get a 503.
+- To access the api you need to provide a valid api key in a "X-Api-Key" header. To get an api key please contact us.
 
 ## Endpoints
-- No api key or authentication is needed in this version of the api.
 - All of the following urls should be appended to "https://www.la1tv.co.uk/api/v1".
 - All responses are json objects contained under a "data" key.
 

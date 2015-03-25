@@ -1,5 +1,8 @@
 <?php
 
+use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiException;
+use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedException;
+
 /*
 |--------------------------------------------------------------------------
 | Application & Route Filters
@@ -12,6 +15,15 @@
 */
 App::before(function($request)
 {
+	
+	App::error(function(ApiException $exception) {
+		return App::make('uk\co\la1tv\website\controllers\api\v1\ApiController')->callAction("respondServerError", array());
+	});
+	
+	App::error(function(ApiNotAuthenticatedException $exception) {
+		return App::make('uk\co\la1tv\website\controllers\api\v1\ApiController')->callAction("respondNotAuthenticated", array());
+	});
+	
 	App::missing(function($exception) {
 		return App::make('uk\co\la1tv\website\controllers\home\ErrorController')->callAction("generate404", array());
 	});

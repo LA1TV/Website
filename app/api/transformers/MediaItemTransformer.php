@@ -2,6 +2,7 @@
 
 use uk\co\la1tv\website\models\MediaItem;
 use Config;
+use ApiAuth;
 
 class MediaItemTransformer extends Transformer {
 	
@@ -73,19 +74,27 @@ class MediaItemTransformer extends Transformer {
 			$liveStream = $mediaItemLiveStream->liveStream;
 			$streamUrlData = null;
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
-			if (!is_null($liveStream) && $stateDefinition === 2) {
+			if (ApiAuth::getUser()->canViewStreamUris() && !is_null($liveStream) && $stateDefinition === 2) {
 				$streamUrlData = [];
 				foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
+					$urls = [];
+					foreach($qualityWithUris['uris'] as $a) {
+						$urls[] = [
+							"url"				=> $a['uri'],
+							"type"				=> $a['type'],
+							"supportedDevices"	=> is_null($a['supportedDevices']) ? null : explode(",", $a['supportedDevices'])
+						];
+					}
+					
 					$streamUrlData[] = [
 						"quality"	=> [
 							"id"	=> intval($qualityWithUris['qualityDefinition']->id),
 							"name"	=> $qualityWithUris['qualityDefinition']->name
 						],
-						"urls"		=> $qualityWithUris['uris']
+						"urls"	=> $urls
 					];
 				}
 			}
-			
 			
 			$liveStreamDetails = [
 				"state"					=> $state,
@@ -120,11 +129,34 @@ class MediaItemTransformer extends Transformer {
 				$vodTimeRecorded = $scheduledPublishTime;
 			}
 			
+			$vodUrlData = null;
+			if (ApiAuth::getUser()->canViewVodUris() && $mediaItemVideo->getIsLive()) {
+				foreach($mediaItemVideo->getQualitiesWithUris() as $qualityWithUris) {
+					$urls = [];
+					foreach($qualityWithUris['uris'] as $a) {
+						$urls[] = [
+							"url"				=> $a['uri'],
+							"type"				=> $a['type'],
+							"supportedDevices"	=> is_null($a['supportedDevices']) ? null : explode(",", $a['supportedDevices'])
+						];
+					}
+					
+					$vodUrlData[] = [
+						"quality"	=> [
+							"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+							"name"	=> $qualityWithUris['qualityDefinition']->name
+						],
+						"urls"		=> $urls
+					];
+				}
+			}
+			
 			$vodDetails = [
 				"available"		=> $vodAvailable,
 				"timeRecorded"	=> $vodTimeRecorded,
 				"chapters"		=> $vodChapters,
-				"viewCount"		=> $vodViewCount
+				"viewCount"		=> $vodViewCount,
+				"urlData"		=> $vodUrlData
 			];
 		}
 		
