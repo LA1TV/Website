@@ -8,6 +8,7 @@ use SmartCache;
 use Carbon;
 use Log;
 use Request;
+use ApiAuth;
 
 class ApiBaseController extends BaseController {
 
@@ -64,6 +65,10 @@ class ApiBaseController extends BaseController {
 		return $this->setStatusCode(503)->respond(["message"=>$message]);
 	}
 	
+	public function respondNotAuthenticated() {
+		return $this->setStatusCode(403)->respond(["message"=>'You are not authenticated. Contact "'.Config::get("contactEmails.development").'" if you need an api key.']);
+	}
+	
 	public function createResponseFromApiResponseData(ApiResponseData $apiResponseData) {
 		return $this->setStatusCode($apiResponseData->getStatusCode())->respond($apiResponseData->getData(), $apiResponseData->getTimeCreated());
 	}
@@ -87,6 +92,9 @@ class ApiBaseController extends BaseController {
 			if (empty($data['message'])) {
 				if ($this->statusCode === 404) {
 					$data['message'] = "Not found!";
+				}
+				else if ($this->statusCode === 403) {
+					$data['message'] = "You are not allowed to access this.";
 				}
 				else if ($this->statusCode === 500) {
 					$data['message'] = 'Server error. Contact "'.Config::get("contactEmails.development").'" for support.';
@@ -124,6 +132,14 @@ class ApiBaseController extends BaseController {
 	}
 	
 	protected function log($msg) {
-		Log::info("API request from " . Request::ip() . ": " . $msg);
+		$tmp = null;
+		$user = ApiAuth::getUser();
+		if (is_null($user)) {
+			$tmp = 'API request from ' . Request::ip();
+		}
+		else {
+			$tmp = 'API request from "' . $user->owner . '" at ' . Request::ip();
+		}
+		Log::info($tmp . ': ' . $msg);
 	}
 }
