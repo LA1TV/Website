@@ -81,6 +81,15 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 				
 				// show a json 404
 				Route::get('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
+				// handle requests with OPTIONS method
+				Route::options('{catchAll}', function() {
+					$response = Response::make("", 204); // 204 = No Content
+					$response->header("Access-Control-Allow-Origin", "*");
+					$response->header("Access-Control-Allow-Methods", "OPTIONS, GET");
+					$response->header("Access-Control-Max-Age", 300); // cache preflight request for 5 mins
+					$response->header("Access-Control-Allow-Headers", "X-Api-Key");
+					return $response;
+				});
 			});
 			
 			
