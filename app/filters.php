@@ -93,7 +93,7 @@ Route::filter('auth', function() {
 */
 
 Route::filter('csrf', function() {
-	if (Request::isMethod('get')) {
+	if (Request::isMethod('get') || Request::isMethod('options')) {
 		return;
 	}
 	
