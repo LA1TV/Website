@@ -13,7 +13,7 @@
 					<th>Has DVR</th>
 					<th>Time Created</th>
 					<?php if ($editEnabled): ?>
-					<th></th>
+					<th class="action-col"><a type="button" class="btn btn-xs btn-primary" href="<?=e($createUri)?>">Create</a></th>
 					<?php endif; ?>
 				</tr>
 			</thead>
