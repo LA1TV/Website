@@ -275,7 +275,7 @@ class MediaController extends MediaBaseController {
 					$mediaItem->likes_enabled = FormHelpers::toBoolean($formData['likes-enabled']);
 					// if comments are being disabled then remove any existing comments.
 					$commentsEnabled = FormHelpers::toBoolean($formData['comments-enabled']);
-					$currentCommentsEnabled = $mediaItem->comments_enabled;
+					$currentCommentsEnabled = (boolean) $mediaItem->comments_enabled;
 					$mediaItem->comments_enabled = $commentsEnabled;
 					if ($currentCommentsEnabled !== $commentsEnabled) {
 						// remove when changing from enabled to disabled and vice versa
