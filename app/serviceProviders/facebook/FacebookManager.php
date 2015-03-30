@@ -107,6 +107,7 @@ class FacebookManager {
 		if (is_null($user)) {
 			// user not logged in before. create new user
 			$user = new SiteUser();
+			$user->fb_access_token = (String) $token;
 			$user->fb_uid = $profile->getId();
 			$user->fb_last_update_time = Carbon::now();
 			$user->last_seen = Carbon::now();
@@ -115,6 +116,9 @@ class FacebookManager {
 				// there was an error getting the users information so abort authorizing the user
 				return false;
 			}
+		}
+		else {
+			$user->fb_access_token = (String) $token;	
 		}
 		
 		if (is_null($user->secret)) {
@@ -125,7 +129,6 @@ class FacebookManager {
 		}
 		$this->storeOurSecret($user->secret);
 		
-		$user->fb_access_token = (String) $token;
 		$this->facebookTokenValid = true;
 		$user->save();
 	}
