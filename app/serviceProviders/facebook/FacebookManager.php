@@ -111,7 +111,10 @@ class FacebookManager {
 			$user->fb_last_update_time = Carbon::now();
 			$user->last_seen = Carbon::now();
 			// populate the model with the rest of the users information from facebook.
-			$this->updateUser($user);
+			if (!$this->updateUser($user)) {
+				// there was an error getting the users information so abort authorizing the user
+				return false;
+			}
 		}
 		
 		if (is_null($user->secret)) {
@@ -252,7 +255,7 @@ class FacebookManager {
 	// updates the user model with information from facebook
 	// does not save the model
 	private function updateUser($user) {
-		$this->updateUserOpenGraph($user, true);
+		return $this->updateUserOpenGraph($user, true);
 	}
 	
 	// updates the user model with information from opengraph. this includes the users permissions
@@ -284,10 +287,20 @@ class FacebookManager {
 			Log::error('Exception when trying to make facebook opengraph request.', array('exception' => $e));
 			return false;
 		}
+		
+		$firstName = $profile->getFirstName();
+		$lastName = $profile->getLastName();
+		$name = $profile->getName();
+		
+		if (is_null($firstName) || is_null($lastName) || is_null($name)) {
+			// the database is expecting these
+			return false;
+		}
+		
 		// add/update details
-		$user->first_name = $profile->getFirstName();
-		$user->last_name = $profile->getLastName();
-		$user->name = $profile->getName();
+		$user->first_name = $firstName;
+		$user->last_name = $lastName;
+		$user->name = $name;
 		$user->fb_email = $profile->getEmail();
 		$user->fb_last_update_time = Carbon::now();
 		
