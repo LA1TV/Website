@@ -5,7 +5,7 @@ use Config;
 
 class PlaylistTransformer extends Transformer {
 	
-	public function transform($playlist) {
+	public function transform($playlist, array $options) {
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
 		$showInfo = is_null($playlist->show_id) ? null : [

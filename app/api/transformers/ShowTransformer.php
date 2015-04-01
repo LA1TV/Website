@@ -4,7 +4,7 @@ use uk\co\la1tv\website\models\Show;
 
 class ShowTransformer extends Transformer {
 	
-	public function transform($show) {
+	public function transform($show, array $options) {
 		return [
 			"id"			=> intval($show->id),
 			"name"			=> $show->name,

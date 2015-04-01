@@ -2,12 +2,11 @@
 
 use uk\co\la1tv\website\models\MediaItem;
 use Config;
-use ApiAuth;
 
 class MediaItemTransformer extends Transformer {
 	
 	// array where first element is the playlist, second is media item
-	public function transform($mediaItemAndPlaylist) {
+	public function transform($mediaItemAndPlaylist, array $options) {	
 		if (count($mediaItemAndPlaylist) !== 2) {
 			throw(new Exception("mediaItemAndPlaylist invalid."));
 		}
@@ -74,7 +73,7 @@ class MediaItemTransformer extends Transformer {
 			$liveStream = $mediaItemLiveStream->liveStream;
 			$streamUrlData = null;
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
-			if (ApiAuth::getUser()->canViewStreamUris() && !is_null($liveStream) && $stateDefinition === 2) {
+			if ($options['showStreamUris'] && !is_null($liveStream) && $stateDefinition === 2) {
 				$streamUrlData = [];
 				foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
 					$urls = [];
@@ -130,7 +129,7 @@ class MediaItemTransformer extends Transformer {
 			}
 			
 			$vodUrlData = null;
-			if (ApiAuth::getUser()->canViewVodUris() && $mediaItemVideo->getIsLive()) {
+			if ($options['showVodUris'] && $mediaItemVideo->getIsLive()) {
 				foreach($mediaItemVideo->getQualitiesWithUris() as $qualityWithUris) {
 					$urls = [];
 					foreach($qualityWithUris['uris'] as $a) {
