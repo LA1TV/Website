@@ -2,10 +2,11 @@
 
 abstract class Transformer {
 
-	public function transformCollection(array $items) {
-		return array_map([$this, "transform"], $items);
+	// the $options array will be passed to every item
+	public function transformCollection(array $items, array $options=[]) {
+		return array_map([$this, "transform"], $items, array_fill(0, count($items), $options));
 	}
 	
-	public abstract function transform($item);
+	public abstract function transform($item, array $options);
 	
 }

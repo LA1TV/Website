@@ -126,9 +126,9 @@ class ApiBaseController extends BaseController {
 	}
 	
 	// $forceRefresh will force cache to be updated
-	protected function withCache($key, $seconds, $providerMethod, $providerArgs, $forceRefresh=false) {
-		$fullKey = "api.v1:" . $key;
-		return SmartCache::get($fullKey, $seconds, "apiResponseDataGenerator", $providerMethod, $providerArgs, $forceRefresh);
+	protected function withCache($seconds, $providerMethod, $providerArgs, $forceRefresh=false) {
+		$key = "api.v1.".$providerMethod.".".md5(serialize($providerArgs));
+		return SmartCache::get($key, $seconds, "apiResponseDataGenerator", $providerMethod, $providerArgs, $forceRefresh);
 	}
 	
 	protected function log($msg) {
