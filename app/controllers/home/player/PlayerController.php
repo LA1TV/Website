@@ -215,8 +215,9 @@ class PlayerController extends HomeBaseController {
 				"title" 			=> $playlist->generateName(),
 				"seriesUri"			=> !is_null($playlist->show) ? $playlist->show->getUri() : null,
 				"navButtons"		=> array(
-					"previousItemUri"	=> $playlistPreviousItemUri,
-					"nextItemUri"		=> $playlistNextItemUri
+					"previousItemUri"		=> $playlistPreviousItemUri,
+					"nextItemUri"			=> $playlistNextItemUri,
+					"showAutoPlayButton"	=> true
 				)
 			),
 			"tableData"		=> $playlistTableData

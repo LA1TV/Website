@@ -17,6 +17,8 @@ define([
 		$pageContainer.find(".player-container-component-container").each(function() {
 			var self = this;
 			
+			// TODO get auto play mode here and if it's enabled set autoPlayVod and autoPlayStream to 1 and start time to 0
+			
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
@@ -40,6 +42,7 @@ define([
 				$(self).empty();
 				$(self).append(playerContainer.getEl());
 				playerController = playerContainer.getPlayerController();
+				initAutoPlayControl();
 			});
 		});
 		
@@ -198,6 +201,71 @@ define([
 			});
 		});
 		
+		
+		// handle autoplay
+		function initAutoPlayControl() {
+			$pageContainer.find(".playlist").each(function() {
+				
+				var currentMediaItemId = parseInt($(this).attr("data-current-media-item-id"));
+				var autoPlayState = 0; // 0=off, 1=auto continue, 2=auto continue and loop
+				var infoUri = $(this).attr("data-info-uri");
+				
+				// get reference to the autoplay button
+				var $autoPlayBtnItem = $(this).find(".auto-play-btn-item").first();
+				var $autoPlayBtn = $(this).find(".auto-play-btn").first();
+				
+				$autoPlayBtnItem.css("display", "inline-block");
+				
+				$autoPlayBtn.click(function() {
+					if (shifted && autoPlayState !== 2) {
+						// shift key being held down
+						autoPlayState = 2;
+					}
+					else if (autoPlayState === 0) {
+						autoPlayState = 1;
+					}
+					else {
+						autoPlayState = 0;
+					}
+					render();
+				});
+				
+				render();
+				
+				$(playerController).on("vodEnded streamStopped", function() {
+					setTimeout(checkAndMoveOn, 0);
+				});
+				
+				function render() {
+					$autoPlayBtn.removeClass("btn-default btn-info btn-danger active");
+					if (autoPlayState === 0) {
+						$autoPlayBtn.addClass("btn-default");
+					}
+					else if (autoPlayState === 1) {
+						$autoPlayBtn.addClass("active btn-info");
+					}
+					else if (autoPlayState === 2) {
+						$autoPlayBtn.addClass("active btn-danger");
+					}
+					else {
+						throw "Unknown auto play state.";
+					}
+					$autoPlayBtn.attr("aria-pressed", autoPlayState !== 0);
+				}
+				
+				// determine if should move onto something else, and do it if necessary
+				function checkAndMoveOn() {
+					// TODO determine if still ok to stay on this page. ie player type isn't "ad" and whatever it is is not in "end" state
+					// if it's not make request to /playlists/{id} to determine where to go next and go there
+				}
+				
+				var shifted = false;
+				$(document).on('keyup keydown', function(e){
+					shifted = e.shiftKey;
+					return true;
+				});
+			});
+		}
 	});
 	
 });

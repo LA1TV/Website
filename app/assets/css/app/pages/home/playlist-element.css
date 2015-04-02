@@ -16,6 +16,10 @@
 	display: inline-block;
 }
 
+.playlist-element .button-row .buttons .item.auto-play-btn-item {
+	display: none;
+}
+
 .playlist-element .button-row .playlist-title {
 	display: inline;
 	padding: 0;

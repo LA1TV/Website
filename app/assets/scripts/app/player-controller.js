@@ -250,6 +250,11 @@ define([
 						streamStartTime = SynchronisedTime.getDate();
 					}
 				});
+				$(playerComponent).on("ended", function() {
+					if (self.getPlayerType() === "vod") {
+						$(self).triggerHandler("vodEnded");
+					}
+				});
 			}
 			
 			var deviceStreamUriGroups = data.streamUris !== null ? extractUrisForDevice(data.streamUris) : null;
@@ -421,7 +426,11 @@ define([
 				streamState = data.streamState;
 				$(self).triggerHandler("streamStateChanged");
 			}
+			
 			if (playerType !== queuedPlayerType) {
+				if (playerType === "live" && queuedPlayerType !== "live") {
+					$(self).triggerHandler("streamStopped");
+				}
 				playerType = queuedPlayerType;
 				$(self).triggerHandler("playerTypeChanged");
 			}
