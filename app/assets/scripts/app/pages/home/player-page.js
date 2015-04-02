@@ -367,10 +367,13 @@ define([
 	
 	function getAutoPlayStateFromCookie() {
 		var state = $.cookie("autoPlayState");
-		if (!state) {
-			return 0;
+		var result = 0;
+		if (state) {
+			result = parseInt(state);
 		}
-		return parseInt(state);
+		// refresh the cookie
+		writeAutoPlayStateToCookie(result);
+		return result;
 	}
 	
 	function writeAutoPlayStateToCookie(state) {
