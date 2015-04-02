@@ -5,6 +5,7 @@ use View;
 use App;
 use URLHelpers;
 use Config;
+use Response;
 use uk\co\la1tv\website\models\Playlist;
 use PlaylistTableHelpers;
 
@@ -122,6 +123,40 @@ class PlaylistController extends HomeBaseController {
 		)) : null;
 		$view->seriesUri = !is_null($playlist->show) ? $playlist->show->getUri() : null;
 		$this->setContent($view, "playlist", "playlist", $openGraphProperties, $playlistName, 200, $twitterProperties);
+	}
+	
+	// return json array of items in the playlist in order
+	public function postPlaylistInfo($id) {
+		$playlist = Playlist::accessibleToPublic()->find(intval($id));
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		$data = array();
+		
+		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
+		$mediaItems->load("videoItem", "liveStreamItem", "liveStreamItem.stateDefinition");
+		foreach($mediaItems as $a) {
+			$vod = null;
+			$stream = null;
+			if (!is_null($a->videoItem)) {
+				$vod = array(
+					"accessible"	=> $a->videoItem->getIsLive()
+				);
+			}
+			if (!is_null($a->liveStreamItem)) {
+				$stream = array(
+					"state"	=> intval($a->liveStreamItem->getResolvedStateDefinition()->id)
+				);
+			}
+			$data[] = array(
+				"id"		=> intval($a->id),
+				"vod"		=> $vod,
+				"stream"	=> $stream,
+				"url"		=> $playlist->getMediaItemUri($a)
+			);
+		}
+		return Response::json($data);
 	}
 	
 	public function missingMethod($parameters=array()) {
