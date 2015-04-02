@@ -28,6 +28,7 @@ return array(
 	"open_graph_logo_uri"	=> asset("assets/img/og-logo.jpg"),
 	"live_shows_uri"	=> URL::to("/") . "/player/live-shows",
 	"player_info_base_uri"	=> URL::to("/") . "/player/player-info",
+	"playlist_info_base_uri"	=> URL::to("/") . "/playlist/playlist-info",
 	"player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"update_playback_time_base_uri"	=> URL::to("/") . "/player/register-playback-time",
