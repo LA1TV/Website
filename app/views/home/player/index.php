@@ -90,7 +90,7 @@
 			<a class="btn btn-info btn-block" href="<?=e($seriesAd['uri']);?>">Go To "<?=e($seriesAd['name']);?>"</a>
 		</div>
 	<?php endif; ?>
-		<div class="playlist" data-info-uri="" data-current-media-item-id="<?=e($mediaItemId);?>">
+		<div class="playlist" data-info-uri="<?=e($playlistInfoUri);?>" data-current-media-item-id="<?=e($mediaItemId);?>">
 			<?=$playlistTableFragment?>
 		</div>
 		<?php if (!is_null($relatedItemsTableFragment)): ?>

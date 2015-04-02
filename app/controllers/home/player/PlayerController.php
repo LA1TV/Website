@@ -276,6 +276,7 @@ class PlayerController extends HomeBaseController {
 		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
 		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
+		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
@@ -805,6 +806,10 @@ class PlayerController extends HomeBaseController {
 	
 	private function getInfoUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getPlaylistInfoUri($playlistId) {
+		return Config::get("custom.playlist_info_base_uri")."/".$playlistId;
 	}
 	
 	private function getRegisterViewCountUri($playlistId, $mediaItemId) {

@@ -141,7 +141,7 @@ class PlaylistController extends HomeBaseController {
 			$stream = null;
 			if (!is_null($a->videoItem)) {
 				$vod = array(
-					"accessible"	=> $a->videoItem->getIsLive()
+					"available"	=> $a->videoItem->getIsLive()
 				);
 			}
 			if (!is_null($a->liveStreamItem)) {

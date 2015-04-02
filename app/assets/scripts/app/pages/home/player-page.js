@@ -5,28 +5,32 @@ define([
 	"../../components/player-container",
 	"../../page-data",
 	"../../helpers/build-get-uri",
+	"../../cookie-config",
+	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData, buildGetUri) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData, buildGetUri, CookieConfig) {
+	
+	var autoPlayState = getAutoPlayStateFromCookie(); // 0=off, 1=auto continue, 2=auto continue and loop
 	
 	var playerController = null;
-	
+	var autoPlayVod = null;
+	var autoPlayStream = null;
+		
 	$(".page-player").first().each(function() {
 		
 		var $pageContainer = $(this).first();
 		
 		$pageContainer.find(".player-container-component-container").each(function() {
 			var self = this;
-			
-			// TODO get auto play mode here and if it's enabled set autoPlayVod and autoPlayStream to 1 and start time to 0
-			
+		
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
 			var updatePlaybackTimeBaseUri = $(this).attr("data-update-playback-time-base-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
-			var autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
-			var autoPlayStream = true; // always autoplay stream
+			autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
+			autoPlayStream = true; // always autoplay stream
 			var vodPlayStartTime = $(this).attr("data-vod-play-start-time") === "" ? null : parseInt($(this).attr("data-vod-play-start-time"));
 			var ignoreExternalStreamUrl = false;
 			var initialVodQualityId = null;
@@ -36,8 +40,17 @@ define([
 			var placeQualitySelectionComponentInPlayer = false;
 			var showTitleInPlayer = false;
 			var embedded = false
+			
+			var resolvedAutoPlayVod = autoPlayVod;
+			var resolvedAutoPlayStream = autoPlayStream;
+			
+			if (autoPlayState !== 0) {
+				// auto continue is enabled so this should auto play from the beginning
+				resolvedAutoPlayVod = resolvedAutoPlayStream = true;
+				vodPlayStartTime = 0;
+			}
 		
-			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer);
+			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, resolvedAutoPlayVod, resolvedAutoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer);
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());
@@ -207,7 +220,6 @@ define([
 			$pageContainer.find(".playlist").each(function() {
 				
 				var currentMediaItemId = parseInt($(this).attr("data-current-media-item-id"));
-				var autoPlayState = 0; // 0=off, 1=auto continue, 2=auto continue and loop
 				var infoUri = $(this).attr("data-info-uri");
 				
 				// get reference to the autoplay button
@@ -226,6 +238,15 @@ define([
 					}
 					else {
 						autoPlayState = 0;
+					}
+					
+					if (autoPlayState !== 0) {
+						playerController.setAutoPlayVod(true);
+						playerController.setAutoPlayStream(true);
+					}
+					else {
+						playerController.setAutoPlayVod(autoPlayVod);
+						playerController.setAutoPlayStream(autoPlayStream);
 					}
 					render();
 				});
@@ -250,13 +271,89 @@ define([
 					else {
 						throw "Unknown auto play state.";
 					}
+					writeAutoPlayStateToCookie(autoPlayState);
 					$autoPlayBtn.attr("aria-pressed", autoPlayState !== 0);
 				}
 				
 				// determine if should move onto something else, and do it if necessary
+				var moveOnCheckInProgress = false;
 				function checkAndMoveOn() {
-					// TODO determine if still ok to stay on this page. ie player type isn't "ad" and whatever it is is not in "end" state
-					// if it's not make request to /playlists/{id} to determine where to go next and go there
+					if (autoPlayState === 0) {
+						// autoplay disabled
+						return;
+					}
+					
+					if (moveOnCheckInProgress) {
+						// check is already ongoing so no point starting another.
+						return;
+					}
+					
+					if (!allowedToMoveOn()) {
+						// try again in 8 seconds
+						setTimeout(checkAndMoveOn, 8000);
+						return;
+					}
+					moveOnCheckInProgress = true;
+					// determine where to go next
+					jQuery.ajax(infoUri, {
+						cache: false,
+						dataType: "json",
+						data: {
+							csrf_token: PageData.get("csrfToken")
+						},
+						type: "POST"
+					}).done(function(data) {
+						if (!allowedToMoveOn()) {
+							moveOnCheckInProgress = false;
+							return;
+						}
+						var foundCurrentItem = false;
+						var mediaItemToRedirectTo = null;
+						for (var j=0; j===0 || (j<2 && mediaItemToRedirectTo === null && autoPlayState === 2); j++) {
+							for (var i=0; i<data.length; i++) {
+								var mediaItem = data[i];
+								if (foundCurrentItem) {
+									if ((mediaItem.vod !== null && mediaItem.vod.available) || (mediaItem.stream !== null && mediaItem.stream.state === 2)) {
+										// has accessible vod, or stream which is live
+										mediaItemToRedirectTo = mediaItem;
+										break;
+									}
+								}
+								if (mediaItem.id === currentMediaItemId) {
+									foundCurrentItem = true;
+								}
+							}
+							
+							if (!foundCurrentItem) {
+								// the current item has disappeared for some reason
+								// pretend found it and run through the loop again to get first media item that is ready
+								foundCurrentItem = true;
+							}
+						}
+						if (mediaItemToRedirectTo === null) {
+							moveOnCheckInProgress = false;
+							// try again in 8 seconds
+							setTimeout(checkAndMoveOn, 8000);
+							return;
+						}
+						// redirect to next media item
+						window.location = mediaItemToRedirectTo.url;
+					}).fail(function() {
+						moveOnCheckInProgress = false;
+						// try again in 8 seconds
+						setTimeout(checkAndMoveOn, 8000);
+					});
+				}
+				
+				// determine if we are allowed to move on
+				var pageLoadTime = new Date().getTime();
+				function allowedToMoveOn() {
+					if (new Date().getTime() - pageLoadTime < 15000) {
+						// less than 15 seconds have passed since the page loaded.
+						// don't allow moving on yet to make sure don't start a dos attack!
+						return false;
+					}
+					return autoPlayState !== 0 && !(playerController.getPlayerType() === "live" || (playerController.getPlayerType() === "vod" && !playerController.hasVodEnded()));
 				}
 				
 				var shifted = false;
@@ -267,5 +364,18 @@ define([
 			});
 		}
 	});
+	
+	function getAutoPlayStateFromCookie() {
+		var state = $.cookie("autoPlayState");
+		if (!state) {
+			return 0;
+		}
+		return parseInt(state);
+	}
+	
+	function writeAutoPlayStateToCookie(state) {
+		var config = $.extend({}, CookieConfig, {expires: 1});
+		$.cookie("autoPlayState", state, config)
+	}
 	
 });
