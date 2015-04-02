@@ -6,9 +6,10 @@ define([
 	"../../page-data",
 	"../../helpers/build-get-uri",
 	"../../cookie-config",
+	"../../device-detection",
 	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData, buildGetUri, CookieConfig) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData, buildGetUri, CookieConfig, DeviceDetection) {
 	
 	var autoPlayState = getAutoPlayStateFromCookie(); // 0=off, 1=auto continue, 2=auto continue and loop
 	
@@ -217,6 +218,11 @@ define([
 		
 		// handle autoplay
 		function initAutoPlayControl() {
+			
+			if (!isAutoPlayEnabled()) {
+				return;
+			}
+			
 			$pageContainer.find(".playlist").each(function() {
 				
 				var currentMediaItemId = parseInt($(this).attr("data-current-media-item-id"));
@@ -366,6 +372,10 @@ define([
 	});
 	
 	function getAutoPlayStateFromCookie() {
+		if (!isAutoPlayEnabled()) {
+			return 0;
+		}
+		
 		var state = $.cookie("autoPlayState");
 		var result = 0;
 		if (state) {
@@ -379,6 +389,12 @@ define([
 	function writeAutoPlayStateToCookie(state) {
 		var config = $.extend({}, CookieConfig, {expires: 1});
 		$.cookie("autoPlayState", state, config)
+	}
+	
+	function isAutoPlayEnabled() {
+		// only allow the auto continue feature if not on a mobile
+		// (ios devices disable autoplay on the <video> tag)
+		return !DeviceDetection.isMobile();
 	}
 	
 });
