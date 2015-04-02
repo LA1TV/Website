@@ -22,6 +22,8 @@ define([
 	//		called with an array of {id, name}
 	//		will be an empty array in the case of there being no video
 	
+	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
+	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer) {
 		
 		var self = this;
@@ -108,6 +110,13 @@ define([
 			}
 		};
 		
+		this.hasVodEnded = function() {
+			if (self.getPlayerType() !== "vod") {
+				throw "Only valid when player type is VOD.";
+			}
+			return playerComponent.hasEnded();
+		};
+		
 		// 1=not live, 2=live, 3=show over, null=no live stream
 		this.getStreamState = function() {
 			return streamState;
@@ -124,6 +133,26 @@ define([
 		
 		this.getOverrideModeEnabled = function() {
 			return overrideModeEnabled;
+		};
+		
+		this.setAutoPlayVod = function(enabled) {
+			autoPlayVod = enabled;
+			if (!enabled) {
+				resolvedAutoPlayVod = false;
+			}
+			else if (playerComponent === null || !playerComponent.paused()) {
+				resolvedAutoPlayVod = true;
+			}
+		};
+		
+		this.setAutoPlayStream = function(enabled) {
+			autoPlayStream = enabled;
+			if (!enabled) {
+				resolvedAutoPlayStream = false;
+			}
+			else if (playerComponent === null || !playerComponent.paused()) {
+				resolvedAutoPlayStream = true;
+			}
 		};
 
 		var destroyed = false;
@@ -143,6 +172,8 @@ define([
 		var streamStartTime = null; // the time the user started watching the stream
 		var overrideModeEnabled = null;
 		var queuedOverrideModeEnabled = false;
+		var resolvedAutoPlayVod = autoPlayVod;
+		var resolvedAutoPlayStream = autoPlayStream;
 		var embedData = null;
 		var viewCountRegistered = false;
 		var rememberedTimeTimerId = null;
@@ -242,6 +273,10 @@ define([
 						viewCountRegistered = true;
 						registerViewCount();
 					}
+					// content is playing (again)
+					// reenable auto play if the user requested it to be enabled
+					resolvedAutoPlayVod = autoPlayVod;
+					resolvedAutoPlayStream = autoPlayStream;
 				});
 				$(playerComponent).on("loadedMetadata", function() {
 					// called at the point when the browser starts receiving the stream/video
@@ -249,6 +284,16 @@ define([
 					if (playerType === "live") {
 						streamStartTime = SynchronisedTime.getDate();
 					}
+				});
+				$(playerComponent).on("ended", function() {
+					if (self.getPlayerType() === "vod") {
+						$(self).triggerHandler("vodEnded");
+					}
+				});
+				$(playerComponent).on("pause", function() {
+					// disable auto play, because the user has paused whatever is playing
+					// this means if the content was to switch, they probably don't want it to automatically start again
+					resolvedAutoPlayVod = resolvedAutoPlayStream = false;
 				});
 			}
 			
@@ -329,15 +374,15 @@ define([
 				// this may be down to the user changing quality or changed remotely for some reason
 				setPlayerType(queuedPlayerType);
 				if (queuedPlayerType === "live") {
-					if (autoPlayStream) {
+					if (resolvedAutoPlayStream) {
 						// auto start live stream
 						playerComponent.setPlayerStartTime(0, true);
 					}
 				}
 				else if (queuedPlayerType === "vod") {
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
-					if (autoPlayVod && firstLoad) {
-						// this is the first load of the player, and the autoplay flag is set, so autoplay
+					if (resolvedAutoPlayVod) {
+						// autoplay flag is set, so autoplay
 						if (vodPlayStartTime !== null) {
 							playerComponent.setPlayerStartTime(vodPlayStartTime, true, false);
 						}
@@ -421,7 +466,11 @@ define([
 				streamState = data.streamState;
 				$(self).triggerHandler("streamStateChanged");
 			}
+			
 			if (playerType !== queuedPlayerType) {
+				if (playerType === "live" && queuedPlayerType !== "live") {
+					$(self).triggerHandler("streamStopped");
+				}
 				playerType = queuedPlayerType;
 				$(self).triggerHandler("playerTypeChanged");
 			}

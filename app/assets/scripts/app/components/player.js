@@ -164,6 +164,13 @@ define([
 			return null;
 		};
 		
+		this.hasEnded = function() {
+			if (videoJsPlayer === null) {
+				throw "Invalid operation.";
+			}
+			return videoJsPlayer.ended();
+		};
+		
 		// jump to a specific time (seconds) in the video if it's vod
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
