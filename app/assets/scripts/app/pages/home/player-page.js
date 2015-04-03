@@ -223,7 +223,7 @@ define([
 					autoContinueManager.setMode(autoContinueButton.getMode());
 				});
 				
-				$(this).find(".auto-play-btn-item").append(autoContinueButton.getEl());
+				$(this).find(".auto-continue-btn-item").append(autoContinueButton.getEl());
 				
 			});
 		}
