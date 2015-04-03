@@ -2,6 +2,7 @@
 
 return array(
 	"site_description"	=> "Lancaster University's Student Union TV station.",
+	"home_redirect_url"	=> isset($_ENV['HOME_REDIRECT_URL']) ? $_ENV['HOME_REDIRECT_URL'] : null,
 	"files_location"	=> storage_path() . DIRECTORY_SEPARATOR ."files",
 	"file_chunks_location"	=> storage_path() . DIRECTORY_SEPARATOR ."file_chunks",
 	"items_per_page"	=> 12,
