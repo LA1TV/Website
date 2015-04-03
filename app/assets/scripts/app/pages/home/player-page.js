@@ -7,9 +7,10 @@ define([
 	"../../page-data",
 	"../../helpers/build-get-uri",
 	"./auto-continue-manager",
+	"../../device-detection",
 	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection) {
 	
 	var playerController = null;
 		
@@ -203,6 +204,13 @@ define([
 		});
 		
 		function initAutoContinue() {
+			
+			// only allow the auto continue feature if not on a mobile
+			// (ios devices disable autoplay on the <video> tag)
+			if (DeviceDetection.isMobile()) {
+				return;
+			}
+			
 			$pageContainer.find(".playlist").each(function() {
 				
 				var infoUri = $(this).attr("data-info-uri");
