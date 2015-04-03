@@ -3,11 +3,13 @@
 use Exception;
 use Config;
 use Cache;
+use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
 
 	protected $table = 'live_streams';
 	protected $fillable = array('name', 'description', 'enabled');
+	protected $appends = array('urls_for_orderable_list', 'urls_for_input');
 	
 	public function liveStreamItems() {
 		return $this->hasMany(self::$p.'MediaItemLiveStream', 'live_stream_id');
@@ -16,6 +18,49 @@ class LiveStream extends MyEloquent {
 	public function liveStreamUris() {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
+	
+	public function getUrlsDataForReorderableList() {
+		$qualitiesWithUris = $this->getQualitiesWithUris();
+		$urls = array();
+		foreach($qualitiesWithUris as $a) {
+			foreach($a['uris'] as $b) {
+				$urls[] = array(
+					"qualityState"	=> array(
+						"id"	=> intval($a['qualityDefinition']->id),
+						"text"	=> $a['qualityDefinition']->name
+					),
+					"url"	=> $b['uri']
+				);
+			}
+		}
+		return $urls;
+	}
+	
+	
+	public function getUrlsForOrderableListAttribute() {
+		return self::generateInitialDataForUrlsOrderableList($this->getUrlsDataForReorderableList());
+	}
+	
+	public function getUrlsForInputAttribute() {
+		return self::generateInputValueForUrlsOrderableList($this->getUrlsDataForReorderableList());
+	}
+	
+	public static function isValidDataFromUrlsOrderableList($data) {
+		$reorderableList = new StreamUrlsReorderableList($data);
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForUrlsOrderableList($data) {
+		$reorderableList = new StreamUrlsReorderableList($data);
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForUrlsOrderableList($data) {
+		$reorderableList = new StreamUrlsReorderableList($data);
+		return $reorderableList->getStringForInput();
+	}
+	
+	
 	
 	public function getQualitiesWithUris() {
 		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
