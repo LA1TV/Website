@@ -6,14 +6,10 @@
 		<?=FormHelpers::getFormCheckInput(1, "Live Now", "enabled", $form['enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
-		<?=FormHelpers::getFormTxtInput(1, "Server Address (Can Include Port)", "server-address", $form['server-address'], $formErrors);?>
-		<?=FormHelpers::getFormTxtInput(1, "App Name", "app-name", $form['app-name'], $formErrors);?>
-		<?=FormHelpers::getFormTxtInput(1, "Stream Name", "stream-name", $form['stream-name'], $formErrors);?>
-		<?=FormHelpers::getFormCheckInput(1, "DVR Enabled", "dvr-enabled", $form['dvr-enabled'] === "y", $formErrors);?>
-		<?=FormHelpers::getFormGroupStart("qualities", $formErrors);
-		?><label class="control-label">Supported Qualities</label><div class="form-control form-qualities" data-initialdata="<?=e($additionalForm['qualitiesInitialData'])?>"></div><?php
-		echo(FormHelpers::getFormHiddenInput(1, "qualities", $additionalForm['qualitiesInput']));
-		echo(FormHelpers::getErrMsgHTML($formErrors, "qualities"));?></div>
+		<?=FormHelpers::getFormGroupStart("urls", $formErrors);
+		?><label class="control-label">Urls and Qualities</label><div class="form-control form-urls" data-initialdata="<?=e($additionalForm['urlsInitialData'])?>"></div><?php
+		echo(FormHelpers::getFormHiddenInput(1, "urls", $additionalForm['urlsInput']));
+		echo(FormHelpers::getErrMsgHTML($formErrors, "urls"));?></div>
 	</div>
 	<div class="panel-footer clearfix">
 		<div class="pull-left">

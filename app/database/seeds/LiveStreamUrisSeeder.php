@@ -30,8 +30,7 @@ class LiveStreamUrisSeeder extends Seeder {
 		foreach($qualities as $b=>$a) {
 			$qualityDefinition = QualityDefinition::find($a[1]);
 			$model = new LiveStreamUri(array(
-				"position"		=> $b,
-				"uri_template"	=> $a[0],
+				"uri"	=> $a[0],
 				"type"			=> $a[2],
 				"supported_devices"	=> $a[3]
 			));
