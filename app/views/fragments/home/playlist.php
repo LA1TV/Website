@@ -9,9 +9,7 @@
 			<?php endif; ?>
 			<?php if (!is_null($headerRowData['navButtons'])):?>
 			<?php if (isset($headerRowData['navButtons']['showAutoPlayButton']) && $headerRowData['navButtons']['showAutoPlayButton']): ?>
-			<div class="item auto-play-btn-item">
-				<button type="button" class="btn btn-default btn-xs auto-play-btn"><span class="glyphicon glyphicon-repeat"></span></button>
-			</div>
+			<div class="item auto-play-btn-item"></div>
 			<?php endif; ?>
 			<div class="item">
 				<?php if (!is_null($headerRowData['navButtons']['previousItemUri'])): ?>
