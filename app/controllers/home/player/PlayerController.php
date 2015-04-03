@@ -277,6 +277,7 @@ class PlayerController extends HomeBaseController {
 		
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
+		$view->autoContinueMode = $this->getAutoContinueMode();
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
@@ -319,6 +320,14 @@ class PlayerController extends HomeBaseController {
 		}
 		$time = ($m*60)+$s;
 		return intval($time);
+	}
+	
+	private function getAutoContinueMode() {
+		$mode = isset($_GET["autoContinueMode"]) ? $_GET["autoContinueMode"] : "0";
+		if ($mode !== "0" && $mode !== "1" && $mode !== "2") {
+			return 0;
+		}
+		return intval($mode);
 	}
 	
 	// should return ajax response with information for the player.

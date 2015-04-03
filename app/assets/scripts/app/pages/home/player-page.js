@@ -3,19 +3,16 @@ define([
 	"../../components/button-group",
 	"../../components/comments",
 	"../../components/player-container",
+	"../../components/auto-continue-button",
 	"../../page-data",
 	"../../helpers/build-get-uri",
-	"../../cookie-config",
+	"./auto-continue-manager",
 	"../../device-detection",
 	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, PageData, buildGetUri, CookieConfig, DeviceDetection) {
-	
-	var autoPlayState = getAutoPlayStateFromCookie(); // 0=off, 1=auto continue, 2=auto continue and loop
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection) {
 	
 	var playerController = null;
-	var autoPlayVod = null;
-	var autoPlayStream = null;
 		
 	$(".page-player").first().each(function() {
 		
@@ -30,8 +27,8 @@ define([
 			var updatePlaybackTimeBaseUri = $(this).attr("data-update-playback-time-base-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
-			autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
-			autoPlayStream = true; // always autoplay stream
+			var autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
+			var autoPlayStream = true; // always autoplay stream
 			var vodPlayStartTime = $(this).attr("data-vod-play-start-time") === "" ? null : parseInt($(this).attr("data-vod-play-start-time"));
 			var ignoreExternalStreamUrl = false;
 			var initialVodQualityId = null;
@@ -41,22 +38,13 @@ define([
 			var placeQualitySelectionComponentInPlayer = false;
 			var showTitleInPlayer = false;
 			var embedded = false
-			
-			var resolvedAutoPlayVod = autoPlayVod;
-			var resolvedAutoPlayStream = autoPlayStream;
-			
-			if (autoPlayState !== 0) {
-				// auto continue is enabled so this should auto play from the beginning
-				resolvedAutoPlayVod = resolvedAutoPlayStream = true;
-				vodPlayStartTime = 0;
-			}
 		
-			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, resolvedAutoPlayVod, resolvedAutoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer);
+			var playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer);
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());
 				playerController = playerContainer.getPlayerController();
-				initAutoPlayControl();
+				initAutoContinue();
 			});
 		});
 		
@@ -215,186 +203,30 @@ define([
 			});
 		});
 		
-		
-		// handle autoplay
-		function initAutoPlayControl() {
+		function initAutoContinue() {
 			
-			if (!isAutoPlayEnabled()) {
+			// only allow the auto continue feature if not on a mobile
+			// (ios devices disable autoplay on the <video> tag)
+			if (DeviceDetection.isMobile()) {
 				return;
 			}
 			
 			$pageContainer.find(".playlist").each(function() {
 				
-				var currentMediaItemId = parseInt($(this).attr("data-current-media-item-id"));
 				var infoUri = $(this).attr("data-info-uri");
+				var initialMode = parseInt($(this).attr("data-auto-continue-mode"));
 				
-				// get reference to the autoplay button
-				var $autoPlayBtnItem = $(this).find(".auto-play-btn-item").first();
-				var $autoPlayBtn = $(this).find(".auto-play-btn").first();
+				var autoContinueManager = new AutoContinueManager(playerController, infoUri, initialMode);
+				var autoContinueButton = new AutoContinueButton({mode: autoContinueManager.getMode()});
 				
-				$autoPlayBtnItem.css("display", "inline-block");
-				
-				$autoPlayBtn.click(function() {
-					if (shifted && autoPlayState !== 2) {
-						// shift key being held down
-						autoPlayState = 2;
-					}
-					else if (autoPlayState === 0) {
-						autoPlayState = 1;
-					}
-					else {
-						autoPlayState = 0;
-					}
-					
-					if (autoPlayState !== 0) {
-						playerController.setAutoPlayVod(true);
-						playerController.setAutoPlayStream(true);
-					}
-					else {
-						playerController.setAutoPlayVod(autoPlayVod);
-						playerController.setAutoPlayStream(autoPlayStream);
-					}
-					render();
+				$(autoContinueButton).on("stateChanged", function() {
+					autoContinueManager.setMode(autoContinueButton.getMode());
 				});
 				
-				render();
+				$(this).find(".auto-play-btn-item").append(autoContinueButton.getEl());
 				
-				$(playerController).on("vodEnded streamStopped", function() {
-					setTimeout(checkAndMoveOn, 0);
-				});
-				
-				function render() {
-					$autoPlayBtn.removeClass("btn-default btn-info btn-danger active");
-					if (autoPlayState === 0) {
-						$autoPlayBtn.addClass("btn-default");
-					}
-					else if (autoPlayState === 1) {
-						$autoPlayBtn.addClass("active btn-info");
-					}
-					else if (autoPlayState === 2) {
-						$autoPlayBtn.addClass("active btn-danger");
-					}
-					else {
-						throw "Unknown auto play state.";
-					}
-					writeAutoPlayStateToCookie(autoPlayState);
-					$autoPlayBtn.attr("aria-pressed", autoPlayState !== 0);
-				}
-				
-				// determine if should move onto something else, and do it if necessary
-				var moveOnCheckInProgress = false;
-				function checkAndMoveOn() {
-					if (autoPlayState === 0) {
-						// autoplay disabled
-						return;
-					}
-					
-					if (moveOnCheckInProgress) {
-						// check is already ongoing so no point starting another.
-						return;
-					}
-					
-					if (!allowedToMoveOn()) {
-						// try again in 8 seconds
-						setTimeout(checkAndMoveOn, 8000);
-						return;
-					}
-					moveOnCheckInProgress = true;
-					// determine where to go next
-					jQuery.ajax(infoUri, {
-						cache: false,
-						dataType: "json",
-						data: {
-							csrf_token: PageData.get("csrfToken")
-						},
-						type: "POST"
-					}).done(function(data) {
-						if (!allowedToMoveOn()) {
-							moveOnCheckInProgress = false;
-							return;
-						}
-						var foundCurrentItem = false;
-						var mediaItemToRedirectTo = null;
-						for (var j=0; j===0 || (j<2 && mediaItemToRedirectTo === null && autoPlayState === 2); j++) {
-							for (var i=0; i<data.length; i++) {
-								var mediaItem = data[i];
-								if (foundCurrentItem) {
-									if ((mediaItem.vod !== null && mediaItem.vod.available) || (mediaItem.stream !== null && mediaItem.stream.state === 2)) {
-										// has accessible vod, or stream which is live
-										mediaItemToRedirectTo = mediaItem;
-										break;
-									}
-								}
-								if (mediaItem.id === currentMediaItemId) {
-									foundCurrentItem = true;
-								}
-							}
-							
-							if (!foundCurrentItem) {
-								// the current item has disappeared for some reason
-								// pretend found it and run through the loop again to get first media item that is ready
-								foundCurrentItem = true;
-							}
-						}
-						if (mediaItemToRedirectTo === null) {
-							moveOnCheckInProgress = false;
-							// try again in 8 seconds
-							setTimeout(checkAndMoveOn, 8000);
-							return;
-						}
-						// redirect to next media item
-						window.location = mediaItemToRedirectTo.url;
-					}).fail(function() {
-						moveOnCheckInProgress = false;
-						// try again in 8 seconds
-						setTimeout(checkAndMoveOn, 8000);
-					});
-				}
-				
-				// determine if we are allowed to move on
-				var pageLoadTime = new Date().getTime();
-				function allowedToMoveOn() {
-					if (new Date().getTime() - pageLoadTime < 15000) {
-						// less than 15 seconds have passed since the page loaded.
-						// don't allow moving on yet to make sure don't start a dos attack!
-						return false;
-					}
-					return autoPlayState !== 0 && !(playerController.getPlayerType() === "live" || (playerController.getPlayerType() === "vod" && !playerController.hasVodEnded()));
-				}
-				
-				var shifted = false;
-				$(document).on('keyup keydown', function(e){
-					shifted = e.shiftKey;
-					return true;
-				});
 			});
 		}
 	});
-	
-	function getAutoPlayStateFromCookie() {
-		if (!isAutoPlayEnabled()) {
-			return 0;
-		}
-		
-		var state = $.cookie("autoPlayState");
-		var result = 0;
-		if (state) {
-			result = parseInt(state);
-		}
-		// refresh the cookie
-		writeAutoPlayStateToCookie(result);
-		return result;
-	}
-	
-	function writeAutoPlayStateToCookie(state) {
-		var config = $.extend({}, CookieConfig, {expires: 1});
-		$.cookie("autoPlayState", state, config)
-	}
-	
-	function isAutoPlayEnabled() {
-		// only allow the auto continue feature if not on a mobile
-		// (ios devices disable autoplay on the <video> tag)
-		return !DeviceDetection.isMobile();
-	}
 	
 });

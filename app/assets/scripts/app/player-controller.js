@@ -44,6 +44,11 @@ define([
 			return null;
 		};
 		
+		// get the media item id corresponding to this players content
+		this.getMediaItemId = function() {
+			return mediaItemId;
+		};
+		
 		// total number of likes or null if like total is disabled.
 		this.getNumLikes = function() {
 			return numLikes;
@@ -135,6 +140,14 @@ define([
 			return overrideModeEnabled;
 		};
 		
+		this.getAutoPlayVod = function() {
+			return autoPlayVod;
+		};
+		
+		this.getAutoPlayStream = function() {
+			return autoPlayStream;
+		};
+		
 		this.setAutoPlayVod = function(enabled) {
 			autoPlayVod = enabled;
 			if (!enabled) {
@@ -158,6 +171,7 @@ define([
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
+		var mediaItemId = null;
 		var playerType = null;
 		var currentUris = [];
 		var cachedData = null;
@@ -213,6 +227,7 @@ define([
 					
 					var callback = function(time) {
 						cachedData = data;
+						mediaItemId = data.id;
 						vodSourceId = data.vodSourceId;
 						vodRememberedStartTime = time;
 						render();
