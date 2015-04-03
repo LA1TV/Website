@@ -80,6 +80,41 @@ Route::filter('auth', function() {
 	}
 });
 
+/*
+|--------------------------------------------------------------------------
+| Home Page Redirect Filter
+|--------------------------------------------------------------------------
+|
+| Redirect to another location if the user gets to the homepage from an
+| external location and specified in config.
+|
+*/
+
+Route::filter('homeRedirect', function() {
+	
+	$redirectUrl = Config::get("custom.home_redirect_url");
+	if (is_null($redirectUrl)) {
+		// no url to redirect to
+		return;
+	}
+	
+	if (Route::current()->getUri() !== "/") {
+		// not home page
+		return;
+	}
+	
+	if (isset($_GET['noRedirect'])) {
+		// if noRedirect param in url disable redirection
+		return;
+	}
+	
+	if (URLHelpers::hasInternalReferrer()) {
+		// don't redirect if getting here from another location on the site
+		return;
+	}
+	return Redirect::to($redirectUrl);
+});
+
 
 /*
 |--------------------------------------------------------------------------
