@@ -2,32 +2,31 @@ define([
 	"jquery",
 	"../../page-data",
 	"../../components/reorderable-list",
-	"../../components/ajax-select",
+	"../../components/quality-and-url-input",
 	"lib/domReady!"
-], function($, PageData, ReorderableList, AjaxSelect) {
+], function($, PageData, ReorderableList, QualityAndUrlInput) {
 	
 	$(".page-livestreams-edit").first().each(function() {
 	
 		$pageContainer = $(this).first();
 		
-		$pageContainer.find(".form-qualities").each(function() {
+		$pageContainer.find(".form-urls").each(function() {
 			var $container = $(this).first();
-			var $destinationEl = $container.parent().find('[name="qualities"]').first();
+			var $destinationEl = $container.parent().find('[name="urls"]').first();
 			var initialDataStr = $(this).attr("data-initialdata");
 			var initialData = jQuery.parseJSON(initialDataStr);
 			
 			var reorderableList = new ReorderableList(true, true, true, function(state) {
-				var ajaxSelect = new AjaxSelect(PageData.get("baseUrl")+"/admin/quality-definitions/ajaxselect", state);
-				$(ajaxSelect).on("dropdownOpened", function() {
-					reorderableList.scrollToComponent(ajaxSelect);
-				});
-				return ajaxSelect;
+				var qualityAndUrlInput = new QualityAndUrlInput(state);
+				return qualityAndUrlInput;
 			}, {
-				id: null,
-				text: null
+				url: "",
+				type: "",
+				support: "all",
+				qualityState: {id: null, text: null}
 			}, initialData);
 			$(reorderableList).on("stateChanged", function() {
-				$destinationEl.val(JSON.stringify(reorderableList.getIds()));
+				$destinationEl.val(JSON.stringify(reorderableList.getState()));
 			});
 			$container.append(reorderableList.getEl());
 		});

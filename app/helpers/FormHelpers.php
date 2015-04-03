@@ -123,12 +123,12 @@ class FormHelpers {
 		};
 	}
 	
-	private static function isValidIP($a) {
+	public static function isValidIP($a) {
 		return preg_match("/^([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))(:[0-9]+)?$/", $a) === 1;
 	}
 	
 	// can include port
-	private static function isValidDomain($a) {
+	public static function isValidDomain($a) {
 		return preg_match("/^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]+(:[0-9]+)?)$/", $a) === 1;
 	}
 	

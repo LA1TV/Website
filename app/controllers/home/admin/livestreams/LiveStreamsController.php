@@ -12,6 +12,7 @@ use Auth;
 use App;
 use JsonHelpers;
 use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\LiveStreamUri;
 use uk\co\la1tv\website\models\QualityDefinition;
 
 class LiveStreamsController extends LiveStreamsBaseController {
@@ -48,8 +49,6 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
-				"hasDvr"		=> $hasDvrStr,
-				"hasDvrCss"		=> $hasDvr ? "text-success" : "text-danger",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
 				"editUri"		=> Config::get("custom.admin_base_url") . "/livestreams/edit/" . $a->id,
 				"id"			=> $a->id
@@ -86,26 +85,22 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			array("enabled", ObjectHelpers::getProp(false, $liveStream, "enabled")?"y":""),
 			array("name", ObjectHelpers::getProp("", $liveStream, "name")),
 			array("description", ObjectHelpers::getProp("", $liveStream, "description")),
-			array("server-address", ObjectHelpers::getProp("", $liveStream, "server_address")),
-			array("app-name", ObjectHelpers::getProp("", $liveStream, "app_name")),
-			array("stream-name", ObjectHelpers::getProp("", $liveStream, "stream_name")),
-			array("dvr-enabled", ObjectHelpers::getProp(false, $liveStream, "dvr_enabled")?"y":""),
-			array("qualities", json_encode(array())),
+			array("urls", json_encode(array())),
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
 		$additionalFormData = array(
-			"qualitiesInput"		=> null,
-			"qualitiesInitialData"	=> null
+			"urlsInput"			=> null,
+			"urlsInitialData"	=> null
 		);
 		
 		if (!$formSubmitted) {
-			$additionalFormData['qualitiesInput'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "qualities_for_input");
-			$additionalFormData['qualitiesInitialData'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "qualities_for_orderable_list");
+			$additionalFormData['urlsInput'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "urls_for_input");
+			$additionalFormData['urlsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "urls_for_orderable_list");
 		}
 		else {
-			$additionalFormData['qualitiesInput'] = QualityDefinition::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData['qualities'], true));
-			$additionalFormData['qualitiesInitialData'] = QualityDefinition::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["qualities"], true));
+			$additionalFormData['urlsInput'] = LiveStream::generateInputValueForUrlsOrderableList(JsonHelpers::jsonDecodeOrNull($formData['urls'], true));
+			$additionalFormData['urlsInitialData'] = LiveStream::generateInitialDataForUrlsOrderableList(JsonHelpers::jsonDecodeOrNull($formData["urls"], true));
 		}
 		
 		$errors = null;
@@ -113,33 +108,20 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		if ($formSubmitted) {
 			$modelCreated = DB::transaction(function() use (&$formData, &$liveStream, &$errors) {
 				
-				Validator::extend("valid_ip_or_domain", FormHelpers::getValidIPOrDomainFunction());
-				Validator::extend('valid_qualities', function($attribute, $value, $parameters) {
-					return QualityDefinition::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+				Validator::extend('valid_urls', function($attribute, $value, $parameters) {
+					return LiveStream::isValidDataFromUrlsOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 				});
 				
 				$validator = Validator::make($formData,	array(
 					'name'				=> array('required', 'max:50'),
 					'description'		=> array('max:500'),
-					'server-address'	=> array('required', 'max:50', 'valid_ip_or_domain'),
-					'app-name'			=> array('required', 'max:50', 'alpha_dash'),
-					'stream-name'		=> array('required', 'max:50', 'alpha_dash'),
-					'qualities'			=> array('required', 'valid_qualities')
+					'urls'				=> array('required', 'valid_urls')
 				), array(
 					'name.required'			=> FormHelpers::getRequiredMsg(),
 					'name.max'				=> FormHelpers::getLessThanCharactersMsg(50),
-					'server-address.required'	=> FormHelpers::getRequiredMsg(),
-					'server-address.max'	=> FormHelpers::getLessThanCharactersMsg(50),
-					'server-address.valid_ip_or_domain'	=> FormHelpers::getInvalidIPOrDomainMsg(),
-					'app-name.required'		=> FormHelpers::getRequiredMsg(),
-					'app-name.max'			=> FormHelpers::getLessThanCharactersMsg(50),
-					'app-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
-					'stream-name.required'	=> FormHelpers::getRequiredMsg(),
-					'stream-name.max'		=> FormHelpers::getLessThanCharactersMsg(50),
-					'stream-name.alpha_dash'	=> FormHelpers::getInvalidAlphaDashMsg(),
 					'description.max'		=> FormHelpers::getLessThanCharactersMsg(500),
-					'qualities.required'	=> FormHelpers::getGenericInvalidMsg(),
-					'qualities.valid_qualities'	=> FormHelpers::getGenericInvalidMsg()
+					'urls.required'			=> FormHelpers::getGenericInvalidMsg(),
+					'urls.valid_urls'		=> FormHelpers::getGenericInvalidMsg()
 				));
 				
 				if (!$validator->fails()) {
@@ -151,23 +133,34 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					$liveStream->name = $formData['name'];
 					$liveStream->description = FormHelpers::nullIfEmpty($formData['description']);
 					$liveStream->enabled = FormHelpers::toBoolean($formData['enabled']);
-					$liveStream->dvr_enabled = FormHelpers::toBoolean($formData['dvr-enabled']);
-					$liveStream->server_address = $formData['server-address'];
-					$liveStream->app_name = $formData['app-name'];
-					$liveStream->stream_name = $formData['stream-name'];
 					
 					if ($liveStream->save() === false) {
 						throw(new Exception("Error saving LiveStream."));
 					}
 					
-					$liveStream->qualities()->detach(); // detaches all
-					$ids = json_decode($formData['qualities'], true);
-					if (count($ids) > 0) {
-						$qualities = QualityDefinition::whereIn("id", $ids)->get();
-						foreach($qualities as $a) {
-							$liveStream->qualities()->attach($a);
+					$liveStream->liveStreamUris()->delete(); // detaches all
+					$urlsData = json_decode($formData['urls'], true);
+					foreach($urlsData as $a) {
+						$qualityDefinition = QualityDefinition::find(intval($a['qualityState']['id']));
+						$url = $a['url'];
+						$type = $a['type'];
+						$support = $a['support'];
+						$supportedDevices = null;
+						if ($support === "pc") {
+							$supportedDevices = "pc";
 						}
+						else if ($support === "mobile") {
+							$supportedDevices = "mobile";
+						}
+						$liveStreamUri = new LiveStreamUri(array(
+							"uri"				=> $url,
+							"type"				=> $type,
+							"supported_devices"	=> $supportedDevices
+						));
+						$liveStreamUri->qualityDefinition()->associate($qualityDefinition);
+						$liveStream->liveStreamUris()->save($liveStreamUri);
 					}
+					
 					// the transaction callback result is returned out of the transaction function
 					return true;
 				}

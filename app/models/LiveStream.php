@@ -3,83 +3,105 @@
 use Exception;
 use Config;
 use Cache;
+use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
 
 	protected $table = 'live_streams';
-	protected $fillable = array('name', 'description', 'load_balancer_server_address', 'server_address', 'dvr_enabled', 'stream_name', 'app_name', 'enabled');
-	protected $appends = array("qualities_for_input", "qualities_for_orderable_list");
-	
-	protected static function boot() {
-		parent::boot();
-		self::saving(function($model) {
-			if ($model->load_balancer_server_address === NULL && $model->server_address === NULL) {
-				throw(new Exception("Either 'load_balancer_server_address' or 'server_address' must be set."));
-			}
-			else if ($model->load_balancer_server_address !== NULL && $model->server_address !== NULL) {
-				throw(new Exception("Only one of 'load_balancer_server_address' or 'server_address' must be set."));
-			}
-			return true;
-		});
-	}
-	
-	public function scopeUsingLoadBalancer($q, $yes) {
-		return $q->where(self::$p.'load_balancer_server_address', $yes ? 'IS NOT' : 'IS', DB::raw('NULL'));
-	}
+	protected $fillable = array('name', 'description', 'enabled');
+	protected $appends = array('urls_for_orderable_list', 'urls_for_input');
 	
 	public function liveStreamItems() {
 		return $this->hasMany(self::$p.'MediaItemLiveStream', 'live_stream_id');
 	}
 	
-	public function qualities() {
-		return $this->belongsToMany(self::$p.'QualityDefinition', 'quality_definition_to_live_stream', 'live_stream_id', 'quality_definition_id');
+	public function liveStreamUris() {
+		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
 	
-	public function getQualitiesForInputAttribute() {
-		return QualityDefinition::generateInputValueForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
-	}
-	
-	public function getQualitiesForOrderableListAttribute() {
-		return QualityDefinition::generateInitialDataForAjaxSelectOrderableList($this->getQualityIdsForOrderableList());
-	}
-	
-	private function getQualityIdsForOrderableList() {
-		$ids = array();
-		$this->load("qualities");
-		$items = $this->qualities()->orderBy("position", "asc")->get();
-		foreach($items as $a) {
-			$ids[] = intval($a->id);
+	public function getUrlsDataForReorderableList() {
+		$qualitiesWithUris = $this->getQualitiesWithUris();
+		$urls = array();
+		foreach($qualitiesWithUris as $a) {
+			foreach($a['uris'] as $b) {
+				$supportedDevices = is_null($b['supportedDevices']) ? array() : explode(",", $b['supportedDevices']);
+				$support = "all";
+				if (in_array("pc", $supportedDevices, true)) {
+					$support = "pc";
+				}
+				else if (in_array("mobile", $supportedDevices, true)) {
+					$support = "mobile";
+				}
+				$urls[] = array(
+					"qualityState"	=> array(
+						"id"	=> intval($a['qualityDefinition']->id),
+						"text"	=> $a['qualityDefinition']->name
+					),
+					"url"		=> $b['uri'],
+					"type"		=> $b['type'],
+					"support"	=> $support
+				);
+			}
 		}
-		return $ids;
+		return $urls;
 	}
+	
+	
+	public function getUrlsForOrderableListAttribute() {
+		return self::generateInitialDataForUrlsOrderableList($this->getUrlsDataForReorderableList());
+	}
+	
+	public function getUrlsForInputAttribute() {
+		return self::generateInputValueForUrlsOrderableList($this->getUrlsDataForReorderableList());
+	}
+	
+	public static function isValidDataFromUrlsOrderableList($data) {
+		$reorderableList = new StreamUrlsReorderableList($data);
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForUrlsOrderableList($data) {
+		$reorderableList = new StreamUrlsReorderableList($data);
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForUrlsOrderableList($data) {
+		$reorderableList = new StreamUrlsReorderableList($data);
+		return $reorderableList->getStringForInput();
+	}
+	
+	
 	
 	public function getQualitiesWithUris() {
-		$this->load("qualities", "qualities.liveStreamUris");
+		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
 		
+		$addedQualityIds = array();
+		$addedQualityPositions = array();
 		$qualities = array();
-		$positions = array();
-		foreach($this->qualities()->orderBy("position", "asc")->get() as $a) {
+		foreach($this->liveStreamUris as $a) {
 			
-			$liveStreamUris = $a->liveStreamUris;
-			if (count($liveStreamUris) === 0) {
-				// don't show a quality entry if there are not stream uris for that quality definition
-				continue;
-			}
+			$qualityDefinition = $a->qualityDefinition;
+			$qualityDefinitionId = intval($qualityDefinition->id);
 			
-			$uris = array();
-			foreach($liveStreamUris as $b) {
-				$uris[] = array(
-					"uri"	=> $b->getBuiltUrl($this->server_address, $this->app_name, $this->stream_name),
-					"type"	=> $b->type,
-					"supportedDevices"	=> $b->supported_devices
+			if (!in_array($qualityDefinitionId, $addedQualityIds)) {
+				$addedQualityIds[] = $qualityDefinitionId;
+				$addedQualityPositions[] = intval($qualityDefinition->position);
+				$qualities[] = array(
+					"qualityDefinition"	=> $qualityDefinition,
+					"uris"				=> array()
 				);
 			}
 			
-			$qualities[] = array(
-				"qualityDefinition"	=> $a,
-				"uris"				=> $uris
+			$uri = array(
+				"uri"	=> $a->uri,
+				"type"	=> $a->type,
+				"supportedDevices"	=> $a->supported_devices
 			);
+			
+			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
 		}
+		// sort so qualities in correct order
+		array_multisort($addedQualityPositions, SORT_NUMERIC, SORT_ASC, $qualities);
 		return $qualities;
 	}
 	
@@ -115,11 +137,11 @@ class LiveStream extends MyEloquent {
 	}
 	
 	public function getIsAccessible() {
-		return $this->enabled && $this->qualities()->count() > 0;
+		return $this->enabled && $this->liveStreamUris()->count() > 0;
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->has("qualities", ">", 0);
+		return $q->where("enabled", true)->has("liveStreamUris", ">", 0);
 	}
 	
 	public function scopeSearch($q, $value) {

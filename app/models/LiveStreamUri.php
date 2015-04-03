@@ -3,19 +3,14 @@
 class LiveStreamUri extends MyEloquent {
 	
 	protected $table = 'live_stream_uris';
-	protected $fillable = array('uri_template', 'type', 'supported_devices');
+	protected $fillable = array('uri', 'type', 'supported_devices');
 
 	public function qualityDefinition() {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
 	
-	// the $domain can also be an ip address
-	public function getBuiltUrl($domain, $appName, $streamName) {
-		$url = $this->uri_template;
-		$url = str_replace("{domain}", $domain, $url);
-		$url = str_replace("{appName}", $appName, $url);
-		$url = str_replace("{streamName}", $streamName, $url);
-		return $url;
+	public function liveStream() {
+		return $this->belongsTo(self::$p.'LiveStream', 'live_stream_id');
 	}
 	
 	public function scopeSearch($q, $value) {
