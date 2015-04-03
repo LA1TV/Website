@@ -24,12 +24,22 @@ class LiveStream extends MyEloquent {
 		$urls = array();
 		foreach($qualitiesWithUris as $a) {
 			foreach($a['uris'] as $b) {
+				$supportedDevices = is_null($b['supportedDevices']) ? array() : explode(",", $b['supportedDevices']);
+				$support = "all";
+				if (in_array("pc", $supportedDevices, true)) {
+					$support = "pc";
+				}
+				else if (in_array("mobile", $supportedDevices, true)) {
+					$support = "mobile";
+				}
 				$urls[] = array(
 					"qualityState"	=> array(
 						"id"	=> intval($a['qualityDefinition']->id),
 						"text"	=> $a['qualityDefinition']->name
 					),
-					"url"	=> $b['uri']
+					"url"		=> $b['uri'],
+					"type"		=> $b['type'],
+					"support"	=> $support
 				);
 			}
 		}

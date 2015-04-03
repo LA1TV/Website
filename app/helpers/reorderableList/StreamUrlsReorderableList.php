@@ -69,6 +69,29 @@ class StreamUrlsReorderableList implements ReorderableList {
 				}
 				$currentItemOutput["url"] = $a['url'];
 			}
+			
+			if (!isset($a["type"]) || !is_string($a["type"])) {
+				$this->valid = false;
+				$currentItemOutput["type"] = "";
+			}
+			else {
+				$a['type'] = trim($a['type']);
+				if (preg_match('/\s/', $a['type'])) {
+					// contains whitespace
+					// this could check a lot more but not really fussed
+					$this->valid = false;
+				}
+				$currentItemOutput["type"] = $a['type'];
+			}
+			
+			if (!isset($a["support"]) || ($a["support"] !== "all" && $a["support"] !== "pc" && $a["support"] !== "mobile")) {
+				$this->valid = false;
+				$currentItemOutput["support"] = "all";
+			}
+			else {
+				$currentItemOutput["support"] = $a['support'];
+			}
+			
 			$output[] = $currentItemOutput;
 		}
 	

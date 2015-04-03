@@ -21,6 +21,8 @@ define([
 				return qualityAndUrlInput;
 			}, {
 				url: "",
+				type: "",
+				support: "all",
 				qualityState: {id: null, text: null}
 			}, initialData);
 			$(reorderableList).on("stateChanged", function() {

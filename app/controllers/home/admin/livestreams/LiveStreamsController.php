@@ -143,10 +143,19 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					foreach($urlsData as $a) {
 						$qualityDefinition = QualityDefinition::find(intval($a['qualityState']['id']));
 						$url = $a['url'];
+						$type = $a['type'];
+						$support = $a['support'];
+						$supportedDevices = null;
+						if ($support === "pc") {
+							$supportedDevices = "pc";
+						}
+						else if ($support === "mobile") {
+							$supportedDevices = "mobile";
+						}
 						$liveStreamUri = new LiveStreamUri(array(
 							"uri"				=> $url,
-							"type"				=> "TODO", // TODO
-							"supported_devices"	=> "TODO" // TODO
+							"type"				=> $type,
+							"supported_devices"	=> $supportedDevices
 						));
 						$liveStreamUri->qualityDefinition()->associate($qualityDefinition);
 						$liveStream->liveStreamUris()->save($liveStreamUri);
