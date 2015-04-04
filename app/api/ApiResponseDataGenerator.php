@@ -28,6 +28,14 @@ class ApiResponseDataGenerator {
 		return new ApiResponseData($data);
 	}
 	
+	public function generatePermissionsResponseData($hasVodUrisPermission, $hasStreamUrisPermission) {
+		$data = [
+			"vodUris"		=> $hasVodUrisPermission,
+			"streamUris"	=> $hasStreamUrisPermission
+		];
+		return new ApiResponseData($data);
+	}
+	
 	public function generateShowsResponseData() {
 		$data = $this->showTransformer->transformCollection(Show::accessible()->orderBy("id")->get()->all());
 		return new ApiResponseData($data);

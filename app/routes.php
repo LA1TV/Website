@@ -71,6 +71,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			// API
 			Route::group(array('prefix' => "/api/v1", "before" => array("apiEnabledCheck"), "after" => array("setCorsHeaders")), function() use(&$p) {
 				Route::get('service', array("uses"=>$p.'api\v1\ApiController@getService'));
+				Route::get('permissions', array("uses"=>$p.'api\v1\ApiController@getPermissions'));
 				Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
 				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
 				Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
