@@ -12,6 +12,7 @@
 |   URL     | Info            |
 |-----------|------------------|
 | /service  | Information about the service.
+| /permissions | Information about the permissions you've been assigned.
 | /playlists| All of the playlists in the system. This can contain playlists that belong to shows. Playlists that belong to a show will have the "show" property set with an object containing the show id and the series number.
 | /playlists/{id} | Information about a specific playlist and the media items it contains.
 | /playlists/{id}/mediaItems | Information about the media items that a specific playlist contains.

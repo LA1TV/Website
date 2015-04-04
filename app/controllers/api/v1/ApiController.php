@@ -19,6 +19,12 @@ class ApiController extends ApiBaseController {
 		return $this->createResponseFromApiResponseData($this->apiResponseDataGenerator->generateServiceResponseData());
 	}
 	
+	public function getPermissions() {
+		ApiAuth::hasUserOrApiException();
+		$this->log("Request for permissions.");
+		return $this->createResponseFromApiResponseData($this->apiResponseDataGenerator->generatePermissionsResponseData(ApiAuth::getUser()->canViewVodUris(), ApiAuth::getUser()->canViewStreamUris()));
+	}
+	
 	public function getShows() {
 		ApiAuth::hasUserOrApiException();
 		$this->log("Request for shows.");
