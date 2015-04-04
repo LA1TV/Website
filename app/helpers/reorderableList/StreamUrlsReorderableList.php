@@ -76,8 +76,8 @@ class StreamUrlsReorderableList implements ReorderableList {
 			}
 			else {
 				$a['type'] = trim($a['type']);
-				if (preg_match('/\s/', $a['type'])) {
-					// contains whitespace
+				if ($a['type'] === "" || preg_match('/\s/', $a['type'])) {
+					// empty or contains whitespace
 					// this could check a lot more but not really fussed
 					$this->valid = false;
 				}
