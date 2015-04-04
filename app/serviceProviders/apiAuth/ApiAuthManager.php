@@ -19,7 +19,7 @@ class ApiAuthManager {
 		$key = Request::header('X-Api-Key');
 		$user = null;
 		if (!is_null($key)) {
-			$user = ApiUser::where("key", $key)->first();
+			$user = ApiUser::where("key", $key)->where("enabled", true)->first();
 		}
 		$this->user = $user;
 		$this->retrievedUser = true;
