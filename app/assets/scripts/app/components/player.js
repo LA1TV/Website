@@ -650,7 +650,7 @@ define([
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
 				techOrder: ["html5", "flash"],
-				autoPlayStartTime: false, // implementing autoPlayStartTime manually using callback
+				autoPlay: false, // implementing auto play manually using callback
 				poster: coverUri,
 				loop: false
 			}, function() {
