@@ -122,7 +122,10 @@ class ApiBaseController extends BaseController {
 		else {
 			$responseData["error"] = $data;
 		}
-		return Response::json($responseData, $this->statusCode, $this->headers, $this->prettyPrint ? JSON_PRETTY_PRINT : 0);
+		$response = Response::json($responseData, $this->statusCode, $this->headers, $this->prettyPrint ? JSON_PRETTY_PRINT : 0);
+		// coors
+		$response->header("Access-Control-Allow-Origin", "*");
+		return $response;
 	}
 	
 	// $forceRefresh will force cache to be updated
