@@ -154,22 +154,6 @@ Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
 
 /*
 |--------------------------------------------------------------------------
-| Cors Header Filter
-|--------------------------------------------------------------------------
-|
-| Add headers to allow cross origin requests.
-|
-*/
-
-Route::filter('setCorsHeaders', function($route, $request, $response) {
-
-	if (method_exists($response, "header")) {
-		$response->header("Access-Control-Allow-Origin", "*");
-	}
-});
-
-/*
-|--------------------------------------------------------------------------
 | Content Security Policy Header Filter
 |--------------------------------------------------------------------------
 */
