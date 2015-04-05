@@ -20,6 +20,8 @@
 | /shows    | All of the shows in the system.
 | /shows/{id} | Information about a specific show and the playlists it contains which represent the series of the show.
 | /shows/{id}/playlists | Information about the playlists that a specific show contains.
+| /mediaItems/{id} | Information about a specific media item and the playlists it is in.
+| /mediaItems/{id}/playlists | Information about the playlists that a specific media item is contained in.
 
 ## Contact Us
 If you have any questions about the api please contact us at the "Technical Support" address listed on the [contact page](https://www.la1tv.co.uk/contact).

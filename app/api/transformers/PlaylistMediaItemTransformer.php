@@ -3,7 +3,7 @@
 use uk\co\la1tv\website\models\MediaItem;
 use Config;
 
-class MediaItemTransformer extends Transformer {
+class PlaylistMediaItemTransformer extends Transformer {
 	
 	// array where first element is the playlist, second is media item
 	public function transform($mediaItemAndPlaylist, array $options) {	

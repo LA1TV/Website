@@ -61,9 +61,9 @@ class ApiController extends ApiBaseController {
 		return $this->createResponseFromApiResponseData($this->withCache(8, "generatePlaylistMediaItemsResponseData", [$id, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
 	}
 	
-	public function getMediaItem($playlistId, $mediaItemId) {
+	public function getPlaylistMediaItem($playlistId, $mediaItemId) {
 		ApiAuth::hasUserOrApiException();
 		$this->log("Request for media item with id ".$mediaItemId." in playlist with id ".$playlistId.".");
-		return $this->createResponseFromApiResponseData($this->withCache(5, "generateMediaItemResponseData", [$playlistId, $mediaItemId, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
+		return $this->createResponseFromApiResponseData($this->withCache(5, "generatePlaylistMediaItemResponseData", [$playlistId, $mediaItemId, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
 	}
 }
