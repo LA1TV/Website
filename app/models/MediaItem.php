@@ -173,9 +173,8 @@ class MediaItem extends MyEloquent {
 	
 	// Get the first one that has a show if there is one, or just the first one otherwise
 	public function getDefaultPlaylist() {
-		$this->load("playlists", "playlists.show");
 		$playlist = null;
-		foreach($this->playlists as $a) {
+		foreach($this->playlists()->orderBy("scheduled_publish_time", "desc")->get() as $a) {
 			if (is_null($playlist)) {
 				$playlist = $a;
 			}

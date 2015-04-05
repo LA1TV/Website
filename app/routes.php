@@ -75,10 +75,12 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 				Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
 				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
 				Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
-				Route::get('playlists/{id}/mediaItems/{id2}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
+				Route::get('playlists/{id}/mediaItems/{id2}', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItem'));
 				Route::get('playlists/{id}/mediaItems', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItems'));
 				Route::get('playlists/{id}', array("uses"=>$p.'api\v1\ApiController@getPlaylist'));
 				Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
+				Route::get('mediaItems/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getMediaItemPlaylists'));
+				Route::get('mediaItems/{id}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
 				
 				// show a json 404
 				Route::get('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));

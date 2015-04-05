@@ -5,6 +5,7 @@ use uk\co\la1tv\website\api\transformers\PlaylistTransformer;
 use uk\co\la1tv\website\api\transformers\MediaItemTransformer;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\MediaItem;
 use App;
 use DebugHelpers;
 
@@ -92,7 +93,7 @@ class ApiResponseDataGenerator {
 		return new ApiResponseData($data);
 	}
 	
-	public function generateMediaItemResponseData($playlistId, $mediaItemId, $showStreamUris, $showVodUris) {
+	public function generatePlaylistMediaItemResponseData($playlistId, $mediaItemId, $showStreamUris, $showVodUris) {
 		$playlist = Playlist::accessible()->find(intval($playlistId));
 		if (is_null($playlist)) {
 			return $this->generateNotFound();
@@ -107,6 +108,31 @@ class ApiResponseDataGenerator {
 		return new ApiResponseData($data);
 	}
 	
+	public function generateMediaItemResponseData($mediaItemId, $showStreamUris, $showVodUris) {
+		$mediaItem = MediaItem::accessible()->find(intval($mediaItemId));
+		if (is_null($mediaItem)) {
+			return $this->generateNotFound();
+		}
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
+		
+		$playlists = $mediaItem->playlists()->orderBy("id", "asc")->get()->all();
+		
+		$data = [
+			"mediaItem"	=> $this->mediaItemTransformer->transform([null, $mediaItem], $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris)),
+			"playlists"	=> $this->playlistTransformer->transformCollection($playlists)
+		];
+		return new ApiResponseData($data);
+	}
+	
+	public function generateMediaItemPlaylistsResponseData($mediaItemId) {
+		$mediaItem = MediaItem::accessible()->find(intval($mediaItemId));
+		if (is_null($mediaItem)) {
+			return $this->generateNotFound();
+		}
+		$playlists = $mediaItem->playlists()->orderBy("id", "asc")->get()->all();
+		$data = $this->playlistTransformer->transformCollection($playlists);
+		return new ApiResponseData($data);
+	}
 	
 	private function generateNotFound() {
 		return new ApiResponseData([], 404); 

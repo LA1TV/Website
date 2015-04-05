@@ -61,9 +61,21 @@ class ApiController extends ApiBaseController {
 		return $this->createResponseFromApiResponseData($this->withCache(8, "generatePlaylistMediaItemsResponseData", [$id, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
 	}
 	
-	public function getMediaItem($playlistId, $mediaItemId) {
+	public function getPlaylistMediaItem($playlistId, $mediaItemId) {
 		ApiAuth::hasUserOrApiException();
-		$this->log("Request for media item with id ".$mediaItemId." in playlist with id ".$playlistId.".");
-		return $this->createResponseFromApiResponseData($this->withCache(5, "generateMediaItemResponseData", [$playlistId, $mediaItemId, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
+		$this->log("Request for playlist media item with id ".$mediaItemId." in playlist with id ".$playlistId.".");
+		return $this->createResponseFromApiResponseData($this->withCache(5, "generatePlaylistMediaItemResponseData", [$playlistId, $mediaItemId, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
+	}
+
+	public function getMediaItem($mediaItemId) {
+		ApiAuth::hasUserOrApiException();
+		$this->log("Request for media item with id ".$mediaItemId.".");
+		return $this->createResponseFromApiResponseData($this->withCache(15, "generateMediaItemResponseData", [$mediaItemId, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
+	}
+	
+	public function getMediaItemPlaylists($mediaItemId) {
+		ApiAuth::hasUserOrApiException();
+		$this->log("Request for media item playlists with id ".$mediaItemId.".");
+		return $this->createResponseFromApiResponseData($this->withCache(15, "generateMediaItemPlaylistsResponseData", [$mediaItemId]));
 	}
 }
