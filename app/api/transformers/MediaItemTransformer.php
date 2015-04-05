@@ -3,9 +3,10 @@
 use uk\co\la1tv\website\models\MediaItem;
 use Config;
 
-class PlaylistMediaItemTransformer extends Transformer {
+class MediaItemTransformer extends Transformer {
 	
 	// array where first element is the playlist, second is media item
+	// the playlist can be null, meaning anything that requires this will be omitted from the response
 	public function transform($mediaItemAndPlaylist, array $options) {	
 		if (count($mediaItemAndPlaylist) !== 2) {
 			throw(new Exception("mediaItemAndPlaylist invalid."));
@@ -18,13 +19,16 @@ class PlaylistMediaItemTransformer extends Transformer {
 		
 		$scheduledPublishTime = $mediaItem->scheduled_publish_time->timestamp;
 		
-		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		
-		$coverArtUris = [
-			"thumbnail"		=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
-			"full"			=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']),
-		];
-		
+		$coverArtUris = null;
+		if (!is_null($playlist)) {
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			
+			$coverArtUris = [
+				"thumbnail"		=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
+				"full"			=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']),
+			];
+		}
+			
 		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		$viewCountTotal = 0;
 		$vodViewCount = !is_null($mediaItemVideo) ? intval($mediaItemVideo->view_count) : null;
@@ -46,9 +50,12 @@ class PlaylistMediaItemTransformer extends Transformer {
 		
 		$liveStreamDetails = $vodDetails = null;		
 		
-		$embedDetails = [
-			"iframeUrl"	=> $playlist->getMediaItemEmbedUri($mediaItem)
-		];
+		$embedDetails = null;
+		if (!is_null($playlist)) {
+			$embedDetails = [
+				"iframeUrl"	=> $playlist->getMediaItemEmbedUri($mediaItem)
+			];
+		}
 		
 		$stateDefinition = null;
 		if (!is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible()) {
@@ -159,14 +166,11 @@ class PlaylistMediaItemTransformer extends Transformer {
 			];
 		}
 		
-		return [
+		$responseData = [
 			"id"				=> intval($mediaItem->id),
 			"name"				=> $mediaItem->name,
 			"description"		=> $mediaItem->description,
-			"siteUrl"			=> $playlist->getMediaItemUri($mediaItem),
-			"embed"				=> $embedDetails,
 			"coverArtUrls"		=> $coverArtUris,
-			"episodeNumber"		=> $playlist->getEpisodeNumber($mediaItem),
 			"scheduledPublishTime"	=> $scheduledPublishTime,
 			"liveStream"		=> $liveStreamDetails,
 			"vod"				=> $vodDetails,
@@ -175,6 +179,12 @@ class PlaylistMediaItemTransformer extends Transformer {
 			"numDislikes"		=> $numDislikes,
 			"timeUpdated"		=> $mediaItem->updated_at->timestamp
 		];
+		if (!is_null($playlist)) {
+			$responseData['siteUrl'] = $playlist->getMediaItemUri($mediaItem);
+			$responseData['embed'] = $embedDetails;
+			$responseData['episodeNumber'] =  $playlist->getEpisodeNumber($mediaItem);
+		}
+		return $responseData;
 	}
 	
 }

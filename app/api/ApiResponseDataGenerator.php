@@ -2,9 +2,10 @@
 
 use uk\co\la1tv\website\api\transformers\ShowTransformer;
 use uk\co\la1tv\website\api\transformers\PlaylistTransformer;
-use uk\co\la1tv\website\api\transformers\PlaylistMediaItemTransformer;
+use uk\co\la1tv\website\api\transformers\MediaItemTransformer;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\MediaItem;
 use App;
 use DebugHelpers;
 
@@ -12,12 +13,12 @@ class ApiResponseDataGenerator {
 	
 	private $showTransformer = null;
 	private $playlistTransformer = null;
-	private $playlistMediaItemTransformer = null;
+	private $mediaItemTransformer = null;
 	
 	public function __construct() {
 		$this->showTransformer = new ShowTransformer();
 		$this->playlistTransformer = new PlaylistTransformer();
-		$this->playlistMediaItemTransformer = new PlaylistMediaItemTransformer();
+		$this->mediaItemTransformer = new MediaItemTransformer();
 	}
 
 	
@@ -76,7 +77,7 @@ class ApiResponseDataGenerator {
 		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
 		$data = [
 			"playlist"		=> $this->playlistTransformer->transform($playlist, []),
-			"mediaItems"	=> $this->playlistMediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems), $this->getPlaylistMediaItemTransformerOptions($showStreamUris, $showVodUris))
+			"mediaItems"	=> $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems), $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris))
 		];
 		return new ApiResponseData($data);
 	}
@@ -88,7 +89,7 @@ class ApiResponseDataGenerator {
 		}
 		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
 		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
-		$data = $this->playlistMediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems), $this->getPlaylistMediaItemTransformerOptions($showStreamUris, $showVodUris));
+		$data = $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems), $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris));
 		return new ApiResponseData($data);
 	}
 	
@@ -103,10 +104,35 @@ class ApiResponseDataGenerator {
 			return $this->generateNotFound();
 		}
 		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
-		$data = $this->playlistMediaItemTransformer->transform([$playlist, $mediaItem], $this->getPlaylistMediaItemTransformerOptions($showStreamUris, $showVodUris));
+		$data = $this->mediaItemTransformer->transform([$playlist, $mediaItem], $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris));
 		return new ApiResponseData($data);
 	}
 	
+	public function generateMediaItemResponseData($mediaItemId, $showStreamUris, $showVodUris) {
+		$mediaItem = MediaItem::accessible()->find(intval($mediaItemId));
+		if (is_null($mediaItem)) {
+			return $this->generateNotFound();
+		}
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
+		
+		$playlists = $mediaItem->playlists()->orderBy("id", "asc")->get()->all();
+		
+		$data = [
+			"mediaItem"	=> $this->mediaItemTransformer->transform([null, $mediaItem], $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris)),
+			"playlists"	=> $this->playlistTransformer->transformCollection($playlists)
+		];
+		return new ApiResponseData($data);
+	}
+	
+	public function generateMediaItemPlaylistsResponseData($mediaItemId) {
+		$mediaItem = MediaItem::accessible()->find(intval($mediaItemId));
+		if (is_null($mediaItem)) {
+			return $this->generateNotFound();
+		}
+		$playlists = $mediaItem->playlists()->orderBy("id", "asc")->get()->all();
+		$data = $this->playlistTransformer->transformCollection($playlists);
+		return new ApiResponseData($data);
+	}
 	
 	private function generateNotFound() {
 		return new ApiResponseData([], 404); 
@@ -120,7 +146,7 @@ class ApiResponseDataGenerator {
 		return $mediaItemsWithPlaylists;
 	}
 	
-	private function getPlaylistMediaItemTransformerOptions($showStreamUris, $showVodUris) {
+	private function getMediaItemTransformerOptions($showStreamUris, $showVodUris) {
 		return [
 			"showStreamUris"	=> $showStreamUris,
 			"showVodUris"		=> $showVodUris
