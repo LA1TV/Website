@@ -18,7 +18,7 @@ class PlaylistTransformer extends Transformer {
 		];
 		return [
 			"id"			=> intval($playlist->id),
-			"name"			=> $playlist->name,
+			"name"			=> $playlist->generateName(),
 			"description"	=> $playlist->description,
 			"show"			=> $showInfo,
 			"siteUrl"		=> $playlist->getUri(),
