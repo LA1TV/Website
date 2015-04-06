@@ -8,9 +8,5 @@ class VideoScrubThumbnailFile extends MyEloquent {
 	public function file() {
 		return $this->belongsTo(self::$p.'File', 'file_id');
 	}
-	
-	public function videoFile() {
-		return $this->belongsTo(self::$p.'VideoFile', 'video_file_id');
-	}
 
 }

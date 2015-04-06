@@ -45,6 +45,11 @@ class MediaItemVideo extends MyEloquent {
 		$positions = array();
 		foreach($renders as $a) {
 			
+			if (is_null($a->videoFile)) {
+				// this file is not a render. e.g. could be thumbnail
+				continue;
+			}
+			
 			$uris = array();
 			$uris[] = array(
 				"uri"	=> $a->getUri(),

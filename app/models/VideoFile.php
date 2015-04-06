@@ -12,8 +12,5 @@ class VideoFile extends MyEloquent {
 	public function qualityDefinition() {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
-	
-	public function scrubThumbnailFiles() {
-		return $this->hasMany(self::$p.'VideoScrubThumbnailFile', 'video_file_id');
-	}
+
 }

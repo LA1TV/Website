@@ -16,15 +16,12 @@ class CreateVideoScrubThumbnailFiles extends Migration {
 		{
 			$table->increments('id');
 			$table->integer("file_id")->unsigned();
-			$table->integer("video_file_id")->unsigned();
 			$table->integer("time")->unsigned();
 			$table->timestamps();
 			
 			$table->index("file_id");
-			$table->index("video_file_id");
 			
 			$table->foreign("file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
-			$table->foreign("video_file_id")->references('id')->on('video_files')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
