@@ -11,7 +11,8 @@ require.config({
 		"ga": {
 			exports: "ga"
 		},
-		"lib/videojs-markers": ["videojs"]
+		"lib/videojs-markers": ["videojs"],
+		"lib/videojs-thumbnails": ["videojs"]
 	}
 });
 

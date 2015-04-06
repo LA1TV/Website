@@ -395,6 +395,7 @@ class PlayerController extends HomeBaseController {
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
 		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
 		$vodChapters = null;
+		$vodThumbnails = null;
 		if ($hasVideoItem && ($vodLive || $userHasMediaItemsPermission)) {
 			$vodChapters = array();
 			foreach($videoItem->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
@@ -403,7 +404,9 @@ class PlayerController extends HomeBaseController {
 					"time"		=> intval($a->time)
 				);
 			}
+			$vodThumbnails = $videoItem->getScrubThumbnails();
 		}
+		
 		
 		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		if (!$userHasMediaItemsPermission) {
@@ -497,6 +500,7 @@ class PlayerController extends HomeBaseController {
 			"videoUris"					=> $videoUris,
 			"vodViewCount"				=> $vodViewCount,
 			"vodChapters"				=> $vodChapters,
+			"vodThumbnails"				=> $vodThumbnails,
 			"rememberedPlaybackTime"	=> $rememberedPlaybackTime,
 			"numLikes"					=> $numLikes, // number of likes this media item has
 			"numDislikes"				=> $numDislikes, // number of dislikes this media item has

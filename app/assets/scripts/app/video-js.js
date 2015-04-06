@@ -1,7 +1,8 @@
 define([
 	"videojs",
 	"./page-data",
-	"lib/videojs-markers"
+	"lib/videojs-markers",
+	"lib/videojs-thumbnails"
 ], function(videojs, PageData) {
 
 	// register the swf for flash playback

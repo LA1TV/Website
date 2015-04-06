@@ -438,6 +438,13 @@ define([
 				playerComponent.setChapters([]);
 			}
 			
+			if (queuedPlayerType === "vod" && data.vodThumbnails !== null) {
+				playerComponent.setScrubThumbnails(data.vodThumbnails);
+			}
+			else {
+				playerComponent.setScrubThumbnails([]);
+			}
+			
 			if (showTitleInPlayer) {
 				playerComponent.setTitle(data.title, function() {
 					var uri = data.uri;
