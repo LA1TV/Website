@@ -100,6 +100,10 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'ImageFile', 'file_id');
 	}
 	
+	public function videoScrubThumbnailFile() {
+		return $this->hasOne(self::$p.'VideoScrubThumbnailFile', 'file_id');
+	}
+	
 	public function sourceFile() {
 		return $this->belongsTo(self::$p.'File', 'source_file_id');
 	}
