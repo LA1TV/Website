@@ -68,6 +68,33 @@ class MediaItemVideo extends MyEloquent {
 		return $qualities;
 	}
 	
+	public function getScrubThumbnails() {
+		$sourceFile = $this->sourceFile;
+		
+		if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
+			return array();
+		}
+	
+		$renders = $sourceFile->renderFiles;
+		$thumbnails = array();
+		$times = array();
+		foreach($renders as $a) {
+			$thumbnailFile = $a->videoScrubThumbnailFile;
+			if (is_null($thumbnailFile)) {
+				// this file is not a thumbnail.
+				continue;
+			}
+			$time = intval($thumbnailFile->time);
+			$times[] = $time;
+			$thumbnails[] = array(
+				"uri"	=> $a->getUri(),
+				"time"	=> $time
+			);
+		}
+		array_multisort($times, SORT_NUMERIC, SORT_ASC, $thumbnails);
+		return $thumbnails;
+	}
+	
 	public function registerViewCount() {
 	
 		if (!$this->getIsAccessible() || !$this->getIsLive()) {

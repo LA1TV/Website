@@ -317,6 +317,9 @@ class UploadManager {
 			return null;
 		}
 		
+		$fileType = $requestedFile->file_type;
+		$fileTypeId = intval($fileType->id);
+		
 		$user = Auth::getUser();
 		$hasMediaItemsPermission = false;
 		$hasPlaylistsPermission = false;
@@ -328,37 +331,38 @@ class UploadManager {
 		$accessAllowed = false;
 		
 		// see if the file should be accessible
-		if (!is_null($sourceFile->mediaItemWithBanner)) {
+		if ($fileTypeId === 5 && !is_null($sourceFile->mediaItemWithBanner)) {
 			if ($sourceFile->mediaItemWithBanner->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->mediaItemWithCover)) {
+		else if ($fileTypeId === 6 && !is_null($sourceFile->mediaItemWithCover)) {
 			if ($sourceFile->mediaItemWithCover->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->mediaItemWithCoverArt)) {
+		else if ($fileTypeId === 8 && !is_null($sourceFile->mediaItemWithCoverArt)) {
 			if ($sourceFile->mediaItemWithCoverArt->getIsAccessible()) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->mediaItemVideoWithFile)) {
+		// file type 9 is video scrub thumbnail, these should only be accessible if the video itself is
+		else if (($fileTypeId === 7 || $fileTypeId === 9) && !is_null($sourceFile->mediaItemVideoWithFile)) {
 			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() && ($sourceFile->mediaItemVideoWithFile->getIsLive() || $hasMediaItemsPermission)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->playlistWithBanner)) {
+		else if ($fileTypeId === 5 && !is_null($sourceFile->playlistWithBanner)) {
 			if ($sourceFile->playlistWithBanner->getIsAccessible() && ($sourceFile->playlistWithBanner->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->playlistWithCover)) {
+		else if ($fileTypeId === 6 && !is_null($sourceFile->playlistWithCover)) {
 			if ($sourceFile->playlistWithCover->getIsAccessible() && ($sourceFile->playlistWithCover->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
 				$accessAllowed = true;
 			}
 		}
-		else if (!is_null($sourceFile->playlistWithCoverArt)) {
+		else if ($fileTypeId === 8 && !is_null($sourceFile->playlistWithCoverArt)) {
 			if ($sourceFile->playlistWithCoverArt->getIsAccessible() && ($sourceFile->playlistWithCoverArt->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
 				$accessAllowed = true;
 			}
