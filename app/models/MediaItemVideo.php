@@ -45,6 +45,11 @@ class MediaItemVideo extends MyEloquent {
 		$positions = array();
 		foreach($renders as $a) {
 			
+			if (is_null($a->videoFile)) {
+				// this file is not a render. e.g. could be thumbnail
+				continue;
+			}
+			
 			$uris = array();
 			$uris[] = array(
 				"uri"	=> $a->getUri(),
@@ -61,6 +66,33 @@ class MediaItemVideo extends MyEloquent {
 		// reorder so in qualities order
 		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $qualities);
 		return $qualities;
+	}
+	
+	public function getScrubThumbnails() {
+		$sourceFile = $this->sourceFile;
+		
+		if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
+			return array();
+		}
+	
+		$renders = $sourceFile->renderFiles;
+		$thumbnails = array();
+		$times = array();
+		foreach($renders as $a) {
+			$thumbnailFile = $a->videoScrubThumbnailFile;
+			if (is_null($thumbnailFile)) {
+				// this file is not a thumbnail.
+				continue;
+			}
+			$time = intval($thumbnailFile->time);
+			$times[] = $time;
+			$thumbnails[] = array(
+				"uri"	=> $a->getUri(),
+				"time"	=> $time
+			);
+		}
+		array_multisort($times, SORT_NUMERIC, SORT_ASC, $thumbnails);
+		return $thumbnails;
 	}
 	
 	public function registerViewCount() {

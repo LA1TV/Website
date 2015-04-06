@@ -102,6 +102,14 @@ define([
 			return this;
 		};
 		
+		// array of {time, uri} (time is in seconds)
+		// these will be applied when the video js player is created and not update automatically
+		// because of how the plugin works.
+		this.setScrubThumbnails = function(thumbnails) {
+			queuedThumbnails = thumbnails;
+			return this;
+		};
+		
 		this.disableFullScreen = function(disable) {
 			queuedDisableFullScreen = disable;
 			return this;
@@ -222,6 +230,8 @@ define([
 		var queuedDisableFullScreen = false;
 		var chapters = [];
 		var queuedChapters = [];
+		// there is no 'thumbnails' because the plugin only allows the thumbnails to be applied on plugin initialisation
+		var queuedThumbnails = [];
 		var queuedPlayerRoundStartTimeToSafeRegion = null;
 		var playerUris = null;
 		var queuedPlayerUris = [];
@@ -665,7 +675,17 @@ define([
 				
 				setTimeout(function() {
 					// in timeout as needs videoJsPlayer needs to have been set
-
+					if (queuedThumbnails.length > 0) {
+						var thumbnailsData = {};
+						for(var i=0; i<queuedThumbnails.length; i++) {
+							var a = queuedThumbnails[i];
+							thumbnailsData[a.time] = {
+								src: a.uri
+							};
+						}
+						videoJsPlayer.thumbnails(thumbnailsData);
+					}
+					
 					if (playerExisted) {
 						// the player has just been destroyed before being recreated
 						if (wasFullScreen) {
