@@ -14,7 +14,7 @@ class AddHasProcessedSuccesfullyToFiles extends Migration {
 	{
 		Schema::table('files', function(Blueprint $table)
 		{
-			$table->boolean("has_processed_succesfully")->default(false);
+			$table->boolean("has_processed_successfully")->default(false);
 		});
 	}
 
@@ -27,7 +27,7 @@ class AddHasProcessedSuccesfullyToFiles extends Migration {
 	{
 		Schema::table('files', function(Blueprint $table)
 		{
-			$table->dropColumn("has_processed_succesfully");
+			$table->dropColumn("has_processed_successfully");
 		});
 	}
 
