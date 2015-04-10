@@ -18,6 +18,7 @@ define([
 		
 		var initialAutoPlayVod = playerController.getAutoPlayVod();
 		var initialAutoPlayStream = playerController.getAutoPlayStream();
+		var initialVodStartTime = playerController.getVodStartTime();
 		
 		onModeChanged();
 		
@@ -27,10 +28,12 @@ define([
 		
 		function onModeChanged() {
 			if (mode !== 0) {
+				playerController.setVodStartTime(0); // make sure the vod starts at the beginning
 				playerController.setAutoPlayVod(true);
 				playerController.setAutoPlayStream(true);
 			}
 			else {
+				playerController.setVodStartTime(initialVodStartTime);
 				playerController.setAutoPlayVod(initialAutoPlayVod);
 				playerController.setAutoPlayStream(initialAutoPlayStream);
 			}
