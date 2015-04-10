@@ -167,6 +167,16 @@ define([
 				resolvedAutoPlayStream = true;
 			}
 		};
+		
+		// get the time that the vod should start at when it is first loaded
+		// null means the best time will be determined automatically
+		this.getVodStartTime = function() {
+			return vodPlayStartTime;
+		};
+		
+		this.setVodStartTime = function(startTime) {
+			vodPlayStartTime = startTime;
+		};
 
 		var destroyed = false;
 		var timerId = null;
@@ -397,16 +407,19 @@ define([
 				else if (queuedPlayerType === "vod") {
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
 					if (resolvedAutoPlayVod) {
-						// autoplay flag is set, so autoplay
-						if (vodPlayStartTime !== null) {
+						// autoplay flag is set
+						if (firstLoad && vodPlayStartTime !== null) {
+							// first load so autoplay from requested start time
 							playerComponent.setPlayerStartTime(vodPlayStartTime, true, false);
 						}
 						else {
+							// not first load but autoplay is set, so autoplay from where up to previously
 							// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
 							playerComponent.setPlayerStartTime(computedStartTime, true, true);
 						}
 					}
 					else if (vodPlayStartTime !== null && firstLoad) {
+						// first load so set the start point to the requested start time
 						playerComponent.setPlayerStartTime(vodPlayStartTime, false, false);
 					}
 					else if (!urisChanged) {
