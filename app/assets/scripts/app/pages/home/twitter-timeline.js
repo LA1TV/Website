@@ -13,9 +13,10 @@ define([
 		var $timeline = $("<div />");
 		$(this).append($timeline);
 		twttr.widgets.createTimeline(widgetId, $timeline[0], {
-			height: height,
+			height: height
 		}).then(function(el) {
 			// loaded
+			$(el).css("width", "100%");
 		});
 	});
 	
