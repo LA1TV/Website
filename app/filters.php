@@ -168,7 +168,7 @@ Route::filter('setContentSecurityPolicyHeader', function($route, $request, $resp
 		}
 		$domainsString = implode(" ", $allowedDomains);
 	
-		$response->header("Content-Security-Policy-Report-Only", "default-src 'self' ".$domainsString."; media-src 'self'; script-src 'self' https://www.google-analytics.com https://platform.twitter.com https://*.twimg.com https://syndication.twitter.com; img-src *; frame-src https://platform.twitter.com https://syndication.twitter.com; style-src 'self' https://platform.twitter.com");
+		$response->header("Content-Security-Policy-Report-Only", "default-src 'self' ".$domainsString."; media-src 'self'; script-src 'self' https://www.google-analytics.com https://platform.twitter.com https://*.twimg.com https://syndication.twitter.com; img-src *; frame-src https://platform.twitter.com https://syndication.twitter.com; style-src 'self' https://platform.twitter.com; report-uri ".URL::route('csp-report'));
 	}
 });
 
