@@ -11,8 +11,15 @@
 			<dt>Twitter</dt>
 			<dd><a href="<?=e($twitterPageUri);?>" target="_blank"><?=e($twitterPageUri);?></a></dd>
 		</dl>
+		<?php if (!is_null($twitterWidgetId)): ?>
+		<img class="img-responsive img-rounded" src="<?=asset("assets/img/roses-photo.jpg");?>"/>
+		<?php endif; ?>
 	</div>
 	<div class="col-md-6">
+		<?php if (!is_null($twitterWidgetId)): ?>
+		<div class="twitter-timeline-container" data-twitter-widget-height="500" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
+		<?php else: ?>
 		<img class="img-responsive img-rounded" src="<?=asset("assets/img/roses-photo.jpg");?>"/>
+		<?php endif; ?>
 	</div>
 </div>
