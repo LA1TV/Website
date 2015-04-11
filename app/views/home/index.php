@@ -22,20 +22,31 @@
 <?php endif; ?>
 
 <div class="row">
-	<div class="most-popular-section col-md-6">
-		<h2 class="heading">Most Popular</h2>
-		<?php if (!is_null($mostPopularPlaylistFragment)): ?>
-		<?=$mostPopularPlaylistFragment?>
-		<?php else: ?>
-		<div class="none-available">None available at the moment. Check back later!</div>
-		<?php endif; ?>
+	<?php if (!is_null($twitterWidgetId)): ?>
+	<div class="col-md-6">
+	<?php endif; ?>
+		<div class="most-popular-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
+			<h2 class="heading">Most Popular</h2>
+			<?php if (!is_null($mostPopularPlaylistFragment)): ?>
+			<?=$mostPopularPlaylistFragment?>
+			<?php else: ?>
+			<div class="none-available">None available at the moment. Check back later!</div>
+			<?php endif; ?>
+		</div>
+		<div class="recently-added-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
+			<h2 class="heading">Recently Added</h2>
+			<?php if (!is_null($recentlyAddedPlaylistFragment)): ?>
+			<?=$recentlyAddedPlaylistFragment?>
+			<?php else: ?>
+			<div class="none-available">None available at the moment. Check back later!</div>
+			<?php endif; ?>
+		</div>
+	<?php if (!is_null($twitterWidgetId)): ?>
 	</div>
-	<div class="recently-added-section col-md-6">
-		<h2 class="heading">Recently Added</h2>
-		<?php if (!is_null($recentlyAddedPlaylistFragment)): ?>
-		<?=$recentlyAddedPlaylistFragment?>
-		<?php else: ?>
-		<div class="none-available">None available at the moment. Check back later!</div>
-		<?php endif; ?>
+	<?php endif; ?>
+	<?php if (!is_null($twitterWidgetId)): ?>
+	<div class="col-md-6">
+		<div class="twitter-timeline-container" data-twitter-widget-height="650" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
 	</div>
+	<?php endif; ?>
 </div>

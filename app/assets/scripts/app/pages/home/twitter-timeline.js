@@ -17,7 +17,6 @@ define([
 			theme: "light"
 		}).then(function(el) {
 			// loaded
-			$(el).css("width", "100%");
 		});
 	});
 	
