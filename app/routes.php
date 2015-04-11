@@ -22,6 +22,9 @@ Route::pattern('id2', $idRegex);
 
 Route::group(array('before' => array("liveCheck"), 'after' => array('setContentSecurityPolicyHeader', 'setP3PHeader')), function() use(&$p) {
 
+
+	Route::post('/csp/report', array("as"=>"csp-report", "uses"=>$p.'CspReportingController@report'));
+
 	// www.la1tv.co.uk
 	Route::group(array('domain' => Config::get("subdomains.www"), 'before' => array('homeRedirect'), 'after' => array('setXFrameOptionsHeader')), function() use(&$p) {
 		
