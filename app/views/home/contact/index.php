@@ -23,7 +23,7 @@
 		<?php else: ?>
 		<div class="image-container">
 			<img class="img-responsive img-rounded" src="<?=asset("assets/img/roses-photo.jpg");?>"/>
-		<div class="image-container">
+		</div>
 		<?php endif; ?>
 	</div>
 </div>
