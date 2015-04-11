@@ -3,7 +3,8 @@ require.config({
 	paths: {
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",
-		videojs: "lib/video"
+		videojs: "lib/video",
+		twitter: "https://platform.twitter.com/widgets"
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"],
@@ -37,6 +38,7 @@ require.config({
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
 		"app/pages/home/home-page",
+		"app/pages/home/twitter-timeline",
 		"app/pages/home/cookie-compliance"
 	], function(logger, googleAnalytics) {
 		// everything loaded
