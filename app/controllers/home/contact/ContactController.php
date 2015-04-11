@@ -12,6 +12,7 @@ class ContactController extends HomeBaseController {
 		$view->developmentEmail = Config::get("contactEmails.development");
 		$view->facebookPageUri = Config::get("socialMediaUris.facebook");
 		$view->twitterPageUri = Config::get("socialMediaUris.twitter");
+		$view->twitterWidgetId = Config::get("twitter.timeline_widget_id");
 		$this->setContent($view, "contact", "contact", array(), "Contact");
 	}
 }
