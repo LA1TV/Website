@@ -9,12 +9,12 @@
 }
 
 @media (min-width: 768px) {
-  .side-banners-container {
+  html.csstransforms .side-banners-container {
     display: block;
   }
 }
 @media (min-width: 992px) {
-  .side-banners-container {
+  html.csstransforms .side-banners-container {
     display: block;
   }
 }
@@ -23,8 +23,8 @@
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
-	width: 200px;
-	height: 500px;
+	width: 250px;
+	height: 1400px;
 	background-color: red;
 }
 
