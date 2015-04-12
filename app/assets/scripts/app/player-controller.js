@@ -779,7 +779,7 @@ define([
 		}
 		
 		function areRememberedTimeUpdateConditionsMet() {
-			return !(playerType !== "vod" || vodSourceId === null || playerComponent === null || playerComponent.paused() || playerComponent.getPlayerCurrentTime() == null);
+			return !(playerType !== "vod" || vodSourceId === null || playerComponent === null || playerComponent.paused() || playerComponent.getPlayerCurrentTime() == null || !playerComponent.hasPlayerInitialized());
 		}
 		
 		function createOpenPlaybackTimesDatabaseRequest(onErrorCallback) {
