@@ -153,6 +153,11 @@ define([
 			return null;
 		};
 		
+		// returns true if the player has been shown and jumped to the correct time
+		this.hasPlayerInitialized = function() {
+			return playerInitialized;
+		};
+		
 		this.play = function() {
 			if (videoJsPlayer !== null) {
 				videoJsPlayer.play();
@@ -218,6 +223,7 @@ define([
 		var currentAdTimeTxt = null;
 		var currentAdLiveAtTxt = null;
 		var videoJsLoadedMetadata = false;
+		var playerInitialized = false;
 		var playerType = null;
 		var queuedPlayerType = null;
 		var playerPreload = null;
@@ -625,8 +631,17 @@ define([
 							if (startPlaying) {
 								videoJsPlayer.play();
 							}
+							
+							playerInitialized = true;
+							$(self).triggerHandler("playerInitialized");
 						});
 					})(queuedPlayerTime, queuedPlayerTimeStartPlaying, queuedPlayerRoundStartTimeToSafeRegion);
+				}
+				else {
+					onVideoJsLoadedMetadata(function() {
+						playerInitialized = true;
+						$(self).triggerHandler("playerInitialized");
+					});
 				}
 			}
 		}
@@ -755,6 +770,7 @@ define([
 			playerType = null;
 			title = null;
 			videoJsLoadedMetadata = false;
+			playerInitialized = false;
 			$(self).triggerHandler("playerDestroyed");
 			return true;
 		}
