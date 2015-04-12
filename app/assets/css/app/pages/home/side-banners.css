@@ -1,6 +1,7 @@
 .side-banners-container {
 	position: fixed;
 	display: none;
+	z-index: -1;
 	top: 0;
 	bottom: 0;
 	/* centre */
@@ -25,7 +26,9 @@
 	transform: translateY(-50%);
 	width: 250px;
 	height: 1400px;
-	background-color: red;
+	text-align: center;
+	overflow: hidden;
+	background-color: #ffffff;
 }
 
 .side-banners-container .side-banner-left {

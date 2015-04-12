@@ -1,10 +1,12 @@
 @extends('layouts.home.body')
 
 @section('side-banners')
+<?php if (!is_null($sideBannersImageUrl)): ?>
 <div class="container side-banners-container">
-	<div class="side-banner side-banner-left"></div>
-	<div class="side-banner side-banner-right"></div>
+	<div class="side-banner side-banner-left"><img class="img-rounded" src="<?=e($sideBannersImageUrl);?>"></div>
+	<div class="side-banner side-banner-right"><img class="img-rounded" src="<?=e($sideBannersImageUrl);?>"></div>
 </div>
+<?php endif; ?>
 @stop
 
 @section('promo')
