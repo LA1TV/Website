@@ -367,6 +367,7 @@ class UploadManager {
 				$accessAllowed = true;
 			}
 		}
+		
 		return $accessAllowed ? $requestedFile : null;
 	}
 	

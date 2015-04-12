@@ -10,5 +10,8 @@ return array(
 	),
 	"coverImage"	=> array(
 		"full"			=> array("w"=>940,  "h"=>150)
+	),
+	"sideBannerImage"	=> array(
+		"full"				=> array("w"=>250,  "h"=>1400)
 	)
 );

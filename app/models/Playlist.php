@@ -253,6 +253,18 @@ class Playlist extends MyEloquent {
 		return $this->getCoverArtUri($width, $height);
 	}
 	
+	// get the side banner image for the playlist or null if there isn't one
+	public function getSideBannerUri($width, $height) {
+		$sideBannerFile = $this->sideBannerFile;
+		if (!is_null($sideBannerFile)) {
+			$sideBannerImageFile = $sideBannerFile->getImageFileWithResolution($width, $height);
+			if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
+				return $sideBannerImageFile->getUri();
+			}
+		}
+		return null;
+	}
+	
 	// get the uri that should be used for the media item side banners.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
@@ -270,16 +282,7 @@ class Playlist extends MyEloquent {
 				return $sideBannerFile->getUri();
 			}
 		}
-		
-		// check on playlist
-		$sideBannerFile = $this->sideBannerFile;
-		if (!is_null($sideBannerFile)) {
-			$sideBannerImageFile = $sideBannerFile->getImageFileWithResolution($width, $height);
-			if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
-				return $sideBannerFile->getUri();
-			}
-		}
-		return null;
+		return $this->getSideBannerUri($width, $height);
 	}
 	
 	public function getCoverUri($width, $height) {
