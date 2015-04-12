@@ -1,5 +1,12 @@
 @extends('layouts.home.body')
 
+@section('side-banners')
+<div class="container side-banners-container">
+	<div class="side-banner side-banner-left"></div>
+	<div class="side-banner side-banner-right"></div>
+</div>
+@stop
+
 @section('promo')
 <div class="promo-container" data-ajaxuri="<?=e($promoAjaxUri);?>"></div>
 @stop

@@ -1,0 +1,39 @@
+.side-banners-container {
+	position: fixed;
+	display: none;
+	top: 0;
+	bottom: 0;
+	/* centre */
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+@media (min-width: 768px) {
+  .side-banners-container {
+    display: block;
+  }
+}
+@media (min-width: 992px) {
+  .side-banners-container {
+    display: block;
+  }
+}
+
+.side-banners-container .side-banner {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 200px;
+	height: 500px;
+	background-color: red;
+}
+
+.side-banners-container .side-banner-left {
+	left: 0;
+	transform: translateX(-100%) translateY(-50%);
+}
+
+.side-banners-container .side-banner-right {
+	right: 0;
+	transform: translateX(100%) translateY(-50%);
+}
