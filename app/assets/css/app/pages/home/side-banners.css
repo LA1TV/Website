@@ -1,0 +1,42 @@
+.side-banners-container {
+	position: fixed;
+	display: none;
+	z-index: -1;
+	top: 0;
+	bottom: 0;
+	/* centre */
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+@media (min-width: 768px) {
+  html.csstransforms .side-banners-container {
+    display: block;
+  }
+}
+@media (min-width: 992px) {
+  html.csstransforms .side-banners-container {
+    display: block;
+  }
+}
+
+.side-banners-container .side-banner {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 250px;
+	height: 1400px;
+	text-align: center;
+	overflow: hidden;
+	background-color: #ffffff;
+}
+
+.side-banners-container .side-banner-left {
+	left: 0;
+	transform: translateX(-100%) translateY(-50%);
+}
+
+.side-banners-container .side-banner-right {
+	right: 0;
+	transform: translateX(100%) translateY(-50%);
+}

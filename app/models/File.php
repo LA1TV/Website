@@ -117,7 +117,7 @@ class File extends MyEloquent {
 	}
 	
 	// gets the File model which represents this source image file at that resolution
-	// if that resolution is not available, or the file should not be availabel yet null is returned.
+	// if that resolution is not available, or the file should not be available yet null is returned.
 	// if this file model does not represent an image then an exception is thrown
 	public function getImageFileWithResolution($w, $h) {
 		if (!$this->getShouldBeAccessible()) {

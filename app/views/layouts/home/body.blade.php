@@ -1,6 +1,7 @@
 @extends('layouts.base')
 
 @section('body')
+@yield('side-banners')
 <div class="container">
 	<nav class="navbar navbar-default" role="navigation">
 		<div class="container-fluid">

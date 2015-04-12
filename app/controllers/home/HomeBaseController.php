@@ -20,7 +20,7 @@ class HomeBaseController extends BaseController {
 
 	protected $layout = null;
 	
-	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=array()) {
+	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=array(), $sideBannersImageUrl=null) {
 		$description = Config::get("custom.site_description");
 	
 		$view = View::make("layouts.home.master");
@@ -39,6 +39,7 @@ class HomeBaseController extends BaseController {
 		$view->cssBootstrap = asset("assets/css/bootstrap/home.css");
 		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
 		$view->loggedIn = Facebook::isLoggedIn();
+		$view->sideBannersImageUrl = $sideBannersImageUrl;
 		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),

@@ -272,6 +272,11 @@ class PlayerController extends HomeBaseController {
 			}
 		}
 		
+		$coverImageResolutions = Config::get("imageResolutions.coverImage");
+		$coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
+		$sideBannerUri = $playlist->getMediaItemSideBannerUri($currentMediaItem, $sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
+		
 		// only autoplay if the user has come from an external site, or specified a start time
 		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
 		
@@ -297,10 +302,9 @@ class PlayerController extends HomeBaseController {
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;
-		$coverImageResolutions = Config::get("imageResolutions.coverImage");
-		$view->coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		$view->coverImageUri = $coverImageUri;
 		$view->broadcastOnMsg = $broadcastOnMsg;
-		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name, 200, $twitterProperties);
+		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name, 200, $twitterProperties, $sideBannerUri);
 	}
 	
 	private function getVodStartTimeFromUrl() {

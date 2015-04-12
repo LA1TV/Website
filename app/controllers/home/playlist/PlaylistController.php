@@ -72,6 +72,8 @@ class PlaylistController extends HomeBaseController {
 		
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$coverUri = $playlist->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
+		$sideBannerUri = $playlist->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
 		$playlistName = $playlist->generateName();
 		$openGraphCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
 		$twitterCardCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
@@ -122,7 +124,7 @@ class PlaylistController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		$view->seriesUri = !is_null($playlist->show) ? $playlist->show->getUri() : null;
-		$this->setContent($view, "playlist", "playlist", $openGraphProperties, $playlistName, 200, $twitterProperties);
+		$this->setContent($view, "playlist", "playlist", $openGraphProperties, $playlistName, 200, $twitterProperties, $sideBannerUri);
 	}
 	
 	// return json array of items in the playlist in order

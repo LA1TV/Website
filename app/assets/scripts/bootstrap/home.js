@@ -12,6 +12,9 @@ require.config({
 		"ga": {
 			exports: "ga"
 		},
+		"lib/modernizr": {
+			exports: "Modernizr"
+		},
 		"lib/videojs-markers": ["videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
@@ -25,6 +28,7 @@ require.config({
 		"app/google-analytics",
 		"app/version-log",
 		"app/error-handler",
+		"lib/modernizr",
 		"lib/bootstrap",
 		"app/custom-accordian",
 		"app/default-button-group",

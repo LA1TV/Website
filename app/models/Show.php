@@ -28,6 +28,17 @@ class Show extends MyEloquent {
 		return null;
 	}
 	
+	// returns the side banner from the highest series that has one, or null otherwise
+	public function getSideBannerUri($width, $height) {
+		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
+			$sideBannerUri = $a->getSideBannerUri($width, $height);
+			if (!is_null($sideBannerUri)) {
+				return $sideBannerUri;
+			}
+		}
+		return null;
+	}
+	
 	// returns the cover art from the highest series that has one, or the default cover otherwise
 	public function getCoverArtUri($width, $height) {
 		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
