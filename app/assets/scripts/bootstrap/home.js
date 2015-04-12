@@ -42,6 +42,7 @@ require.config({
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
 		"app/pages/home/home-page",
+		"app/pages/home/side-banners",
 		"app/pages/home/twitter-timeline",
 		"app/pages/home/cookie-compliance"
 	], function(logger, googleAnalytics) {

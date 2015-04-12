@@ -7,6 +7,7 @@
 	/* centre */
 	left: 50%;
 	transform: translateX(-50%);
+	opacity: 0; /* changed in js (fades in) */
 }
 
 @media (min-width: 768px) {
