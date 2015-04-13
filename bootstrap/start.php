@@ -11,7 +11,8 @@
 |
 */
 
-$app = new Illuminate\Foundation\Application;
+// MyApplication is an extension of the provided application to modify sessions slightly
+$app = new MyApplication();
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,7 @@ $framework = $app['path.base'].
                  '/vendor/laravel/framework/src';
 
 require $framework.'/Illuminate/Foundation/start.php';
+
 
 /*
 |--------------------------------------------------------------------------

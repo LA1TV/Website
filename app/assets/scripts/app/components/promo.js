@@ -1,4 +1,4 @@
-define(["jquery", "../page-data"], function($, PageData) {
+define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageData, AjaxHelpers) {
 
 	var PromoComponent = function(ajaxUri) {
 		
@@ -50,6 +50,7 @@ define(["jquery", "../page-data"], function($, PageData) {
 			jQuery.ajax(ajaxUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken")
 				},

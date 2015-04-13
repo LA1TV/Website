@@ -8,9 +8,10 @@ define([
 	"../../helpers/build-get-uri",
 	"./auto-continue-manager",
 	"../../device-detection",
+	"../../helpers/ajax-helpers",
 	"lib/jquery.cookie",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection, AjaxHelpers) {
 	
 	var playerController = null;
 		
@@ -76,6 +77,7 @@ define([
 					jQuery.ajax(PageData.get("baseUrl")+"/admin/media/admin-stream-control-stream-state/"+mediaItemId, {
 						cache: false,
 						dataType: "json",
+						headers: AjaxHelpers.getHeaders(),
 						data: {
 							csrf_token: PageData.get("csrfToken"),
 							action: "stream-state",
@@ -135,6 +137,7 @@ define([
 					jQuery.ajax(PageData.get("baseUrl")+"/admin/media/admin-stream-control-info-msg/"+mediaItemId, {
 						cache: false,
 						dataType: "json",
+						headers: AjaxHelpers.getHeaders(),
 						data: {
 							csrf_token: PageData.get("csrfToken"),
 							info_msg: msg

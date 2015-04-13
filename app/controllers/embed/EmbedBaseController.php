@@ -10,6 +10,7 @@ use uk\co\la1tv\website\models\LiveStream;
 use MyResponse;
 use Facebook;
 use DebugHelpers;
+use Session;
 
 class EmbedBaseController extends BaseController {
 
@@ -34,6 +35,7 @@ class EmbedBaseController extends BaseController {
 			"assetsBaseUrl"	=> asset(""),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
+			"sessionId"		=> Session::getId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),

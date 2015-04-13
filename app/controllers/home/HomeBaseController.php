@@ -15,6 +15,7 @@ use MyResponse;
 use View;
 use URLHelpers;
 use DebugHelpers;
+use Session;
 
 class HomeBaseController extends BaseController {
 
@@ -47,6 +48,7 @@ class HomeBaseController extends BaseController {
 			"assetsBaseUrl"	=> asset(""),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
+			"sessionId"		=> Session::getId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),

@@ -9,7 +9,6 @@ define([
 		
 		var $pageContainer = $(this).first();	
 		var $headingContainer = $pageContainer.find(".heading-container");
-	
 		
 		$pageContainer.find(".player-container-component-container").each(function() {
 			

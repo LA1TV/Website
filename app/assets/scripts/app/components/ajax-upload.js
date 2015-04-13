@@ -1,8 +1,9 @@
 define([
 	"../page-data",
 	"../helpers/file-size-helper",
+	"../helpers/ajax-helpers",
 	"plupload"
-], function(PageData, FileSizeHelper, plupload) {
+], function(PageData, FileSizeHelper, AjaxHelpers, plupload) {
 
 	var noUploads = 0;
 
@@ -241,6 +242,7 @@ define([
 			jQuery.ajax(PageData.get("baseUrl")+"/admin/upload/processinfo", {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					id: id,
 					csrf_token: PageData.get("csrfToken")
@@ -491,6 +493,7 @@ define([
 				jQuery.ajax(PageData.get("baseUrl")+"/admin/upload/remove", {
 					cache: false,
 					dataType: "json",
+					headers: AjaxHelpers.getHeaders(),
 					data: {
 						id: id,
 						csrf_token: PageData.get("csrfToken")

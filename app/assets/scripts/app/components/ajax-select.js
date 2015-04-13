@@ -1,4 +1,4 @@
-define(["jquery", "../page-data"], function($, PageData) {
+define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageData, AjaxHelpers) {
 
 	var AjaxSelect = function(dataSourceUri, state) {
 		
@@ -285,6 +285,7 @@ define(["jquery", "../page-data"], function($, PageData) {
 			jQuery.ajax(dataSourceUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					term: term,
 					csrf_token: PageData.get("csrfToken")

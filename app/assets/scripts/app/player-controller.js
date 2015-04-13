@@ -11,8 +11,9 @@ define([
 	"./synchronised-time",
 	"./device-detection",
 	"./helpers/build-get-uri",
+	"./helpers/ajax-helpers",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, buildGetUri) {
+], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, buildGetUri, AjaxHelpers) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -228,6 +229,7 @@ define([
 			jQuery.ajax(playerInfoUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken")
 				},
@@ -706,6 +708,7 @@ define([
 			jQuery.ajax(updatePlaybackTimeUri+"/"+vodSourceId, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					time: playerComponent.getPlayerCurrentTime()
@@ -865,6 +868,7 @@ define([
 			jQuery.ajax(registerViewCountUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					type: self.getPlayerType()
@@ -890,6 +894,7 @@ define([
 			jQuery.ajax(registerLikeUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					type: type

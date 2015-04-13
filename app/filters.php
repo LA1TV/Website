@@ -15,7 +15,7 @@ use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedE
 */
 App::before(function($request)
 {
-	
+
 	App::error(function(ApiException $exception) {
 		return App::make('uk\co\la1tv\website\controllers\api\v1\ApiController')->callAction("respondServerError", array());
 	});
@@ -53,6 +53,7 @@ App::after(function($request, $response)
 			$response->header("Strict-Transport-Security", "max-age=5256000");
 		}
 	}
+
 });
 
 App::finish(function() {
