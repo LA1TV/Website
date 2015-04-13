@@ -61,9 +61,6 @@ $framework = $app['path.base'].
 require $framework.'/Illuminate/Foundation/start.php';
 
 
-$manager = $app->make("Illuminate\Session\SessionManager");
-$app->middleware("MySessionMiddleware", array($manager));
-
 /*
 |--------------------------------------------------------------------------
 | Return The Application
