@@ -10,10 +10,17 @@ define([
 		var numBanners = $sideBannerContainers.length;
 		var numBannersLoaded = 0;
 		$sideBannerContainers.each(function() {
+			var $container = $(this);
 			var bgUrl = $(this).attr("data-bg-url");
 			if (bgUrl !== "") {
 				$(this).css("background-image", 'url("'+bgUrl+'")');
 			}
+			
+			function updateWidth() {
+				$container.width($(window).width());
+			}
+			updateWidth();
+			$(window).resize(updateWidth);
 			$("<img />").load(onSideBannerLoaded).attr("src", bgUrl);
 		});
 		
