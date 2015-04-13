@@ -37,6 +37,8 @@ class ShowController extends HomeBaseController {
 		$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
 		$sideBannerUri = $show->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
+		$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerFillImage");
+		$sideBannerFillUri = $show->getSideBannerFillUri($sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
 		$openGraphCoverArtUri = $show->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
 		$twitterCardCoverArtUri = $show->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
 		
@@ -70,7 +72,7 @@ class ShowController extends HomeBaseController {
 			"headerRowData"	=> null,
 			"tableData"		=> $showTableData
 		)) : null;
-		$this->setContent($view, "show", "show", $openGraphProperties, $show->name, 200, $twitterProperties, $sideBannerUri);
+		$this->setContent($view, "show", "show", $openGraphProperties, $show->name, 200, $twitterProperties, $sideBannerUri, $sideBannerFillUri);
 	}
 	
 	public function missingMethod($parameters=array()) {
