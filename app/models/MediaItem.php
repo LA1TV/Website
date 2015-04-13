@@ -45,6 +45,10 @@ class MediaItem extends MyEloquent {
 		return $this->belongsTo(self::$p.'File', 'side_banner_file_id');
 	}
 	
+	public function sideBannerFillFile() {
+		return $this->belongsTo(self::$p.'File', 'side_banner_fill_file_id');
+	}
+	
 	public function coverFile() {
 		return $this->belongsTo(self::$p.'File', 'cover_file_id');
 	}
@@ -392,6 +396,10 @@ class MediaItem extends MyEloquent {
 		if (!is_null($sideBannerFile) && !$sideBannerFile->getFinishedProcessing()) {
 			return false;
 		}
+		$sideBannerFillFile = $this->sideBannerFillFile;
+		if (!is_null($sideBannerFillFile) && !$sideBannerFillFile->getFinishedProcessing()) {
+			return false;
+		}
 		$coverFile = $this->coverFile;
 		if (!is_null($coverFile) && !$coverFile->getFinishedProcessing()) {
 			return false;
@@ -409,6 +417,11 @@ class MediaItem extends MyEloquent {
 		})->where(function($q2) {
 			$q2->has("sideBannerFile", "=", 0)
 			->orWhereHas("sideBannerFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		})->where(function($q2) {
+			$q2->has("sideBannerFillFile", "=", 0)
+			->orWhereHas("sideBannerFillFile", function($q3) {
 				$q3->finishedProcessing();
 			});
 		})->where(function($q2) {

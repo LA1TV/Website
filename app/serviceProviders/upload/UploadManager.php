@@ -300,9 +300,11 @@ class UploadManager {
 		$relationsToLoad = array(
 			"sourceFile",
 			"sourceFile.mediaItemWithBanner",
+			"sourceFile.mediaItemWithBannerFill",
 			"sourceFile.mediaItemWithCover",
 			"sourceFile.mediaItemWithCoverArt",
 			"sourceFile.playlistWithBanner",
+			"sourceFile.playlistWithBannerFill",
 			"sourceFile.playlistWithCover",
 			"sourceFile.mediaItemVideoWithFile.mediaItem"
 		);
@@ -336,6 +338,11 @@ class UploadManager {
 				$accessAllowed = true;
 			}
 		}
+		else if ($fileTypeId === 11 && !is_null($sourceFile->mediaItemWithBannerFill)) {
+			if ($sourceFile->mediaItemWithBannerFill->getIsAccessible()) {
+				$accessAllowed = true;
+			}
+		}
 		else if ($fileTypeId === 6 && !is_null($sourceFile->mediaItemWithCover)) {
 			if ($sourceFile->mediaItemWithCover->getIsAccessible()) {
 				$accessAllowed = true;
@@ -355,6 +362,11 @@ class UploadManager {
 		else if ($fileTypeId === 5 && !is_null($sourceFile->playlistWithBanner)) {
 			if ($sourceFile->playlistWithBanner->getIsAccessible() && ($sourceFile->playlistWithBanner->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
 				$accessAllowed = true;
+			}
+		}
+		else if ($fileTypeId === 11 && !is_null($sourceFile->playlistWithBannerFill)) {
+			if ($sourceFile->playlistWithBannerFill->getIsAccessible() && ($sourceFile->playlistWithBannerFill->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+			//	$accessAllowed = true; //TODO
 			}
 		}
 		else if ($fileTypeId === 6 && !is_null($sourceFile->playlistWithCover)) {

@@ -1,10 +1,18 @@
 @extends('layouts.home.body')
 
 @section('side-banners')
-<?php if (!is_null($sideBannersImageUrl)): ?>
+<?php if (!is_null($sideBannersImageUrl) || !is_null($sideBannersFillImageUrl)): ?>
 <div class="container side-banners-container">
-	<div class="side-banner side-banner-left"><img class="img-rounded" src="<?=e($sideBannersImageUrl);?>"></div>
-	<div class="side-banner side-banner-right"><img class="img-rounded" src="<?=e($sideBannersImageUrl);?>"></div>
+	<div class="side-banner-container side-banner-container-left" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
+		<?php if (!is_null($sideBannersImageUrl)): ?>
+		<div class="side-banner"><img src="<?=e($sideBannersImageUrl);?>"></div>
+		<?php endif; ?>
+	</div>
+	<div class="side-banner-container side-banner-container-right" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
+		<?php if (!is_null($sideBannersImageUrl)): ?>
+		<div class="side-banner"><img src="<?=e($sideBannersImageUrl);?>"></div>
+		<?php endif; ?>
+	</div>
 </div>
 <?php endif; ?>
 @stop

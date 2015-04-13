@@ -45,6 +45,10 @@ class Playlist extends MyEloquent {
 		return $this->belongsTo(self::$p.'File', 'side_banner_file_id');
 	}
 	
+	public function sideBannerFillFile() {
+		return $this->belongsTo(self::$p.'File', 'side_banner_fill_file_id');
+	}
+	
 	public function coverFile() {
 		return $this->belongsTo(self::$p.'File', 'cover_file_id');
 	}
@@ -279,10 +283,42 @@ class Playlist extends MyEloquent {
 		if (!is_null($sideBannerFile)) {
 			$sideBannerImageFile = $sideBannerFile->getImageFileWithResolution($width, $height);
 			if (!is_null($sideBannerFile) && $sideBannerFile->getShouldBeAccessible()) {
-				return $sideBannerFile->getUri();
+				return $sideBannerImageFile->getUri();
 			}
 		}
 		return $this->getSideBannerUri($width, $height);
+	}
+	
+	// get the side banner fill image for the playlist or null if there isn't one
+	public function getSideBannerFillUri($width, $height) {
+		$sideBannerFillFile = $this->sideBannerFillFile;
+		if (!is_null($sideBannerFillFile)) {
+			$sideBannerFillImageFile = $sideBannerFillFile->getImageFileWithResolution($width, $height);
+			if (!is_null($sideBannerFillFile) && $sideBannerFillFile->getShouldBeAccessible()) {
+				return $sideBannerFillImageFile->getUri();
+			}
+		}
+		return null;
+	}
+	
+	// get the uri that should be used for the media item side banners.
+	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
+	// if there isn't one it returns null
+	public function getMediaItemSideBannerFillUri($mediaItem, $width, $height) {
+		$mediaItemTmp = $this->mediaItems()->find($mediaItem->id);
+		if (is_null($mediaItemTmp)) {
+			throw(new Exception("The media item is not part of the playlist."));
+		}
+		
+		// check on media item
+		$sideBannerFillFile = $mediaItem->sideBannerFillFile;
+		if (!is_null($sideBannerFillFile)) {
+			$sideBannerFillImageFile = $sideBannerFillFile->getImageFileWithResolution($width, $height);
+			if (!is_null($sideBannerFillFile) && $sideBannerFillFile->getShouldBeAccessible()) {
+				return $sideBannerFillImageFile->getUri();
+			}
+		}
+		return $this->getSideBannerFillUri($width, $height);
 	}
 	
 	public function getCoverUri($width, $height) {
@@ -332,6 +368,10 @@ class Playlist extends MyEloquent {
 		if (!is_null($sideBannerFile) && !$sideBannerFile->getFinishedProcessing()) {
 			return false;
 		}
+		$sideBannerFillFile = $this->sideBannerFillFile;
+		if (!is_null($sideBannerFillFile) && !$sideBannerFillFile->getFinishedProcessing()) {
+			return false;
+		}
 		$coverFile = $this->coverFile;
 		if (!is_null($coverFile) && !$coverFile->getFinishedProcessing()) {
 			return false;
@@ -354,6 +394,11 @@ class Playlist extends MyEloquent {
 		})->where(function($q2) {
 			$q2->has("sideBannerFile", "=", 0)
 			->orWhereHas("sideBannerFile", function($q3) {
+				$q3->finishedProcessing();
+			});
+		})->where(function($q2) {
+			$q2->has("sideBannerFillFile", "=", 0)
+			->orWhereHas("sideBannerFillFile", function($q3) {
 				$q3->finishedProcessing();
 			});
 		})->where(function($q2) {

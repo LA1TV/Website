@@ -80,12 +80,20 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'MediaItem', 'side_banner_file_id');
 	}
 	
+	public function mediaItemWithBannerFill() {
+		return $this->hasOne(self::$p.'MediaItem', 'side_banner_fill_file_id');
+	}
+	
 	public function playlistWithCover() {
 		return $this->hasOne(self::$p.'Playlist', 'cover_file_id');
 	}
 	
 	public function playlistWithBanner() {
 		return $this->hasOne(self::$p.'Playlist', 'side_banner_file_id');
+	}
+	
+	public function playlistWithBannerFill() {
+		return $this->hasOne(self::$p.'Playlist', 'side_banner_fill_file_id');
 	}
 	
 	public function playlistWithCoverArt() {
