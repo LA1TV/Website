@@ -23,12 +23,17 @@ require.config({
 (function() {
 	var startTime = new Date().getTime();
 
+	// load this quickly
+	require([
+		"lib/modernizr",
+		"app/pages/home/side-banners"
+	]);
+	
 	require([
 		"app/logger",
 		"app/google-analytics",
 		"app/version-log",
 		"app/error-handler",
-		"lib/modernizr",
 		"lib/bootstrap",
 		"app/custom-accordian",
 		"app/default-button-group",
@@ -42,7 +47,6 @@ require.config({
 		"app/pages/home/playlist",
 		"app/pages/home/promo-loader",
 		"app/pages/home/home-page",
-		"app/pages/home/side-banners",
 		"app/pages/home/twitter-timeline",
 		"app/pages/home/cookie-compliance"
 	], function(logger, googleAnalytics) {
