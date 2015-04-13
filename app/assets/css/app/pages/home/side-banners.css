@@ -38,7 +38,7 @@
 	height: 1400px;
 	text-align: center;
 	overflow: hidden;
-	width: 100vw;
+	/* width set in js */
 }
 
 .side-banner-container-left {
