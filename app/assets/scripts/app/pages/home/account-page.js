@@ -2,8 +2,9 @@ define([
 	"jquery",
 	"../../components/button-group",
 	"../../page-data",
+	"../../helpers/ajax-helpers",
 	"lib/domReady!"
-], function($, ButtonGroup, PageData) {
+], function($, ButtonGroup, PageData, AjaxHelpers) {
 	
 	$(".page-account").first().each(function() {
 		
@@ -34,6 +35,7 @@ define([
 				jQuery.ajax(PageData.get("baseUrl")+"/account/set-email-notifications-state", {
 					cache: false,
 					dataType: "json",
+					headers: AjaxHelpers.getHeaders(),
 					data: {
 						csrf_token: PageData.get("csrfToken"),
 						state_id: id

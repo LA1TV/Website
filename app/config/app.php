@@ -126,6 +126,7 @@ return array(
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 		'Indatus\Dispatcher\ServiceProvider',
 		
+		'uk\co\la1tv\website\serviceProviders\mySessionMiddleware\MySessionMiddlewareServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\auth\AuthServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\apiAuth\ApiAuthServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\facebook\FacebookServiceProvider',
@@ -133,7 +134,6 @@ return array(
 		'uk\co\la1tv\website\serviceProviders\upload\UploadServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheServiceProvider',
 		'uk\co\la1tv\website\api\ApiResponseDataGeneratorServiceProvider',
-		'uk\co\la1tv\website\serviceProviders\mySessionMiddleware\MySessionMiddlewareServiceProvider',
 	),
 
 	/*

@@ -6,6 +6,7 @@ use Csrf;
 use Auth;
 use Config;
 use DebugHelpers;
+use Session;
 
 class AdminBaseController extends BaseController {
 
@@ -29,6 +30,7 @@ class AdminBaseController extends BaseController {
 			"assetsBaseUrl"	=> asset(""),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
+			"sessionId"		=> Session::getId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"version"		=> DebugHelpers::getVersion()

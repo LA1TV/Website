@@ -1,4 +1,4 @@
-define(["jquery", "./page-protect", "./page-data", "lib/domReady!"], function($, PageProtect, PageData) {
+define(["jquery", "./page-protect", "./page-data", "./helpers/ajax-helpers", "lib/domReady!"], function($, PageProtect, PageData, AjaxHelpers) {
 	
 	$("button[data-action='delete']").click(function() {
 		if (confirm("Are you sure you want to delete this?")) {
@@ -19,6 +19,7 @@ define(["jquery", "./page-protect", "./page-data", "lib/domReady!"], function($,
 				cache: false,
 				data: data,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				timeout: 5000,
 				type: "POST"
 			}).done(function(data, textStatus, jqXHR) {

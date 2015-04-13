@@ -1,7 +1,8 @@
 define([
 	"./page-data",
-	"lib/log4javascript"
-], function(PageData, log4Javascript) {
+	"lib/log4javascript",
+	"./helpers/ajax-helpers"
+], function(PageData, log4Javascript, AjaxHelpers) {
 	
 	log4Javascript.logLog.setQuietMode(true);
 	
@@ -28,6 +29,14 @@ define([
 	// only allow log messages to be sent 5 seconds apart. prevent dos.
 	ajaxAppender.setTimed(true);
 	ajaxAppender.setTimerInterval(5000);
+	
+	var headers = AjaxHelpers.getHeaders();
+	for (var headerName in headers) {
+		if(headers.hasOwnProperty(headerName)){
+			ajaxAppender.addHeader(headerName, headers[headerName]);
+		}
+	}
+	
 	logger.addAppender(ajaxAppender);
 	logger.debug("Logger initialised.");
 	return logger;

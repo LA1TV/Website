@@ -1,4 +1,4 @@
-define(["jquery", "./page-data"], function($, PageData) {
+define(["jquery", "./page-data", "./helpers/ajax-helpers"], function($, PageData, AjaxHelpers) {
 	
 	return function() {
 		
@@ -9,6 +9,7 @@ define(["jquery", "./page-data"], function($, PageData) {
 				url: PageData.get("baseUrl")+"/ajax/hello",
 				timeout: 3000,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken")
 				},

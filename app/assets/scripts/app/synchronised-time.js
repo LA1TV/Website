@@ -2,8 +2,9 @@ define([
 	"jquery",
 	"./page-data",
 	"./cookie-config",
+	"./helpers/ajax-helpers",
 	"lib/jquery.cookie"
-], function($, PageData, cookieConfig) {
+], function($, PageData, cookieConfig, AjaxHelpers) {
 
 	var SynchronisedTime = null;
 	// manage synchronised time
@@ -26,6 +27,7 @@ define([
 			url: PageData.get("baseUrl")+"/ajax/time",
 			timeout: 3000,
 			dataType: "json",
+			headers: AjaxHelpers.getHeaders(),
 			data: {
 				csrf_token: PageData.get("csrfToken")
 			},

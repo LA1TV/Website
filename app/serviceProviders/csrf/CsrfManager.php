@@ -19,6 +19,6 @@ class CsrfManager {
 	}
 	
 	public function getToken() {
-		return csrf_token();
+		return Session::token();
 	}
 }

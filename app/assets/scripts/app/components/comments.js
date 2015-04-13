@@ -3,8 +3,9 @@ define([
 	"../smart-time",
 	"../page-data",
 	"../helpers/nl2br",
-	"../helpers/html-encode"
-], function($, SmartTime, PageData, nl2br, e) {
+	"../helpers/html-encode",
+	"../helpers/ajax-helpers"
+], function($, SmartTime, PageData, nl2br, e, AjaxHelpers) {
 
 	var CommentsComponent = function(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation) {
 			
@@ -142,6 +143,7 @@ define([
 				jQuery.ajax(postUri, {
 					cache: false,
 					dataType: "json",
+					headers: AjaxHelpers.getHeaders(),
 					data: {
 						csrf_token: PageData.get("csrfToken"),
 						msg: msg,
@@ -181,6 +183,7 @@ define([
 			jQuery.ajax(deleteUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					id: comment.id
@@ -235,6 +238,7 @@ define([
 			jQuery.ajax(getUri, {
 				cache: false,
 				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					id: id,

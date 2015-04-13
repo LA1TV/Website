@@ -3,7 +3,7 @@
 use Symfony\Component\HttpFoundation\Request;
 
 class MySessionMiddleware extends Illuminate\Session\Middleware {
-	
+
 	// override so that the session id will be retrieved from a "X-Session-Id" header if can't find it in a cookie
 	
 	// The reason for doing this is that for the embeddable player in the iframe the cookies are treated as "third party".
