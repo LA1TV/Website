@@ -301,7 +301,7 @@ class Playlist extends MyEloquent {
 		return null;
 	}
 	
-	// get the uri that should be used for the media item side banners.
+	// get the uri that should be used for the media item side banner fills.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
 	// if there isn't one it returns null
 	public function getMediaItemSideBannerFillUri($mediaItem, $width, $height) {

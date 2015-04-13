@@ -366,7 +366,7 @@ class UploadManager {
 		}
 		else if ($fileTypeId === 11 && !is_null($sourceFile->playlistWithBannerFill)) {
 			if ($sourceFile->playlistWithBannerFill->getIsAccessible() && ($sourceFile->playlistWithBannerFill->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
-			//	$accessAllowed = true; //TODO
+				$accessAllowed = true;
 			}
 		}
 		else if ($fileTypeId === 6 && !is_null($sourceFile->playlistWithCover)) {
