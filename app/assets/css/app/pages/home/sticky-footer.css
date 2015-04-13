@@ -6,7 +6,7 @@ body {
 	/* Margin bottom by footer height */
 	margin-bottom: 60px;
 }
-.footer {
+.page-footer {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -16,17 +16,17 @@ body {
 	overflow: hidden;
 }
 
-.footer .container {
+.page-footer .container {
 	background-color: #f5f5f5;
 }
 
-.footer .container .footer-txt {
+.page-footer .container .page-footer-txt {
 	margin: 20px 0;
 	text-align: center;
 }
 
 @media (min-width: 768px) {
-	html.csstransforms .footer.side-banners-on {
+	html.csstransforms .page-footer.side-banners-on {
 		background-color: transparent;
 	}
 }
