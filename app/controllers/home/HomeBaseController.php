@@ -42,6 +42,7 @@ class HomeBaseController extends BaseController {
 		$view->loggedIn = Facebook::isLoggedIn();
 		$view->sideBannersImageUrl = $sideBannersImageUrl;
 		$view->sideBannersFillImageUrl = $sideBannersFillImageUrl;
+		$view->sideBannersOn = !is_null($sideBannersImageUrl) || !is_null($sideBannersFillImageUrl);
 		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
