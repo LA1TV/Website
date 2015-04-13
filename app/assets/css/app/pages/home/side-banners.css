@@ -13,14 +13,20 @@
 }
 
 @media (min-width: 768px) {
-  html.csstransforms .side-banners-container {
-    display: block;
-  }
+	html.csstransforms .side-banners-container {
+		display: block;
+	}
 }
 @media (min-width: 992px) {
-  html.csstransforms .side-banners-container {
-    display: block;
-  }
+	html.csstransforms .side-banners-container {
+		display: block;
+	}
+}
+
+@media (max-width: 1350px) {
+	.side-banners-container .side-banner-container .side-banner {
+		display: none;
+	}
 }
 
 .side-banner-container {
