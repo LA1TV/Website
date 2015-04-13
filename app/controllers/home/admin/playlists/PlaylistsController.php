@@ -102,6 +102,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			array("custom-uri", ObjectHelpers::getProp("", $playlist, "custom_uri_name")),
 			array("cover-image-id", ObjectHelpers::getProp("", $playlist, "coverFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFile", "id")),
+			array("side-banners-fill-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFillFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $playlist, "coverArtFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $playlist, "scheduled_publish_time_for_input")),
 			array("playlist-content", json_encode(array())),
@@ -113,6 +114,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		$additionalFormData = array(
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
+			"sideBannersFillImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-fill-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"showItemText"			=> !is_null($show) ? $show->name : "",
 			"playlistContentInput"	=> null,
@@ -170,6 +172,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'custom-uri'		=> array('alpha_dash', 'max:50', 'unique_custom_uri'),
 					'cover-image-id'	=> array('valid_file_id'),
 					'side-banners-image-id'	=> array('valid_file_id'),
+					'side-banners-fill-image-id'	=> array('valid_file_id'),
 					'description'	=> array('max:500'),
 					'cover-art-id'	=> array('valid_file_id'),
 					'publish-time'	=> array('my_date'),
@@ -187,6 +190,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'custom-uri.unique_custom_uri'	=> "This is already in use.",
 					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+					'side-banners-fill-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'playlist-content.required'	=> FormHelpers::getGenericInvalidMsg(),
@@ -245,6 +249,10 @@ class PlaylistsController extends PlaylistsBaseController {
 						$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
 						$file = Upload::register(Config::get("uploadPoints.sideBannersImage"), $sideBannerFileId, $playlist->sideBannerFile);
 						EloquentHelpers::associateOrNull($playlist->sideBannerFile(), $file);
+						
+						$sideBannerFillFileId = FormHelpers::nullIfEmpty($formData['side-banners-fill-image-id']);
+						$file = Upload::register(Config::get("uploadPoints.sideBannersFillImage"), $sideBannerFillFileId, $playlist->sideBannerFillFile);
+						EloquentHelpers::associateOrNull($playlist->sideBannerFillFile(), $file);
 						
 						$coverArtFileId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
 						$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtFileId, $playlist->coverArtFile);
@@ -320,6 +328,7 @@ class PlaylistsController extends PlaylistsBaseController {
 		// used to uniquely identify these file upload points on the site. Must not be duplicated for different upload points.
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
+		$view->sideBannersFillImageUploadPointId = Config::get("uploadPoints.sideBannersFillImage");
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/playlists";
 		$view->seriesAjaxSelectDataUri = Config::get("custom.admin_base_url") . "/shows/ajaxselect";
@@ -340,6 +349,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					// mark any related files as no longer in use (so they will be removed)
 					Upload::delete(array(
 						$playlist->sideBannerFile,
+						$playlist->sideBannerFillFile,
 						$playlist->coverFile,
 						$playlist->coverArtFile
 					));

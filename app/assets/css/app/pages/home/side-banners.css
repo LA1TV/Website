@@ -23,7 +23,11 @@
   }
 }
 
-.side-banners-container .side-banner {
+.side-banner-container {
+	background-color: #ffffff;
+	background-repeat: repeat-x;
+	background-attachment: scroll;
+	/* background-image set in js */
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
@@ -33,19 +37,41 @@
 	height: 1400px;
 	text-align: center;
 	overflow: hidden;
-	background-color: #ffffff;
+	width: 100vw;
 }
 
-.side-banners-container .side-banner-left {
+.side-banner-container-left {
 	left: 0;
 	transform: translateX(-100%) translateY(-50%);
 	-ms-transform: translateX(-100%) translateY(-50%);
    	-webkit-transform: translateX(-100%) translateY(-50%);
+	background-position: right center;
 }
 
-.side-banners-container .side-banner-right {
+.side-banner-container-right {
 	right: 0;
 	transform: translateX(100%) translateY(-50%);
 	-ms-transform: translateX(100%) translateY(-50%);
    	-webkit-transform: translateX(100%) translateY(-50%);
+	background-position: left center;
+}
+
+.side-banners-container .side-banner-container .side-banner {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+   	-webkit-transform: translateY(-50%);
+	width: 250px;
+	height: 1400px;
+	text-align: center;
+	overflow: hidden;
+}
+
+.side-banners-container .side-banner-container-left .side-banner {
+	right: 0;
+}
+
+.side-banners-container .side-banner-container-right .side-banner {
+	left: 0;
 }

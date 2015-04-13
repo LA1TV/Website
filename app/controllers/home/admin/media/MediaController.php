@@ -138,6 +138,7 @@ class MediaController extends MediaBaseController {
 			array("cover-image-id", ObjectHelpers::getProp("", $mediaItem, "coverFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $mediaItem, "coverArtFile", "id")),
 			array("side-banners-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFile", "id")),
+			array("side-banners-fill-image-id", ObjectHelpers::getProp("", $mediaItem, "sideBannerFillFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $mediaItem, "scheduled_publish_time_for_input")),
 			array("vod-added", !is_null(ObjectHelpers::getProp(null, $mediaItem, "videoItem"))?"1":"0"),
 			array("vod-enabled", ObjectHelpers::getProp(true, $mediaItem, "videoItem", "enabled")?"y":""),
@@ -158,6 +159,7 @@ class MediaController extends MediaBaseController {
 		$additionalFormData = array(
 			"coverImageFile"		=> FormHelpers::getFileInfo($formData['cover-image-id']),
 			"sideBannersImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-image-id']),
+			"sideBannersFillImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-fill-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"vodVideoFile"			=> FormHelpers::getFileInfo($formData['vod-video-id']),
 			"vodChaptersInput"		=> null,
@@ -221,6 +223,7 @@ class MediaController extends MediaBaseController {
 					'description'	=> array('max:500'),
 					'cover-image-id'	=> array('valid_file_id'),
 					'side-banners-image-id'	=> array('valid_file_id'),
+					'side-banners-fill-image-id'	=> array('valid_file_id'),
 					'cover-art-id'		=> array('valid_file_id'),
 					'publish-time'	=> array('my_date'),
 					'vod-video-id'	=> array('required_if:vod-added,1', 'valid_file_id'),
@@ -237,6 +240,7 @@ class MediaController extends MediaBaseController {
 					'description.max'	=> FormHelpers::getLessThanCharactersMsg(500),
 					'cover-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'side-banners-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+					'side-banners-fill-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
 					'vod-video-id.required_if'	=> FormHelpers::getRequiredMsg(),
@@ -291,6 +295,10 @@ class MediaController extends MediaBaseController {
 					$sideBannerFileId = FormHelpers::nullIfEmpty($formData['side-banners-image-id']);
 					$file = Upload::register(Config::get("uploadPoints.sideBannersImage"), $sideBannerFileId, $mediaItem->sideBannerFile);
 					EloquentHelpers::associateOrNull($mediaItem->sideBannerFile(), $file);
+					
+					$sideBannerFillFileId = FormHelpers::nullIfEmpty($formData['side-banners-fill-image-id']);
+					$file = Upload::register(Config::get("uploadPoints.sideBannersFillImage"), $sideBannerFillFileId, $mediaItem->sideBannerFillFile);
+					EloquentHelpers::associateOrNull($mediaItem->sideBannerFillFile(), $file);
 					
 					$coverArtId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtId, $mediaItem->coverArtFile);
@@ -441,6 +449,7 @@ class MediaController extends MediaBaseController {
 		// used to uniquely identify these file upload points on the site. Must not be duplicated for different upload points.
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
 		$view->sideBannersImageUploadPointId = Config::get("uploadPoints.sideBannersImage");
+		$view->sideBannersFillImageUploadPointId = Config::get("uploadPoints.sideBannersFillImage");
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->vodVideoUploadPointId = Config::get("uploadPoints.vodVideo");
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/media";
@@ -463,6 +472,7 @@ class MediaController extends MediaBaseController {
 						// mark any related files as no longer in use (so they will be removed)
 						Upload::delete(array(
 							$mediaItem->sideBannerFile,
+							$mediaItem->sideBannerFillFile,
 							$mediaItem->coverFile,
 							ObjectHelpers::getProp(null, $mediaItem->videoItem, "sourceFile"),
 							ObjectHelpers::getProp(null, $mediaItem->videoItem, "coverArtFile")
