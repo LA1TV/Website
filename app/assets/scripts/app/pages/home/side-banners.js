@@ -1,10 +1,17 @@
 define([
 	"jquery",
+	"../../device-detection",
 	"lib/domReady!"
-], function($) {
+], function($, DeviceDetection) {
 	
 	$(".side-banners-container").each(function() {
 		var self = this;
+		
+		if (DeviceDetection.isMobile()) {
+			// side banners not shown on mobiles.
+			// css will heep them at display:none
+			return;
+		}
 		
 		var $sideBannerContainers = $(".side-banner-container");
 		var numBanners = $sideBannerContainers.length;
