@@ -1,4 +1,7 @@
-define(function() {
+define([
+	"jquery",
+	"lib/domReady!"
+], function($) {
 
 	var DeviceDetection = null;
 
@@ -11,10 +14,12 @@ define(function() {
 					return result;
 				}
 				// http://stackoverflow.com/a/3540295/1048589
-				return result = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+				return result = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile Safari/i.test(navigator.userAgent);
 			}
 		}
 	})();
+	
+	$("html").addClass(DeviceDetection.isMobile() ? "mobile" : "pc");
 	
 	return DeviceDetection;
 });

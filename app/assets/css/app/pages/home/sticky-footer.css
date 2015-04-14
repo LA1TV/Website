@@ -26,7 +26,7 @@ body {
 }
 
 @media (min-width: 768px) {
-	html.csstransforms .page-footer.side-banners-on {
+	html.csstransforms.pc .page-footer.side-banners-on {
 		background-color: transparent;
 	}
 }
