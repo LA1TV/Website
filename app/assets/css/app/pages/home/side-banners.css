@@ -47,6 +47,9 @@
 	-ms-transform: translateX(-100%) translateY(-50%);
    	-webkit-transform: translateX(-100%) translateY(-50%);
 	background-position: right center;
+	-webkit-box-shadow: 5px 0px 14px 0px rgba(100, 100, 100, 1);
+	-moz-box-shadow:    5px 0px 14px 0px rgba(100, 100, 100, 1);
+	box-shadow:         5px 0px 14px 0px rgba(100, 100, 100, 1);
 }
 
 .side-banner-container-right {
@@ -55,6 +58,9 @@
 	-ms-transform: translateX(100%) translateY(-50%);
    	-webkit-transform: translateX(100%) translateY(-50%);
 	background-position: left center;
+	-webkit-box-shadow: -5px 0px 14px 0px rgba(100, 100, 100, 1);
+	-moz-box-shadow:    -5px 0px 14px 0px rgba(100, 100, 100, 1);
+	box-shadow:         -5px 0px 14px 0px rgba(100, 100, 100, 1);
 }
 
 .side-banners-container .side-banner-container .side-banner {

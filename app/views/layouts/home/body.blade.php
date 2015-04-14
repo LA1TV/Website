@@ -24,7 +24,8 @@
 	</nav>
 </div>
 @yield('content')
-<div id="footer" class="page-footer<?=$sideBannersOn ? " side-banners-on":""?>">
+<div class="page-footer-bg"></div>
+<div id="footer" class="page-footer">
 	<div class="container">
 		<p class="text-muted footer-txt"><a href="https://github.com/LA1TV/Website" target="_blank">Click here to view the source code on GitHub.</a></p>
 	</div>

@@ -6,27 +6,21 @@ body {
 	/* Margin bottom by footer height */
 	margin-bottom: 60px;
 }
-.page-footer {
+.page-footer, .page-footer-bg {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
 	/* Set the fixed height of the footer here */
 	height: 60px;
-	background-color: #f5f5f5;
 	overflow: hidden;
 }
 
-.page-footer .container {
+.page-footer-bg {
 	background-color: #f5f5f5;
+	z-index: -2; /* to place below side banners */
 }
 
 .page-footer .container .footer-txt {
 	margin: 20px 0;
 	text-align: center;
-}
-
-@media (min-width: 768px) {
-	html.csstransforms.pc .page-footer.side-banners-on {
-		background-color: transparent;
-	}
 }
