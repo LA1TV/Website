@@ -45,7 +45,7 @@ class AjaxController extends BaseController {
 		if (is_null($a)) {
 			return "[Invalid Date]";
 		}
-		return '"'.date(DATE_RFC2822, $a).'"';
+		return '"'.date(DATE_RFC2822, floor($a/1000)).'"';
 	}
 	
 	private function getLogValue($a, $quotesAllowed=false) {
