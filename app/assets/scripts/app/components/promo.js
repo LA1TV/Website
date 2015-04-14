@@ -143,7 +143,7 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 						});
 					}
 					itemVisible = true;
-					$filler.height(Math.max($el.outerHeight(true)-15, 0));
+					$filler.height(Math.max($el.outerHeight(true)-5, 0));
 					currentItemIndex = queuedItemIndex;
 				}
 			}

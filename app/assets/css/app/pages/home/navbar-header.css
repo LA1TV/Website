@@ -1,5 +1,6 @@
 .navbar {
 	border-color: #ff0000;
+	margin-top: 10px;
 	margin-bottom: 0;
 }
 
@@ -14,4 +15,11 @@
 
 .navbar .navbar-brand img {
 	height: 30px;
+}
+
+@media (min-width: 768px) {
+	.navbar-collapse {
+		padding-left: 0;
+		padding-right: 0;
+	}
 }
