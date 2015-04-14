@@ -26,7 +26,7 @@ class AjaxController extends BaseController {
 	public function postLog() {
 	
 		$logger = $this->getLogValue(FormHelpers::getValue("logger"));
-		$timestamp = $this->formatLogDate(FormHelpers::getValue("timestamp"));
+		$timestamp = $this->formatLogDate(FormHelpers::getValue("timestamp"), true);
 		$level = $this->getLogValue(FormHelpers::getValue("level"));
 		$url = $this->getLogValue(FormHelpers::getValue("url"));
 		$debugId = $this->getLogValue(FormHelpers::getValue("debug_id"));
@@ -40,12 +40,15 @@ class AjaxController extends BaseController {
 		return Response::json(array("success"=>true));
 	}
 	
-	private function formatLogDate($a) {
+	private function formatLogDate($a, $milliseconds=false) {
 		$a = intval($a);
 		if (is_null($a)) {
 			return "[Invalid Date]";
 		}
-		return '"'.date(DATE_RFC2822, floor($a/1000)).'"';
+		if ($milliseconds) {
+			 $a = floor($a/1000);
+		}
+		return '"'.date(DATE_RFC2822, $a).'"';
 	}
 	
 	private function getLogValue($a, $quotesAllowed=false) {
