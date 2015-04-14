@@ -13,7 +13,7 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 		}
 		
 		// contains array of {id, name, scheduledPublishTime, uri}
-		var items = [];
+		var liveItems = [];
 		
 		var queuedItemIndex = null;
 		var currentItemIndex = null;
@@ -58,19 +58,19 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
 					var changed = true;
-					if (data.items.length === items.length) {
+					if (data.items.length === liveItems.length) {
 						changed = false;
 						for (var i=0; i<data.items.length; i++) {
-							var newItem = data.items[i];
-							var item = items[i];
-							if (item.id !== newItem.id) {
+							var newLiveItem = data.items[i];
+							var liveItem = liveItems[i];
+							if (liveItem.id !== newLiveItem.id) {
 								changed = true;
 								break;
 							}
 						}
 					}
 					if (changed) {
-						items = data.items;
+						liveItems = data.items;
 						queuedItemIndex = null;
 						currentItemIndex = null;
 						animate();
@@ -83,8 +83,8 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 		
 		// switch items
 		function animate() {
-			if (items.length > 0) {
-				queuedItemIndex = queuedItemIndex !== null ? (queuedItemIndex+1) % items.length : 0;	
+			if (liveItems.length > 0) {
+				queuedItemIndex = queuedItemIndex !== null ? (queuedItemIndex+1) % liveItems.length : 0;	
 			}
 			else {
 				queuedItemIndex = null;
@@ -127,9 +127,9 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 					itemVisible = false;
 				}
 				else {
-					item = items[queuedItemIndex];
-					$liveItem.text(item.name);
-					currentUri = item.uri;
+					liveItem = liveItems[queuedItemIndex];
+					$liveItem.text(liveItem.name);
+					currentUri = liveItem.uri;
 					if (!visible) {
 						$el.show();
 						visible = true;
