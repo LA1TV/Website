@@ -15,7 +15,7 @@ require.config({
 		"lib/modernizr": {
 			exports: "Modernizr"
 		},
-		"lib/videojs-markers": ["videojs"],
+		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
 });
