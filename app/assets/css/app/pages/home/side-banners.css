@@ -1,11 +1,3 @@
-body {
-	pointer-events: none;
-}
-
-body > * {
-	pointer-events: initial;
-}
-
 .side-banners-container {
 	position: fixed;
 	display: none;
