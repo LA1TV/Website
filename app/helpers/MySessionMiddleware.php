@@ -4,7 +4,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class MySessionMiddleware extends Illuminate\Session\Middleware {
 
-	// override so that the session id will be retrieved from a "X-Session-Id" header if can't find it in a cookie
+	// override so that the session id will be retrieved from a "X-Session-Id" header if it exists instead of a cookie
 	
 	// The reason for doing this is that for the embeddable player in the iframe the cookies are treated as "third party".
 	// This means in safari at the moment if the user hasn't visited the site before to get a cookie set from there, safari
@@ -19,12 +19,13 @@ class MySessionMiddleware extends Illuminate\Session\Middleware {
 	{
 		$session = $this->manager->driver();
 		
-		$id = $request->cookies->get($session->getName());
+		// check to see if the session id is in a "X-Session-Id" header
+		$id = $request->header("X-Session-Id");
 		
 		if (is_null($id)) {
-			// cookie is missing
-			// check and see if it's in a "X-Session-Id" header and if it is use that.
-			$id = $request->header("X-Session-Id");
+			// header is missing
+			// check and see if it's in a cookie
+			$id = $request->cookies->get($session->getName());
 		}
 		
 		$session->setId($id);
