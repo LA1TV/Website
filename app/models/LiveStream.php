@@ -26,7 +26,7 @@ class LiveStream extends MyEloquent {
 			foreach($a['uris'] as $b) {
 				$supportedDevices = is_null($b['supportedDevices']) ? array() : explode(",", $b['supportedDevices']);
 				$support = "all";
-				if (in_array("pc", $supportedDevices, true)) {
+				if (in_array("desktop", $supportedDevices, true)) {
 					$support = "pc";
 				}
 				else if (in_array("mobile", $supportedDevices, true)) {
