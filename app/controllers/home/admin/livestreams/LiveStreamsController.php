@@ -147,7 +147,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						$support = $a['support'];
 						$supportedDevices = null;
 						if ($support === "pc") {
-							$supportedDevices = "pc";
+							$supportedDevices = "desktop";
 						}
 						else if ($support === "mobile") {
 							$supportedDevices = "mobile";
