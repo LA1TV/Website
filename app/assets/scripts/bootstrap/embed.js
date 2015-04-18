@@ -19,20 +19,27 @@ require.config({
 (function() {
 	var startTime = new Date().getTime();
 
+	// modernizr is required before anything else because it adds the "js" class to the html tag.
+	// Without this "js" class the page is in a div with display:none
+	// this can cause issues with some things if not on the page when they try to render
 	require([
-		"app/logger",
-		"app/google-analytics",
-		"app/version-log",
-		"app/error-handler",
-		"lib/bootstrap",
-		"app/fit-text-handler",
-		"app/synchronised-time",
-		"app/video-js",
-		"app/pages/embed/player-page"
-	], function(logger, googleAnalytics) {
-		// everything loaded
-		logger.info("Embeddable player loaded.");
-		googleAnalytics.registerModulesLoadTime("Embed", new Date().getTime() - startTime);
+		"lib/modernizr",
+	], function() {
+		require([
+			"app/logger",
+			"app/google-analytics",
+			"app/version-log",
+			"app/error-handler",
+			"lib/bootstrap",
+			"app/fit-text-handler",
+			"app/synchronised-time",
+			"app/video-js",
+			"app/pages/embed/player-page"
+		], function(logger, googleAnalytics) {
+			// everything loaded
+			logger.info("Embeddable player loaded.");
+			googleAnalytics.registerModulesLoadTime("Embed", new Date().getTime() - startTime);
+		});
 	});
 
 })();

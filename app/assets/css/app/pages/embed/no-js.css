@@ -1,0 +1,20 @@
+.js-required {
+	display: none;
+}
+
+html.js .js-required {
+	display: block;
+}
+
+.no-js-msg-container .no-js-panel {
+	margin-top: 20px;
+}
+
+.no-js-msg-container .no-js-panel .panel-heading {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.no-js-msg-container .no-js-panel .panel-body p:last-child {
+	margin-bottom: 0;
+}

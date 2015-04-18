@@ -17,4 +17,6 @@
 @import url("../app/components/quality-selection.css");
 @import url("../app/components/share-modal.css");
 
+@import url("../app/pages/embed/general.css");
+@import url("../app/pages/embed/no-js.css");
 @import url("../app/pages/embed/player-page.css");
