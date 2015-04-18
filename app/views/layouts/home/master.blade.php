@@ -2,19 +2,19 @@
 
 @section('no-js-msg')
 <noscript>
-<div class="container no-js-msg-container">
-	<div class="logo-container">
-		<img class="img-responsive logo" alt="LA1:TV Logo" src="<?=asset("/assets/img/logo.png");?>"/>
-	</div>
-	<div class="panel panel-danger no-js-panel">
-		<div class="panel-heading"><span class="glyphicon glyphicon-exclamation-sign"></span> Javascript Required</div>
-			<div class="panel-body">
-				<p><strong>Our website requires javascript to be enabled in your web browser in order to function.</strong></p>
-				<p>Please contact <a href="mailto:<?=e($supportEmail);?>"><?=e($supportEmail);?></a> for support and help with enabling this.</p>
+	<div class="container no-js-msg-container">
+		<div class="logo-container">
+			<img class="img-responsive logo" alt="LA1:TV Logo" src="<?=asset("/assets/img/logo.png");?>"/>
+		</div>
+		<div class="panel panel-danger no-js-panel">
+			<div class="panel-heading"><span class="glyphicon glyphicon-exclamation-sign"></span> Javascript Required</div>
+				<div class="panel-body">
+					<p><strong>Our website requires javascript to be enabled in your web browser in order to function.</strong></p>
+					<p>Please contact <a href="mailto:<?=e($supportEmail);?>"><?=e($supportEmail);?></a> for support and help with enabling this.</p>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 </noscript>
 @stop
 
