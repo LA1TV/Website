@@ -1,6 +1,8 @@
 @extends('layouts.base')
 
 @section('body')
+@yield('no-js-msg')
+<div class="js-required">
 @yield('side-banners')
 <div class="container">
 	<nav class="navbar navbar-default" role="navigation">
@@ -31,4 +33,5 @@
 	</div>
 </div>
 @yield('promo', '')
+</div>
 @stop
