@@ -43,6 +43,7 @@ class HomeBaseController extends BaseController {
 		$view->sideBannersImageUrl = $sideBannersImageUrl;
 		$view->sideBannersFillImageUrl = $sideBannersFillImageUrl;
 		$view->sideBannersOn = !is_null($sideBannersImageUrl) || !is_null($sideBannersFillImageUrl);
+		$view->supportEmail = Config::get("contactEmails.development");
 		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),

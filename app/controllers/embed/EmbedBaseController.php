@@ -27,7 +27,8 @@ class EmbedBaseController extends BaseController {
 		$view->content = $content;
 		$view->allowRobots = false;
 		$view->cssBootstrap = asset("assets/css/bootstrap/embed.css");
-		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");	
+		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");
+		$view->supportEmail = Config::get("contactEmails.development");
 		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
