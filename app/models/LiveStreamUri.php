@@ -3,7 +3,7 @@
 class LiveStreamUri extends MyEloquent {
 	
 	protected $table = 'live_stream_uris';
-	protected $fillable = array('uri', 'type', 'supported_devices');
+	protected $fillable = array('uri', 'type', 'supported_devices', 'enabled');
 
 	public function qualityDefinition() {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');

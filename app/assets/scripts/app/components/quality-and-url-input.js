@@ -70,6 +70,7 @@ define([
 		$supportSelect.append($("<option />").text("PC + Mobile").val("all"));
 		$supportSelect.append($("<option />").text("PC Only").val("pc"));
 		$supportSelect.append($("<option />").text("Mobile Only").val("mobile"));
+		$supportSelect.append($("<option />").text("Disabled").val("none"));
 		$supportCol.append($supportSelect);
 		$el.append($supportCol);
 		
