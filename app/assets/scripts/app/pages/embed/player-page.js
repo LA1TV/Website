@@ -64,6 +64,7 @@ define([
 			playerContainer.onLoaded(function() {
 				
 				$(self).empty();
+				$pageContainer.attr("data-loaded", "1");
 				var $componentEl = playerContainer.getEl();
 				$(self).append($componentEl);
 				$playerContainer = $componentEl;
