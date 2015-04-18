@@ -84,7 +84,7 @@ class StreamUrlsReorderableList implements ReorderableList {
 				$currentItemOutput["type"] = $a['type'];
 			}
 			
-			if (!isset($a["support"]) || ($a["support"] !== "all" && $a["support"] !== "pc" && $a["support"] !== "mobile")) {
+			if (!isset($a["support"]) || ($a["support"] !== "all" && $a["support"] !== "pc" && $a["support"] !== "mobile" && $a["support"] !== "none")) {
 				$this->valid = false;
 				$currentItemOutput["support"] = "all";
 			}

@@ -20,13 +20,16 @@ class LiveStream extends MyEloquent {
 	}
 	
 	public function getUrlsDataForReorderableList() {
-		$qualitiesWithUris = $this->getQualitiesWithUris();
+		$qualitiesWithUris = $this->getQualitiesWithUris(true);
 		$urls = array();
 		foreach($qualitiesWithUris as $a) {
 			foreach($a['uris'] as $b) {
 				$supportedDevices = is_null($b['supportedDevices']) ? array() : explode(",", $b['supportedDevices']);
 				$support = "all";
-				if (in_array("desktop", $supportedDevices, true)) {
+				if (!$b['enabled']) {
+					$support = "none";
+				}
+				else if (in_array("desktop", $supportedDevices, true)) {
 					$support = "pc";
 				}
 				else if (in_array("mobile", $supportedDevices, true)) {
@@ -70,15 +73,17 @@ class LiveStream extends MyEloquent {
 		return $reorderableList->getStringForInput();
 	}
 	
-	
-	
-	public function getQualitiesWithUris() {
+	public function getQualitiesWithUris($includeDisabled=false) {
 		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
 		
 		$addedQualityIds = array();
 		$addedQualityPositions = array();
 		$qualities = array();
 		foreach($this->liveStreamUris as $a) {
+			
+			if (!$includeDisabled && !$a['enabled']) {
+				continue;
+			}
 			
 			$qualityDefinition = $a->qualityDefinition;
 			$qualityDefinitionId = intval($qualityDefinition->id);
@@ -95,7 +100,8 @@ class LiveStream extends MyEloquent {
 			$uri = array(
 				"uri"	=> $a->uri,
 				"type"	=> $a->type,
-				"supportedDevices"	=> $a->supported_devices
+				"supportedDevices"	=> $a->supported_devices,
+				"enabled"	=> (boolean) $a->enabled
 			);
 			
 			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;

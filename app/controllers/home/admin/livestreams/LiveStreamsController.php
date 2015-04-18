@@ -155,7 +155,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						$liveStreamUri = new LiveStreamUri(array(
 							"uri"				=> $url,
 							"type"				=> $type,
-							"supported_devices"	=> $supportedDevices
+							"supported_devices"	=> $supportedDevices,
+							"enabled"			=> $support !== "none"
 						));
 						$liveStreamUri->qualityDefinition()->associate($qualityDefinition);
 						$liveStream->liveStreamUris()->save($liveStreamUri);
