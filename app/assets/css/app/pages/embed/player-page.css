@@ -14,10 +14,12 @@
 
 .page-player[data-loaded="1"] .heading-container {
 	display: block;
+	height: auto;
 }
 
 .page-player .heading-container {
 	display: none;
+	height: 0;
 }
 
 .page-player .heading-container .title-container {
