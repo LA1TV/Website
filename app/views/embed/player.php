@@ -1,16 +1,10 @@
 <div class="heading-container clearfix">
-<?php if ($showHeading): ?>
+<?php if ($hasVideo && $showHeading): ?>
 	<div class="logo-container">
-		<?php if (!$hasVideo): ?>
 		<a href="<?=e($hyperlink);?>" target="_blank"><img class="img-responsive" src="<?=asset("assets/img/logo.png");?>"/></a>
-		<?php endif; ?>
 	</div>
 	<div class="title-container">
-		<?php if ($hasVideo): ?>
 		<h1 class="episode-title"><a href="<?=e($hyperlink);?>" target="_blank"><?=e($episodeTitle);?></a></h1>
-		<?php else: ?>
-		<h1 class="episode-title">Content Unavailable</h1>
-		<?php endif; ?>
 	</div>
 <?php endif; ?>
 </div>

@@ -16,7 +16,7 @@ class EmbedBaseController extends BaseController {
 
 	protected $layout = null;
 	
-	protected function setContent($content, $cssPageId, $title=NULL) {
+	protected function setContent($content, $cssPageId, $title=NULL, $statusCode=200) {
 		$view = View::make("layouts.embed.master");
 		
 		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
@@ -45,7 +45,7 @@ class EmbedBaseController extends BaseController {
 		);
 		
 		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
-		$response = new MyResponse($view);
+		$response = new MyResponse($view, $statusCode);
 		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
 		$this->layout = $response;
 	}
