@@ -490,6 +490,7 @@ define([
 			playerComponent.setStartTime(data.scheduledPublishTime !== null && (!data.hasStream || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
 			playerComponent.setExternalStreamUrl(externalStreamUrl);
 			playerComponent.disableFullScreen(disableFullScreen);
+			playerComponent.setPlayerPreload(false);
 			
 			if (queuedPlayerType === "vod") {
 				// start updating the local database with the users position in the video.
