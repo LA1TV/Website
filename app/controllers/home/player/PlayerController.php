@@ -60,15 +60,18 @@ class PlayerController extends HomeBaseController {
 		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
 		$playlistTableData = array();
 		$activeItemIndex = null;
+		
+		$newIndex = 0;
 		foreach($playlistMediaItems as $i=>$item) {
 			if (!$item->getIsAccessible()) {
 				// this shouldn't be accessible
 				continue;
 			}
+			$newIndex++;
 			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$active = intval($item->id) === intval($currentMediaItem->id);
 			if ($active) {
-				$activeItemIndex = $i;
+				$activeItemIndex = $newIndex;
 			}
 			$playlistName = null;
 			if (is_null($playlist->show)) {
