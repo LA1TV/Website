@@ -67,7 +67,6 @@ class PlayerController extends HomeBaseController {
 				// this shouldn't be accessible
 				continue;
 			}
-			$newIndex++;
 			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
 			$active = intval($item->id) === intval($currentMediaItem->id);
 			if ($active) {
@@ -93,6 +92,7 @@ class PlayerController extends HomeBaseController {
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
+			$newIndex++;
 		}
 		$playlistPreviousItemUri = null;
 		$playlistNextItemUri = null;
