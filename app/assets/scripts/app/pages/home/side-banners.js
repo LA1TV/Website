@@ -4,7 +4,7 @@ define([
 	"lib/domReady!"
 ], function($, DeviceDetection) {
 	
-	$(".side-banners-container").each(function() {
+	$(".side-banners-container-container").each(function() {
 		var self = this;
 		
 		if (DeviceDetection.isMobile()) {

@@ -20,17 +20,20 @@
 
 @section('side-banners')
 <?php if (!is_null($sideBannersImageUrl) || !is_null($sideBannersFillImageUrl)): ?>
-<div class="container side-banners-container">
-	<div class="side-banner-container side-banner-container-left" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
-		<?php if (!is_null($sideBannersImageUrl)): ?>
-		<div class="side-banner"><img src="<?=e($sideBannersImageUrl);?>"></div>
-		<?php endif; ?>
+<div class="side-banners-container-container">
+	<div class="container side-banners-container">
+		<div class="side-banner-container side-banner-container-left" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
+			<?php if (!is_null($sideBannersImageUrl)): ?>
+			<div class="side-banner"><img src="<?=e($sideBannersImageUrl);?>"></div>
+			<?php endif; ?>
+		</div>
+		<div class="side-banner-container side-banner-container-right" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
+			<?php if (!is_null($sideBannersImageUrl)): ?>
+			<div class="side-banner"><img src="<?=e($sideBannersImageUrl);?>"></div>
+			<?php endif; ?>
+		</div>
 	</div>
-	<div class="side-banner-container side-banner-container-right" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
-		<?php if (!is_null($sideBannersImageUrl)): ?>
-		<div class="side-banner"><img src="<?=e($sideBannersImageUrl);?>"></div>
-		<?php endif; ?>
-	</div>
+	<div class="container side-banners-container side-banners-container-shadow"></div>
 </div>
 <?php endif; ?>
 @stop
