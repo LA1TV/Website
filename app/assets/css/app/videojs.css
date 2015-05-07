@@ -7,3 +7,12 @@
 	/* make the cover fill the player */
 	background-size: cover;
 }
+
+.vjs-thumbnail {
+	-webkit-box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.65);
+	-moz-box-shadow:    0px 0px 10px 3px rgba(0, 0, 0, 0.65);
+	box-shadow:         0px 0px 10px 3px rgba(0, 0, 0, 0.65);
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgb(50, 50, 50);
+}
