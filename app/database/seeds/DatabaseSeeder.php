@@ -28,7 +28,6 @@ class DatabaseSeeder extends Seeder {
 		$this->call('UploadPointsSeeder');
 		$this->call('UserSeeder');
 		$this->call('SiteUsersSeeder');
-		$this->call('LiveStreamUrisSeeder');
 		$this->call('LiveStreamsSeeder');
 		$this->call('MediaItemSeeder');
 		$this->call('FileSeeder');
