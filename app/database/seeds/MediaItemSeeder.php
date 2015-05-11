@@ -63,10 +63,9 @@ class MediaItemSeeder extends Seeder {
 			$this->addComments($mediaItem);
 		}
 		
-		$mediaItemLiveStream = new MediaItemLiveStream(array(
-			"enabled"	=>	true
-		));
-		$mediaItemLiveStream->liveStream()->associate(LiveStream::find(1));
+		//$mediaItemLiveStream = new MediaItemLiveStream(array(
+		//	"enabled"	=>	true
+		//));
 		$mediaItem = new MediaItem(array(
 			"name"	=>	"Lunchtime Show!",
 			"description"	=>	"This is the lunchtime show description.",
@@ -75,7 +74,7 @@ class MediaItemSeeder extends Seeder {
 		));
 		DB::transaction(function() use (&$mediaItem, &$mediaItemLiveStream) {
 			$mediaItem->save();
-			$mediaItem->liveStreamItem()->save($mediaItemLiveStream);
+		//	$mediaItem->liveStreamItem()->save($mediaItemLiveStream);
 		});
 		$this->addLikes($mediaItem);
 		$this->addComments($mediaItem);
