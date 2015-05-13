@@ -143,6 +143,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					foreach($urlsData as $a) {
 						$qualityDefinition = QualityDefinition::find(intval($a['qualityState']['id']));
 						$url = $a['url'];
+						$dvrBridgeServiceUri = $a['dvr'];
 						$type = $a['type'];
 						$support = $a['support'];
 						$supportedDevices = null;
@@ -153,10 +154,11 @@ class LiveStreamsController extends LiveStreamsBaseController {
 							$supportedDevices = "mobile";
 						}
 						$liveStreamUri = new LiveStreamUri(array(
-							"uri"				=> $url,
-							"type"				=> $type,
-							"supported_devices"	=> $supportedDevices,
-							"enabled"			=> $support !== "none"
+							"uri"						=> $url,
+							"dvr_bridge_service_uri"	=> $dvrBridgeServiceUri,
+							"type"						=> $type,
+							"supported_devices"			=> $supportedDevices,
+							"enabled"					=> $support !== "none"
 						));
 						$liveStreamUri->qualityDefinition()->associate($qualityDefinition);
 						$liveStream->liveStreamUris()->save($liveStreamUri);

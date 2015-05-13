@@ -19,10 +19,43 @@ class LiveStream extends MyEloquent {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
 	
+	private function getUrisOrganisedByQuality() {
+		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
+		
+		$addedQualityIds = array();
+		$addedQualityPositions = array();
+		$qualities = array();
+		foreach($this->liveStreamUris as $a) {
+			
+			$qualityDefinition = $a->qualityDefinition;
+			$qualityDefinitionId = intval($qualityDefinition->id);
+			
+			if (!in_array($qualityDefinitionId, $addedQualityIds)) {
+				$addedQualityIds[] = $qualityDefinitionId;
+				$addedQualityPositions[] = intval($qualityDefinition->position);
+				$qualities[] = array(
+					"qualityDefinition"	=> $qualityDefinition,
+					"uris"				=> array()
+				);
+			}
+			
+			$uri = array(
+				"uri"	=> $a->uri,
+				"uriForDvrBridgeService"	=> (boolean) $a->dvr_bridge_service_uri,
+				"uriFromDvrBridgeService"	=> $a->uri_from_dvr_bridge_service,
+				"type"	=> $a->type,
+				"supportedDevices"	=> $a->supported_devices,
+				"enabled"	=> (boolean) $a->enabled
+			);
+			
+			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
+		}
+		return $qualities;
+	}
+	
 	public function getUrlsDataForReorderableList() {
-		$qualitiesWithUris = $this->getQualitiesWithUris(true);
-		$urls = array();
-		foreach($qualitiesWithUris as $a) {
+		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
+		foreach($urisOrganisedByQuality as $a) {
 			foreach($a['uris'] as $b) {
 				$supportedDevices = is_null($b['supportedDevices']) ? array() : explode(",", $b['supportedDevices']);
 				$support = "all";
@@ -41,6 +74,7 @@ class LiveStream extends MyEloquent {
 						"text"	=> $a['qualityDefinition']->name
 					),
 					"url"		=> $b['uri'],
+					"dvr"		=> $b['uriForDvrBridgeService'],
 					"type"		=> $b['type'],
 					"support"	=> $support
 				);
@@ -73,41 +107,48 @@ class LiveStream extends MyEloquent {
 		return $reorderableList->getStringForInput();
 	}
 	
-	public function getQualitiesWithUris($includeDisabled=false) {
-		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
+	public function getQualitiesWithUris($dvrUrisOnly=false) {
 		
-		$addedQualityIds = array();
-		$addedQualityPositions = array();
 		$qualities = array();
-		foreach($this->liveStreamUris as $a) {
-			
-			if (!$includeDisabled && !$a['enabled']) {
-				continue;
-			}
-			
-			$qualityDefinition = $a->qualityDefinition;
-			$qualityDefinitionId = intval($qualityDefinition->id);
-			
-			if (!in_array($qualityDefinitionId, $addedQualityIds)) {
-				$addedQualityIds[] = $qualityDefinitionId;
-				$addedQualityPositions[] = intval($qualityDefinition->position);
-				$qualities[] = array(
-					"qualityDefinition"	=> $qualityDefinition,
-					"uris"				=> array()
-				);
-			}
-			
-			$uri = array(
-				"uri"	=> $a->uri,
-				"type"	=> $a->type,
-				"supportedDevices"	=> $a->supported_devices,
-				"enabled"	=> (boolean) $a->enabled
+		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
+		foreach($urisOrganisedByQuality as $quality) {
+			$entry = array(
+				"qualityDefinition"	=> $quality["qualityDefinition"],
+				"uris"				=> array()
 			);
 			
-			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
+			foreach($quality['uris'] as $uriAndInfo) {
+				if (!$uriAndInfo['enabled']) {
+					continue;
+				}
+				
+				// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
+				// the url it returns will be a hls url with dvr support.
+				$uriWithDvrSupport = $uriAndInfo['uriForDvrBridgeService'];
+				// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
+				// this may be null if there's been an error, in which case the user should not see it
+				$uri = !$uriWithDvrSupport ? $uriAndInfo['uri'] : $uriAndInfo['uriFromDvrBridgeService'];
+				if (is_null($uri)) {
+					continue;
+				}
+				
+				if ($dvrUrisOnly && !$uriWithDvrSupport) {
+					continue;
+				}
+			
+				$entry['uris'][] = array(
+					"uri"	=> $uri,
+					"uriWithDvrSupport"	=> $uriWithDvrSupport,
+					"type"	=> $uriAndInfo['type'],
+					"supportedDevices"	=> $uriAndInfo['supportedDevices']
+				);
+			
+			}
+			
+			if (count($entry["uris"]) > 0) {
+				$qualities[] = $entry;
+			}
 		}
-		// sort so qualities in correct order
-		array_multisort($addedQualityPositions, SORT_NUMERIC, SORT_ASC, $qualities);
 		return $qualities;
 	}
 	
