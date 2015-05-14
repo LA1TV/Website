@@ -8,7 +8,7 @@ use Config;
 use App;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
-use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\MediaItemLiveStream;
 use Facebook;
 use Request;
 use MyResponse;
@@ -111,7 +111,7 @@ class HomeBaseController extends BaseController {
 		}
 		$view->playlistsUri = Config::get("custom.base_url") . "/playlists";
 		
-		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
+		$contentSecurityPolicyDomains = MediaItemLiveStream::getCachedLiveStreamDomains();
 		$response = new MyResponse($view, $statusCode);
 		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
 		$this->layout = $response;

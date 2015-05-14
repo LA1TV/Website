@@ -2,7 +2,6 @@
 
 use Exception;
 use Config;
-use Cache;
 use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
@@ -19,7 +18,7 @@ class LiveStream extends MyEloquent {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
 	
-	private function getUrisOrganisedByQuality() {
+	public function getUrisOrganisedByQuality() {
 		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
 		
 		$addedQualityIds = array();
@@ -45,7 +44,8 @@ class LiveStream extends MyEloquent {
 				"uriFromDvrBridgeService"	=> $a->uri_from_dvr_bridge_service,
 				"type"	=> $a->type,
 				"supportedDevices"	=> $a->supported_devices,
-				"enabled"	=> (boolean) $a->enabled
+				"enabled"	=> (boolean) $a->enabled,
+				"liveStreamUriModel"	=> $a
 			);
 			
 			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
@@ -105,82 +105,6 @@ class LiveStream extends MyEloquent {
 	public static function generateInputValueForUrlsOrderableList($data) {
 		$reorderableList = new StreamUrlsReorderableList($data);
 		return $reorderableList->getStringForInput();
-	}
-	
-	public function getQualitiesWithUris($dvrUrisOnly=false) {
-		
-		$qualities = array();
-		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
-		foreach($urisOrganisedByQuality as $quality) {
-			$entry = array(
-				"qualityDefinition"	=> $quality["qualityDefinition"],
-				"uris"				=> array()
-			);
-			
-			foreach($quality['uris'] as $uriAndInfo) {
-				if (!$uriAndInfo['enabled']) {
-					continue;
-				}
-				
-				// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
-				// the url it returns will be a hls url with dvr support.
-				$uriWithDvrSupport = $uriAndInfo['uriForDvrBridgeService'];
-				// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
-				// this may be null if there's been an error, in which case the user should not see it
-				$uri = !$uriWithDvrSupport ? $uriAndInfo['uri'] : $uriAndInfo['uriFromDvrBridgeService'];
-				if (is_null($uri)) {
-					continue;
-				}
-				
-				if ($dvrUrisOnly && !$uriWithDvrSupport) {
-					continue;
-				}
-			
-				$entry['uris'][] = array(
-					"uri"	=> $uri,
-					"uriWithDvrSupport"	=> $uriWithDvrSupport,
-					"type"	=> $uriAndInfo['type'],
-					"supportedDevices"	=> $uriAndInfo['supportedDevices']
-				);
-			
-			}
-			
-			if (count($entry["uris"]) > 0) {
-				$qualities[] = $entry;
-			}
-		}
-		return $qualities;
-	}
-	
-	// returns an array containing all the domains that live streams come from which are loaded from a http request. I.e. playlist.m3u8 for mobiles.
-	public static function getCachedLiveStreamDomains() {
-		return Cache::remember('liveStreamDomains', Config::get("custom.live_stream_domains_cache_time"), function() {
-			$uris = array();
-			$models = self::get();
-			foreach($models as $a) {
-				foreach($a->getQualitiesWithUris() as $b) {
-					foreach($b['uris'] as $uri) {
-						$uris[] = $uri['uri'];
-					}
-				}
-			}
-			
-			$uris = array_where($uris, function($key, $value) {
-				// filter out so we only have uris beginning with http:// or https://
-				return preg_match('@^https?://@i', $value) === 1;
-			});
-			$domains = array();
-			foreach($uris as $a) {
-				$info = parse_url($a);
-				$domain = $info['scheme']."://".$info['host'];
-				if (isset($info['port'])) {
-					$domain .= ":".$info['port'];
-				}
-				$domains[] = $domain;
-			}
-			$domains = array_unique($domains);
-			return $domains;
-		});
 	}
 	
 	public function getIsAccessible() {
