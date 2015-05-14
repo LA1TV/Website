@@ -290,6 +290,7 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 	
 	// sent the START command to any dvr bridge service urls.
+	// this method is private because this should only be called when the stream state changes to live
 	private function startDvrs() {
 		$liveStreamModel = $this->liveStream;
 		if (is_null($liveStreamModel)) {
@@ -334,7 +335,9 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 	
 	// sent the REMOVE command to any dvr bridge service urls
-	private function removeDvrs() {
+	// this method is public because it is ok to stop and remove the dvr recordings from other places
+	// dvr recordings can be removed at any time without causing issues.
+	public function removeDvrs() {
 		foreach($this->dvrLiveStreamUris as $dvrLiveStreamUriModel) {
 			$liveStreamUriModel = $dvrLiveStreamUriModel->liveStreamUri;
 			// don't care if there's an error because pings will stop, meaning the dvr bridge server should sort itself out anyway

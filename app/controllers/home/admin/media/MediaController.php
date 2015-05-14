@@ -440,11 +440,22 @@ class MediaController extends MediaBaseController {
 			$streamOptions[] = array("id"=>$a->id, "name"=>$name);
 		}
 		
+		
+		$hasDvrRecording = false;
+		$liveStreamItem = !is_null($mediaItem) ? $mediaItem->liveStreamItem : null;
+		if (!is_null($liveStreamItem)) {
+			$hasDvrRecording = $liveStreamItem->dvrLiveStreamUris()->count() > 0;
+		}
+		
 		$view = View::make('home.admin.media.edit');
 		$view->editing = $editing;
 		$view->streamOptions = $streamOptions;
 		$view->form = $formData;
 		$view->additionalForm = $additionalFormData;
+		$view->hasDvrRecording = $hasDvrRecording;
+		if ($hasDvrRecording) {
+			$view->dvrRecordingRemoveUri = Config::get("custom.admin_base_url") . "/media/remove-dvr-recording/".$liveStreamItem->id;
+		}
 		$view->formErrors = $errors;
 		// used to uniquely identify these file upload points on the site. Must not be duplicated for different upload points.
 		$view->coverImageUploadPointId = Config::get("uploadPoints.coverImage");
@@ -488,6 +499,19 @@ class MediaController extends MediaBaseController {
 					}
 				}
 			});
+		}
+		return Response::json($resp);
+	}
+	
+	public function postRemoveDvrRecording($mediaItemLiveStreamId) {
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 1);
+		$resp = array("success"=>false);
+		
+		$mediaItemLiveStreamId = intval($mediaItemLiveStreamId, 10);
+		$mediaItemLiveStream = MediaItemLiveStream::find($mediaItemLiveStreamId);
+		if (!is_null($mediaItemLiveStream)) {
+			$mediaItemLiveStream->removeDvrs();
+			$resp["success"] = true;
 		}
 		return Response::json($resp);
 	}

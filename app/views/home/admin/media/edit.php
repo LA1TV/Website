@@ -26,7 +26,9 @@
 							<button class="btn btn-primary enable-button">Add Video On Demand</button>
 						</div>
 						<div class="enabled-container">
-							<button class="btn btn-default disable-button">Remove Video On Demand</button>
+							<div class="form-group">
+								<button class="btn btn-default disable-button">Remove Video On Demand</button>
+							</div>
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "vod-enabled", $form['vod-enabled']==="y", $formErrors);?>
 							<?=FormHelpers::getFormUploadInput(1, $vodVideoUploadPointId, "Video", "vod-video-id", $form['vod-video-id'], $formErrors, $additionalForm['vodVideoFile']['name'], $additionalForm['vodVideoFile']['size'], !$additionalForm['vodVideoFile']['inUse'], $additionalForm['vodVideoFile']['processState'], $additionalForm['vodVideoFile']['processPercentage'], $additionalForm['vodVideoFile']['processMsg']);?>
 							<?=FormHelpers::getFormDateInput(1, "Time Recorded (Optional) (Must Be Empty When Recording Of Live Stream)", "vod-time-recorded", $form['vod-time-recorded'], $formErrors);?>
@@ -49,7 +51,16 @@
 							<button class="btn btn-primary enable-button">Add Live Stream</button>
 						</div>
 						<div class="enabled-container">
-							<button class="btn btn-default disable-button">Remove Live Stream</button>
+							<div class="form-group">
+								<button class="btn btn-default disable-button">Remove Live Stream</button>
+							</div>
+							<?php if ($hasDvrRecording): ?>
+							<div class="form-group remove-dvr-recording-btn-container" data-ajax-remove-uri="<?=e($dvrRecordingRemoveUri);?>">
+								<div class="form-control">
+									<button class="btn btn-danger remove-btn">Remove DVR Recording</button>
+								</div>
+							</div>
+							<?php endif; ?>
 							<?=FormHelpers::getFormCheckInput(1, "Enabled", "stream-enabled", $form['stream-enabled']==="y", $formErrors);?>
 							<?=FormHelpers::getButtonGroupInput(1, "Current Status", "stream-state", $form['stream-state'], $formErrors, true, $additionalForm['streamStateButtonsData']);?>
 							<?=FormHelpers::getFormCheckInput(1, "Being Recorded For VOD", "stream-being-recorded", $form['stream-being-recorded']==="y", $formErrors);?>
