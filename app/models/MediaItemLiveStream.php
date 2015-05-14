@@ -43,6 +43,12 @@ class MediaItemLiveStream extends MyEloquent {
 				$model->removeDvrs();
 			}
 			
+			if ($model->liveStreamHasChanged()) {
+				// if the live stream attached to this media item live stream has just been changed
+				// then remove any dvr links as they will be to the previous live stream
+				$model->removeDvrs();
+			}
+			
 			
 			return true;
 		});
@@ -185,6 +191,11 @@ class MediaItemLiveStream extends MyEloquent {
 	// has gone from "live" to "not live"
 	public function hasJustBecomeNotLive() {
 		return $this->isNotLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+	}
+	
+	// the live stream linked to this has changed from what is currently in the database
+	public function liveStreamHasChanged() {
+		return !$this->exists || $this->original["live_stream_id"] !== $this->live_stream_id;
 	}
 	
 	public function getQualitiesWithUris($dvrUrisOnly=false) {

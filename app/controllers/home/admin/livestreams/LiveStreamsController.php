@@ -138,7 +138,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						throw(new Exception("Error saving LiveStream."));
 					}
 					
-					$liveStream->liveStreamUris()->delete(); // detaches all
+					$liveStream->liveStreamUris()->delete(); // detaches all. this causes any corresponding dvrBridgeServiceUrl's to be deleted as well which must happen on any change
 					$urlsData = json_decode($formData['urls'], true);
 					foreach($urlsData as $a) {
 						$qualityDefinition = QualityDefinition::find(intval($a['qualityState']['id']));
