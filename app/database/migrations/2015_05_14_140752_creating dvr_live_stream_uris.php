@@ -17,7 +17,7 @@ class CreatingDvrLiveStreamUris extends Migration {
 			$table->increments('id');
 			$table->integer("live_stream_uri_id")->unsigned();
 			$table->integer("media_item_live_stream_id")->unsigned();
-			$table->text("uri");
+			$table->text("uri")->nullable();
 			$table->timestamps();
 			
 			$table->index("live_stream_uri_id");

@@ -39,7 +39,7 @@ if (isset($nav[$currentNavPage])) {
 @stop
 
 @section('content')
-<div id="main-content" class="container page-<?=$cssPageId?>">
+<div id="main-content" class="container-fluid page-<?=$cssPageId?>">
 	<?=$content?>
 </div>
 @stop
