@@ -327,10 +327,30 @@ define([
 			var deviceStreamUriGroups = data.streamUris !== null ? extractUrisForDevice(data.streamUris) : null;
 			var deviceVideoUriGroups = data.videoUris !== null ? extractUrisForDevice(data.videoUris) : null;
 			
+			if (data.hasStream && data.streamState === 3) {
+				// stream is over so strip out any urls that aren't dvr urls
+				// the dvr stream urls should now be pointing to a static recording
+				for(var i=deviceStreamUriGroups.length-1; i>=0; i--) {
+					var group = deviceStreamUriGroups[i];
+					var uris = group.uris;
+					for (var j=uris.length-1; j>=0; j--) {
+						var uri = uris[j];
+						if (!uri.uriWithDvrSupport) {
+							// remove this uri
+							uris.splice(j, 1);
+						}
+					}
+					if (uris.length === 0) {
+						// no uris left in this group so remove it.
+						deviceStreamUriGroups.splice(i, 1);
+					}
+				}
+			}
+			
 			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
-			if (data.hasStream && (data.streamState === 2 || (overrideModeEnabled && data.streamState === 1))) {
+			if (data.hasStream && (data.streamState === 2 || data.streamState === 3 || (overrideModeEnabled && data.streamState === 1))) {
 				if (externalStreamUrl !== null || deviceStreamUriGroups.length > 0) {
 					queuedPlayerType = "live";
 				}

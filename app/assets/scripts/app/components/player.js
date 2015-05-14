@@ -661,12 +661,27 @@ define([
 			
 			// set the sources
 			playerUris = queuedPlayerUris;
+			
+			// add sources that support dvr first so taken as preferred choice in browser
 			for (var i=0; i<playerUris.length; i++) {
+				var uri = playerUris[i];
+				if (!uri.uriWithDvrSupport) {
+					continue;
+				}
+				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
+				$video.append($source);
+			}
+			
+			// add sources that do not support dvr
+			for (var i=0; i<playerUris.length; i++) {
+				if (uri.uriWithDvrSupport) {
+					continue;
+				}
 				var uri = playerUris[i];
 				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
 				$video.append($source);
 			}
-
+			
 			$player.append($video);
 			playerPreload = queuedPlayerPreload;
 			videoJsPlayer = videojs($video[0], {
