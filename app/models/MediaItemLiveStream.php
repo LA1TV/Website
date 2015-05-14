@@ -17,21 +17,20 @@ class MediaItemLiveStream extends MyEloquent {
 	protected static function boot() {
 		parent::boot();
 		self::saving(function($model) {
-			
 			// transaction committed in saved event
 			// transaction important because entries created/removed in dvr_live_stream_uris
 			// depending on stream state so must always change in sync with stream state.
 			DB::beginTransaction();
 			
 			if ($model->hasJustBecomeLive()) {
-				// TODO description
+				// send command to DVR Bridge Service servers to start recording stream
+				// and create entry in dvr_stream_uris table
 				$model->startDvrs();
 			}
 			
 			if ($model->hasJustBecomeStreamOver()) {
-				// TODO dvr bridge service stop api call
-				// if fails set urls to null
-				// TODO description
+				// send command to DVR Bridge Service servers to stop recording stream
+				// if this fails the dvr link will be removed
 				$model->stopDvrs();
 				
 				// record the time that the stream is being marked as over
@@ -39,7 +38,9 @@ class MediaItemLiveStream extends MyEloquent {
 			}
 			
 			if ($model->hasJustBecomeNotLive()) {
-				// TODO description
+				// send command to DVR Bridge Service servers to stop recording stream
+				// and inform it that the recording can be deleted.
+				// entry will be removed from dvr_stream_uris table
 				$model->removeDvrs();
 			}
 			
@@ -303,7 +304,7 @@ class MediaItemLiveStream extends MyEloquent {
 				DB::transaction(function() {
 					$this->dvrLiveStreamUris()->delete();
 				});
-				$responseInfo = $this->makeDvrBridgeServiceRequest($uriModel->uri, "START", $this->id);
+				$responseInfo = self::makeDvrBridgeServiceRequest($uriModel->uri, "START", $this->id);
 				if ($responseInfo["statusCode"] === 200 && !is_null($responseInfo['data']) && !is_null($responseInfo['data']['url'])) {
 					// success. dvr has started
 					// add entry to dvr_live_stream_uris table
@@ -324,7 +325,7 @@ class MediaItemLiveStream extends MyEloquent {
 	private function stopDvrs() {
 		foreach($this->dvrLiveStreamUris as $dvrLiveStreamUriModel) {
 			$liveStreamUriModel = $dvrLiveStreamUriModel->liveStreamUri;
-			$responseInfo = $this->makeDvrBridgeServiceRequest($liveStreamUriModel->uri, "STOP", $this->id);
+			$responseInfo = self::makeDvrBridgeServiceRequest($liveStreamUriModel->uri, "STOP", $this->id);
 			if ($responseInfo["statusCode"] !== 200) {
 				// error occurred. Remove dvrLiveStreamUri. This will cause pings to stop so the dvr bridge service server should sort itself out
 				$dvrLiveStreamUriModel->delete();
@@ -337,14 +338,14 @@ class MediaItemLiveStream extends MyEloquent {
 		foreach($this->dvrLiveStreamUris as $dvrLiveStreamUriModel) {
 			$liveStreamUriModel = $dvrLiveStreamUriModel->liveStreamUri;
 			// don't care if there's an error because pings will stop, meaning the dvr bridge server should sort itself out anyway
-			$this->makeDvrBridgeServiceRequest($liveStreamUriModel->uri, "REMOVE", $this->id);
+			self::makeDvrBridgeServiceRequest($liveStreamUriModel->uri, "REMOVE", $this->id);
 			$dvrLiveStreamUriModel->delete();
 		}
 	}
 	
 	// make a request to a dvr bridge service and return the response as an array of array("statusCode", "data")
 	// statusCode will be null if there was an error getting the response, data will be null if the status code is not 200, or if invalid json response
-	private function makeDvrBridgeServiceRequest($url, $commandType, $id) {
+	public static function makeDvrBridgeServiceRequest($url, $commandType, $id) {
 		$data = array("type"=>$commandType, "id"=>$id);
 		$encodedData = http_build_query($data);
 		
