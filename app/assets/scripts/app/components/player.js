@@ -689,7 +689,7 @@ define([
 				height: "100%",
 				controls: true,
 				preload: playerPreload ? "auto" : "metadata",
-				techOrder: ["html5", "flash"],
+				techOrder: ["html5", "hls", "flash"],
 				autoPlay: false, // implementing auto play manually using callback
 				poster: coverUri,
 				loop: false

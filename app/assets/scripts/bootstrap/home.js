@@ -15,6 +15,11 @@ require.config({
 		"lib/modernizr": {
 			exports: "Modernizr"
 		},
+		"lib/pkcs7.unpad": {
+			exports: "pkcs7"
+		},
+		"lib/videojs-media-sources": ["videojs"],
+		"lib/videojs.hls": ["lib/pkcs7.unpad", "lib/videojs-media-sources", "videojs"],
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
