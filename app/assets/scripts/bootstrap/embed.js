@@ -33,7 +33,6 @@ require.config({
 			"lib/bootstrap",
 			"app/fit-text-handler",
 			"app/synchronised-time",
-			"app/video-js",
 			"app/pages/embed/player-page"
 		], function(logger, googleAnalytics) {
 			// everything loaded

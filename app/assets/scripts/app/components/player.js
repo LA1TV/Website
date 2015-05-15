@@ -1,13 +1,12 @@
 define([
 	"jquery",
 	"../fit-text-handler",
-	"videojs",
+	"../video-js",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
-	"lib/jquery.dateFormat",
-	"../video-js"
+	"lib/jquery.dateFormat"
 ], function($, FitTextHandler, videojs, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
@@ -85,10 +84,11 @@ define([
 			queuedShowPlayer = show;
 			return this;
 		};
-		
+	
 		// set the player position to a certain time (in seconds) on the next render call.
 		// if startPlaying is true the player will start playing if it is not already.
 		// if roundTimeToSafeRegion is true then this means any values that are not between 5 seconds into the video and 10 seconds from the end will the time will get set to 0
+		// this only applies to vod
 		this.setPlayerStartTime = function(time, startPlaying, roundTimeToSafeRegion) {
 			queuedPlayerTime = time;
 			queuedPlayerTimeStartPlaying = startPlaying ? true : false; // startPlaying could be undefined
@@ -105,6 +105,7 @@ define([
 		// array of {time, uri} (time is in seconds)
 		// these will be applied when the video js player is created and not update automatically
 		// because of how the plugin works.
+		// this only applies to vod
 		this.setScrubThumbnails = function(thumbnails) {
 			queuedThumbnails = thumbnails;
 			return this;
@@ -145,7 +146,7 @@ define([
 			return null;
 		};
 		
-		// returns the error if an error has occurred with videojs playback or null otherwise.
+		// returns the error if an error has occurred with playback or null otherwise.
 		this.getPlayerError = function() {
 			if (videoJsPlayer !== null) {
 				return videoJsPlayer.error();
@@ -188,7 +189,7 @@ define([
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
 			if (videoJsPlayer !== null && playerType === "vod") {
-				onVideoJsLoadedMetadata(function() {
+				onPlayerLoadedMetadata(function() {
 					if (time > videoJsPlayer.duration()) {
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
 						return;
@@ -222,7 +223,7 @@ define([
 		var queuedExternalLiveStreamUrl = null;
 		var currentAdTimeTxt = null;
 		var currentAdLiveAtTxt = null;
-		var videoJsLoadedMetadata = false;
+		var playerLoadedMetadata = false;
 		var playerInitialized = false;
 		var playerType = null;
 		var queuedPlayerType = null;
@@ -274,8 +275,10 @@ define([
 		var $clickToWatchBtnContainer = null;
 		var $clickToWatchBtn = null;
 		
-		// contains reference to videojs player
+		// contains reference to videojs player which is used for vod
 		var videoJsPlayer = null;
+		// contains reference to the clappr player which is used for streams
+		var clapprPlayer = null;
 		// reference to the dom element which contains the video tag
 		var $player = null;
 		var $playerTopBarHeading = null;
@@ -558,12 +561,15 @@ define([
 					// create either the player or external stream slide depending whether the external stream url is present
 					if (showExternalStreamSlide) {
 						destroyPlayer();
+						playerType = queuedPlayerType;
 						createExternalStreamSlide();
 					}
 					else {
-						createPlayer(); // this will call destroyPlayer()
+						// destroy current player if there is one
+						var playerExisted = destroyPlayer();
+						playerType = queuedPlayerType;
+						createPlayer(playerExisted);
 					}
-					playerType = queuedPlayerType;
 				}
 				else {
 					destroyPlayer();
@@ -608,28 +614,33 @@ define([
 				// set the new time
 				if (queuedPlayerTime !== null) {
 					(function(startTime, startPlaying, roundToSafeRegion) {
-						if (startPlaying) {
-							// sometimes (eg with rtmp) the metadata only starts loading after the play call,
-							// so call play here as well as in the callback.
-							videoJsPlayer.play();
-						}
 						
-						onVideoJsLoadedMetadata(function() {
-							if (roundToSafeRegion) {
-								if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
-									// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
-									startTime = 0;
+						onPlayerLoadedMetadata(function() {
+							if (playerType === "vod") {
+								if (roundToSafeRegion) {
+									if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
+										// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
+										startTime = 0;
+									}
 								}
-							}
-							else if (startTime > videoJsPlayer.duration()) {
-								console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
-								return;
-							}
+								else if (startTime > videoJsPlayer.duration()) {
+									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
+									return;
+								}
 							
-							videoJsPlayer.currentTime(startTime);
+								videoJsPlayer.currentTime(startTime);
+							}
+							else if (playerType === "live") {
+								// TODO
+							}
 							
 							if (startPlaying) {
-								videoJsPlayer.play();
+								if (playerType === "vod") {
+									videoJsPlayer.play();
+								}
+								else if (playerType === "live") {
+									// TODO
+								}
 							}
 							
 							playerInitialized = true;
@@ -638,7 +649,7 @@ define([
 					})(queuedPlayerTime, queuedPlayerTimeStartPlaying, queuedPlayerRoundStartTimeToSafeRegion);
 				}
 				else {
-					onVideoJsLoadedMetadata(function() {
+					onPlayerLoadedMetadata(function() {
 						playerInitialized = true;
 						$(self).triggerHandler("playerInitialized");
 					});
@@ -648,16 +659,19 @@ define([
 		
 		// creates the player
 		// if the player already exists it destroys the current one first.
-		function createPlayer() {
-			// destroy current player if there is one
-			var playerExisted = destroyPlayer();
-			
+		function createPlayer(playerExisted) {
 			$player = $("<div />").addClass("player embed-responsive-item");
-			var $video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
-			// disable browser context menu on video
-			$video.on('contextmenu', function(e) {
-				e.preventDefault();
-			});
+			var $video = null;
+			if (playerType === "vod") {
+				$video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
+				// disable browser context menu on video
+				$video.on('contextmenu', function(e) {
+					e.preventDefault();
+				});
+			}
+			else if (playerType === "live") {
+				// TODO
+			}
 			
 			// set the sources
 			playerUris = queuedPlayerUris;
@@ -684,82 +698,94 @@ define([
 			
 			$player.append($video);
 			playerPreload = queuedPlayerPreload;
-			videoJsPlayer = videojs($video[0], {
-				width: "100%",
-				height: "100%",
-				controls: true,
-				preload: playerPreload ? "auto" : "metadata",
-				techOrder: ["html5", "flash"],
-				autoPlay: false, // implementing auto play manually using callback
-				poster: coverUri,
-				loop: false
-			}, function() {
-				// called when player loaded.
-				if (qualitySelectionComponent !== null) {
-					$player.find(".vjs-control-bar").each(function() {
-						var $item = $("<div />").addClass("quality-selection-control").attr("tabindex", "0").attr("aria-live", "polite");
-						$item.append(qualitySelectionComponent.getEl());
-						$(this).append($item);
-					});
-				}
-				
-				setTimeout(function() {
-					// in timeout as needs videoJsPlayer needs to have been set
-					if (queuedThumbnails.length > 0) {
-						var thumbnailsData = {};
-						for(var i=0; i<queuedThumbnails.length; i++) {
-							var a = queuedThumbnails[i];
-							thumbnailsData[a.time] = {
-								src: a.uri
-							};
-						}
-						videoJsPlayer.thumbnails(thumbnailsData);
+			if (playerType === "vod") {
+				videoJsPlayer = videojs($video[0], {
+					width: "100%",
+					height: "100%",
+					controls: true,
+					preload: playerPreload ? "auto" : "metadata",
+					techOrder: ["html5", "flash"],
+					autoPlay: false, // implementing auto play manually using callback
+					poster: coverUri,
+					loop: false
+				}, function() {
+					// called when player loaded.
+					if (qualitySelectionComponent !== null) {
+						$player.find(".vjs-control-bar").each(function() {
+							var $item = $("<div />").addClass("quality-selection-control").attr("tabindex", "0").attr("aria-live", "polite");
+							$item.append(qualitySelectionComponent.getEl());
+							$(this).append($item);
+						});
 					}
 					
-					if (playerExisted) {
-						// the player has just been destroyed before being recreated
-						if (wasFullScreen) {
-							// was previously full screen
-							// make it full screen again
-							// this may fail if the browser decides that this must be from a user interaction
-							videoJsPlayer.requestFullscreen();
+					setTimeout(function() {
+						// in timeout as needs videoJsPlayer needs to have been set
+						if (queuedThumbnails.length > 0) {
+							var thumbnailsData = {};
+							for(var i=0; i<queuedThumbnails.length; i++) {
+								var a = queuedThumbnails[i];
+								thumbnailsData[a.time] = {
+									src: a.uri
+								};
+							}
+							videoJsPlayer.thumbnails(thumbnailsData);
 						}
-						// set the volume and mute state back to what it was
-						videoJsPlayer.muted(wasMuted);
-						videoJsPlayer.volume(previousVolume);
-						$(self).triggerHandler("playerLoaded");
-					}
-				}, 0);
-			});
+						
+						if (playerExisted) {
+							// the player has just been destroyed before being recreated
+							if (wasFullScreen) {
+								// was previously full screen
+								// make it full screen again
+								// this may fail if the browser decides that this must be from a user interaction
+								videoJsPlayer.requestFullscreen();
+							}
+							// set the volume and mute state back to what it was
+							videoJsPlayer.muted(wasMuted);
+							videoJsPlayer.volume(previousVolume);
+							$(self).triggerHandler("playerLoaded");
+						}
+					}, 0);
+				});
+			}
+			else if (playerType === "live") {
+				// TODO
+			}
 			
 			updateFullScreenState();
 			
-			// initialise markers plugin
-			videoJsPlayer.markers({
-				markerTip: {
-					display: true,
-					text: function(marker) {
-						return marker.text;
-					}
-				},
-				breakOverlay:{
-					display: false
-				},
-				markerStyle: {
-					width: '7px',
-					'background-color': '#cccccc'
-				},
-				markers: []
-			});
-			updateVideoJsMarkers();
+			if (playerType === "vod") {
+				// initialise markers plugin
+				videoJsPlayer.markers({
+					markerTip: {
+						display: true,
+						text: function(marker) {
+							return marker.text;
+						}
+					},
+					breakOverlay:{
+						display: false
+					},
+					markerStyle: {
+						width: '7px',
+						'background-color': '#cccccc'
+					},
+					markers: []
+				});
+				updateVideoJsMarkers();
+			}
 			
-			registerVideoJsEventHandlers();
+			registerPlayerEventHandlers();
 			
 			var $topBar = $("<div />").addClass("player-top-bar");
 			createPlayerHeading();
 			$topBar.append($playerTopBarHeading);
 			
-			$player.find(".video-js").append($topBar);
+			if (playerType === "vod") {
+				$player.find(".video-js").append($topBar);
+			}
+			else if (playerType === "live") {
+				// TODO
+			}
 			
 			$container.append($player);
 		}
@@ -771,65 +797,85 @@ define([
 				// player doesn't exist.
 				return false;
 			}
-			wasFullScreen = videoJsPlayer.isFullscreen();
-			wasMuted = videoJsPlayer.muted();
-			previousVolume = videoJsPlayer.volume();
-			videoJsPlayer.exitFullscreen();
+			if (playerType === "vod") {
+				wasFullScreen = videoJsPlayer.isFullscreen();
+				wasMuted = videoJsPlayer.muted();
+				previousVolume = videoJsPlayer.volume();
+				videoJsPlayer.exitFullscreen();
+			}
+			else if (playerType === "live") {
+				// TODO
+			}
 			$(self).triggerHandler("playerDestroying");
-			videoJsPlayer.dispose();
-			videoJsPlayer = null;
+			if (playerType === "vod") {
+				videoJsPlayer.dispose();
+				videoJsPlayer = null;
+			}
+			else if (playerType === "live") {
+				// TODO
+			}
 			$player.remove();
 			$player = null;
 			playerPreload = null;
 			playerUris = null;
 			playerType = null;
 			title = null;
-			videoJsLoadedMetadata = false;
+			playerLoadedMetadata = false;
 			playerInitialized = false;
 			$(self).triggerHandler("playerDestroyed");
 			return true;
 		}
 		
-		function registerVideoJsEventHandlers() {
-			videoJsPlayer.on("loadedmetadata", function() {
-				videoJsLoadedMetadata = true;
-				$(self).triggerHandler("loadedMetadata");
-			});
-			
-			videoJsPlayer.on("play", function() {
-				$(self).triggerHandler("play");
-			});
-			videoJsPlayer.on("pause", function() {
-				$(self).triggerHandler("pause");
+		function registerPlayerEventHandlers() {
+			if (playerType === "vod") {
+				videoJsPlayer.on("loadedmetadata", function() {
+					playerLoadedMetadata = true;
+					$(self).triggerHandler("loadedMetadata");
+				});
 				
-				if (playerType === "live") {
-					// reload the stream when resuming
-					// otherwise player resumes playing from cache and is not at live point.
-					videoJsPlayer.one("play", function() {
-						videoJsPlayer.load();
-						videoJsPlayer.play();
-					});
-				}
-			});
-			videoJsPlayer.on("timeupdate", function() {
-				$(self).triggerHandler("timeUpdate");
-			});
-			videoJsPlayer.on("ended", function() {
-				videoJsPlayer.exitFullscreen();
-				$(self).triggerHandler("ended");
-			});
+				videoJsPlayer.on("play", function() {
+					$(self).triggerHandler("play");
+				});
+				videoJsPlayer.on("pause", function() {
+					$(self).triggerHandler("pause");
+					
+					if (playerType === "live") {
+						// reload the stream when resuming
+						// otherwise player resumes playing from cache and is not at live point.
+						videoJsPlayer.one("play", function() {
+							videoJsPlayer.load();
+							videoJsPlayer.play();
+						});
+					}
+				});
+				videoJsPlayer.on("timeupdate", function() {
+					$(self).triggerHandler("timeUpdate");
+				});
+				videoJsPlayer.on("ended", function() {
+					videoJsPlayer.exitFullscreen();
+					$(self).triggerHandler("ended");
+				});
+			}
+			else if (playerType === "live") {
+				// TODO
+			}
 		}
 		
 		// executes callback when metadata has been loaded.
 		// different to listening to event because will callback will always be executed even if event happened
-		function onVideoJsLoadedMetadata(callback) {
-			if (videoJsLoadedMetadata) {
+		function onPlayerLoadedMetadata(callback) {
+			if (playerLoadedMetadata) {
 				callback();
 			}
 			else {
-				videoJsPlayer.one("loadedmetadata", function() {
-					callback();
-				});
+				if (playerType === "vod") {
+					videoJsPlayer.one("loadedmetadata", function() {
+						callback();
+					});
+				}
+				else if (playerType === "live") {
+					// TODO
+				}
 			}
 		}
 		
@@ -849,7 +895,12 @@ define([
 		function updateFullScreenState() {
 			if (queuedDisableFullScreen) {
 				$player.attr("data-full-screen-enabled", "0");
-				videoJsPlayer.exitFullscreen();
+				if (playerType === "vod") {
+					videoJsPlayer.exitFullscreen();
+				}
+				else if (playerType === "live") {
+					// TODO
+				}
 			}
 			else {
 				$player.attr("data-full-screen-enabled", "1");
@@ -866,7 +917,7 @@ define([
 					text: chapter.title
 				});
 			}
-			onVideoJsLoadedMetadata(function() {
+			onPlayerLoadedMetadata(function() {
 				videoJsPlayer.markers.reset(markers);
 			});
 		}
