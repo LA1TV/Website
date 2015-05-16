@@ -11,6 +11,9 @@ require.config({
 		"ga": {
 			exports: "ga"
 		},
+		"lib/clappr": {
+			exports: "Clappr"
+		},
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}

@@ -1,13 +1,15 @@
 define([
 	"jquery",
+	"../page-data",
 	"../fit-text-handler",
 	"../video-js",
+	"lib/clappr",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, FitTextHandler, videojs, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, videojs, Clappr, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -669,34 +671,33 @@ define([
 					e.preventDefault();
 				});
 			}
-			else if (playerType === "live") {
-				// TODO
-			}
 			
 			// set the sources
 			playerUris = queuedPlayerUris;
 			
-			// add sources that support dvr first so taken as preferred choice in browser
-			for (var i=0; i<playerUris.length; i++) {
-				var uri = playerUris[i];
-				if (!uri.uriWithDvrSupport) {
-					continue;
+			if (playerType === "vod") {
+				// add sources that support dvr first so taken as preferred choice in browser
+				for (var i=0; i<playerUris.length; i++) {
+					var uri = playerUris[i];
+					if (!uri.uriWithDvrSupport) {
+						continue;
+					}
+					var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
+					$video.append($source);
 				}
-				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
-				$video.append($source);
+				
+				// add sources that do not support dvr
+				for (var i=0; i<playerUris.length; i++) {
+					if (uri.uriWithDvrSupport) {
+						continue;
+					}
+					var uri = playerUris[i];
+					var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
+					$video.append($source);
+				}
+				$player.append($video);
 			}
 			
-			// add sources that do not support dvr
-			for (var i=0; i<playerUris.length; i++) {
-				if (uri.uriWithDvrSupport) {
-					continue;
-				}
-				var uri = playerUris[i];
-				var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
-				$video.append($source);
-			}
-			
-			$player.append($video);
 			playerPreload = queuedPlayerPreload;
 			if (playerType === "vod") {
 				videoJsPlayer = videojs($video[0], {
@@ -748,7 +749,33 @@ define([
 				});
 			}
 			else if (playerType === "live") {
-				// TODO
+				clapprPlayer = new Clappr.Player({
+					baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
+					width: "100%",
+					height: "100%",
+					poster: coverUri,
+					preload: playerPreload ? "auto" : "metadata",
+					persistConfig: false,
+					loop: false,
+					autoPlay: false,
+					hlsMinimumDvrSize: 20, // 20 seconds of content required before dvr becomes enabled
+					mediacontrol: {seekbar: "#ff0000"},
+					hideMediaControl: false
+				});
+				clapprPlayer.attachTo($player[0]);
+				
+				// clappr can only take one uri with mime type so pick the first one with dvr,
+				// or first one otherwise
+				var chosenUri = playerUris[0];
+				for (var i=0; i<playerUris.length; i++) {
+					var uri = playerUris[i];
+					if (!uri.uriWithDvrSupport) {
+						continue;
+					}
+					chosenUri = uri;
+					break;
+				}
+				clapprPlayer.load(chosenUri.uri, chosenUri.type);
 			}
 			
 			updateFullScreenState();
