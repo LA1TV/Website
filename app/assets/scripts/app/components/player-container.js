@@ -107,10 +107,8 @@ define([
 		$(playerController).on("embedDataAvailable", function() {
 			var shareModal = new ShareModal(playerController.getEmbedData());
 			$shareButton.click(function() {
-				if (playerController.getPlayerType() === "vod") {
-					// if the user is watching a video pause it. if it's a live stream leave it going.
-					playerController.pause();
-				}
+				// pause video/stream on modal load
+				playerController.pause();
 				shareModal.show(true);
 			});
 		});

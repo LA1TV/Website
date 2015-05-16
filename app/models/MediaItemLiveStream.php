@@ -28,7 +28,7 @@ class MediaItemLiveStream extends MyEloquent {
 				$model->startDvrs();
 			}
 			
-			if ($model->hasJustBecomeStreamOver()) {
+			if ($model->hasJustLeftLive() && $model->hasJustBecomeStreamOver()) {
 				// send command to DVR Bridge Service servers to stop recording stream
 				// if this fails the dvr link will be removed
 				$model->stopDvrs();
@@ -37,7 +37,7 @@ class MediaItemLiveStream extends MyEloquent {
 				$model->end_time = Carbon::now();
 			}
 			
-			if ($model->hasJustBecomeNotLive()) {
+			if ($model->hasJustBecomeNotLive() && ($model->hasJustLeftLive() || $model->hasJustLeftStreamOver())) {
 				// send command to DVR Bridge Service servers to stop recording stream
 				// and inform it that the recording can be deleted.
 				// entry will be removed from dvr_stream_uris table
@@ -126,16 +126,16 @@ class MediaItemLiveStream extends MyEloquent {
 		});
 	}
 	
-	public function isNotLive() {
-		return intval($this->getResolvedStateDefinition()->id) === 1;
+	public function isNotLive($stateDefinition=null) {
+		return intval($this->getResolvedStateDefinition($stateDefinition)->id) === 1;
 	}
 	
 	public function isLive($stateDefinition=null) {
 		return intval($this->getResolvedStateDefinition($stateDefinition)->id) === 2;
 	}
 	
-	public function isOver() {
-		return intval($this->getResolvedStateDefinition()->id) === 3;
+	public function isOver($stateDefinition=null) {
+		return intval($this->getResolvedStateDefinition($stateDefinition)->id) === 3;
 	}
 	
 	// not live when has state_id of 1 or when has live state id but the live stream is nonexistent or inaccessible
@@ -179,19 +179,34 @@ class MediaItemLiveStream extends MyEloquent {
 		return array_merge(parent::getDates(), array('end_time'));
 	}
 	
-	// has gone from "not live" or "stream over" to "live"
+	// has just become "live"
 	public function hasJustBecomeLive() {
 		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->original["state_id"])));
 	}
 	
-	// has gone from "live" to "stream over"
-	public function hasJustBecomeStreamOver() {
-		return $this->isOver() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+	// has just left "live"
+	public function hasJustLeftLive() {
+		return !$this->isLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
 	}
 	
-	// has gone from "live" to "not live"
+	// has just become "stream over"
+	public function hasJustBecomeStreamOver() {
+		return $this->isOver() && (!$this->exists || !$this->isOver(LiveStreamStateDefinition::find($this->original["state_id"])));
+	}
+	
+	// has just left "stream over"
+	public function hasJustLeftStreamOver() {
+		return !$this->isOver() && $this->exists && $this->isOver(LiveStreamStateDefinition::find($this->original["state_id"]));
+	}
+	
+	// has just become "not live"
 	public function hasJustBecomeNotLive() {
-		return $this->isNotLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return $this->isNotLive() && (!$this->exists || !$this->isNotLive(LiveStreamStateDefinition::find($this->original["state_id"])));
+	}
+	
+	// has just left "not live"
+	public function hasJustLeftNotLive() {
+		return !$this->isNotLive() && $this->exists && $this->isNotLive(LiveStreamStateDefinition::find($this->original["state_id"]));
 	}
 	
 	// the live stream linked to this has changed from what is currently in the database
@@ -360,7 +375,7 @@ class MediaItemLiveStream extends MyEloquent {
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1500); // timeout if takes longer than 1.5 seconds
+		curl_setopt($ch, CURLOPT_TIMEOUT_MS, 2500); // timeout if takes longer than 2.5 seconds
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Accept: application/json',
 			'Content-Length: ' . strlen($encodedData))

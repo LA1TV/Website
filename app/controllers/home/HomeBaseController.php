@@ -113,7 +113,9 @@ class HomeBaseController extends BaseController {
 		
 		$contentSecurityPolicyDomains = MediaItemLiveStream::getCachedLiveStreamDomains();
 		$response = new MyResponse($view, $statusCode);
-		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
+		// disable csp for main site because causing too many issues with live streams (and clappr uses unsafe evals etc)
+		$response->enableContentSecurityPolicy(false);
+		//$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
 		$this->layout = $response;
 	}
 
