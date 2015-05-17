@@ -82,7 +82,7 @@ class MediaItemTransformer extends Transformer {
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
 			if ($options['showStreamUris'] && !is_null($liveStream) && $stateDefinition === 2) {
 				$streamUrlData = [];
-				foreach($liveStream->getQualitiesWithUris() as $qualityWithUris) {
+				foreach($mediaItemLiveStream->getQualitiesWithUris() as $qualityWithUris) {
 					$urls = [];
 					foreach($qualityWithUris['uris'] as $a) {
 						$urls[] = [

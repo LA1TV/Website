@@ -421,12 +421,14 @@ define([
 				// this may be down to the user changing quality or changed remotely for some reason
 				setPlayerType(queuedPlayerType);
 				if (queuedPlayerType === "live") {
+					// TODO determine urisChanged and if not paused before set to play again.
 					if (resolvedAutoPlayStream) {
 						// auto start live stream
 						playerComponent.setPlayerStartTime(0, true);
 					}
 				}
 				else if (queuedPlayerType === "vod") {
+					// TODO the uris changed checks should be first so autoplay doesn't effect urls changing
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
 					if (resolvedAutoPlayVod) {
 						// autoplay flag is set
