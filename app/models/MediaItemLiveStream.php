@@ -7,6 +7,7 @@ use Queue;
 use Event;
 use DB;
 use Cache;
+use Exception;
 use uk\co\la1tv\website\models\DvrLiveStreamUri;
 
 class MediaItemLiveStream extends MyEloquent {
@@ -214,7 +215,12 @@ class MediaItemLiveStream extends MyEloquent {
 		return !$this->exists || $this->original["live_stream_id"] !== $this->live_stream_id;
 	}
 	
-	public function getQualitiesWithUris($dvrUrisOnly=false) {
+	// $filter can be "all", "dvr", "live"
+	public function getQualitiesWithUris($filter="all") {
+		if ($filter !== "all" && $filter !== "dvr" && $filter !== "live") {
+			throw(new Exception("Filter is not valid."));
+		}
+		
 		$liveStreamModel = $this->liveStream;
 		if (is_null($liveStreamModel)) {
 			return array();
@@ -253,7 +259,7 @@ class MediaItemLiveStream extends MyEloquent {
 					continue;
 				}
 				
-				if ($dvrUrisOnly && !$uriWithDvrSupport) {
+				if (($filter === "dvr" && !$uriWithDvrSupport) || ($filter === "live" && $uriWithDvrSupport)) {
 					continue;
 				}
 			

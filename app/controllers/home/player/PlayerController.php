@@ -461,7 +461,7 @@ class PlayerController extends HomeBaseController {
 		// note $liveStream is the LiveStream model which is attached to the $liveStreamItem which is a MediaItemLiveStream model.
 		if ($hasLiveStreamItem && !is_null($liveStream) && $liveStream->getIsAccessible() && ($streamState === 2 || $streamState === 3 || ($streamState === 1 && $userHasMediaItemsPermission))) {
 			$onlyDvrUris = $streamState === 3;
-			foreach($liveStreamItem->getQualitiesWithUris($onlyDvrUris) as $qualityWithUris) {
+			foreach($liveStreamItem->getQualitiesWithUris($onlyDvrUris ? "dvr" : "all") as $qualityWithUris) {
 				$streamUris[] = array(
 					"quality"	=> array(
 						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
