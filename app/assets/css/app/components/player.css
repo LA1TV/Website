@@ -121,7 +121,7 @@
 	cursor: pointer;
 }
 
-.player-component .player .vjs-has-started.vjs-user-inactive.vjs-playing  .player-top-bar  {
+.player-component .player .vjs-has-started.vjs-user-inactive.vjs-playing  .player-top-bar {
 	display: block;
 	visibility: hidden;
 	opacity: 0;

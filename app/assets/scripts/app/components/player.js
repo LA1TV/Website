@@ -788,6 +788,8 @@ define([
 				});
 				clapprPlayer.attachTo($player[0]);
 				
+				// TODO append qualitySelectionComponent somewhere if provided
+				
 				// clappr can only take one uri with mime type so pick the first one with dvr,
 				// or first one otherwise
 				var chosenUri = playerUris[0];
@@ -909,10 +911,10 @@ define([
 			}
 			else if (playerType === "live") {
 				// live player never fires loadedmetadata event
-				clapprPlayer.listenTo(clapprPlayer, Clappr.Events.PLAYER_PLAY, onPlay);
-				clapprPlayer.listenTo(clapprPlayer, Clappr.Events.PLAYER_PAUSE, onPause);
-				clapprPlayer.listenTo(clapprPlayer, Clappr.Events.PLAYER_TIMEUPDATE, onTimeUpdate);
-				clapprPlayer.listenTo(clapprPlayer, Clappr.Events.PLAYER_ENDED, onEnded);
+				clapprPlayer.on(Clappr.Events.PLAYER_PLAY, onPlay);
+				clapprPlayer.on(Clappr.Events.PLAYER_PAUSE, onPause);
+				clapprPlayer.on(Clappr.Events.PLAYER_TIMEUPDATE, onTimeUpdate);
+				clapprPlayer.on(Clappr.Events.PLAYER_ENDED, onEnded);
 			}
 		}
 		
@@ -933,7 +935,7 @@ define([
 					});
 				}
 				else if (playerType === "live") {
-					clapprPlayer.listenToOnce(clapprPlayer, Clappr.Events.PLAYBACK_LOADEDMETADATA, function() {
+					clapprPlayer.one(Clappr.Events.PLAYBACK_LOADEDMETADATA, function() {
 						callback();
 					});
 				}
