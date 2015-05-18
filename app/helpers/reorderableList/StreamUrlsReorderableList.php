@@ -8,7 +8,7 @@ class StreamUrlsReorderableList implements ReorderableList {
 	private $initialDataString = null;
 	private $stringForInput = null;
 	
-	// $data should be the an array of {qualityDefinition: {id, text}, url}
+	// $data should be the an array of {qualityDefinition: {id, text}, url, dvr, support, type}
 	// will be handled if this is not the format of the data, and obviously flagged as invalid
 	// does not need to be valid. Anything invalid will be ignored.
 	public function __construct($data) {
@@ -83,6 +83,21 @@ class StreamUrlsReorderableList implements ReorderableList {
 				}
 				$currentItemOutput["type"] = $a['type'];
 			}
+			
+			if (!isset($a['dvr']) && !is_bool($a['dvr'])) {
+				$this->valid = false;
+				$currentItemOutput["dvr"] = false;
+			}
+			else {
+				$currentItemOutput["dvr"] = $a['dvr'];
+			}
+			
+			// type must be this if using dvr bridge service as this is the type the dvr bridge service uses
+			if ($currentItemOutput["dvr"] && $currentItemOutput["type"] !== "application/x-mpegURL") {
+				$this->valid = false;
+			}
+			
+			$currentItemOutput["dvr"] = isset($a['dvr']) && $a['dvr'] === true;
 			
 			if (!isset($a["support"]) || ($a["support"] !== "all" && $a["support"] !== "pc" && $a["support"] !== "mobile" && $a["support"] !== "none")) {
 				$this->valid = false;

@@ -26,7 +26,7 @@ class EmbedController extends EmbedBaseController {
 		$title = null;
 			
 		$autoPlayVod = isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1";
-		$autoPlayStream = !isset($_GET['autoPlayStream']) || $_GET['autoPlayStream'] === "1";
+		$autoPlayStream = isset($_GET['autoPlayStream']) && $_GET['autoPlayStream'] === "1";
 		$flushMode = !isset($_GET['flush']) || $_GET['flush'] === "1";
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
