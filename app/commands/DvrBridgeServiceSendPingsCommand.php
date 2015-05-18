@@ -68,7 +68,7 @@ class DvrBridgeServiceSendPingsCommand extends ScheduledCommand {
 			$mediaItemLiveStream = $a->mediaItemLiveStream;
 			$url = $liveStreamUriModel->uri;
 			$this->info("Sending ping command to dvr bridge service at url \"".$url."\".");
-			$responseInfo = MediaItemLiveStream::makeDvrBridgeServiceRequest($url, "PING", intval($a->id));
+			$responseInfo = MediaItemLiveStream::makeDvrBridgeServiceRequest($url, "PING", intval($a->id), 5000);
 			if ($responseInfo["statusCode"] !== 200) {
 				// error occurred. Remove dvrLiveStreamUri as something's wrong with it.
 				$a->delete();

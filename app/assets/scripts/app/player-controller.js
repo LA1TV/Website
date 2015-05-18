@@ -421,16 +421,24 @@ define([
 				// this may be down to the user changing quality or changed remotely for some reason
 				setPlayerType(queuedPlayerType);
 				if (queuedPlayerType === "live") {
-					// TODO determine urisChanged and if not paused before set to play again.
-					if (resolvedAutoPlayStream) {
+					if (urisChanged) {
+						// reason we're here is because uris have changed. could be quality change or other reason
+						// so set the play state back to what it was before
+						playerComponent.setPlayerStartTime(0, !playerComponent.paused());
+					}
+					else if (resolvedAutoPlayStream) {
 						// auto start live stream
 						playerComponent.setPlayerStartTime(0, true);
 					}
 				}
 				else if (queuedPlayerType === "vod") {
-					// TODO the uris changed checks should be first so autoplay doesn't effect urls changing
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
-					if (resolvedAutoPlayVod) {
+					if (urisChanged) {
+						// reason we're here is because uris have changed. could be quality change or other reason
+						// but it makes sense to automatically resume playback from where the user was previously
+						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
+					}
+					else if (resolvedAutoPlayVod) {
 						// autoplay flag is set
 						if (firstLoad && vodPlayStartTime !== null) {
 							// first load so autoplay from requested start time
@@ -450,11 +458,6 @@ define([
 						// set the start time to the time the user was previously at.
 						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
 						playerComponent.setPlayerStartTime(computedStartTime, false, true);
-					}
-					else if (urisChanged) {
-						// reason we're here is because uris have changed. could be quality change or other reason
-						// but it makes sense to automatically resume playback from where the user was previously
-						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
 					}
 				}
 				playerComponent.setPlayerUris(chosenUris);

@@ -200,6 +200,11 @@ define([
 					return videoJsPlayer.paused();
 				}
 			}
+			else if (playerType === "live") {
+				if (clapprPlayer !== null) {
+					return !clapprPlayer.isPlaying();
+				}
+			}
 			return null;
 		};
 		
