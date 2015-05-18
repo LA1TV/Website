@@ -373,7 +373,7 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	// make a request to a dvr bridge service and return the response as an array of array("statusCode", "data")
 	// statusCode will be null if there was an error getting the response, data will be null if the status code is not 200, or if invalid json response
-	public static function makeDvrBridgeServiceRequest($url, $commandType, $id, $requestTimeout=2500) {
+	public static function makeDvrBridgeServiceRequest($url, $commandType, $id, $requestTimeout=3500) {
 		$data = array("type"=>$commandType, "id"=>$id);
 		$encodedData = http_build_query($data);
 		
