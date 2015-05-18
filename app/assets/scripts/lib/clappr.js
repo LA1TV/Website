@@ -9125,6 +9125,4 @@ module.exports = Zepto;
 
 },{}]},{},["clappr"])
 
-// my fix to get clappr working without requirejs conflict
 })();
-// end of fix
