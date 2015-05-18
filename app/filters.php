@@ -161,14 +161,15 @@ Route::filter('setXFrameOptionsHeader', function($route, $request, $response) {
 
 Route::filter('setContentSecurityPolicyHeader', function($route, $request, $response) {
 	if (method_exists($response, "header")) {
-	
 		$allowedDomains = array();
-		
 		if (is_a($response, "MyResponse")) {
+			if (!$response->isContentSecurityPolicyEnabled()) {
+				// csp disabled
+				return;
+			}
 			$allowedDomains = array_unique(array_merge($allowedDomains, $response->getContentSecurityPolicyDomains()));
 		}
 		$domainsString = implode(" ", $allowedDomains);
-	
 		$response->header("Content-Security-Policy-Report-Only", "default-src 'self' ".$domainsString."; media-src 'self'; script-src 'self' https://www.google-analytics.com https://platform.twitter.com https://*.twimg.com https://syndication.twitter.com; img-src *; frame-src https://platform.twitter.com https://syndication.twitter.com; style-src 'self' https://platform.twitter.com; report-uri ".URL::route('csp-report'));
 	}
 });

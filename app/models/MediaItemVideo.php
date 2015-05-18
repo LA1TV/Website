@@ -4,6 +4,7 @@ use FormHelpers;
 use \Session as SessionProvider;
 use Carbon;
 use Config;
+use DB;
 use uk\co\la1tv\website\helpers\reorderableList\ChaptersReorderableList;
 
 class MediaItemVideo extends MyEloquent {
@@ -11,6 +12,35 @@ class MediaItemVideo extends MyEloquent {
 	protected $table = 'media_items_video';
 	protected $fillable = array('time_recorded', 'enabled');
 	protected $appends = array("time_recorded_for_input", "chapters_for_orderable_list", "chapters_for_input");
+	
+	
+	protected static function boot() {
+		parent::boot();
+		
+		self::saving(function($model) {
+			// transaction committed in saved event
+			// transaction important because entries removed in dvr_live_stream_uris
+			// depending if vod is available. both the vod going live and dvr entries
+			// being removed must succeed
+			DB::beginTransaction();
+		});
+		
+		self::saved(function($model) {
+			if ($model->getIsLive()) {
+				// remove any dvr recordings from the stream belonging to this media item
+				// if there are any
+				$liveStreamItem = $model->mediaItem->liveStreamItem;
+				if (!is_null($liveStreamItem)) {
+					$liveStreamItem->removeDvrs();
+				}
+			}
+			
+			// transaction starts in save event
+			DB::commit();
+		});
+	}
+	
+	
 	
 	public function mediaItem() {
 		return $this->belongsTo(self::$p.'MediaItem', 'media_item_id');

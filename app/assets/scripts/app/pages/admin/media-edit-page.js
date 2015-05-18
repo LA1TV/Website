@@ -1,6 +1,7 @@
 define([
 	"jquery",
 	"../../page-data",
+	"../../helpers/ajax-helpers",
 	"../../pinger",
 	"../../custom-form",
 	"../../components/reorderable-list",
@@ -8,7 +9,7 @@ define([
 	"../../components/ajax-upload",
 	"../../components/chapter-input",
 	"lib/domReady!"
-], function($, PageData, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload, ChapterInput) {
+], function($, PageData, AjaxHelpers, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload, ChapterInput) {
 	
 	$(".page-media-edit").first().each(function() {
 	
@@ -98,6 +99,38 @@ define([
 				$destinationEl.val(JSON.stringify(reorderableList.getState()));
 			});
 			$container.append(reorderableList.getEl());
+		});
+		
+		$(this).find(".remove-dvr-recording-btn-container").each(function() {
+			var self = this;
+			
+			var removeUri = $(this).attr("data-ajax-remove-uri");
+			var $btn = $(this).find(".remove-btn").first();
+			
+			$btn.click(function() {
+				if (!confirm("Are you sure you want to remove the dvr recording?\n\nTHIS OPERATION CANNOT BE UNDONE.")) {
+					return;
+				}
+				$btn.prop("disabled", true);
+				jQuery.ajax(removeUri, {
+					cache: false,
+					dataType: "json",
+					headers: AjaxHelpers.getHeaders(),
+					data: {
+						csrf_token: PageData.get("csrfToken")
+					},
+					type: "POST"
+				}).always(function(data, textStatus, jqXHR) {
+					if (jqXHR.status === 200 && data.success) {
+						$(self).remove();
+						alert("The dvr recording has been deleted.");
+					}
+					else {
+						$btn.prop("disabled", false);
+						alert("The dvr recording could not be removed for some reason.");
+					}
+				});
+			});
 		});
 	});
 });

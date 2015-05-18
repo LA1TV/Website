@@ -6,7 +6,7 @@ use Csrf;
 use Config;
 use App;
 use View;
-use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\MediaItemLiveStream;
 use MyResponse;
 use Facebook;
 use DebugHelpers;
@@ -44,9 +44,13 @@ class EmbedBaseController extends BaseController {
 			"version"		=> DebugHelpers::getVersion()
 		);
 		
-		$contentSecurityPolicyDomains = LiveStream::getCachedLiveStreamDomains();
+		$contentSecurityPolicyDomains = MediaItemLiveStream::getCachedLiveStreamDomains();
 		$response = new MyResponse($view, $statusCode);
-		$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
+		// disable csp for main site because causing too many issues with live streams (and clappr uses unsafe evals etc)
+		$response->enableContentSecurityPolicy(false);
+		//$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
+		
+		
 		$this->layout = $response;
 	}
 

@@ -15,6 +15,9 @@ require.config({
 		"lib/modernizr": {
 			exports: "Modernizr"
 		},
+		"lib/clappr": {
+			exports: "Clappr"
+		},
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
@@ -40,7 +43,6 @@ require.config({
 			"app/default-button-group",
 			"app/fit-text-handler",
 			"app/synchronised-time",
-			"app/video-js",
 			"app/jslink",
 			"app/confirmation-msg",
 			"app/pages/home/player-page",

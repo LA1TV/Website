@@ -327,10 +327,30 @@ define([
 			var deviceStreamUriGroups = data.streamUris !== null ? extractUrisForDevice(data.streamUris) : null;
 			var deviceVideoUriGroups = data.videoUris !== null ? extractUrisForDevice(data.videoUris) : null;
 			
+			if (data.hasStream && data.streamState === 3) {
+				// stream is over so strip out any urls that aren't dvr urls
+				// the dvr stream urls should now be pointing to a static recording
+				for(var i=deviceStreamUriGroups.length-1; i>=0; i--) {
+					var group = deviceStreamUriGroups[i];
+					var uris = group.uris;
+					for (var j=uris.length-1; j>=0; j--) {
+						var uri = uris[j];
+						if (!uri.uriWithDvrSupport) {
+							// remove this uri
+							uris.splice(j, 1);
+						}
+					}
+					if (uris.length === 0) {
+						// no uris left in this group so remove it.
+						deviceStreamUriGroups.splice(i, 1);
+					}
+				}
+			}
+			
 			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
-			if (data.hasStream && (data.streamState === 2 || (overrideModeEnabled && data.streamState === 1))) {
+			if (data.hasStream && (data.streamState === 2 || (data.streamState === 3 && deviceStreamUriGroups.length > 0) || (overrideModeEnabled && data.streamState === 1))) {
 				if (externalStreamUrl !== null || deviceStreamUriGroups.length > 0) {
 					queuedPlayerType = "live";
 				}
@@ -401,14 +421,24 @@ define([
 				// this may be down to the user changing quality or changed remotely for some reason
 				setPlayerType(queuedPlayerType);
 				if (queuedPlayerType === "live") {
-					if (resolvedAutoPlayStream) {
+					if (urisChanged) {
+						// reason we're here is because uris have changed. could be quality change or other reason
+						// so set the play state back to what it was before
+						playerComponent.setPlayerStartTime(0, !playerComponent.paused());
+					}
+					else if (resolvedAutoPlayStream) {
 						// auto start live stream
 						playerComponent.setPlayerStartTime(0, true);
 					}
 				}
 				else if (queuedPlayerType === "vod") {
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
-					if (resolvedAutoPlayVod) {
+					if (urisChanged) {
+						// reason we're here is because uris have changed. could be quality change or other reason
+						// but it makes sense to automatically resume playback from where the user was previously
+						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
+					}
+					else if (resolvedAutoPlayVod) {
 						// autoplay flag is set
 						if (firstLoad && vodPlayStartTime !== null) {
 							// first load so autoplay from requested start time
@@ -428,11 +458,6 @@ define([
 						// set the start time to the time the user was previously at.
 						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
 						playerComponent.setPlayerStartTime(computedStartTime, false, true);
-					}
-					else if (urisChanged) {
-						// reason we're here is because uris have changed. could be quality change or other reason
-						// but it makes sense to automatically resume playback from where the user was previously
-						playerComponent.setPlayerStartTime(playerComponent.getPlayerCurrentTime(), !playerComponent.paused());
 					}
 				}
 				playerComponent.setPlayerUris(chosenUris);

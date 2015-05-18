@@ -4,7 +4,6 @@ use Eloquent;
 use DB;
 use FormHelpers;
 
-// custom extension of eloquent that wraps the 'save' and 'push' in transactions
 class MyEloquent extends Eloquent {
 	
 	protected static $p = "uk\\co\\la1tv\\website\\models\\";
