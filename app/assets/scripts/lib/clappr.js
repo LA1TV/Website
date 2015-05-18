@@ -5,6 +5,8 @@ var require = undefined;
 var define = undefined;
 // end of fix
 
+
+
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"base_object":[function(require,module,exports){
 "use strict";
 
@@ -3339,7 +3341,7 @@ var Fullscreen = {
       el.mozRequestFullScreen();
     } else if (el.msRequestFullscreen) {
       el.msRequestFullscreen();
-    } else if (el.querySelector && el.querySelector("video").webkitEnterFullScreen) {
+    } else if (el.querySelector && el.querySelector("video") && el.querySelector("video").webkitEnterFullScreen) {
       el.querySelector("video").webkitEnterFullScreen();
     }
   },
@@ -4348,6 +4350,7 @@ var ClickToPausePlugin = require("../../plugins/click_to_pause");
 
 /* Core Plugins */
 var DVRControls = require("../../plugins/dvr_controls");
+var Favicon = require("../../plugins/favicon");
 
 var Loader = (function (_BaseObject) {
   function Loader(externalPlugins) {
@@ -4356,7 +4359,7 @@ var Loader = (function (_BaseObject) {
     _get(Object.getPrototypeOf(Loader.prototype), "constructor", this).call(this);
     this.playbackPlugins = [HTML5AudioPlayback, HTML5VideoPlayback, FlashVideoPlayback, HLSVideoPlayback, HTMLImgPlayback, NoOp];
     this.containerPlugins = [SpinnerThreeBouncePlugin, WaterMarkPlugin, PosterPlugin, StatsPlugin, GoogleAnalyticsPlugin, ClickToPausePlugin];
-    this.corePlugins = [DVRControls];
+    this.corePlugins = [DVRControls, Favicon];
     if (externalPlugins) {
       this.addExternalPlugins(externalPlugins);
     }
@@ -4397,7 +4400,7 @@ var Loader = (function (_BaseObject) {
 
 module.exports = Loader;
 
-},{"../../base/base_object":"base_object","../../playbacks/flash":"flash","../../playbacks/hls":"hls","../../playbacks/html5_audio":"html5_audio","../../playbacks/html5_video":"html5_video","../../playbacks/html_img":"html_img","../../playbacks/no_op":68,"../../plugins/click_to_pause":71,"../../plugins/dvr_controls":73,"../../plugins/google_analytics":75,"../../plugins/poster":"poster","../../plugins/spinner_three_bounce":79,"../../plugins/stats":81,"../../plugins/watermark":83,"../player_info":"player_info","lodash.uniq":32}],58:[function(require,module,exports){
+},{"../../base/base_object":"base_object","../../playbacks/flash":"flash","../../playbacks/hls":"hls","../../playbacks/html5_audio":"html5_audio","../../playbacks/html5_video":"html5_video","../../playbacks/html_img":"html_img","../../playbacks/no_op":68,"../../plugins/click_to_pause":71,"../../plugins/dvr_controls":73,"../../plugins/favicon":75,"../../plugins/google_analytics":77,"../../plugins/poster":"poster","../../plugins/spinner_three_bounce":81,"../../plugins/stats":83,"../../plugins/watermark":85,"../player_info":"player_info","lodash.uniq":32}],58:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -5782,7 +5785,7 @@ var HLS = (function (_Playback) {
     this.baseUrl = options.baseUrl;
     this.flushLiveURLCache = options.flushLiveURLCache === undefined ? true : options.flushLiveURLCache;
     this.capLevelToStage = options.capLevelToStage === undefined ? false : options.capLevelToStage;
-    this.useHardwareVideoDecoder = options.useHardwareVideoDecoder === undefined ? true : options.useHardwareVideoDecoder;
+    this.useHardwareVideoDecoder = options.useHardwareVideoDecoder === undefined ? !Browser.isChrome : options.useHardwareVideoDecoder;
     this.maxBufferLength = options.maxBufferLength === undefined ? 120 : options.maxBufferLength;
     this.hlsMinimumDvrSize = options.hlsMinimumDvrSize == undefined ? 60 : options.hlsMinimumDvrSize;
     this.highDefinition = false;
@@ -6609,6 +6612,7 @@ var HTML5Video = (function (_Playback) {
     },
     ended: {
       value: function ended() {
+        this.trigger(Events.PLAYBACK_BUFFERFULL, this.name);
         this.trigger(Events.PLAYBACK_ENDED, this.name);
         this.trigger(Events.PLAYBACK_TIMEUPDATE, 0, this.el.duration, this.name);
       }
@@ -6699,7 +6703,20 @@ var HTML5Video = (function (_Playback) {
             break;
           }
         }
+        this.checkBufferState(this.el.buffered.end(bufferedPos));
         this.trigger(Events.PLAYBACK_PROGRESS, this.el.buffered.start(bufferedPos), this.el.buffered.end(bufferedPos), this.el.duration, this.name);
+      }
+    },
+    checkBufferState: {
+      value: function checkBufferState(bufferedPos) {
+        var playbackPos = this.el.currentTime + 1; // 1 second of threshold
+        if (this.isPlaying() && playbackPos >= bufferedPos) {
+          this.trigger(Events.PLAYBACK_BUFFERING, this.name);
+          this.buffering = true;
+        } else if (this.buffering) {
+          this.trigger(Events.PLAYBACK_BUFFERFULL, this.name);
+          this.buffering = false;
+        }
       }
     },
     typeFor: {
@@ -6851,6 +6868,8 @@ var Playback = require("../../base/playback");
 var JST = require("../../base/jst");
 var Styler = require("../../base/styler");
 var Events = require("../../base/events");
+var requestAnimationFrame = require("../../base/utils").requestAnimationFrame;
+var cancelAnimationFrame = require("../../base/utils").cancelAnimationFrame;
 
 var NoOp = (function (_Playback) {
   function NoOp(options) {
@@ -6936,7 +6955,7 @@ NoOp.canPlay = function (source) {
 
 module.exports = NoOp;
 
-},{"../../base/events":"events","../../base/jst":47,"../../base/playback":"playback","../../base/styler":48}],70:[function(require,module,exports){
+},{"../../base/events":"events","../../base/jst":47,"../../base/playback":"playback","../../base/styler":48,"../../base/utils":49}],70:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -7151,6 +7170,112 @@ var _inherits = function (subClass, superClass) { if (typeof superClass !== "fun
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
+var CorePlugin = require("../../base/core_plugin");
+var Events = require("../../base/events");
+
+var Favicon = (function (_CorePlugin) {
+  function Favicon(core) {
+    _classCallCheck(this, Favicon);
+
+    _get(Object.getPrototypeOf(Favicon.prototype), "constructor", this).call(this, core);
+    this.oldIcon = $("link[rel=\"shortcut icon\"]");
+    this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.containerChanged);
+    if (this.core.mediaControl.container) {
+      this.containerChanged();
+    }
+  }
+
+  _inherits(Favicon, _CorePlugin);
+
+  _createClass(Favicon, {
+    name: {
+      get: function () {
+        return "favicon";
+      }
+    },
+    containerChanged: {
+      value: function containerChanged() {
+        this.listenTo(this.core.mediaControl.container, Events.CONTAINER_PLAY, this.setPlayIcon);
+        this.listenTo(this.core.mediaControl.container, Events.CONTAINER_PAUSE, this.setPauseIcon);
+        this.listenTo(this.core.mediaControl.container, Events.CONTAINER_STOP, this.resetIcon);
+        this.listenTo(this.core.mediaControl.container, Events.CONTAINER_ENDED, this.resetIcon);
+        this.listenTo(this.core.mediaControl.container, Events.CONTAINER_ERROR, this.resetIcon);
+      }
+    },
+    createIcon: {
+      value: function createIcon(charCode) {
+        var canvas = $("<canvas/>");
+        canvas[0].width = 32;
+        canvas[0].height = 32;
+        var ctx = canvas[0].getContext("2d");
+        ctx.fillStyle = "#000";
+        ctx.font = "25px Player";
+        ctx.fillText(String.fromCharCode(charCode), 5, 26);
+        var icon = $("<link rel=\"shortcut icon\" type=\"image/png\"/>");
+        icon.attr("href", canvas[0].toDataURL("image/png"));
+        return icon;
+      }
+    },
+    setPlayIcon: {
+      value: function setPlayIcon() {
+        console.log("setPlayIcon");
+        if (!this.playIcon) {
+          this.playIcon = this.createIcon(57345);
+        }
+        this.changeIcon(this.playIcon);
+      }
+    },
+    setPauseIcon: {
+      value: function setPauseIcon() {
+        if (!this.pauseIcon) {
+          this.pauseIcon = this.createIcon(57346);
+        }
+        this.changeIcon(this.pauseIcon);
+      }
+    },
+    resetIcon: {
+      value: function resetIcon() {
+        if (this.currentIcon) {
+          this.currentIcon.remove();
+        }
+        $("head").append(this.oldIcon);
+      }
+    },
+    changeIcon: {
+      value: function changeIcon(icon) {
+        if (icon) {
+          this.oldIcon.remove();
+          if (this.currentIcon) {
+            this.currentIcon.remove();
+          }
+          this.currentIcon = icon;
+          $("head").append(icon);
+        }
+      }
+    }
+  });
+
+  return Favicon;
+})(CorePlugin);
+
+module.exports = Favicon;
+
+},{"../../base/core_plugin":"core_plugin","../../base/events":"events"}],75:[function(require,module,exports){
+"use strict";
+
+module.exports = require("./favicon.js");
+
+},{"./favicon.js":74}],76:[function(require,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 // Copyright 2014 Globo.com Player authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -7312,17 +7437,17 @@ var GoogleAnalytics = (function (_ContainerPlugin) {
 
 module.exports = GoogleAnalytics;
 
-},{"../../base/container_plugin":"container_plugin","../../base/events":"events"}],75:[function(require,module,exports){
+},{"../../base/container_plugin":"container_plugin","../../base/events":"events"}],77:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./google_analytics");
 
-},{"./google_analytics":74}],76:[function(require,module,exports){
+},{"./google_analytics":76}],78:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./log");
 
-},{"./log":77}],77:[function(require,module,exports){
+},{"./log":79}],79:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -7420,7 +7545,7 @@ Log.getInstance = function () {
 
 module.exports = Log;
 
-},{"../../base/kibo":"kibo"}],78:[function(require,module,exports){
+},{"../../base/kibo":"kibo"}],80:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -7601,12 +7726,12 @@ var PosterPlugin = (function (_UIContainerPlugin) {
 
 module.exports = PosterPlugin;
 
-},{"../../base/events":"events","../../base/jst":47,"../../base/styler":48,"../../base/ui_container_plugin":"ui_container_plugin","../../components/mediator":"mediator","../../components/player_info":"player_info","clappr-zepto":"zepto"}],79:[function(require,module,exports){
+},{"../../base/events":"events","../../base/jst":47,"../../base/styler":48,"../../base/ui_container_plugin":"ui_container_plugin","../../components/mediator":"mediator","../../components/player_info":"player_info","clappr-zepto":"zepto"}],81:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./spinner_three_bounce");
 
-},{"./spinner_three_bounce":80}],80:[function(require,module,exports){
+},{"./spinner_three_bounce":82}],82:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -7691,12 +7816,12 @@ var SpinnerThreeBouncePlugin = (function (_UIContainerPlugin) {
 
 module.exports = SpinnerThreeBouncePlugin;
 
-},{"../../base/events":"events","../../base/jst":47,"../../base/styler":48,"../../base/ui_container_plugin":"ui_container_plugin"}],81:[function(require,module,exports){
+},{"../../base/events":"events","../../base/jst":47,"../../base/styler":48,"../../base/ui_container_plugin":"ui_container_plugin"}],83:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./stats");
 
-},{"./stats":82}],82:[function(require,module,exports){
+},{"./stats":84}],84:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -7840,12 +7965,12 @@ var StatsPlugin = (function (_ContainerPlugin) {
 
 module.exports = StatsPlugin;
 
-},{"../../base/container_plugin":"container_plugin","../../base/events":"events","clappr-zepto":"zepto"}],83:[function(require,module,exports){
+},{"../../base/container_plugin":"container_plugin","../../base/events":"events","clappr-zepto":"zepto"}],85:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./watermark");
 
-},{"./watermark":84}],84:[function(require,module,exports){
+},{"./watermark":86}],86:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -8324,7 +8449,7 @@ Events.MEDIACONTROL_CONTAINERCHANGED = "mediacontrol:containerchanged";
 
 module.exports = Events;
 
-},{"../plugins/log":76,"./utils":49,"lodash.once":28}],"flash":[function(require,module,exports){
+},{"../plugins/log":78,"./utils":49,"lodash.once":28}],"flash":[function(require,module,exports){
 "use strict";
 
 module.exports = require("./flash");
@@ -8736,7 +8861,7 @@ module.exports = PlayerInfo;
 
 module.exports = require("./poster");
 
-},{"./poster":78}],"template":[function(require,module,exports){
+},{"./poster":80}],"template":[function(require,module,exports){
 // Simple JavaScript Templating
 // Paul Miller (http://paulmillr.com)
 // http://underscorejs.org
