@@ -2,7 +2,6 @@
 
 use Exception;
 use Config;
-use Cache;
 use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
@@ -19,10 +18,44 @@ class LiveStream extends MyEloquent {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
 	
+	public function getUrisOrganisedByQuality() {
+		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
+		
+		$addedQualityIds = array();
+		$addedQualityPositions = array();
+		$qualities = array();
+		foreach($this->liveStreamUris as $a) {
+			
+			$qualityDefinition = $a->qualityDefinition;
+			$qualityDefinitionId = intval($qualityDefinition->id);
+			
+			if (!in_array($qualityDefinitionId, $addedQualityIds)) {
+				$addedQualityIds[] = $qualityDefinitionId;
+				$addedQualityPositions[] = intval($qualityDefinition->position);
+				$qualities[] = array(
+					"qualityDefinition"	=> $qualityDefinition,
+					"uris"				=> array()
+				);
+			}
+			
+			$uri = array(
+				"uri"	=> $a->uri,
+				"uriForDvrBridgeService"	=> (boolean) $a->dvr_bridge_service_uri,
+				"uriFromDvrBridgeService"	=> $a->uri_from_dvr_bridge_service,
+				"type"	=> $a->type,
+				"supportedDevices"	=> $a->supported_devices,
+				"enabled"	=> (boolean) $a->enabled,
+				"liveStreamUriModel"	=> $a
+			);
+			
+			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
+		}
+		return $qualities;
+	}
+	
 	public function getUrlsDataForReorderableList() {
-		$qualitiesWithUris = $this->getQualitiesWithUris(true);
-		$urls = array();
-		foreach($qualitiesWithUris as $a) {
+		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
+		foreach($urisOrganisedByQuality as $a) {
 			foreach($a['uris'] as $b) {
 				$supportedDevices = is_null($b['supportedDevices']) ? array() : explode(",", $b['supportedDevices']);
 				$support = "all";
@@ -41,6 +74,7 @@ class LiveStream extends MyEloquent {
 						"text"	=> $a['qualityDefinition']->name
 					),
 					"url"		=> $b['uri'],
+					"dvr"		=> $b['uriForDvrBridgeService'],
 					"type"		=> $b['type'],
 					"support"	=> $support
 				);
@@ -71,75 +105,6 @@ class LiveStream extends MyEloquent {
 	public static function generateInputValueForUrlsOrderableList($data) {
 		$reorderableList = new StreamUrlsReorderableList($data);
 		return $reorderableList->getStringForInput();
-	}
-	
-	public function getQualitiesWithUris($includeDisabled=false) {
-		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
-		
-		$addedQualityIds = array();
-		$addedQualityPositions = array();
-		$qualities = array();
-		foreach($this->liveStreamUris as $a) {
-			
-			if (!$includeDisabled && !$a['enabled']) {
-				continue;
-			}
-			
-			$qualityDefinition = $a->qualityDefinition;
-			$qualityDefinitionId = intval($qualityDefinition->id);
-			
-			if (!in_array($qualityDefinitionId, $addedQualityIds)) {
-				$addedQualityIds[] = $qualityDefinitionId;
-				$addedQualityPositions[] = intval($qualityDefinition->position);
-				$qualities[] = array(
-					"qualityDefinition"	=> $qualityDefinition,
-					"uris"				=> array()
-				);
-			}
-			
-			$uri = array(
-				"uri"	=> $a->uri,
-				"type"	=> $a->type,
-				"supportedDevices"	=> $a->supported_devices,
-				"enabled"	=> (boolean) $a->enabled
-			);
-			
-			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
-		}
-		// sort so qualities in correct order
-		array_multisort($addedQualityPositions, SORT_NUMERIC, SORT_ASC, $qualities);
-		return $qualities;
-	}
-	
-	// returns an array containing all the domains that live streams come from which are loaded from a http request. I.e. playlist.m3u8 for mobiles.
-	public static function getCachedLiveStreamDomains() {
-		return Cache::remember('liveStreamDomains', Config::get("custom.live_stream_domains_cache_time"), function() {
-			$uris = array();
-			$models = self::get();
-			foreach($models as $a) {
-				foreach($a->getQualitiesWithUris() as $b) {
-					foreach($b['uris'] as $uri) {
-						$uris[] = $uri['uri'];
-					}
-				}
-			}
-			
-			$uris = array_where($uris, function($key, $value) {
-				// filter out so we only have uris beginning with http:// or https://
-				return preg_match('@^https?://@i', $value) === 1;
-			});
-			$domains = array();
-			foreach($uris as $a) {
-				$info = parse_url($a);
-				$domain = $info['scheme']."://".$info['host'];
-				if (isset($info['port'])) {
-					$domain .= ":".$info['port'];
-				}
-				$domains[] = $domain;
-			}
-			$domains = array_unique($domains);
-			return $domains;
-		});
 	}
 	
 	public function getIsAccessible() {

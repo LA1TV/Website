@@ -11,6 +11,9 @@ require.config({
 		"ga": {
 			exports: "ga"
 		},
+		"lib/clappr": {
+			exports: "Clappr"
+		},
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
@@ -33,7 +36,6 @@ require.config({
 			"lib/bootstrap",
 			"app/fit-text-handler",
 			"app/synchronised-time",
-			"app/video-js",
 			"app/pages/embed/player-page"
 		], function(logger, googleAnalytics) {
 			// everything loaded

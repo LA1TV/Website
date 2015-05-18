@@ -80,7 +80,7 @@ vjs.ACCESS_PROTOCOL = ('https:' == document.location.protocol ? 'https://' : 'ht
 * Full player version
 * @type {string}
 */
-vjs['VERSION'] = '4.12.1';
+vjs['VERSION'] = '4.12.6';
 
 /**
  * Global Player instance options, surfaced from vjs.Player.prototype.options_
@@ -7029,6 +7029,16 @@ vjs.MediaTechController.withSourceHandlers = function(Tech){
   Tech.prototype.setSource = function(source){
     var sh = Tech.selectSourceHandler(source);
 
+    if (!sh) {
+      // Fall back to a native source hander when unsupported sources are
+      // deliberately set
+      if (Tech.nativeSourceHandler) {
+        sh = Tech.nativeSourceHandler;
+      } else {
+        vjs.log.error('No source hander found for the current source.');
+      }
+    }
+
     // Dispose any existing source handler
     this.disposeSourceHandler();
     this.off('dispose', this.disposeSourceHandler);
@@ -7223,7 +7233,7 @@ vjs.Html5.prototype.createEl = function(){
 
 
 vjs.Html5.prototype.hideCaptions = function() {
-  var tracks = this.el_.textTracks,
+  var tracks = this.el_.querySelectorAll('track'),
       track,
       i = tracks.length,
       kinds = {
@@ -7232,8 +7242,9 @@ vjs.Html5.prototype.hideCaptions = function() {
       };
 
   while (i--) {
-    track = tracks[i];
-    if (track && track['kind'] in kinds) {
+    track = tracks[i].track;
+    if ((track && track['kind'] in kinds) &&
+        (!tracks[i]['default'])) {
       track.mode = 'disabled';
     }
   }
@@ -7763,12 +7774,6 @@ vjs.Flash = vjs.MediaTechController.extend({
 
     var source = options['source'],
 
-        // Which element to embed in
-        parentEl = options['parentEl'],
-
-        // Create a temporary element to be replaced by swf object
-        placeHolder = this.el_ = vjs.createEl('div', { id: player.id() + '_temp_flash' }),
-
         // Generate ID for swf object
         objId = player.id()+'_flash_api',
 
@@ -7815,7 +7820,7 @@ vjs.Flash = vjs.MediaTechController.extend({
     }
 
     // Add placeholder to player div
-    vjs.insertFirst(placeHolder, parentEl);
+    vjs.insertFirst(this.el_, options['parentEl']);
 
     // Having issues with Flash reloading on certain page actions (hide/resize/fullscreen) in certain browsers
     // This allows resetting the playhead when we catch the reload
@@ -7842,7 +7847,7 @@ vjs.Flash = vjs.MediaTechController.extend({
     // use stageclick events triggered from inside the SWF instead
     player.on('stageclick', player.reportUserActivity);
 
-    this.el_ = vjs.Flash.embed(options['swf'], placeHolder, flashVars, params, attributes);
+    this.el_ = vjs.Flash.embed(options['swf'], this.el_, flashVars, params, attributes);
   }
 });
 
@@ -8109,6 +8114,7 @@ vjs.Flash.embed = function(swf, placeHolder, flashVars, params, attributes){
   ;
 
   placeHolder.parentNode.replaceChild(obj, placeHolder);
+  obj[vjs.expando] = placeHolder[vjs.expando];
 
   // IE6 seems to have an issue where it won't initialize the swf object after injecting it.
   // This is a dumb fix

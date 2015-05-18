@@ -21,6 +21,7 @@ define([
 				return qualityAndUrlInput;
 			}, {
 				url: "",
+				dvr: false,
 				type: "",
 				support: "all",
 				qualityState: {id: null, text: null}
