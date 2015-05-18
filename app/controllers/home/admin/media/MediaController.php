@@ -544,8 +544,7 @@ class MediaController extends MediaBaseController {
 		}
 		$liveStreamItem->stateDefinition()->associate($stateDefinition);
 		$liveStreamItem->save();
-	
-		$resp = array("streamState"=> $liveStreamItem->stateDefinition->id);
+		$resp = array("streamState"=> intval($liveStreamItem->stateDefinition->id));
 		return Response::json($resp);
 	}
 	
