@@ -62,7 +62,7 @@ class DvrBridgeServiceRemoveDvrForVodCommand extends ScheduledCommand {
 	
 		$mediaItemVideoModels = MediaItemVideo::with("mediaItem", "mediaItem.liveStreamItem")->live()->whereHas("mediaItem", function($q) {
 			$q->whereHas("liveStreamItem", function($q2) {
-				$q2->live(false)->has("dvrLiveStreamUris");
+				$q2->live(false)->hasDvrRecording());
 			});
 		})->get();
 		foreach($mediaItemVideoModels as $a) {
