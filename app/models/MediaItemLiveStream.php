@@ -51,7 +51,6 @@ class MediaItemLiveStream extends MyEloquent {
 				$model->removeDvrs();
 			}
 			
-			
 			return true;
 		});
 		
@@ -170,6 +169,10 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function scopeShowOver($q, $yes=true) {
 		return $q->where("state_id", $yes ? "=" : "!=", 3);
+	}
+	
+	public function scopeHasDvrRecording($q, $yes=true) {
+		return $q->has("dvrLiveStreamUris", $yes ? ">" : "=", 0);
 	}
 	
 	public function scopeSearch($q, $value) {

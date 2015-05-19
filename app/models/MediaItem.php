@@ -241,7 +241,11 @@ class MediaItem extends MyEloquent {
 					});
 				})
 				->orWhereHas("liveStreamItem", function($q2) {
-					$q2->accessible()->showOver(false);
+					$q2->accessible()->where(function($q3) {
+						$q3->showOver(false);
+					})->orWhere(function($q3) {
+						$q3->showOver(true)->hasDvrRecording(true);
+					});
 				});
 			})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
 		

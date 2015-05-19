@@ -426,6 +426,12 @@ define([
 						// so set the play state back to what it was before
 						playerComponent.setPlayerStartTime(0, !playerComponent.paused());
 					}
+					else if (data.streamState === 3) {
+						// it's just a dvr recording which is essentially vod so use that autoplay setting
+						if (resolvedAutoPlayVod) {
+							playerComponent.setPlayerStartTime(0, true);
+						}
+					}
 					else if (resolvedAutoPlayStream) {
 						// auto start live stream
 						playerComponent.setPlayerStartTime(0, true);
