@@ -806,7 +806,9 @@ define([
 					chosenUri = uri;
 					break;
 				}
-				clapprPlayer.load(chosenUri.uri, chosenUri.type);
+				// TODO check why mime type causes it to become an audio tag
+				//clapprPlayer.load(chosenUri.uri, chosenUri.type);
+				clapprPlayer.load(chosenUri.uri);
 			}
 			
 			updateFullScreenState();
