@@ -436,6 +436,9 @@ define([
 						// auto start live stream
 						playerComponent.setPlayerStartTime(0, true);
 					}
+					else {
+						playerComponent.setPlayerStartTime(0, false);
+					}
 				}
 				else if (queuedPlayerType === "vod") {
 					var computedStartTime = vodRememberedStartTime !== null ? vodRememberedStartTime : 0;
@@ -460,7 +463,7 @@ define([
 						// first load so set the start point to the requested start time
 						playerComponent.setPlayerStartTime(vodPlayStartTime, false, false);
 					}
-					else if (!urisChanged) {
+					else {
 						// set the start time to the time the user was previously at.
 						// the second param means reset the time to 0 if it doesn't makes sense. E.g if the time is within the last 10 seconds of the video or < 5.
 						playerComponent.setPlayerStartTime(computedStartTime, false, true);
