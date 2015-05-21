@@ -104,8 +104,8 @@ Route::filter('homeRedirect', function() {
 		return;
 	}
 	
-	if (isset($_GET['noRedirect'])) {
-		// if noRedirect param in url disable redirection
+	if (isset($_GET['noRedirect']) || trim($SERVER["HTTP_USER_AGENT"]) === "Facebot") {
+		// if noRedirect param in url, or facebook crawler, so disable redirection
 		return;
 	}
 	
