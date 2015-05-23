@@ -98,7 +98,8 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 	
 	public function registerViewCount() {	
-		if (!$this->getIsAccessible() || intval($this->getResolvedStateDefinition()->id) !== 2) {
+		$stateDefinitionId = intval($this->getResolvedStateDefinition()->id);
+		if (!$this->getIsAccessible() || ($stateDefinitionId !== 2 && ($stateDefinitionId !== 3 || $this->dvrLiveStreamUris()->count() === 0))) {
 			// shouldn't be accessible or stream not live
 			return;
 		}
