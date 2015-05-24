@@ -97,7 +97,22 @@ define([
 			return null;
 		};
 		
-		// pause whatever is playing if there is something
+		// returns true if there's something and it's paused
+		this.paused = function() {
+			if (playerComponent !== null) {
+				return playerComponent.paused();
+			}
+			return null;
+		};
+		
+		// play if there is something
+		this.play = function() {
+			if (playerComponent !== null) {
+				playerComponent.play();
+			}
+		};
+		
+		// pause if there is something
 		this.pause = function() {
 			if (playerComponent !== null) {
 				playerComponent.pause();
@@ -304,6 +319,7 @@ define([
 					// reenable auto play if the user requested it to be enabled
 					resolvedAutoPlayVod = autoPlayVod;
 					resolvedAutoPlayStream = autoPlayStream;
+					$(self).triggerHandler("play");
 				});
 				$(playerComponent).on("loadedMetadata", function() {
 					// called at the point when the browser starts receiving the stream/video
@@ -313,14 +329,13 @@ define([
 					}
 				});
 				$(playerComponent).on("ended", function() {
-					if (self.getPlayerType() === "vod") {
-						$(self).triggerHandler("vodEnded");
-					}
+					$(self).triggerHandler("ended");
 				});
 				$(playerComponent).on("pause", function() {
 					// disable auto play, because the user has paused whatever is playing
 					// this means if the content was to switch, they probably don't want it to automatically start again
 					resolvedAutoPlayVod = resolvedAutoPlayStream = false;
+					$(self).triggerHandler("pause");
 				});
 			}
 			
@@ -540,9 +555,6 @@ define([
 			}
 			
 			if (playerType !== queuedPlayerType) {
-				if (playerType === "live" && queuedPlayerType !== "live") {
-					$(self).triggerHandler("streamStopped");
-				}
 				playerType = queuedPlayerType;
 				$(self).triggerHandler("playerTypeChanged");
 			}

@@ -9,8 +9,11 @@ define([
 		throw("The player api hasn't initialized yet. Use the \"ready\" callback.");
 	};
 	
+	var playerApiReadyCallback = null;
 	window.playerApi = {
-		ready: null, // callback which is called when the rest of the api becomes available, or called immediately if it already is
+		ready: function(callback) { // callback which is called when the rest of the api becomes available, or called immediately if it already is
+			playerApiReadyCallback = callback;
+		},
 		getType: notInitializedFn, // either "ad", "vod", or "live"
 		onTypeChanged: notInitializedFn, // callback called whenever player type changes
 		playing: notInitializedFn, // true if it's either "vod" or "live" and playing
@@ -18,8 +21,7 @@ define([
 		pause: notInitializedFn, // pause playback. must be "vod" or "live"
 		onPlay: notInitializedFn, // callback called when play starts
 		onPause: notInitializedFn, // callback called when content is paused
-		onEnd: notInitializedFn, // callback called when vod or live stream reaches the end of playback
-		getScheduledPublishTime: notInitializedFn // the unix time (milliseconds) that this is scheduled to go from "ad" to either "live" or "vod"
+		onEnded: notInitializedFn, // callback called when vod or live stream reaches the end of playback
 	};
 
 	$(".page-player").first().each(function() {
@@ -86,6 +88,7 @@ define([
 				$(self).append($componentEl);
 				$playerContainer = $componentEl;
 				updatePlayerContainerHeight();
+				initializeApi();
 			});
 			
 			
@@ -97,6 +100,59 @@ define([
 					playerContainer.updateDimensions();
 				}
 				$playerContainer.show();
+			}
+			
+			function initializeApi() {
+				var playerController = playerContainer.getPlayerController();
+				window.playerApi.ready = function(callback) {
+					callback();
+				};
+				window.playerApi.getType =  function() {
+					return playerController.getPlayerType();
+				};
+				window.playerApi.onTypeChanged = null;
+				$(playerController).on("playerTypeChanged", function() {
+					var callback = window.playerApi.onTypeChanged;
+					if (callback) {
+						callback();
+					}
+				});
+				window.playerApi.playing = function() {
+					return playerController.paused() === false; // .paused() can return null if unknown
+				};
+				window.playerApi.play = function() {
+					playerController.play();
+				};
+				window.playerApi.pause = function() {
+					playerController.pause();
+				};
+				window.playerApi.onPlay = null;
+				$(playerController).on("play", function() {
+					var callback = window.playerApi.onPlay;
+					if (callback) {
+						callback();
+					}
+				});
+				window.playerApi.onPause = null;
+				$(playerController).on("pause", function() {
+					var callback = window.playerApi.onPause;
+					if (callback) {
+						callback();
+					}
+				});
+				window.playerApi.onEnded = null;
+				$(playerController).on("ended", function() {
+					var callback = window.playerApi.onEnded;
+					if (callback) {
+						callback();
+					}
+				});
+				
+				if (playerApiReadyCallback) {
+					// call the ready callback that has already been provided
+					playerApiReadyCallback();
+					playerApiReadyCallback = null;
+				}
 			}
 			
 		});
