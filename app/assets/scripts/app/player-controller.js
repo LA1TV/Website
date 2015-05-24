@@ -29,6 +29,17 @@ define([
 		
 		var self = this;
 		
+		// callback that will always be called after all the initial data has
+		// been retrieved
+		this.onLoaded = function(callback) {
+			if (loaded) {
+				callback();
+			}
+			else {
+				$(self).on("loaded", callback);
+			}
+		};
+		
 		// destroys the controller and player and prevents any future requests
 		this.destroy = function() {
 			destroyed = true;
@@ -194,6 +205,7 @@ define([
 			vodPlayStartTime = startTime;
 		};
 
+		var loaded = false;
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
@@ -559,6 +571,11 @@ define([
 				$(self).triggerHandler("playerTypeChanged");
 			}
 			playerComponent.render();
+			
+			if (firstLoad) {
+				loaded = true;
+				$(self).triggerHandler("loaded");
+			}
 		}
 		
 		// returns an array of uri groups with any uris that aren't supported on this device stripped out.

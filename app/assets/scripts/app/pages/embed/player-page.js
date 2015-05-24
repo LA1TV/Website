@@ -5,25 +5,6 @@ define([
 	"lib/domReady!"
 ], function($, PageData, PlayerContainer) {
 	
-	var notInitializedFn = function() {
-		throw("The player api hasn't initialized yet. Use the \"ready\" callback.");
-	};
-	
-	var playerApiReadyCallback = null;
-	window.playerApi = {
-		ready: function(callback) { // callback which is called when the rest of the api becomes available, or called immediately if it already is
-			playerApiReadyCallback = callback;
-		},
-		getType: notInitializedFn, // either "ad", "vod", or "live"
-		onTypeChanged: notInitializedFn, // callback called whenever player type changes
-		playing: notInitializedFn, // true if it's either "vod" or "live" and playing
-		play: notInitializedFn, // start playing. must be "vod" or "live"
-		pause: notInitializedFn, // pause playback. must be "vod" or "live"
-		onPlay: notInitializedFn, // callback called when play starts
-		onPause: notInitializedFn, // callback called when content is paused
-		onEnded: notInitializedFn, // callback called when vod or live stream reaches the end of playback
-	};
-
 	$(".page-player").first().each(function() {
 		
 		var $pageContainer = $(this).first();	
@@ -103,56 +84,75 @@ define([
 			}
 			
 			function initializeApi() {
-				var playerController = playerContainer.getPlayerController();
-				window.playerApi.ready = function(callback) {
-					callback();
-				};
-				window.playerApi.getType =  function() {
-					return playerController.getPlayerType();
-				};
-				window.playerApi.onTypeChanged = null;
-				$(playerController).on("playerTypeChanged", function() {
-					var callback = window.playerApi.onTypeChanged;
-					if (callback) {
-						callback();
-					}
-				});
-				window.playerApi.playing = function() {
-					return playerController.paused() === false; // .paused() can return null if unknown
-				};
-				window.playerApi.play = function() {
-					playerController.play();
-				};
-				window.playerApi.pause = function() {
-					playerController.pause();
-				};
-				window.playerApi.onPlay = null;
-				$(playerController).on("play", function() {
-					var callback = window.playerApi.onPlay;
-					if (callback) {
-						callback();
-					}
-				});
-				window.playerApi.onPause = null;
-				$(playerController).on("pause", function() {
-					var callback = window.playerApi.onPause;
-					if (callback) {
-						callback();
-					}
-				});
-				window.playerApi.onEnded = null;
-				$(playerController).on("ended", function() {
-					var callback = window.playerApi.onEnded;
-					if (callback) {
-						callback();
-					}
-				});
 				
-				if (playerApiReadyCallback) {
-					// call the ready callback that has already been provided
-					playerApiReadyCallback();
-					playerApiReadyCallback = null;
+				if (!window.postMessage) {
+					// messaging api not supported in browser
+					return;
 				}
+				
+				var parent = window.parent;
+				if (!parent) {
+					return;
+				}
+				
+				var playerController = playerContainer.getPlayerController();
+				playerController.onLoaded(function() {
+					window.onmessage = function(event) {
+						var data = null;
+						try {
+							data = $.parseJSON(event.data);
+						} catch(ex){}
+						
+						if (data == null) {
+							return;
+						}
+						
+						if (typeof data.playerApi.action === "string") {
+							var action = data.playerApi.action;
+							if (action === "STATE_UPDATE") {
+								sendEvent("stateUpdate")
+							}
+							else if (action === "PAUSE") {
+								playerController.pause();
+							}
+							else if (action === "PLAY") {
+								playerController.play();
+							}
+						}
+					};
+					
+					$(playerController).on("play", function() {
+						sendEvent("play");
+					});
+					$(playerController).on("pause", function() {
+						sendEvent("pause");
+					});
+					$(playerController).on("ended", function() {
+						sendEvent("ended");
+					});
+					$(playerController).on("playerTypeChanged", function() {
+						sendEvent("typeChanged");
+					});
+					
+					sendEvent("stateUpdate");
+					
+					function sendEvent(eventId) {
+						var data = {
+							playerApi: {
+								eventId: eventId,
+								state: getPlayerState()
+							}
+						};
+						parent.postMessage(JSON.stringify(data), "*");
+					}
+					
+					function getPlayerState() {
+						return {
+							type: playerController.getPlayerType(),
+							playing: playerController.paused() === false // .paused() can return null if unknown
+						};
+					}
+				});
 			}
 			
 		});

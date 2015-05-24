@@ -168,6 +168,7 @@ define([
 			return playerInitialized;
 		};
 		
+		// note when clappr is playing a live stream with dvr play appears to reset the play position to the live point
 		this.play = function() {
 			if (playerType === "vod") {
 				if (videoJsPlayer !== null) {
@@ -181,6 +182,9 @@ define([
 			}
 		}
 		
+		// TODO at the moment if clappr is playing a live stream without dvr, the stop() method needs to be
+		// called instead of pause(). pause() will do nothing. Methods need adding to clappr to be able to check
+		// if it has enabled dvr or not first.
 		this.pause = function() {
 			if (playerType === "vod") {
 				if (videoJsPlayer !== null) {
@@ -202,6 +206,10 @@ define([
 			}
 			else if (playerType === "live") {
 				if (clapprPlayer !== null) {
+					// not the clappr isPlaying represents the intended state, not what the current state may be
+					// eg if the user clicks to seek to another part in the video the pause event will be fired,
+					// then it will buffer, then the play event will be fired, but isPlaying will always be true
+					// if the user was playing before they chose a new position
 					return !clapprPlayer.isPlaying();
 				}
 			}
