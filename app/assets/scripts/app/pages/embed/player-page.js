@@ -4,6 +4,23 @@ define([
 	"../../components/player-container",
 	"lib/domReady!"
 ], function($, PageData, PlayerContainer) {
+	
+	var notInitializedFn = function() {
+		throw("The player api hasn't initialized yet. Use the \"ready\" callback.");
+	};
+	
+	window.playerApi = {
+		ready: null, // callback which is called when the rest of the api becomes available, or called immediately if it already is
+		getType: notInitializedFn, // either "ad", "vod", or "live"
+		onTypeChanged: notInitializedFn, // callback called whenever player type changes
+		playing: notInitializedFn, // true if it's either "vod" or "live" and playing
+		play: notInitializedFn, // start playing. must be "vod" or "live"
+		pause: notInitializedFn, // pause playback. must be "vod" or "live"
+		onPlay: notInitializedFn, // callback called when play starts
+		onPause: notInitializedFn, // callback called when content is paused
+		onEnd: notInitializedFn, // callback called when vod or live stream reaches the end of playback
+		getScheduledPublishTime: notInitializedFn // the unix time (milliseconds) that this is scheduled to go from "ad" to either "live" or "vod"
+	};
 
 	$(".page-player").first().each(function() {
 		
