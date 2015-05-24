@@ -4,7 +4,7 @@ define([
 	"../../components/player-container",
 	"lib/domReady!"
 ], function($, PageData, PlayerContainer) {
-
+	
 	$(".page-player").first().each(function() {
 		
 		var $pageContainer = $(this).first();	
@@ -69,6 +69,7 @@ define([
 				$(self).append($componentEl);
 				$playerContainer = $componentEl;
 				updatePlayerContainerHeight();
+				initializeApi();
 			});
 			
 			
@@ -80,6 +81,78 @@ define([
 					playerContainer.updateDimensions();
 				}
 				$playerContainer.show();
+			}
+			
+			function initializeApi() {
+				
+				if (!window.postMessage) {
+					// messaging api not supported in browser
+					return;
+				}
+				
+				var parent = window.parent;
+				if (!parent) {
+					return;
+				}
+				
+				var playerController = playerContainer.getPlayerController();
+				playerController.onLoaded(function() {
+					window.onmessage = function(event) {
+						var data = null;
+						try {
+							data = $.parseJSON(event.data);
+						} catch(ex){}
+						
+						if (data == null) {
+							return;
+						}
+						
+						if (typeof data.playerApi.action === "string") {
+							var action = data.playerApi.action;
+							if (action === "STATE_UPDATE") {
+								sendEvent("stateUpdate")
+							}
+							else if (action === "PAUSE") {
+								playerController.pause();
+							}
+							else if (action === "PLAY") {
+								playerController.play();
+							}
+						}
+					};
+					
+					$(playerController).on("play", function() {
+						sendEvent("play");
+					});
+					$(playerController).on("pause", function() {
+						sendEvent("pause");
+					});
+					$(playerController).on("ended", function() {
+						sendEvent("ended");
+					});
+					$(playerController).on("playerTypeChanged", function() {
+						sendEvent("typeChanged");
+					});
+					
+					sendEvent("stateUpdate");
+					
+					function sendEvent(eventId) {
+						var data = {
+							playerApi: {
+								eventId: eventId,
+								state: getPlayerState()
+							}
+						};
+						parent.postMessage(JSON.stringify(data), "*");
+					}
+					
+					function getPlayerState() {
+						return {
+							type: playerController.getPlayerType(),
+							playing: playerController.paused() === false // .paused() can return null if unknown
+						};
+					}
+				});
 			}
 			
 		});
