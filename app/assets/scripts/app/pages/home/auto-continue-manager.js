@@ -22,8 +22,14 @@ define([
 		
 		onModeChanged();
 		
-		$(playerController).on("vodEnded streamStopped", function() {
+		$(playerController).on("ended", function() {
 			setTimeout(checkAndMoveOn, 0);
+		});
+		
+		$(playerController).on("playerTypeChanged", function() {
+			if (playerController.getPlayerType() !== "live"&& playerController.getPlayerType() !== "vod") {
+				setTimeout(checkAndMoveOn, 0);
+			}
 		});
 		
 		function onModeChanged() {
