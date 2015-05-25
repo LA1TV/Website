@@ -2,6 +2,7 @@
 
 use uk\co\la1tv\website\models\MediaItem;
 use Config;
+use Exception;
 
 class MediaItemTransformer extends Transformer {
 	

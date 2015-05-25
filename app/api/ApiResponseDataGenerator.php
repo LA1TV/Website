@@ -117,7 +117,6 @@ class ApiResponseDataGenerator {
 	// $streamIncludeSetting can be "STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"
 	// the $vodIncludeSetting and $streamIncludeSetting are or'd together. E.g if HAS_VOD and HAS_LIVE_STREAM then
 	// all items will have either vod, or a stream that's live, or both
-	// TODO
 	public function generateMediaItemsResponseData($limit, $sortMode, $sortDirection, $vodIncludeSetting, $streamIncludeSetting, $showStreamUris, $showVodUris) {
 		$maxLimit = Config::get("api.mediaItemsMaxRetrieveLimit");
 		if ($limit > $maxLimit) {
@@ -128,7 +127,7 @@ class ApiResponseDataGenerator {
 			// TODO
 		}
 		else if ($sortMode === "SCHEDULED_PUBLISH_TIME") {
-			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem")->accessible()
+			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem")->accessible();
 			$mediaItems = $mediaItems->where(function($q) use (&$vodIncludeSetting, &$streamIncludeSetting) {
 				if ($vodIncludeSetting === "VOD_OPTIONAL") {
 					// intentional
@@ -166,23 +165,28 @@ class ApiResponseDataGenerator {
 			});
 			
 			$sortAsc = null;
-			if ($sortMode === "ASC") {
+			if ($sortDirection === "ASC") {
 				$sortAsc = true;
 			}
-			else if ($sortMode === "DESC") {
+			else if ($sortDirection === "DESC") {
 				$sortAsc = false;
 			}
 			else {
 				throw(new Exception("Invalid sort mode."));
 			}
-			$mediaItems = $mediaItems->orderBy("media_items.scheduled_publish_time", $sortAsc ? "asc" : "desc")->orderBy("id", "asc")->take($limit)->get();
+			$mediaItems = $mediaItems->orderBy("media_items.scheduled_publish_time", $sortAsc ? "asc" : "desc")->orderBy("id", "asc")->take($limit)->get()->all();
 		}
 		else {
 			throw(new Exception("Invalid sort mode."));
 		}
 		
+		$mediaItemsAndPlaylists = [];
+		foreach($mediaItems as $a) {
+			$mediaItemsAndPlaylists[] = [null, $a];
+		}
+		
 		$data = [
-			"mediaItems"	=> $this->mediaItemTransformer->transformCollection($mediaItems, $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris))
+			"mediaItems"	=> $this->mediaItemTransformer->transformCollection($mediaItemsAndPlaylists, $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris))
 		];
 		return new ApiResponseData($data);
 	}

@@ -3,6 +3,7 @@
 use uk\co\la1tv\website\controllers\api\ApiBaseController;
 use uk\co\la1tv\website\api\ApiResponseDataGenerator;
 use ApiAuth;
+use FormHelpers;
 
 class ApiController extends ApiBaseController {
 
@@ -67,6 +68,28 @@ class ApiController extends ApiBaseController {
 		return $this->createResponseFromApiResponseData($this->withCache(5, "generatePlaylistMediaItemResponseData", [$playlistId, $mediaItemId, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
 	}
 
+	public function getMediaItems() {
+		ApiAuth::hasUserOrApiException();
+		$limit = intval(FormHelpers::getValue("limit", "50", false, true));
+		$sortMode = FormHelpers::getValue("sortMode", "SCHEDULED_PUBLISH_TIME", false, true);
+		$sortDirection = FormHelpers::getValue("sortDirection", "DESC", false, true);
+		$vodIncludeSetting = FormHelpers::getValue("vodIncludeSetting", "VOD_OPTIONAL", false, true);
+		$streamIncludeSetting = FormHelpers::getValue("streamIncludeSetting", "STREAM_OPTIONAL", false, true);
+		
+		if (
+			$limit < 1 ||
+			($sortMode !== "SCHEDULED_PUBLISH_TIME" && $sortMode !== "VIEW_COUNT") ||
+			($sortDirection !== "ASC" && $sortDirection !== "DESC") ||
+			!in_array($vodIncludeSetting, ["VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD"], true) ||
+			!in_array($streamIncludeSetting, ["STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"], true)
+		){
+			return $this->respondServerError("Something is wrong with the provided query parameters.");
+		}
+	
+		$this->log("Request for media items.");
+		return $this->createResponseFromApiResponseData($this->withCache(15, "generateMediaItemsResponseData", [$limit, $sortMode, $sortDirection, $vodIncludeSetting, $streamIncludeSetting, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
+	}
+	
 	public function getMediaItem($mediaItemId) {
 		ApiAuth::hasUserOrApiException();
 		$this->log("Request for media item with id ".$mediaItemId.".");
