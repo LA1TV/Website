@@ -316,19 +316,7 @@ class PlayerController extends HomeBaseController {
 		if (!isset($_GET['t'])) {
 			return null;
 		}
-		
-		$input = $_GET['t'];
-		$matches = null;
-		if (preg_match("/^([0-9]+)m([0-9]+)s$/", $input, $matches) !== 1) {
-			return null;
-		}
-		$m = intval($matches[1]);
-		$s = intval($matches[2]);
-		if ($s > 59) {
-			return null;
-		}
-		$time = ($m*60)+$s;
-		return intval($time);
+		return URLHelpers::convertUrlTimeToSeconds($_GET['t']);
 	}
 	
 	private function getAutoContinueMode() {

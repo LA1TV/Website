@@ -5,6 +5,7 @@ use Config;
 use uk\co\la1tv\website\models\Playlist;
 use URL;
 use Auth;
+use URLHelpers;
 
 class EmbedController extends EmbedBaseController {
 
@@ -28,6 +29,7 @@ class EmbedController extends EmbedBaseController {
 		$kioskMode = isset($_GET['kiosk']) && $_GET['kiosk'] === "1";
 		$autoPlayVod = $kioskMode || (isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1");
 		$autoPlayStream = $kioskMode || (isset($_GET['autoPlayStream']) && $_GET['autoPlayStream'] === "1");
+		$vodPlayStartTime = $kioskMode ? 0 : $this->getVodStartTimeFromUrl();
 		$flushMode = $kioskMode || (!isset($_GET['flush']) || $_GET['flush'] === "1");
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
@@ -55,6 +57,7 @@ class EmbedController extends EmbedBaseController {
 		$view->hideBottomBar = $hideBottomBar;
 		$view->autoPlayVod = $autoPlayVod;
 		$view->autoPlayStream = $autoPlayStream;
+		$view->vodPlayStartTime = is_null($vodPlayStartTime) ? "" : $vodPlayStartTime;
 		$view->disableFullScreen = $disableFullScreen;
 		$view->showTitleInPlayer = $showTitleInPlayer;
 		$view->initialVodQualityId = $initialVodQualityId;
@@ -80,6 +83,13 @@ class EmbedController extends EmbedBaseController {
 		$view->disableRedirect = $disableRedirect;
 		$view->hasVideo = false;
 		$this->setContent($view, "player", 'LA1:TV- [Content Unavailable]', 404);
+	}
+	
+	private function getVodStartTimeFromUrl() {
+		if (!isset($_GET['vodPlayStartTime'])) {
+			return null;
+		}
+		return URLHelpers::convertUrlTimeToSeconds($_GET['vodPlayStartTime']);
 	}
 	
 	private function getInfoUri($playlistId, $mediaItemId) {
