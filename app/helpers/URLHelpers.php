@@ -74,4 +74,18 @@ class URLHelpers {
 	public static function generateLogoutUrl() {
 		return Config::get("custom.base_url") . "/facebook/logout?returnuri=".urlencode(URLHelpers::getPath());
 	}
+	
+	public static function convertUrlTimeToSeconds($input) {
+		$matches = null;
+		if (preg_match("/^([0-9]+)m([0-9]+)s$/", $input, $matches) !== 1) {
+			return null;
+		}
+		$m = intval($matches[1]);
+		$s = intval($matches[2]);
+		if ($s > 59) {
+			return null;
+		}
+		$time = ($m*60)+$s;
+		return intval($time);
+	}
 }

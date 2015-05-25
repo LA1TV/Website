@@ -49,7 +49,7 @@ define([
 			var embedded = true;
 			var autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
 			var autoPlayStream = $(this).attr("data-auto-play-stream") === "1";
-			var vodPlayStartTime = null;
+			var vodPlayStartTime = $(this).attr("data-vod-play-start-time") === "" ? null : parseInt($(this).attr("data-vod-play-start-time"));
 			var ignoreExternalStreamUrl = $(this).attr("data-ignore-external-stream-url") === "1";
 			var hideBottomBar = $(this).attr("data-hide-bottom-bar") === "1";
 			var initialVodQualityId = $(this).attr("data-initial-vod-quality-id") === "" ? null : parseInt($(this).attr("data-initial-vod-quality-id"));
