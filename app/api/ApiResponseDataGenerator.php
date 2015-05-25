@@ -8,6 +8,8 @@ use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
 use App;
 use DebugHelpers;
+use Exception;
+use Config;
 
 class ApiResponseDataGenerator {
 	
@@ -105,6 +107,83 @@ class ApiResponseDataGenerator {
 		}
 		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
 		$data = $this->mediaItemTransformer->transform([$playlist, $mediaItem], $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris));
+		return new ApiResponseData($data);
+	}
+	
+	// $limit is the maximum amount of items to be retrieved
+	// $sortMode can be "VIEW_COUNT", "SCHEDULED_PUBLISH_TIME"
+	// $sortDirection can be "ASC" or "DESC". Only "DESC" supported for "VIEW_COUNT"
+	// $vodIncludeSetting can be "VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD"
+	// $streamIncludeSetting can be "STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"
+	// the $vodIncludeSetting and $streamIncludeSetting are or'd together. E.g if HAS_VOD and HAS_LIVE_STREAM then
+	// all items will have either vod, or a stream that's live, or both
+	// TODO
+	public function generateMediaItemsResponseData($limit, $sortMode, $sortDirection, $vodIncludeSetting, $streamIncludeSetting, $showStreamUris, $showVodUris) {
+		$maxLimit = Config::get("api.mediaItemsMaxRetrieveLimit");
+		if ($limit > $maxLimit) {
+			$limit = $maxLimit;
+		}
+		
+		if ($sortMode === "VIEW_COUNT") {
+			// TODO
+		}
+		else if ($sortMode === "SCHEDULED_PUBLISH_TIME") {
+			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem")->accessible()
+			$mediaItems = $mediaItems->where(function($q) use (&$vodIncludeSetting, &$streamIncludeSetting) {
+				if ($vodIncludeSetting === "VOD_OPTIONAL") {
+					// intentional
+				}
+				else if ($vodIncludeSetting === "HAS_VOD") {
+					$q->whereHas("videoItem", function($q2) {
+						$q2->accessible();
+					});
+				}
+				else if ($vodIncludeSetting === "HAS_AVAILABLE_VOD") {
+					$q->whereHas("videoItem", function($q2) {
+						$q2->live();
+					});
+				}
+				else {
+					throw(new Exception("Invalid vod include setting."));
+				}
+				
+				if ($streamIncludeSetting === "STREAM_OPTIONAL") {
+					// intentional
+				}
+				else if ($vodIncludeSetting === "HAS_STREAM") {
+					$q->orWhereHas("liveStreamItem", function($q2) {
+						$q2->accessible();
+					});
+				}
+				else if ($vodIncludeSetting === "HAS_LIVE_STREAM") {
+					$q->orWhereHas("liveStreamItem", function($q2) {
+						$q2->isLive();
+					});
+				}
+				else {
+					throw(new Exception("Invalid stream include setting."));
+				}
+			});
+			
+			$sortAsc = null;
+			if ($sortMode === "ASC") {
+				$sortAsc = true;
+			}
+			else if ($sortMode === "DESC") {
+				$sortAsc = false;
+			}
+			else {
+				throw(new Exception("Invalid sort mode."));
+			}
+			$mediaItems = $mediaItems->orderBy("media_items.scheduled_publish_time", $sortAsc ? "asc" : "desc")->orderBy("id", "asc")->take($limit)->get();
+		}
+		else {
+			throw(new Exception("Invalid sort mode."));
+		}
+		
+		$data = [
+			"mediaItems"	=> $this->mediaItemTransformer->transformCollection($mediaItems, $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris))
+		];
 		return new ApiResponseData($data);
 	}
 	
