@@ -149,14 +149,14 @@ class ApiResponseDataGenerator {
 				if ($streamIncludeSetting === "STREAM_OPTIONAL") {
 					// intentional
 				}
-				else if ($vodIncludeSetting === "HAS_STREAM") {
+				else if ($streamIncludeSetting === "HAS_STREAM") {
 					$q->orWhereHas("liveStreamItem", function($q2) {
 						$q2->accessible();
 					});
 				}
-				else if ($vodIncludeSetting === "HAS_LIVE_STREAM") {
+				else if ($streamIncludeSetting === "HAS_LIVE_STREAM") {
 					$q->orWhereHas("liveStreamItem", function($q2) {
-						$q2->isLive();
+						$q2->live();
 					});
 				}
 				else {
