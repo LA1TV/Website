@@ -24,15 +24,18 @@ class EmbedController extends EmbedBaseController {
 		}
 		
 		$title = null;
-			
-		$autoPlayVod = isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1";
-		$autoPlayStream = isset($_GET['autoPlayStream']) && $_GET['autoPlayStream'] === "1";
-		$flushMode = !isset($_GET['flush']) || $_GET['flush'] === "1";
+		
+		$kioskMode = isset($_GET['kiosk']) && $_GET['kiosk'] === "1";
+		$autoPlayVod = $kioskMode || (isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1");
+		$autoPlayStream = $kioskMode || (isset($_GET['autoPlayStream']) && $_GET['autoPlayStream'] === "1");
+		$flushMode = $kioskMode || (!isset($_GET['flush']) || $_GET['flush'] === "1");
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
-		$ignoreExternalStreamUrl = isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1";
-		$disableFullScreen = isset($_GET['disableFullScreen']) && $_GET['disableFullScreen'] === "1";
-		$showTitleInPlayer = $flushMode;
+		$ignoreExternalStreamUrl = $kioskMode || (isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1");
+		$disableFullScreen = $kioskMode || (isset($_GET['disableFullScreen']) && $_GET['disableFullScreen'] === "1");
+		$showTitleInPlayer = !$kioskMode && $flushMode;
+		$enableSmartAutoPlay = !$kioskMode;
+		$disablePlayerControls = $kioskMode;
 		$initialVodQualityId = isset($_GET['vodQualityId']) && ctype_digit($_GET['vodQualityId']) ? $_GET['vodQualityId'] : "";
 		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
 		
@@ -57,6 +60,8 @@ class EmbedController extends EmbedBaseController {
 		$view->initialVodQualityId = $initialVodQualityId;
 		$view->initialStreamQualityId = $initialStreamQualityId;
 		$view->ignoreExternalStreamUrl = $ignoreExternalStreamUrl;
+		$view->disablePlayerControls = $disablePlayerControls;
+		$view->enableSmartAutoPlay = $enableSmartAutoPlay;
 		$view->episodeTitle = $title;
 		$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
