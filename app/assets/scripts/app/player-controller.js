@@ -25,7 +25,7 @@ define([
 	
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -346,7 +346,9 @@ define([
 				$(playerComponent).on("pause", function() {
 					// disable auto play, because the user has paused whatever is playing
 					// this means if the content was to switch, they probably don't want it to automatically start again
-					resolvedAutoPlayVod = resolvedAutoPlayStream = false;
+					if (enableSmartAutoPlay) {
+						resolvedAutoPlayVod = resolvedAutoPlayStream = false;
+					}
 					$(self).triggerHandler("pause");
 				});
 			}
@@ -552,6 +554,7 @@ define([
 			playerComponent.setExternalStreamUrl(externalStreamUrl);
 			playerComponent.disableFullScreen(disableFullScreen);
 			playerComponent.setPlayerPreload(false);
+			playerComponent.disableControls(disablePlayerControls);
 			
 			if (queuedPlayerType === "vod") {
 				// start updating the local database with the users position in the video.

@@ -119,6 +119,12 @@ define([
 			return this;
 		};
 		
+		// disables all player controls meaning the user cannot interact with the player.
+		this.disableControls = function(disable) {
+			queuedDisableControls = disable;
+			return this;
+		};
+		
 		this.render = function() {
 			updateAd();
 			updatePlayer();
@@ -273,6 +279,8 @@ define([
 		var queuedPlayerTimeStartPlaying = null;
 		var disableFullScreen = null;
 		var queuedDisableFullScreen = false;
+		var disableControls = null;
+		var queuedDisableControls = false;
 		var chapters = [];
 		var queuedChapters = [];
 		// there is no 'thumbnails' because the plugin only allows the thumbnails to be applied on plugin initialisation
@@ -587,7 +595,7 @@ define([
 			var showExternalStreamSlide = queuedPlayerType === "live" && queuedExternalLiveStreamUrl !== null;
 			
 			// determine if the player has to be reloaded or the settings can be applied in place.
-			var reloadRequired = playerType !== queuedPlayerType || showPlayer !== queuedShowPlayer || (!showExternalStreamSlide && (playerPreload !== queuedPlayerPreload || havePlayerUrisChanged())) || externalStreamSlideShown !== showExternalStreamSlide;
+			var reloadRequired = playerType !== queuedPlayerType || showPlayer !== queuedShowPlayer || (!showExternalStreamSlide && (playerPreload !== queuedPlayerPreload || havePlayerUrisChanged() || disableControls !== queuedDisableControls)) || externalStreamSlideShown !== showExternalStreamSlide;
 			
 			// player needs reloading
 			if (reloadRequired) {
@@ -733,11 +741,12 @@ define([
 			}
 			
 			playerPreload = queuedPlayerPreload;
+			disableControls = queuedDisableControls;
 			if (playerType === "vod") {
 				videoJsPlayer = videojs($video[0], {
 					width: "100%",
 					height: "100%",
-					controls: true,
+					controls: !disableControls,
 					preload: playerPreload ? "auto" : "metadata",
 					techOrder: ["html5", "flash"],
 					autoPlay: false, // implementing auto play manually using callback
@@ -795,6 +804,7 @@ define([
 					preload: playerPreload ? "auto" : "metadata",
 					persistConfig: false,
 					loop: false,
+					chromeless: disableControls,
 					autoPlay: queuedPlayerTimeStartPlaying,
 					hlsMinimumDvrSize: 20, // 20 seconds of content required before dvr becomes enabled
 					mediacontrol: {seekbar: "#ff0000"}
@@ -887,6 +897,7 @@ define([
 			$player.remove();
 			$player = null;
 			playerPreload = null;
+			playerControls = null;
 			playerUris = null;
 			playerType = null;
 			title = null;
