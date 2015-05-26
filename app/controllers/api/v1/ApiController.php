@@ -88,7 +88,7 @@ class ApiController extends ApiBaseController {
 		}
 	
 		$this->log("Request for media items.");
-		return $this->createResponseFromApiResponseData($this->withCache(15, "generateMediaItemsResponseData", [$limit, $sortMode, $sortDirection, $vodIncludeSetting, $streamIncludeSetting, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
+		return $this->createResponseFromApiResponseData($this->withCache(60, "generateMediaItemsResponseData", [$limit, $sortMode, $sortDirection, $vodIncludeSetting, $streamIncludeSetting, ApiAuth::getUser()->canViewStreamUris(), ApiAuth::getUser()->canViewVodUris()]));
 	}
 	
 	public function getMediaItem($mediaItemId) {
