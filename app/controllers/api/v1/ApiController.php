@@ -78,7 +78,7 @@ class ApiController extends ApiBaseController {
 		
 		if (
 			$limit < 1 ||
-			($sortMode !== "SCHEDULED_PUBLISH_TIME" && $sortMode !== "VIEW_COUNT") ||
+			($sortMode !== "SCHEDULED_PUBLISH_TIME" && $sortMode !== "POPULARITY") ||
 			($sortDirection !== "ASC" && $sortDirection !== "DESC") ||
 			!in_array($vodIncludeSetting, ["VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD"], true) ||
 			!in_array($streamIncludeSetting, ["STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"], true)

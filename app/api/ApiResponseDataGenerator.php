@@ -111,7 +111,7 @@ class ApiResponseDataGenerator {
 	}
 	
 	// $limit is the maximum amount of items to be retrieved
-	// $sortMode can be "VIEW_COUNT", "SCHEDULED_PUBLISH_TIME"
+	// $sortMode can be "POPULARITY", "SCHEDULED_PUBLISH_TIME"
 	// $sortDirection can be "ASC" or "DESC". Only "DESC" supported for "VIEW_COUNT"
 	// $vodIncludeSetting can be "VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD"
 	// $streamIncludeSetting can be "STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"
@@ -123,8 +123,8 @@ class ApiResponseDataGenerator {
 			$limit = $maxLimit;
 		}
 		
-		if ($sortMode === "VIEW_COUNT") {
-			// TODO
+		if ($sortMode === "POPULARITY") {
+			$mediaItems = MediaItem::getCachedMostPopularItems();
 		}
 		else if ($sortMode === "SCHEDULED_PUBLISH_TIME") {
 			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem")->accessible();
