@@ -119,9 +119,9 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
 			Route::controller('/file', $p.'home\admin\upload\UploadController');
 			
-			Route::controller('/', $p.'embed\EmbedController');
-			// this is here so the named route can be retrieved in PlayerController
-			Route::get('/{a}/{b}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@getIndex'));
+			Route::get('/{id}/{id2}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@handleRequest'));
+			Route::get('/{id}', array("uses"=>$p.'embed\EmbedController@handleMediaItemRequest'));
+			Route::get('{catchAll}', array("uses"=>$p.'embed\EmbedController@do404'));
 		});
 	});
 	
