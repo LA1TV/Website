@@ -123,8 +123,54 @@ class ApiResponseDataGenerator {
 			$limit = $maxLimit;
 		}
 		
+		$mediaItems = null;
 		if ($sortMode === "POPULARITY") {
-			$mediaItems = MediaItem::getCachedMostPopularItems();
+			if ($sortDirection === "ASC") {
+				throw(new Exception("ASC sort direction not supported for POPULARITY sort mode."));
+			}
+			else if ($sortDirection === "DESC") {
+				// intentional
+			}
+			else {
+				throw(new Exception("Invalid sort direction."));
+			}
+			
+			$items = MediaItem::getCachedMostPopularItems();
+			$allMediaItems = array_column($items, 'mediaItem');
+			$mediaItems = [];
+			foreach($allMediaItems as $a) {
+				$includeVod = null;
+				if ($vodIncludeSetting === "VOD_OPTIONAL") {
+					// intentional
+				}
+				else if ($vodIncludeSetting === "HAS_VOD") {
+					$includeVod = !is_null($a->videoItem) && $a->videoItem->getIsAccessible();
+				}
+				else if ($vodIncludeSetting === "HAS_AVAILABLE_VOD") {
+					$includeVod = !is_null($a->videoItem) && $a->getIsAccessible() && $a->videoItem->getIsLive();
+				}
+				else {
+					throw(new Exception("Invalid vod include setting."));
+				}
+				
+				$includeStream = null;
+				if ($streamIncludeSetting === "STREAM_OPTIONAL") {
+					// intentional
+				}
+				else if ($streamIncludeSetting === "HAS_STREAM") {
+					$includeStream = !is_null($a->liveStreamItem) && $a->liveStreamItem->getIsAccessible();
+				}
+				else if ($streamIncludeSetting === "HAS_LIVE_STREAM") {
+					$includeStream = !is_null($a->liveStreamItem) && $a->liveStreamItem->getIsAccessible() && $a->liveStreamItem->isLive();
+				}
+				else {
+					throw(new Exception("Invalid stream include setting."));
+				}
+				
+				if ((is_null($includeStream) && is_null($includeVod)) || $includeStream || $includeVod) {
+					$mediaItems[] = $a;
+				}
+			}
 		}
 		else if ($sortMode === "SCHEDULED_PUBLISH_TIME") {
 			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem")->accessible();
@@ -172,7 +218,7 @@ class ApiResponseDataGenerator {
 				$sortAsc = false;
 			}
 			else {
-				throw(new Exception("Invalid sort mode."));
+				throw(new Exception("Invalid sort direction."));
 			}
 			$mediaItems = $mediaItems->orderBy("media_items.scheduled_publish_time", $sortAsc ? "asc" : "desc")->orderBy("id", "asc")->take($limit)->get()->all();
 		}
