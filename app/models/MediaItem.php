@@ -357,7 +357,7 @@ class MediaItem extends MyEloquent {
 				->orWhereHas("videoItem", function($q2) {
 					$q2->accessible();
 				});
-			})->get();
+			})->orderBy("id", "asc")->get();
 			$ids = array();
 			$counts = array();
 			foreach($mediaItems as $a) {

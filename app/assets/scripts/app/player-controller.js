@@ -25,6 +25,7 @@ define([
 	
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
+	// unless enableSmartAutoPlay is false
 	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;

@@ -99,7 +99,7 @@ define([
 		};
 		
 		// array of {time, title} (time is in seconds)
-		// only applys to VOD
+		// only applies to VOD
 		this.setChapters = function(chapters) {
 			queuedChapters = chapters;
 			return this;
