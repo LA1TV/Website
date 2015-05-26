@@ -79,10 +79,14 @@ class MediaItemTransformer extends Transformer {
 			$infoMsg = $stateDefinition === 1 ? $mediaItemLiveStream->information_msg : null;
 			
 			$liveStream = $mediaItemLiveStream->liveStream;
+			$streamQualities = null;
 			$streamUrlData = null;
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
-			if ($options['showStreamUris'] && !is_null($liveStream) && $stateDefinition === 2) {
-				$streamUrlData = [];
+			if (!is_null($liveStream) && $stateDefinition === 2) {
+				$streamQualities = [];
+				if ($options['showStreamUris']) {
+					$streamUrlData = [];
+				}
 				// don't retrieve urls that support dvr
 				foreach($mediaItemLiveStream->getQualitiesWithUris("live") as $qualityWithUris) {
 					$urls = [];
@@ -93,14 +97,18 @@ class MediaItemTransformer extends Transformer {
 							"supportedDevices"	=> is_null($a['supportedDevices']) ? null : explode(",", $a['supportedDevices'])
 						];
 					}
-					
-					$streamUrlData[] = [
-						"quality"	=> [
-							"id"	=> intval($qualityWithUris['qualityDefinition']->id),
-							"name"	=> $qualityWithUris['qualityDefinition']->name
-						],
-						"urls"	=> $urls
+					$qualityInfo = [
+						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+						"name"	=> $qualityWithUris['qualityDefinition']->name
 					];
+					
+					$streamQualities[] = $qualityInfo;
+					if ($options['showStreamUris']) {
+						$streamUrlData[] = [
+							"quality"	=> $qualityInfo,
+							"urls"		=> $urls
+						];
+					}
 				}
 			}
 			
@@ -111,6 +119,7 @@ class MediaItemTransformer extends Transformer {
 				"externalStreamPageUrl"	=> $mediaItemLiveStream->external_stream_url,
 				"streamEndTime"			=> $streamEndTime,
 				"informationMsg"		=> $infoMsg, // only accessible when the stream is in NOT_LIVE mode
+				"qualities"				=> $streamQualities,
 				"urlData"				=> $streamUrlData
 			];
 		}
@@ -137,8 +146,13 @@ class MediaItemTransformer extends Transformer {
 				$vodTimeRecorded = $scheduledPublishTime;
 			}
 			
+			$vodQualities = null;
 			$vodUrlData = null;
-			if ($options['showVodUris'] && $mediaItemVideo->getIsLive()) {
+			if ($mediaItemVideo->getIsLive()) {
+				$vodQualities = [];
+				if ($options['showVodUris']) {
+					$vodUrlData = [];
+				}
 				foreach($mediaItemVideo->getQualitiesWithUris() as $qualityWithUris) {
 					$urls = [];
 					foreach($qualityWithUris['uris'] as $a) {
@@ -148,14 +162,18 @@ class MediaItemTransformer extends Transformer {
 							"supportedDevices"	=> is_null($a['supportedDevices']) ? null : explode(",", $a['supportedDevices'])
 						];
 					}
-					
-					$vodUrlData[] = [
-						"quality"	=> [
-							"id"	=> intval($qualityWithUris['qualityDefinition']->id),
-							"name"	=> $qualityWithUris['qualityDefinition']->name
-						],
-						"urls"		=> $urls
+					$qualityInfo = [
+						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+						"name"	=> $qualityWithUris['qualityDefinition']->name
 					];
+					
+					$vodQualities[] = $qualityInfo;
+					if ($options['showVodUris']) {
+						$vodUrlData[] = [
+							"quality"	=> $qualityInfo,
+							"urls"		=> $urls
+						];
+					}
 				}
 			}
 			
@@ -164,6 +182,7 @@ class MediaItemTransformer extends Transformer {
 				"timeRecorded"	=> $vodTimeRecorded,
 				"chapters"		=> $vodChapters,
 				"viewCount"		=> $vodViewCount,
+				"qualities"		=> $vodQualities,
 				"urlData"		=> $vodUrlData
 			];
 		}
