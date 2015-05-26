@@ -39,6 +39,10 @@ define([
 			$(window).resize(updatePlayerContainerHeight);
 			updatePlayerContainerHeight();
 
+			if ($(this).attr("data-found-media-item") !== "1") {
+				// media item could not be found. attributes required below won't have been set
+				return;
+			}
 			
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerViewCountUri = $(this).attr("data-register-view-count-uri");

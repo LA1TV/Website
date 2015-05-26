@@ -2,27 +2,44 @@
 
 use View;
 use Config;
+use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\Playlist;
 use URL;
 use Auth;
 use URLHelpers;
 
 class EmbedController extends EmbedBaseController {
-
-	public function getIndex($playlistId=null, $mediaItemId=null) {
-		
-		$disableRedirect = isset($_GET['disableRedirect']) && $_GET['disableRedirect'] === "1";
 	
-		if (is_null($playlistId) || is_null($mediaItemId)) {
-			$this->do404Response($disableRedirect);
+	public function handleMediaItemRequest($mediaItemId) {
+		$mediaItem = MediaItem::find($mediaItemId);
+		if (is_null($mediaItem) || !$mediaItem->getIsAccessible()) {
+			$this->do404Response();
 			return;
 		}
-	
-		$playlist = Playlist::with("show", "mediaItems")->accessible()->accessibleToPublic()->find(intval($playlistId));
-		$currentMediaItem = null;
-		if (!is_null($playlist)) {
-			$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
+		$playlist = $mediaItem->getDefaultPlaylist();
+		if (is_null($playlist)) {
+			$this->do404Response();
+			return;
 		}
+		$this->doResponse($playlist, $mediaItem);
+	}
+	
+	public function handleRequest($playlistId, $mediaItemId) {
+		$playlist = Playlist::with("show", "mediaItems")->accessible()->accessibleToPublic()->find(intval($playlistId));
+		$mediaItem = null;
+		if (!is_null($playlist)) {
+			$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
+		}
+		
+		if (is_null($mediaItem)) {
+			$this->do404Response($this->getDisableRedirect());
+			return;
+		}
+		
+		$this->doResponse($playlist, $mediaItem);
+	}
+	
+	private function doResponse($playlist, $mediaItem) {
 		
 		$title = null;
 		
@@ -41,19 +58,15 @@ class EmbedController extends EmbedBaseController {
 		$initialVodQualityId = isset($_GET['vodQualityId']) && ctype_digit($_GET['vodQualityId']) ? $_GET['vodQualityId'] : "";
 		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
 		
-		if (is_null($currentMediaItem)) {
-			$this->do404Response($disableRedirect);
-			return;
-		}
 		
 		// true if a user is logged into the cms and has permission to view media items.
 		$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
 		
-		$title = $currentMediaItem->name;
+		$title = $mediaItem->name;
 		
 		$view = View::make("embed.player");
 		$view->showHeading = $showHeading;
-		$view->disableRedirect = $disableRedirect;
+		$view->disableRedirect = $this->getDisableRedirect();
 		$view->hideBottomBar = $hideBottomBar;
 		$view->autoPlayVod = $autoPlayVod;
 		$view->autoPlayStream = $autoPlayStream;
@@ -66,21 +79,21 @@ class EmbedController extends EmbedBaseController {
 		$view->disablePlayerControls = $disablePlayerControls;
 		$view->enableSmartAutoPlay = $enableSmartAutoPlay;
 		$view->episodeTitle = $title;
-		$view->playerInfoUri = $this->getInfoUri($playlistId, $mediaItemId);
-		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlistId, $mediaItemId);
-		$view->registerLikeUri = $this->getRegisterLikeUri($playlistId, $mediaItemId);
+		$view->playerInfoUri = $this->getInfoUri($playlist->id, $mediaItem->id);
+		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $mediaItem->id);
+		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $mediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
-		$view->hyperlink = URL::route('player', array($playlistId, $mediaItemId));
+		$view->hyperlink = URL::route('player', array($playlist->id, $mediaItem->id));
 		$view->hasVideo = true;
 		$this->setContent($view, "player", 'LA1:TV- "' . $title . '"');
 	}
 	
-	private function do404Response($disableRedirect=false) {
+	private function do404Response() {
 		$view = View::make("embed.player");
 		$view->hyperlink = URL::route('home');
-		$view->disableRedirect = $disableRedirect;
+		$view->disableRedirect = $this->getDisableRedirect();
 		$view->hasVideo = false;
 		$this->setContent($view, "player", 'LA1:TV- [Content Unavailable]', 404);
 	}
@@ -108,13 +121,11 @@ class EmbedController extends EmbedBaseController {
 		return Config::get("custom.embed_player_update_playback_time_base_uri");
 	}
 	
-	public function missingMethod($parameters=array()) {
-		// redirect /[anything]/[anything] to /index/[anything]/[anything]
-		if (count($parameters) >= 1) {
-			return call_user_func_array(array($this, "getIndex"), $parameters);
-		}
-		else {
-			return parent::missingMethod($parameters);
-		}
+	private function getDisableRedirect() {
+		return isset($_GET['disableRedirect']) && $_GET['disableRedirect'] === "1";
+	}
+	
+	public function do404($parameters=array()) {
+		$this->do404Response($this->getDisableRedirect());
 	}
 }
