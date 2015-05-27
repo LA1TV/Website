@@ -155,7 +155,7 @@ define([
 					function getPlayerState() {
 						return {
 							type: playerController.getPlayerType(),
-							playing: playerController.paused() === false // .paused() can return null if unknown
+							playing: playerController.paused() === false && !playerController.hasPlaybackErrorOccurred() // .paused() can return null if unknown
 						};
 					}
 				});

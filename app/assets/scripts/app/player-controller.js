@@ -109,6 +109,14 @@ define([
 			return null;
 		};
 		
+		// returns true if a playback error has occurred
+		this.hasPlaybackErrorOccurred = function() {
+			if (playerComponent !== null) {
+				return !!playerComponent.getError();
+			}
+			return null;
+		};
+		
 		// returns true if there's something and it's paused
 		this.paused = function() {
 			if (playerComponent !== null) {
