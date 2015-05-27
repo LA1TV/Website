@@ -51,12 +51,9 @@ class MediaItemTransformer extends Transformer {
 		
 		$liveStreamDetails = $vodDetails = null;		
 		
-		$embedDetails = null;
-		if (!is_null($playlist)) {
-			$embedDetails = [
-				"iframeUrl"	=> $playlist->getMediaItemEmbedUri($mediaItem)
-			];
-		}
+		$embedDetails = [
+			"iframeUrl"	=> !is_null($playlist) ? $playlist->getMediaItemEmbedUri($mediaItem) : $mediaItem->getEmbedUri()
+		];
 		
 		$stateDefinition = null;
 		if (!is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible()) {
@@ -198,11 +195,11 @@ class MediaItemTransformer extends Transformer {
 			"viewCount"			=> $viewCountTotal,
 			"numLikes"			=> $numLikes,
 			"numDislikes"		=> $numDislikes,
+			"embed"				=> $embedDetails,
 			"timeUpdated"		=> $mediaItem->updated_at->timestamp
 		];
 		if (!is_null($playlist)) {
 			$responseData['siteUrl'] = $playlist->getMediaItemUri($mediaItem);
-			$responseData['embed'] = $embedDetails;
 			$responseData['episodeNumber'] =  $playlist->getEpisodeNumber($mediaItem);
 		}
 		return $responseData;
