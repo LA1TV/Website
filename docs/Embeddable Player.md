@@ -52,4 +52,4 @@ You can send certain commands to the player to control it by posting a message o
   These are the actions you can provide:
   - **PLAY**: This mimics the user clicking the play button.
   - **PAUSE**: This mimics the user clicking the pause button.
-  - **STATUS_UPDATE**: This requests for the state to be broadcast with the "stateUpdate" event id. Useful to get the state initially if you miss when it is first broadcast.
+  - **STATE_UPDATE**: This requests for the state to be broadcast with the "stateUpdate" event id. Useful to get the state initially if you miss when it is first broadcast.
