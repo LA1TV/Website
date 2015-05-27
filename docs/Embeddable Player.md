@@ -17,8 +17,8 @@ There are quite a few url paramaters that can be provided to contol it's behavio
 - **hideBottomBar**: Defaults to "0". Hides the bottom bar which sits below the player. Only valid when "flush" is "0".
 - **ignoreExternalStreamUrl**: Defaults to "0". When set to "1" any streams that are set to be hosted externally from the main website will be shown in the player instead of a button to go to the external site.
 - **disableFullScreen**: Defaults to "0". When set to "1" the full screen button is removed from the player.
-- **initialVodQualityId**: Defaults to "". This can be set to the id of a quality and then if this quality is available it will become the initial quality for the vod.
-- **initialStreamQualityId**: Defaults to "". This can be set to the id of a quality and then if this quality is available it will become the initial quality for the stream.
+- **vodQualityId**: Defaults to "". This can be set to the id of a quality and then if this quality is available it will become the initial quality for the vod.
+- **streamQualityId**: Defaults to "". This can be set to the id of a quality and then if this quality is available it will become the initial quality for the stream.
 - **kiosk**: Defaults to "0". If set to "1" this will overide the auto play options forcing them to be enabled. It will also force the flush player and enable the "ignoreExternalStreamUrl" option. It disables any user interaction with the player.
 
 ## API
