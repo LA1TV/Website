@@ -112,7 +112,7 @@ define([
 		// returns true if a playback error has occurred
 		this.hasPlaybackErrorOccurred = function() {
 			if (playerComponent !== null) {
-				return !!playerComponent.getError();
+				return !!playerComponent.getPlayerError();
 			}
 			return null;
 		};
