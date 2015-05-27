@@ -7,6 +7,7 @@ use Exception;
 use Config;
 use DB;
 use Cache;
+use URL;
 
 class MediaItem extends MyEloquent {
 	
@@ -188,6 +189,10 @@ class MediaItem extends MyEloquent {
 			}
 		}
 		return $playlist;
+	}
+	
+	public function getEmbedUri() {
+		return URL::route('embed-player-media-item', array($this->id));
 	}
 	
 	// returns an array of ("mediaItem", "generatedName")

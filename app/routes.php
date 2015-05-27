@@ -120,7 +120,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/file', $p.'home\admin\upload\UploadController');
 			
 			Route::get('/{id}/{id2}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@handleRequest'));
-			Route::get('/{id}', array("uses"=>$p.'embed\EmbedController@handleMediaItemRequest'));
+			Route::get('/{id}', array("as"=>"embed-player-media-item", "uses"=>$p.'embed\EmbedController@handleMediaItemRequest'));
 			Route::get('{catchAll}', array("uses"=>$p.'embed\EmbedController@do404'));
 		});
 	});
