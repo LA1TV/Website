@@ -107,3 +107,13 @@
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
+
+@media (min-width: 768px) {
+	.playlist-element .playlist-table .col-thumbnail {
+		width: 135px;
+	}
+	
+	.playlist-element .playlist-table .col-thumbnail .height-helper {
+		min-height: 75px;
+	}
+}
