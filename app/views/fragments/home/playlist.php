@@ -40,6 +40,9 @@
 					<?php endif; ?>
 					<td class="col-thumbnail" data-thumbnailuri="<?=e($row['thumbnailUri']);?>">
 						<div class="height-helper"></div>
+						<div class="image-container">
+							<div class="image-holder zoom-animation"></div>
+						</div>
 						<?php if (!is_null($row['thumbnailFooter'])): ?>
 						<div class="footer">
 							<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
