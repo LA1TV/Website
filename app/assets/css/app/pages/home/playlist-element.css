@@ -53,6 +53,21 @@
 	width: 107px;
 	padding: 0;
 	position: relative;
+}
+
+.playlist-element .playlist-table .col-thumbnail .image-container, .playlist-element .playlist-table .col-thumbnail .image-container .image-holder {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.playlist-element .playlist-table .col-thumbnail .image-container {
+	overflow: hidden;
+}
+
+.playlist-element .playlist-table .col-thumbnail .image-container .image-holder {
 	background-color: #000000 !important;
 	background-repeat: no-repeat;
 	background-attachment: scroll;
