@@ -12,8 +12,9 @@ define([
 	"./device-detection",
 	"./helpers/build-get-uri",
 	"./helpers/ajax-helpers",
+	"./google-analytics",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, buildGetUri, AjaxHelpers) {
+], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, buildGetUri, AjaxHelpers, GoogleAnalytics) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -46,6 +47,9 @@ define([
 			destroyed = true;
 			if (timerId !== null) {
 				clearTimeout(timerId);
+			}
+			if (analyticsReportTimerId !== null) {
+				clearTimeout(analyticsReportTimerId);
 			}
 			playerComponent.destroy();
 		};
@@ -238,6 +242,7 @@ define([
 		var embedData = null;
 		var viewCountRegistered = false;
 		var rememberedTimeTimerId = null;
+		var analyticsReportTimerId = null;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			// this can be fired as a result of the quality being changed in updatePlayer()
@@ -252,6 +257,14 @@ define([
 		
 		// kick it off
 		update();
+		
+		// report to analytics the current play position every 10 seconds
+		analyticsReportTimerId = setInterval(function() {
+			// paused() can be null if unknown
+			if ((playerType === "live" || playerType === "vod") && playerComponent !== null && playerComponent.paused() === false) {
+				reportToAnalytics("playing");
+			}
+		}, 10000);
 		
 		function update() {
 		
@@ -341,6 +354,7 @@ define([
 					resolvedAutoPlayVod = autoPlayVod;
 					resolvedAutoPlayStream = autoPlayStream;
 					$(self).triggerHandler("play");
+					reportToAnalytics("play");
 				});
 				$(playerComponent).on("loadedMetadata", function() {
 					// called at the point when the browser starts receiving the stream/video
@@ -351,6 +365,7 @@ define([
 				});
 				$(playerComponent).on("ended", function() {
 					$(self).triggerHandler("ended");
+					reportToAnalytics("ended");
 				});
 				$(playerComponent).on("pause", function() {
 					// disable auto play, because the user has paused whatever is playing
@@ -359,6 +374,7 @@ define([
 						resolvedAutoPlayVod = resolvedAutoPlayStream = false;
 					}
 					$(self).triggerHandler("pause");
+					reportToAnalytics("pause");
 				});
 			}
 			
@@ -1048,6 +1064,10 @@ define([
 					}
 				}
 			});
+		}
+		
+		function reportToAnalytics(action) {
+			GoogleAnalytics.registerPlayerEvent(action, playerType, mediaItemId, playerComponent.getPlayerCurrentTime());
 		}
 		
 	};

@@ -19,6 +19,15 @@ define(["./page-data", "ga"], function(PageData, ga) {
 	return {
 		registerModulesLoadTime: function(site, timeTaken) {
 			myGa('send', 'timing', site, 'RequireJS modules load time.', timeTaken);
+		},
+		registerPlayerEvent: function(action, playerType, mediaItemId, playerTime) {
+			if (action !== "play" && action !== "pause" && action !== "ended" && action !== "playing") {
+				throw "Invalid action.";
+			}
+			else if (playerType !== "live" && playerType !== "vod") {
+				throw "Invalid player type.";
+			}
+			myGa('send', 'event', playerType === "vod" ? "VOD Player" : "Live Player", action, "Media item id: "+mediaItemId, Math.round(playerTime));
 		}
 	};
 	
