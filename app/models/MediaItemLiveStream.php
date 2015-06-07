@@ -99,19 +99,20 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	public function registerViewCount() {	
 		$stateDefinitionId = intval($this->getResolvedStateDefinition()->id);
-		if (!$this->getIsAccessible() || ($stateDefinitionId !== 2 && ($stateDefinitionId !== 3 || $this->dvrLiveStreamUris()->count() === 0))) {
+		if (!$this->getIsAccessible() || !$this->hasWatchableContent()) {
 			// shouldn't be accessible or stream not live
-			return;
+			return false;
 		}
 	
 		$sessionKey = "viewCount-".$this->id;
 		$lastTimeRegistered = SessionProvider::get($sessionKey, null);
 		if (!is_null($lastTimeRegistered) && $lastTimeRegistered >= Carbon::now()->subMinutes(Config::get("custom.interval_between_registering_view_counts"))->timestamp) {
 			// already registered view not that long ago.
-			return;
+			return false;
 		}
 		$this->increment("view_count");
 		SessionProvider::set($sessionKey, Carbon::now()->timestamp);
+		return true;
 	}
 	
 	// returns true if this should be shown with the parent media item. If false then it should like the MediaItem does not have a live stream component.
@@ -125,6 +126,14 @@ class MediaItemLiveStream extends MyEloquent {
 		return $q->where("enabled", true)->whereHas("mediaItem", function($q2) {
 			$q2->accessible();
 		});
+	}
+	
+	public function hasDvrRecording() {
+		return $this->dvrLiveStreamUris()->count() > 0;
+	}
+	
+	public function hasWatchableContent() {
+		return $this->isLive() || ($this->isOver() && $this->hasDvrRecording());
 	}
 	
 	public function isNotLive($stateDefinition=null) {

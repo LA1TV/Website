@@ -22,6 +22,7 @@ return array(
 	"num_playlists_per_page"	=> 20,
 	"num_shows_per_page"	=> 20,
 	"min_number_of_views"	=> 100, // view counts will only be sent to the client when the sum of live stream + vod goes >= this number (unless logged in with media item view permission)
+	"min_num_watching_now"	=> 3, // number of people watching now will only be sent to the client when it is higher than this number (unless logged in with media item view permission)
 	"log_uri"			=> URL::to("/") . "/ajax/log", # where javascript log events should be posted to
 	"js_log_file_path"	=> storage_path() . DIRECTORY_SEPARATOR ."logs" . DIRECTORY_SEPARATOR . "js-log.log",
 	"blog_url"			=> "http://blog.la1tv.co.uk/",
@@ -30,12 +31,14 @@ return array(
 	"live_shows_uri"	=> URL::to("/") . "/player/live-shows",
 	"player_info_base_uri"	=> URL::to("/") . "/player/player-info",
 	"playlist_info_base_uri"	=> URL::to("/") . "/playlist/playlist-info",
+	"player_register_watching_base_uri"	=> URL::to("/") . "/player/register-watching",
 	"player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"update_playback_time_base_uri"	=> URL::to("/") . "/player/register-playback-time",
 	"player_base_uri"	=> URL::to("/") . "/player",
 	"embed_default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"embed_player_info_base_uri"	=> URL::to("/") . "/player/player-info",
+	"embed_player_register_watching_base_uri"	=> URL::to("/") . "/player/register-watching",
 	"embed_player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"embed_player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"embed_player_update_playback_time_base_uri"	=> URL::to("/") . "/player/register-playback-time",

@@ -8,6 +8,7 @@ use Config;
 use DB;
 use Cache;
 use URL;
+use Session;
 
 class MediaItem extends MyEloquent {
 	
@@ -78,6 +79,15 @@ class MediaItem extends MyEloquent {
 		return $this->hasMany(self::$p.'EmailTasksMediaItem', 'media_item_id');
 	}
 	
+	public function watchingNows() {
+		return $this->hasMany(self::$p.'WatchingNow', 'media_item_id');
+	}
+	
+	public function getNumWatchingNow() {
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		return $this->watchingNows()->where("updated_at", ">", $cutOffTime)->count();
+	}
+	
 	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
 		$items = $this->relatedItems()->orderBy("related_item_to_media_item.position", "asc")->get();
@@ -142,6 +152,37 @@ class MediaItem extends MyEloquent {
 			$text .= ' (In "'.implode('", "', $names).'")';
 		}
 		return $text;
+	}
+	
+	public function registerWatching() {
+		if (!(
+			$this->getIsAccessible() &&
+			(!is_null($this->liveStreamItem) && ($this->liveStreamItem->hasWatchableContent())) ||
+			(!is_null($this->videoItem) && $this->videoItem->getIsLive())
+		)) {
+			// there is nothing that can be watched
+			return false;
+		}
+		
+		// delete any entries that have expired.
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		WatchingNow::where("updated_at", "<", $cutOffTime)->delete();
+		
+		DB::transaction(function() {
+			$sessionId = Session::getId();
+			$model = WatchingNow::where("session_id", $sessionId)->where("media_item_id", $this->id)->first();
+			if (is_null($model)) {
+				$model = new WatchingNow(array(
+					"session_id"	=> $sessionId
+				));
+				$model->mediaItem()->associate($this);
+				$model->save();
+			}
+			else {
+				$model->touch();
+			}
+		});
+		return true;
 	}
 	
 	public function registerLike($siteUser) {
