@@ -73,6 +73,10 @@ class Playlist extends MyEloquent {
 		return $this->morphOne('uk\co\la1tv\website\models\CustomUri', 'uriable');
 	}
 	
+	public function credits() {
+		return $this->morphMany('uk\co\la1tv\website\models\Credit', 'creditable');
+	}
+	
 	public function getCustomUriNameAttribute() {
 		$customUri = $this->customUri;
 		if (is_null($customUri)) {

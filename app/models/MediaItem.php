@@ -78,6 +78,10 @@ class MediaItem extends MyEloquent {
 		return $this->hasMany(self::$p.'EmailTasksMediaItem', 'media_item_id');
 	}
 	
+	public function credits() {
+		return $this->morphMany('uk\co\la1tv\website\models\Credit', 'creditable');
+	}
+	
 	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
 		$items = $this->relatedItems()->orderBy("related_item_to_media_item.position", "asc")->get();
