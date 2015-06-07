@@ -290,6 +290,11 @@ define([
 		}
 		
 		function renderBroadcastTime() {
+			if (embedded) {
+				// try and prevent 2 rows if embedded
+				return;
+			}
+			
 			var now = new Date();
 			var time = playerController.getScheduledPublishTime();
 			if (time !== null && playerController.getPlayerType() !== "ad" && time.getTime() < now.getTime()) {
