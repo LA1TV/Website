@@ -46,7 +46,7 @@
 			</div>
 		</div>
 		<?php endif; ?>
-		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-update-playback-time-base-uri="<?=e($updatePlaybackTimeBaseUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-auto-play-vod="<?=$autoPlay?"1":"0"?>" data-vod-play-start-time="<?=$vodPlayStartTime?>">
+		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-watching-uri="<?=e($registerWatchingUri);?>" data-register-view-count-uri="<?=e($registerViewCountUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-update-playback-time-base-uri="<?=e($updatePlaybackTimeBaseUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-auto-play-vod="<?=$autoPlay?"1":"0"?>" data-vod-play-start-time="<?=$vodPlayStartTime?>">
 			<div class="msg-container">
 				<div class="embed-responsive embed-responsive-16by9">
 					<div class="embed-responsive-item">
@@ -55,9 +55,6 @@
 				</div>
 			</div>
 		</div>
-<?php if (!is_null($broadcastOnMsg)): ?>
-		<div class="broadcast-on-msg"><?=e($broadcastOnMsg);?></div>
-<?php endif; ?>
 <?php if (!is_null($episodeDescriptionEscaped)): ?>
 		<div class="description-container"><?=$episodeDescriptionEscaped;?></div>
 <?php endif; ?>

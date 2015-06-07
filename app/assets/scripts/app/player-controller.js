@@ -27,7 +27,7 @@ define([
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -85,6 +85,10 @@ define([
 			registerLike(type, callback);
 		};
 		
+		this.getScheduledPublishTime = function() {
+			return scheduledPublishTime;
+		};
+		
 		this.getStreamViewCount = function() {
 			return streamViewCount;
 		};
@@ -111,6 +115,10 @@ define([
 				return count;
 			}
 			return null;
+		};
+		
+		this.getNumWatchingNow = function() {
+			return numWatchingNow;
 		};
 		
 		// returns true if a playback error has occurred
@@ -227,9 +235,11 @@ define([
 		var currentUris = [];
 		var cachedData = null;
 		var vodSourceId = null;
+		var scheduledPublishTime = null;
 		var vodRememberedStartTime = null;
 		var vodViewCount = null;
 		var streamViewCount = null;
+		var numWatchingNow = null;
 		var numLikes = null;
 		var numDislikes = null;
 		var likeType = null; // "like", "dislike" or null
@@ -259,10 +269,12 @@ define([
 		update();
 		
 		// report to analytics the current play position every 10 seconds
+		// also inform the system that the item is being watched
 		analyticsReportTimerId = setInterval(function() {
 			// paused() can be null if unknown
 			if ((playerType === "live" || playerType === "vod") && playerComponent !== null && playerComponent.paused() === false) {
 				reportToAnalytics("playing");
+				registerWatching();
 			}
 		}, 10000);
 		
@@ -313,6 +325,8 @@ define([
 			updateOverrideMode();
 			updatePlayer();
 			updateViewCounts();
+			updateNumWatchingNow();
+			updateScheduledPublishTime();
 			updateLikes();
 		}
 		
@@ -401,7 +415,7 @@ define([
 				}
 			}
 			
-			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
+			var externalStreamUrl = data.hasStream && data.streamState !== 3 && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
 			if (data.hasStream && (data.streamState === 2 || (data.streamState === 3 && deviceStreamUriGroups.length > 0) || (overrideModeEnabled && data.streamState === 1))) {
@@ -938,6 +952,26 @@ define([
 			}
 		}
 		
+		function updateNumWatchingNow() {
+			var numWatchingNowChanged = numWatchingNow !== cachedData.numWatchingNow;
+			numWatchingNow = cachedData.numWatchingNow;
+			
+			if (numWatchingNowChanged) {
+				$(self).triggerHandler("numWatchingNowChanged");
+			}
+		}
+		
+		function updateScheduledPublishTime() {
+			var a = scheduledPublishTime !== null ? scheduledPublishTime.getTime() : null;
+			var b = cachedData.scheduledPublishTime !== null ? cachedData.scheduledPublishTime * 1000 : null;
+			var scheduledPublishTimeChanged = a !== b;
+			
+			if (scheduledPublishTimeChanged) {
+				scheduledPublishTime = b !== null ? new Date(b) : null;
+				$(self).triggerHandler("scheduledPublishTimeChanged");
+			}
+		}
+		
 		function updateLikes() {
 			var changed = numLikes !== cachedData.numLikes;
 			numLikes = cachedData.numLikes;
@@ -964,6 +998,18 @@ define([
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					type: self.getPlayerType()
+				},
+				type: "POST"
+			});
+		}
+		
+		function registerWatching() {
+			jQuery.ajax(registerWatchingUri, {
+				cache: false,
+				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
+				data: {
+					csrf_token: PageData.get("csrfToken")
 				},
 				type: "POST"
 			});
