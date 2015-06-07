@@ -190,7 +190,7 @@ define([
 		
 		function renderCounts() {
 			var viewCount = playerController.getViewCount();
-			if (viewCount !== null || viewCount === 0) {
+			if (viewCount !== null && viewCount === 0) {
 				viewCount = null;
 			}
 			
