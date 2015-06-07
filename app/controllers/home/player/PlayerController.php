@@ -288,6 +288,7 @@ class PlayerController extends HomeBaseController {
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
 		$view->autoContinueMode = $this->getAutoContinueMode();
+		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
@@ -524,20 +525,32 @@ class PlayerController extends HomeBaseController {
 			if ($type === "live" || $type === "vod") {
 				if ($type === "live") {
 					$liveStreamItem = $mediaItem->liveStreamItem;
-					if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
-						$liveStreamItem->registerViewCount();
-						$success = true;
+					if (!is_null($liveStreamItem)) {
+						$success = $liveStreamItem->registerViewCount();
 					}
 				}
 				else {
 					$videoItem = $mediaItem->videoItem;
-					if (!is_null($videoItem) && $videoItem->getIsAccessible()) {
-						$videoItem->registerViewCount();
-						$success = true;
+					if (!is_null($videoItem)) {
+						$success = $videoItem->registerViewCount();
 					}
 				}
 			}
 		}
+		return Response::json(array("success"=>$success));
+	}
+	
+	public function postRegisterWatching($playlistId, $mediaItemId) {
+		$playlist = Playlist::accessibleToPublic()->find($playlistId);
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		$success = $mediaItem->registerWatching();
 		return Response::json(array("success"=>$success));
 	}
 	
@@ -824,6 +837,10 @@ class PlayerController extends HomeBaseController {
 	
 	private function getRegisterViewCountUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_view_count_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
+		return Config::get("custom.player_register_watching_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {

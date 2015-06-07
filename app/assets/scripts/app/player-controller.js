@@ -27,7 +27,7 @@ define([
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -259,10 +259,12 @@ define([
 		update();
 		
 		// report to analytics the current play position every 10 seconds
+		// also inform the system that the item is being watched
 		analyticsReportTimerId = setInterval(function() {
 			// paused() can be null if unknown
 			if ((playerType === "live" || playerType === "vod") && playerComponent !== null && playerComponent.paused() === false) {
 				reportToAnalytics("playing");
+				registerWatching();
 			}
 		}, 10000);
 		
@@ -964,6 +966,18 @@ define([
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					type: self.getPlayerType()
+				},
+				type: "POST"
+			});
+		}
+		
+		function registerWatching() {
+			jQuery.ajax(registerWatchingUri, {
+				cache: false,
+				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
+				data: {
+					csrf_token: PageData.get("csrfToken")
 				},
 				type: "POST"
 			});
