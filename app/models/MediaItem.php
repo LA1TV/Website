@@ -83,6 +83,11 @@ class MediaItem extends MyEloquent {
 		return $this->hasMany(self::$p.'WatchingNow', 'media_item_id');
 	}
 	
+	public function getNumWatchingNow() {
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		return $this->watchingNows()->where("updated_at", ">", $cutOffTime)->count();
+	}
+	
 	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
 		$items = $this->relatedItems()->orderBy("related_item_to_media_item.position", "asc")->get();
@@ -158,6 +163,10 @@ class MediaItem extends MyEloquent {
 			// there is nothing that can be watched
 			return false;
 		}
+		
+		// delete any entries that have expired.
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		WatchingNow::where("updated_at", "<", $cutOffTime)->delete();
 		
 		DB::transaction(function() {
 			$sessionId = Session::getId();

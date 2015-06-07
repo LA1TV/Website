@@ -235,7 +235,6 @@ class PlayerController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		
-		$broadcastOnMsg = null;
 		$scheduledPublishTime = $currentMediaItem->scheduled_publish_time;
 		$hasAccessibleLiveStream = !is_null($liveStreamItem) && $liveStreamItem->getIsAccessible();
 		$hasLiveLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 2;
@@ -243,22 +242,6 @@ class PlayerController extends HomeBaseController {
 		$currentMediaItem->load("videoItem", "videoItem.chapters");
 		$videoItem = $currentMediaItem->videoItem;
 		$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
-		if ($scheduledPublishTime->isPast() && (($hasAccessibleVod && !$hasAccessibleLiveStream) || ($hasLiveLiveStream || $hasFinishedLiveStream))) {
-			if ($hasFinishedLiveStream) {
-				$broadcastOnMsg = "Broadcast at ";
-			}
-			else {
-				$broadcastOnMsg = "Available since ";
-			}
-			$dateStr = $scheduledPublishTime->format('H:i') . " on ";
-			if ($scheduledPublishTime->year !== Carbon::now()->year) {
-				$dateStr .= $scheduledPublishTime->format('jS M Y');
-			}
-			else {
-				$dateStr .= $scheduledPublishTime->format('jS M');
-			}
-			$broadcastOnMsg .= $dateStr;
-		}
 		$commentsEnabled = $currentMediaItem->comments_enabled;
 		
 		$vodPlayStartTime = $this->getVodStartTimeFromUrl();
@@ -309,7 +292,6 @@ class PlayerController extends HomeBaseController {
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;
 		$view->coverImageUri = $coverImageUri;
-		$view->broadcastOnMsg = $broadcastOnMsg;
 		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name, 200, $twitterProperties, $sideBannerUri, $sideBannerFillUri);
 	}
 	
@@ -356,7 +338,7 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$mediaItem->load("likes", "liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
+		$mediaItem->load("watchingNows", "likes", "liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
 		
 		$id = intval($mediaItem->id);
 		$title = $playlist->generateEpisodeTitle($mediaItem);
@@ -420,6 +402,12 @@ class PlayerController extends HomeBaseController {
 				// send null instead
 				$vodViewCount = $streamViewCount = null;
 			}
+		}
+		
+		$minNumWatchingNow = Config::get("custom.min_num_watching_now");
+		$numWatchingNow = $mediaItem->getNumWatchingNow();
+		if (!$userHasMediaItemsPermission && $numWatchingNow < $minNumWatchingNow) {
+			$numWatchingNow = null;
 		}
 		
 		$user = Facebook::getUser();
@@ -500,6 +488,7 @@ class PlayerController extends HomeBaseController {
 			"vodChapters"				=> $vodChapters,
 			"vodThumbnails"				=> $vodThumbnails,
 			"rememberedPlaybackTime"	=> $rememberedPlaybackTime,
+			"numWatchingNow"			=> $numWatchingNow,
 			"numLikes"					=> $numLikes, // number of likes this media item has
 			"numDislikes"				=> $numDislikes, // number of dislikes this media item has
 			"likeType"					=> $likeType // "like" if liked, "dislike" if disliked, or null otherwise

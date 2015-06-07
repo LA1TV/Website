@@ -55,9 +55,6 @@
 				</div>
 			</div>
 		</div>
-<?php if (!is_null($broadcastOnMsg)): ?>
-		<div class="broadcast-on-msg"><?=e($broadcastOnMsg);?></div>
-<?php endif; ?>
 <?php if (!is_null($episodeDescriptionEscaped)): ?>
 		<div class="description-container"><?=$episodeDescriptionEscaped;?></div>
 <?php endif; ?>

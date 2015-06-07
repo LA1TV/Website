@@ -85,6 +85,10 @@ define([
 			registerLike(type, callback);
 		};
 		
+		this.getScheduledPublishTime = function() {
+			return scheduledPublishTime;
+		};
+		
 		this.getStreamViewCount = function() {
 			return streamViewCount;
 		};
@@ -111,6 +115,10 @@ define([
 				return count;
 			}
 			return null;
+		};
+		
+		this.getNumWatchingNow = function() {
+			return numWatchingNow;
 		};
 		
 		// returns true if a playback error has occurred
@@ -227,9 +235,11 @@ define([
 		var currentUris = [];
 		var cachedData = null;
 		var vodSourceId = null;
+		var scheduledPublishTime = null;
 		var vodRememberedStartTime = null;
 		var vodViewCount = null;
 		var streamViewCount = null;
+		var numWatchingNow = null;
 		var numLikes = null;
 		var numDislikes = null;
 		var likeType = null; // "like", "dislike" or null
@@ -315,6 +325,8 @@ define([
 			updateOverrideMode();
 			updatePlayer();
 			updateViewCounts();
+			updateNumWatchingNow();
+			updateScheduledPublishTime();
 			updateLikes();
 		}
 		
@@ -403,7 +415,7 @@ define([
 				}
 			}
 			
-			var externalStreamUrl = data.hasStream && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
+			var externalStreamUrl = data.hasStream && data.streamState !== 3 && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
 			if (data.hasStream && (data.streamState === 2 || (data.streamState === 3 && deviceStreamUriGroups.length > 0) || (overrideModeEnabled && data.streamState === 1))) {
@@ -937,6 +949,26 @@ define([
 			}
 			if (vodCountChanged || streamCountChanged) {
 				$(self).triggerHandler("viewCountChanged");
+			}
+		}
+		
+		function updateNumWatchingNow() {
+			var numWatchingNowChanged = numWatchingNow !== cachedData.numWatchingNow;
+			numWatchingNow = cachedData.numWatchingNow;
+			
+			if (numWatchingNowChanged) {
+				$(self).triggerHandler("numWatchingNowChanged");
+			}
+		}
+		
+		function updateScheduledPublishTime() {
+			var a = scheduledPublishTime !== null ? scheduledPublishTime.getTime() : null;
+			var b = cachedData.scheduledPublishTime !== null ? cachedData.scheduledPublishTime * 1000 : null;
+			var scheduledPublishTimeChanged = a !== b;
+			
+			if (scheduledPublishTimeChanged) {
+				scheduledPublishTime = b !== null ? new Date(b) : null;
+				$(self).triggerHandler("scheduledPublishTimeChanged");
 			}
 		}
 		

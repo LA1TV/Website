@@ -22,6 +22,7 @@ return array(
 	"num_playlists_per_page"	=> 20,
 	"num_shows_per_page"	=> 20,
 	"min_number_of_views"	=> 100, // view counts will only be sent to the client when the sum of live stream + vod goes >= this number (unless logged in with media item view permission)
+	"min_num_watching_now"	=> 3, // number of people watching now will only be sent to the client when it is higher than this number (unless logged in with media item view permission)
 	"log_uri"			=> URL::to("/") . "/ajax/log", # where javascript log events should be posted to
 	"js_log_file_path"	=> storage_path() . DIRECTORY_SEPARATOR ."logs" . DIRECTORY_SEPARATOR . "js-log.log",
 	"blog_url"			=> "http://blog.la1tv.co.uk/",

@@ -20,8 +20,7 @@ class CreateWatchingNowTable extends Migration {
 			$table->timestamps();
 			
 			$table->foreign("media_item_id")->references('id')->on('media_items')->onUpdate("restrict")->onDelete('cascade');
-			$table->foreign("session_id")->references('session_id')->on('users_sessions')->onUpdate("restrict")->onDelete('cascade');
-			$table->unique(array("media_item_id", "session_id"));
+			$table->foreign("session_id")->references('id')->on('sessions')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
