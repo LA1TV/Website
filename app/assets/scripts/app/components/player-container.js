@@ -297,9 +297,9 @@ define([
 			
 			var now = new Date();
 			var time = playerController.getScheduledPublishTime();
-			if (time !== null && playerController.getPlayerType() !== "ad" && time.getTime() < now.getTime()) {
+			var streamState = playerController.getStreamState();
+			if (time !== null && (playerController.getPlayerType() !== "ad" || streamState === 3) && time.getTime() < now.getTime()) {
 				var txt = ""
-				var streamState = playerController.getStreamState();
 				if (streamState !== null && streamState >= 3) {
 					txt += "Broadcast at ";
 				}
