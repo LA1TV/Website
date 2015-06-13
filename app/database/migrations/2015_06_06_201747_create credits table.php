@@ -16,7 +16,7 @@ class CreateCreditsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer("production_role_id")->unsigned();
-			$table->integer("uriable_id")->unsigned();
+			$table->integer("creditable_id")->unsigned();
 			$table->text("creditable_type");
 			$table->integer("site_user_id")->unsigned()->nullable();
 			$table->integer("name_override")->nullable();
