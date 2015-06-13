@@ -80,6 +80,7 @@ class EmbedController extends EmbedBaseController {
 		$view->enableSmartAutoPlay = $enableSmartAutoPlay;
 		$view->episodeTitle = $title;
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $mediaItem->id);
+		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $mediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $mediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $mediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
@@ -107,6 +108,10 @@ class EmbedController extends EmbedBaseController {
 	
 	private function getInfoUri($playlistId, $mediaItemId) {
 		return Config::get("custom.embed_player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
+		return Config::get("custom.embed_player_register_watching_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	private function getRegisterViewCountUri($playlistId, $mediaItemId) {

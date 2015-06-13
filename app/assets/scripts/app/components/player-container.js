@@ -5,10 +5,11 @@ define([
 	"../player-controller",
 	"../page-data",
 	"lib/jquery.hotkeys",
+	"lib/jquery.dateFormat",
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
 	
-	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
 		var self = this;
 	
@@ -38,32 +39,42 @@ define([
 			$container.addClass("embedded-player-container");
 		}
 		var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
-		var $viewCount = $("<div />").addClass("view-count").css("display", "none");
-		var $rightSection = $("<div />").addClass("right-section");
-		var $likeButtonItemContainer = $("<div />").addClass("item-container");
+		var $count1ItemContainer = $("<div />").addClass("item-container");
+		var $count1 = $("<div />").addClass("view-count").hide();
+		$count1ItemContainer.append($count1);
+		var $count2ItemContainer = $("<div />").addClass("item-container new-line");
+		var $count2 = $("<div />").addClass("view-count").hide();
+		$count2ItemContainer.append($count2);
+		var $likeButtonItemContainer = $("<div />").addClass("item-container right");
 		var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 		var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
 		var $likeButtonTxt = $("<span />");
-		var $shareButtonItemContainer = $("<div />").addClass("item-container");
+		$likeButtonItemContainer.append($likeButton);
+		var $shareButtonItemContainer = $("<div />").addClass("item-container right");
 		var $shareButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 		var $shareButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-share");
 		var $shareButtonTxt = $("<span />").text(" Share");
+		$shareButtonItemContainer.append($shareButton);
+		var $overrideButtonItemContainer = $("<div />").addClass("item-container");
 		var $overrideButton = $("<button />").attr("type", "button").addClass("override-button btn btn-default btn-xs");
+		$overrideButtonItemContainer.append($overrideButton);
+		var $broadcastTimeContainer = $("<div />").addClass("item-container right new-line");
+		var $broadcastTime = $("<div />").addClass("broadcast-on-msg").hide();
+		$broadcastTimeContainer.append($broadcastTime);
 		var $playerComponent = null;
 		$likeButton.append($likeButtonGlyphicon);
 		$likeButton.append($likeButtonTxt);
 		$shareButton.append($shareButtonGlyphicon);
 		$shareButton.append($shareButtonTxt);
-		var $qualitySelectionItemContainer = $("<div />").addClass("item-container");
+		var $qualitySelectionItemContainer = $("<div />").addClass("item-container right");
 		
-		$bottomContainer.append($viewCount);
-		$bottomContainer.append($overrideButton);
-		$bottomContainer.append($rightSection);
-		$rightSection.append($shareButtonItemContainer);
-		$shareButtonItemContainer.append($shareButton);
-		$rightSection.append($likeButtonItemContainer);
-		$likeButtonItemContainer.append($likeButton);
-		$rightSection.append($qualitySelectionItemContainer);
+		$bottomContainer.append($count1ItemContainer);
+		$bottomContainer.append($overrideButtonItemContainer);
+		$bottomContainer.append($qualitySelectionItemContainer);
+		$bottomContainer.append($likeButtonItemContainer);
+		$bottomContainer.append($shareButtonItemContainer);
+		$bottomContainer.append($count2ItemContainer);
+		$bottomContainer.append($broadcastTimeContainer);
 		
 		var loaded = false;
 		var responsive = !embedded;
@@ -79,7 +90,7 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+		var playerController = new PlayerController(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);
@@ -113,8 +124,8 @@ define([
 			});
 		});
 		
-		$(playerController).on("viewCountChanged playerTypeChanged", function() {
-			renderViewCount();
+		$(playerController).on("viewCountChanged numWatchingNowChanged playerTypeChanged", function() {
+			renderCounts();
 		});
 		
 		$likeButton.click(function() {
@@ -139,9 +150,20 @@ define([
 			renderOverrideButton();
 		});
 		
-		renderViewCount();
+		$(playerController).on("scheduledPublishTimeChanged streamStateChanged playerTypeChanged", function() {
+			renderBroadcastTime();
+		});
+		
+		// time won't appear if in the past,
+		// this condition could become true at a point in time
+		setInterval(function() {
+			renderBroadcastTime();
+		}, 3000);
+		
+		renderCounts();
 		renderShareButton();
 		renderLikeButton();
+		renderBroadcastTime();
 		
 		
 		/* if !responsive then the player should fill the size of the container, minus the space for the nav bar below.
@@ -166,14 +188,37 @@ define([
 			updatePlayerComponentSize();
 		}
 		
-		function renderViewCount() {
+		function renderCounts() {
 			var viewCount = playerController.getViewCount();
-			if (viewCount !== null && (playerController.getPlayerType() !== "ad" || viewCount > 0)) {
-				$viewCount.text(viewCount+" view"+(viewCount !== 1 ? "s":"")).css("display", "inline-block");
+			if (viewCount !== null && viewCount === 0) {
+				viewCount = null;
 			}
-			else {
-				$viewCount.text("").css("display", "none");
+			
+			var numWatchingNow = playerController.getNumWatchingNow();
+			if (numWatchingNow !== null && (playerController.getPlayerType() === "ad" || numWatchingNow === 0)) {
+				numWatchingNow = null;
 			}
+			
+			var $els = [$count1];
+			if (!embedded) {
+				// if it's not embedded allow 2 rows
+				$els.push($count2);
+			}
+			
+			if (viewCount !== null) {
+				$els.shift().text(viewCount+" view"+(viewCount !== 1 ? "s":"")).show()
+			}
+			
+			if ($els.length > 0) {
+				if (numWatchingNow !== null) {
+					$els.shift().text(numWatchingNow+" watching now").show();
+				}
+			}
+			
+			while($els.length > 0) {
+				$els.shift().text("").hide();
+			}
+			
 			updatePlayerComponentSize();
 		}
 		
@@ -242,6 +287,37 @@ define([
 				$overrideButton.text("Enable Admin Override").removeClass("btn-danger").addClass("btn-default");
 			}
 			updatePlayerComponentSize();
+		}
+		
+		function renderBroadcastTime() {
+			if (embedded) {
+				// try and prevent 2 rows if embedded
+				return;
+			}
+			
+			var now = new Date();
+			var time = playerController.getScheduledPublishTime();
+			var streamState = playerController.getStreamState();
+			if (time !== null && (playerController.getPlayerType() !== "ad" || streamState === 3) && time.getTime() < now.getTime()) {
+				var txt = ""
+				if (streamState !== null && streamState >= 3) {
+					txt += "Broadcast at ";
+				}
+				else {
+					txt += "Available since ";
+				}
+				txt += $.format.date(time, "HH:mm on D MMM");
+				if (time.getFullYear() !== now.getFullYear()) {
+					txt += " "+time.getFullYear();
+				}
+				if ($broadcastTime.text() !== txt) {
+					$broadcastTime.text(txt);
+				}
+				$broadcastTime.show();
+			}
+			else {
+				$broadcastTime.hide().text("");
+			}
 		}
 	};
 	return PlayerContainer;

@@ -235,7 +235,6 @@ class PlayerController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		
-		$broadcastOnMsg = null;
 		$scheduledPublishTime = $currentMediaItem->scheduled_publish_time;
 		$hasAccessibleLiveStream = !is_null($liveStreamItem) && $liveStreamItem->getIsAccessible();
 		$hasLiveLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 2;
@@ -243,22 +242,6 @@ class PlayerController extends HomeBaseController {
 		$currentMediaItem->load("videoItem", "videoItem.chapters");
 		$videoItem = $currentMediaItem->videoItem;
 		$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
-		if ($scheduledPublishTime->isPast() && (($hasAccessibleVod && !$hasAccessibleLiveStream) || ($hasLiveLiveStream || $hasFinishedLiveStream))) {
-			if ($hasFinishedLiveStream) {
-				$broadcastOnMsg = "Broadcast at ";
-			}
-			else {
-				$broadcastOnMsg = "Available since ";
-			}
-			$dateStr = $scheduledPublishTime->format('H:i') . " on ";
-			if ($scheduledPublishTime->year !== Carbon::now()->year) {
-				$dateStr .= $scheduledPublishTime->format('jS M Y');
-			}
-			else {
-				$dateStr .= $scheduledPublishTime->format('jS M');
-			}
-			$broadcastOnMsg .= $dateStr;
-		}
 		$commentsEnabled = $currentMediaItem->comments_enabled;
 		
 		$vodPlayStartTime = $this->getVodStartTimeFromUrl();
@@ -288,6 +271,7 @@ class PlayerController extends HomeBaseController {
 		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
 		$view->autoContinueMode = $this->getAutoContinueMode();
+		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
 		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
@@ -308,7 +292,6 @@ class PlayerController extends HomeBaseController {
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;
 		$view->coverImageUri = $coverImageUri;
-		$view->broadcastOnMsg = $broadcastOnMsg;
 		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name, 200, $twitterProperties, $sideBannerUri, $sideBannerFillUri);
 	}
 	
@@ -355,7 +338,7 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$mediaItem->load("likes", "liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
+		$mediaItem->load("watchingNows", "likes", "liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
 		
 		$id = intval($mediaItem->id);
 		$title = $playlist->generateEpisodeTitle($mediaItem);
@@ -419,6 +402,12 @@ class PlayerController extends HomeBaseController {
 				// send null instead
 				$vodViewCount = $streamViewCount = null;
 			}
+		}
+		
+		$minNumWatchingNow = Config::get("custom.min_num_watching_now");
+		$numWatchingNow = $mediaItem->getNumWatchingNow();
+		if (!$userHasMediaItemsPermission && $numWatchingNow < $minNumWatchingNow) {
+			$numWatchingNow = null;
 		}
 		
 		$user = Facebook::getUser();
@@ -499,6 +488,7 @@ class PlayerController extends HomeBaseController {
 			"vodChapters"				=> $vodChapters,
 			"vodThumbnails"				=> $vodThumbnails,
 			"rememberedPlaybackTime"	=> $rememberedPlaybackTime,
+			"numWatchingNow"			=> $numWatchingNow,
 			"numLikes"					=> $numLikes, // number of likes this media item has
 			"numDislikes"				=> $numDislikes, // number of dislikes this media item has
 			"likeType"					=> $likeType // "like" if liked, "dislike" if disliked, or null otherwise
@@ -524,20 +514,32 @@ class PlayerController extends HomeBaseController {
 			if ($type === "live" || $type === "vod") {
 				if ($type === "live") {
 					$liveStreamItem = $mediaItem->liveStreamItem;
-					if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
-						$liveStreamItem->registerViewCount();
-						$success = true;
+					if (!is_null($liveStreamItem)) {
+						$success = $liveStreamItem->registerViewCount();
 					}
 				}
 				else {
 					$videoItem = $mediaItem->videoItem;
-					if (!is_null($videoItem) && $videoItem->getIsAccessible()) {
-						$videoItem->registerViewCount();
-						$success = true;
+					if (!is_null($videoItem)) {
+						$success = $videoItem->registerViewCount();
 					}
 				}
 			}
 		}
+		return Response::json(array("success"=>$success));
+	}
+	
+	public function postRegisterWatching($playlistId, $mediaItemId) {
+		$playlist = Playlist::accessibleToPublic()->find($playlistId);
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		$success = $mediaItem->registerWatching();
 		return Response::json(array("success"=>$success));
 	}
 	
@@ -824,6 +826,10 @@ class PlayerController extends HomeBaseController {
 	
 	private function getRegisterViewCountUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_view_count_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+	
+	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
+		return Config::get("custom.player_register_watching_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {

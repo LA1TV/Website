@@ -129,17 +129,18 @@ class MediaItemVideo extends MyEloquent {
 	
 		if (!$this->getIsAccessible() || !$this->getIsLive()) {
 			// shouldn't be accessible or isn't live
-			return;
+			return false;
 		}
 		
 		$sessionKey = "viewCount-".$this->id;
 		$lastTimeRegistered = SessionProvider::get($sessionKey, null);
 		if (!is_null($lastTimeRegistered) && $lastTimeRegistered >= Carbon::now()->subMinutes(Config::get("custom.interval_between_registering_view_counts"))->timestamp) {
 			// already registered view not that long ago.
-			return;
+			return false;
 		}
 		$this->increment("view_count");
 		SessionProvider::set($sessionKey, Carbon::now()->timestamp);
+		return true;
 	}
 	
 	public function getDates() {

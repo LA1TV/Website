@@ -13,29 +13,40 @@
 	width: 100%;
 }
 
-.player-container .bottom-container .view-count, .player-container .bottom-container .override-button  {
+.player-container .bottom-container .item-container {
 	display: inline-block;
 	float: left;
+	margin-bottom: 3px;
 }
 
-.player-container .bottom-container .view-count {
-	white-space: nowrap;
-}
-
-.player-container .bottom-container .view-count {
-	font-weight: bold;
+.player-container .bottom-container .item-container  > :first-child {
 	margin-right: 5px;
 }
 
-.player-container .bottom-container .right-section {
-	display: inline-block;
-	float: right;
-	margin-left: 15px;
+.player-container .bottom-container .item-container.new-line {
+	clear: left;
 }
 
-.player-container .bottom-container .right-section .item-container {
-	display: inline-block;
+.player-container .bottom-container .item-container .view-count {
+	font-weight: bold;
+}
+
+.player-container .bottom-container .item-container.right {
+	float: right;
+}
+
+.player-container .bottom-container .item-container.right > :first-child {
 	margin-left: 5px;
+	margin-right: 0;
+}
+
+.player-container .bottom-container .item-container.right.new-line {
+	clear: right;
+}
+
+.page-player .bottom-container .item-container .broadcast-on-msg {
+	font-style: italic;
+	font-size: 12px;
 }
 
 .player-container .override-mode-enabled {
