@@ -7,7 +7,7 @@ Our embeddable player lives at "https://embed.la1tv.co.uk" and has the structure
 
 You can get an example embed code by clicking on the "share" button under the player on the site.
 
-**Node:** You can omit the playlist id from the url and this means the system will automatically choose a playlist that the media item is contained in.
+**Note:** You can omit the playlist id from the url and this means the system will automatically choose a playlist that the media item is contained in.
 
 ## Parameters
 There are quite a few url paramaters that can be provided to contol it's behaviour which are provided below along with there default values.
