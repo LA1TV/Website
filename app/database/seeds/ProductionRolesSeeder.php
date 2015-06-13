@@ -11,11 +11,16 @@ class ProductionRolesSeeder extends Seeder {
 	 */
 	public function run() {
 		$roles = [
-			
+			["name", "description"]
 		];
 		
 		foreach($roles as $b=>$a) {
-		//	QualityDefinition::firstOrCreate(array("id"=>$b+1, "name"=>$a, "position"=>$b));
+			$role = new ProductionRole([
+				"id"			=> $b+1,
+				"name"			=> $a[0],
+				"description"	=> $a[1]
+			]);
+			$role->save();
 		}
 		$this->command->info('Production roles created/updated!');
 	}

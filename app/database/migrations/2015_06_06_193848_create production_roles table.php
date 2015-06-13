@@ -14,10 +14,12 @@ class CreateProductionRolesTable extends Migration {
 	{
 		Schema::create('production_roles', function(Blueprint $table)
 		{
-			$table->increments('id');
+			$table->integer('id')->unsigned();
 			$table->text("name");
 			$table->text("description")->nullable();
 			$table->timestamps();
+			
+			$table->primary('id');
 		});
 	}
 
