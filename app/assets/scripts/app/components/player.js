@@ -825,6 +825,10 @@ define([
 					// enable scrubbing when there is more than 20 seconds of content
 					clapprOptions.hlsMinimumDvrSize = 20;
 				}
+				else {
+					// the url shouldn't support dvr, but if for some reason it does require 3 minutes of contents
+					clapprOptions.hlsMinimumDvrSize = 180;
+				}
 				
 				clapprPlayer = new Clappr.Player(clapprOptions);
 				clapprPlayer.attachTo($player[0]);
