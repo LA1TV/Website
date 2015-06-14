@@ -4,10 +4,11 @@ define([
 	"./share-modal",
 	"../player-controller",
 	"../page-data",
+	"../synchronised-time",
 	"lib/jquery.hotkeys",
 	"lib/jquery.dateFormat",
 	"lib/domReady!"
-], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData) {
+], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData, SynchronisedTime) {
 	
 	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
@@ -295,7 +296,7 @@ define([
 				return;
 			}
 			
-			var now = new Date();
+			var now = SynchronisedTime.getDate();
 			var time = playerController.getScheduledPublishTime();
 			var streamState = playerController.getStreamState();
 			if (time !== null && (playerController.getPlayerType() !== "ad" || streamState === 3) && time.getTime() < now.getTime()) {
