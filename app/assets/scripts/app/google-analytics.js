@@ -1,6 +1,10 @@
-define(["./page-data", "ga"], function(PageData, ga) {
+define(["./page-data", "optional!ga"], function(PageData, ga) {
 	
-	var enabled = PageData.get("gaEnabled");
+	if (ga === null) {
+		console.log("Google analytics will be disabled because it couldn't be loaded.");
+	}
+	
+	var enabled = PageData.get("gaEnabled") && ga !== null;
 	// myGa gets set to the google analytics function if it should be enabled, otherwise just a stub
 	var myGa = enabled ? ga : function(){};
 	
