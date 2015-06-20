@@ -56,6 +56,7 @@ class LiveStream extends MyEloquent {
 	}
 	
 	public function getUrlsDataForReorderableList() {
+		$urls = array();
 		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
 		foreach($urisOrganisedByQuality as $a) {
 			foreach($a['uris'] as $b) {
