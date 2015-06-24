@@ -1,4 +1,4 @@
-<h1 class="no-top-margin">Live Guide <small>(<?=e($titleDatesStr);?>)</small></h1>
+<h1 class="no-top-margin">Guide <small>(<?=e($titleDatesStr);?>)</small></h1>
 
 <table class="guide-table table table-bordered table-hover">
 	<tbody>
@@ -10,7 +10,7 @@
 		</tr>
 <?php endforeach; ?>
 <?php else: ?>
-<p class="no-items well well-sm">There are no livestreams scheduled for this date range.</p>
+<p class="no-items well well-sm">There is nothing scheduled for this date range.</p>
 <?php endif; ?>
 	</tbody>
 </table>
