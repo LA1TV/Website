@@ -25,13 +25,7 @@ class GuideController extends HomeBaseController {
 		$startDate = Carbon::now()->startOfDay()->addDays($dayOffset);
 		$endDate = Carbon::now()->startOfDay()->addDays($dayOffset + $daysPerPage);
 		
-		$mediaItems = MediaItem::with("liveStreamItem", "videoItem")->accessible()->scheduledPublishTimeBetweenDates($startDate, $endDate)->where(function($q2) {
-			$q2->whereHas("liveStreamItem", function($q3) {
-				$q3->accessible();
-			})->orWhereHas("videoItem", function($q3) {
-				$q3->accessible();
-			});
-		})->orderBy("scheduled_publish_time", "asc")->orderBy("name", "asc")->orderBy("description", "asc")->get();
+		$mediaItems = MediaItem::with("liveStreamItem")->accessible()->scheduledPublishTimeBetweenDates($startDate, $endDate)->orderBy("scheduled_publish_time", "asc")->orderBy("name", "asc")->orderBy("description", "asc")->get();
 		
 		// of form ("dateStr", "mediaItems")
 		$calendarData = array();
