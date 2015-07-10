@@ -13,8 +13,8 @@ class GuideController extends HomeBaseController {
 	public function getIndex($dayGroupOffset=0) {
 		$dayGroupOffset = intval($dayGroupOffset);
 		
-		$daysPerPage = intval(Config::get("liveGuide.daysPerPage"));
-		$numPages = intval(Config::get("liveGuide.numPages"));
+		$daysPerPage = intval(Config::get("guide.daysPerPage"));
+		$numPages = intval(Config::get("guide.numPages"));
 		
 		if (abs($dayGroupOffset) > $numPages) {
 			App::abort(404);
@@ -25,9 +25,7 @@ class GuideController extends HomeBaseController {
 		$startDate = Carbon::now()->startOfDay()->addDays($dayOffset);
 		$endDate = Carbon::now()->startOfDay()->addDays($dayOffset + $daysPerPage);
 		
-		$mediaItems = MediaItem::accessible()->scheduledPublishTimeBetweenDates($startDate, $endDate)->whereHas("liveStreamItem", function($q2) {
-			$q2->accessible();
-		})->orderBy("scheduled_publish_time", "asc")->orderBy("name", "asc")->orderBy("description", "asc")->get();
+		$mediaItems = MediaItem::with("liveStreamItem")->accessible()->scheduledPublishTimeBetweenDates($startDate, $endDate)->orderBy("scheduled_publish_time", "asc")->orderBy("name", "asc")->orderBy("description", "asc")->get();
 		
 		// of form ("dateStr", "mediaItems")
 		$calendarData = array();
@@ -59,6 +57,7 @@ class GuideController extends HomeBaseController {
 					// the current item in the playlist is part of a show.
 					$playlistName = $playlist->generateName();
 				}
+				$isLive = !is_null($item->liveStreamItem) && $item->liveStreamItem->getIsAccessible();
 				$playlistTableData[] = array(
 					"uri"					=> $playlist->getMediaItemUri($item),
 					"title"					=> $playlist->generateEpisodeTitle($item),
@@ -67,7 +66,7 @@ class GuideController extends HomeBaseController {
 					"episodeNo"				=> null,
 					"thumbnailUri"			=> $thumbnailUri,
 					"thumbnailFooter"		=> array(
-						"isLive"	=> true,
+						"isLive"	=> $isLive,
 						"dateTxt"	=> $item->scheduled_publish_time->format("H:i")
 					),
 					"active"				=> false
@@ -93,7 +92,7 @@ class GuideController extends HomeBaseController {
 		$view->previousPageStartDateStr = $this->getDateString($startDate->subDays($daysPerPage));
 		$view->nextPageUri = $dayGroupOffset !== $numPages ? URL::route("guide", array($dayGroupOffset+1)) : null;
 		$view->nextPageStartDateStr = $this->getDateString($endDate);
-		$this->setContent($view, "guide", "guide", array(), "Live Guide");
+		$this->setContent($view, "guide", "guide", array(), "Guide");
 	}
 	
 	private function getDateString($date) {

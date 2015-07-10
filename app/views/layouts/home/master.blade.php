@@ -71,7 +71,7 @@
 <?php else: ?>
 <li><a href="<?=e($playlistsUri);?>">Playlists</a></li>
 <?php endif; ?>
-<li><a href="<?=e($guideUri);?>">Live Guide</a></li>
+<li><a href="<?=e($guideUri);?>">Guide</a></li>
 <li><a href="<?=e($blogUri);?>">Blog</a></li>
 <li><a href="<?=e($contactUri);?>">Contact</a></li>
 <li class="dropdown">

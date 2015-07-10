@@ -796,23 +796,6 @@ define([
 				});
 			}
 			else if (playerType === "live") {
-				clapprPlayer = new Clappr.Player({
-					baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
-					width: "100%",
-					height: "100%",
-					poster: coverUri,
-					preload: playerPreload ? "auto" : "metadata",
-					persistConfig: false,
-					loop: false,
-					chromeless: disableControls,
-					autoPlay: queuedPlayerTimeStartPlaying,
-					hlsMinimumDvrSize: 20, // 20 seconds of content required before dvr becomes enabled
-					mediacontrol: {seekbar: "#ff0000"}
-				});
-				clapprPlayer.attachTo($player[0]);
-				
-				// TODO append qualitySelectionComponent somewhere if provided
-				
 				// clappr can only take one uri with mime type so pick the first one with dvr,
 				// or first one otherwise
 				var chosenUri = playerUris[0];
@@ -824,9 +807,34 @@ define([
 					chosenUri = uri;
 					break;
 				}
-				// TODO check why mime type causes it to become an audio tag
-				//clapprPlayer.load(chosenUri.uri, chosenUri.type);
-				clapprPlayer.load(chosenUri.uri);
+				
+				var clapprOptions = {
+					baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
+					width: "100%",
+					height: "100%",
+					poster: coverUri,
+					preload: playerPreload ? "auto" : "metadata",
+					persistConfig: false,
+					loop: false,
+					chromeless: disableControls,
+					autoPlay: queuedPlayerTimeStartPlaying,
+					mediacontrol: {seekbar: "#ff0000"}
+				};
+				
+				if (chosenUri.uriWithDvrSupport) {
+					// enable scrubbing when there is more than 20 seconds of content
+					clapprOptions.hlsMinimumDvrSize = 20;
+				}
+				else {
+					// the url shouldn't support dvr, but if for some reason it does require 3 minutes of contents
+					clapprOptions.hlsMinimumDvrSize = 180;
+				}
+				
+				clapprPlayer = new Clappr.Player(clapprOptions);
+				clapprPlayer.attachTo($player[0]);
+				clapprPlayer.load(chosenUri.uri, chosenUri.type);
+				
+				// TODO append qualitySelectionComponent somewhere if provided
 			}
 			
 			updateFullScreenState();

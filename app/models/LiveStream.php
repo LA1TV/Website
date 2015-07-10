@@ -50,10 +50,13 @@ class LiveStream extends MyEloquent {
 			
 			$qualities[array_search($qualityDefinitionId, $addedQualityIds, true)]["uris"][] = $uri;
 		}
+		// reorder so in qualities order
+		array_multisort($addedQualityPositions, SORT_NUMERIC, SORT_ASC, $qualities);
 		return $qualities;
 	}
 	
 	public function getUrlsDataForReorderableList() {
+		$urls = array();
 		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
 		foreach($urisOrganisedByQuality as $a) {
 			foreach($a['uris'] as $b) {

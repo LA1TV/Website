@@ -69,11 +69,14 @@ define([
 		$shareButton.append($shareButtonTxt);
 		var $qualitySelectionItemContainer = $("<div />").addClass("item-container right");
 		
+		var $rightGroupContainer = $("<div />").addClass("item-container right");
+		
 		$bottomContainer.append($count1ItemContainer);
 		$bottomContainer.append($overrideButtonItemContainer);
-		$bottomContainer.append($qualitySelectionItemContainer);
-		$bottomContainer.append($likeButtonItemContainer);
-		$bottomContainer.append($shareButtonItemContainer);
+		$rightGroupContainer.append($qualitySelectionItemContainer);
+		$rightGroupContainer.append($likeButtonItemContainer);
+		$rightGroupContainer.append($shareButtonItemContainer);
+		$bottomContainer.append($rightGroupContainer);
 		$bottomContainer.append($count2ItemContainer);
 		$bottomContainer.append($broadcastTimeContainer);
 		
