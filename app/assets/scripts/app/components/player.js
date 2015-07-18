@@ -747,6 +747,7 @@ define([
 					width: "100%",
 					height: "100%",
 					controls: !disableControls,
+					nativeControlsForTouch: true,
 					preload: playerPreload ? "auto" : "metadata",
 					techOrder: ["html5", "flash"],
 					autoPlay: false, // implementing auto play manually using callback
