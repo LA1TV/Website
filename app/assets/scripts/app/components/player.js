@@ -662,17 +662,21 @@ define([
 					(function(startTime, startPlaying, roundToSafeRegion) {
 						if (playerType === "vod") {
 							onPlayerLoadedMetadata(function() {
-								if (roundToSafeRegion) {
+								if (startTime > videoJsPlayer.duration()) {
+									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
+									return;
+								}
+								else if (roundToSafeRegion) {
 									if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
 										// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
 										startTime = 0;
 									}
 								}
-								else if (startTime > videoJsPlayer.duration()) {
-									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
-									return;
+								if (startTime !== 0) {
+									// if the time is 0 don't seek because seeking appears to replace the poster with the
+									// frame that has been seeked to
+									videoJsPlayer.currentTime(startTime);
 								}
-								videoJsPlayer.currentTime(startTime);
 								if (startPlaying) {
 									videoJsPlayer.play();
 								}
