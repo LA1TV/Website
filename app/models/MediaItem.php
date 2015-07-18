@@ -14,7 +14,7 @@ class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled');
-	protected $appends = array("related_items_for_orderable_list", "related_items_for_input", "scheduled_publish_time_for_input");
+	protected $appends = array("related_items_for_reorderable_list", "related_items_for_input", "scheduled_publish_time_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -101,15 +101,15 @@ class MediaItem extends MyEloquent {
 		return $ids;
 	}
 	
-	public function getRelatedItemsForOrderableListAttribute() {
-		return self::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemIdsForReorderableList());
+	public function getRelatedItemsForReorderableListAttribute() {
+		return self::generateInitialDataForAjaxSelectReorderableList($this->getRelatedItemIdsForReorderableList());
 	}
 	
 	public function getRelatedItemsForInputAttribute() {
-		return self::generateInputValueForAjaxSelectOrderableList($this->getRelatedItemIdsForReorderableList());
+		return self::generateInputValueForAjaxSelectReorderableList($this->getRelatedItemIdsForReorderableList());
 	}
 	
-	public static function isValidIdsFromAjaxSelectOrderableList($ids) {
+	public static function isValidIdsFromAjaxSelectReorderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
@@ -118,7 +118,7 @@ class MediaItem extends MyEloquent {
 		return $reorderableList->isValid();
 	}
 	
-	public static function generateInitialDataForAjaxSelectOrderableList($ids) {
+	public static function generateInitialDataForAjaxSelectReorderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
@@ -127,7 +127,7 @@ class MediaItem extends MyEloquent {
 		return $reorderableList->getInitialDataString();
 	}
 	
-	public static function generateInputValueForAjaxSelectOrderableList($ids) {
+	public static function generateInputValueForAjaxSelectReorderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
