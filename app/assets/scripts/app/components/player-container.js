@@ -2,13 +2,14 @@ define([
 	"jquery",
 	"./quality-selection",
 	"./share-modal",
+	"./alert-modal",
 	"../player-controller",
 	"../page-data",
 	"../synchronised-time",
 	"lib/jquery.hotkeys",
 	"lib/jquery.dateFormat",
 	"lib/domReady!"
-], function($, QualitySelectionComponent, ShareModal, PlayerController, PageData, SynchronisedTime) {
+], function($, QualitySelectionComponent, ShareModal, AlertModal, PlayerController, PageData, SynchronisedTime) {
 	
 	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
@@ -82,6 +83,7 @@ define([
 		
 		var loaded = false;
 		var responsive = !embedded;
+		var pleaseLoginModal = null;
 		
 		var qualitySelectionComponent = new QualitySelectionComponent();
 		if (!placeQualitySelectionComponentInPlayer) {
@@ -134,7 +136,7 @@ define([
 		
 		$likeButton.click(function() {
 			if (!PageData.get("loggedIn")) {
-				alert(loginRequiredMsg);
+				showLoginRequiredModal();
 				return;
 			}
 			$likeButton.prop("disabled", true);
@@ -322,6 +324,13 @@ define([
 			else {
 				$broadcastTime.hide().text("");
 			}
+		}
+		
+		function showLoginRequiredModal() {
+			if (!pleaseLoginModal) {
+				pleaseLoginModal = new AlertModal("Account Required", loginRequiredMsg);
+			}
+			pleaseLoginModal.show(true);
 		}
 	};
 	return PlayerContainer;
