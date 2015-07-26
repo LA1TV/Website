@@ -70,7 +70,8 @@ define([
 			queuedPlayerType = playerType;
 			return this;
 		};
-		 
+		
+		// uris = array of {type, uri, uriWithDvrSupport}
 		this.setPlayerUris = function(uris) {
 			queuedPlayerUris = uris;
 			return this;

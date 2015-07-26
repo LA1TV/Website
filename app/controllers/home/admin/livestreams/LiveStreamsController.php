@@ -50,6 +50,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"playerUri"		=> Config::get("custom.admin_base_url") . "/livestreams/player/" . $a->id,
 				"editUri"		=> Config::get("custom.admin_base_url") . "/livestreams/edit/" . $a->id,
 				"id"			=> $a->id
 			);
@@ -61,6 +62,46 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		$view->createUri = Config::get("custom.admin_base_url") . "/livestreams/edit";
 		$view->deleteUri = Config::get("custom.admin_base_url") . "/livestreams/delete";
 		$this->setContent($view, "livestreams", "livestreams");
+	}
+	
+	public function getPlayer($id) {
+		
+
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 0);
+	
+		$liveStream = LiveStream::find($id);
+		if (is_null($liveStream)) {
+			App::abort(404);
+			return;
+		}
+		
+		$streamName = $liveStream->name;
+	
+		$streamAccessible = $liveStream->getIsAccessible();
+		$streamUris = null;
+		if ($streamAccessible) {
+			$streamUris = array();
+			foreach($liveStream->getQualitiesWithUris("live") as $qualityWithUris) {
+				$streamUris[] = array(
+					"quality"	=> array(
+						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+						"name"	=> $qualityWithUris['qualityDefinition']->name
+					),
+					"uris"		=> $qualityWithUris['uris']
+				);
+			}
+			
+			$streamUris = json_encode($streamUris);
+		}
+	
+	
+		$view = View::make('home.admin.livestreams.player');
+		$view->streamName = $streamName;
+		$view->streamAccessible = $streamAccessible;
+		$view->coverArtUri = Config::get("custom.default_cover_uri");
+		$view->streamUris = $streamUris;
+		$view->backUri = Config::get("custom.admin_base_url") . "/livestreams";
+		$this->setContent($view, "livestreams", "livestreams-player");
 	}
 	
 	public function anyEdit($id=null) {

@@ -8,7 +8,7 @@ define([
 	
 	$(".page-livestreams-edit").first().each(function() {
 	
-		$pageContainer = $(this).first();
+		var $pageContainer = $(this).first();
 		
 		$pageContainer.find(".form-urls").each(function() {
 			var $container = $(this).first();

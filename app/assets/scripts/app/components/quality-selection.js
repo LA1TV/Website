@@ -45,6 +45,7 @@ define([
 		// providing it is still in the new list.
 		// ie if the current quality is not one a user chosen one and the new list contains the previous
 		// user chosen one that would normally be switched to.
+		// qualities should be an array of {id, name, }
 		this.setAvailableQualities = function(qualities, doNotChangeQuality) {
 			availableQualities = qualities;
 			
