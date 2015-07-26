@@ -72,7 +72,9 @@
 <li><a href="<?=e($playlistsUri);?>">Playlists</a></li>
 <?php endif; ?>
 <li><a href="<?=e($guideUri);?>">Guide</a></li>
+<?php if (!is_null($blogUri)): ?>
 <li><a href="<?=e($blogUri);?>">Blog</a></li>
+<?php endif; ?>
 <li><a href="<?=e($contactUri);?>">Contact</a></li>
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Partners <b class="caret"></b></a>
