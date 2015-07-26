@@ -65,7 +65,6 @@ class LiveStreamsController extends LiveStreamsBaseController {
 	}
 	
 	public function getPlayer($id) {
-		
 
 		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 0);
 	
