@@ -1,0 +1,8 @@
+.page-livestreams-player .player-container .bottom-row {
+	margin-top: 5px;
+}
+
+.page-livestreams-player .player-container .bottom-row .quality-selection-container {
+	display: inline-block;
+	float: right;
+}

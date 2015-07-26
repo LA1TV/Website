@@ -4,6 +4,7 @@ require.config({
 		optional: "app/requirejs-plugins/optional",
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",
+		videojs: "lib/video",
 		"jquery.ui.widget": "lib/jquery.ui.widget",
 		moxie: "lib/moxie",
 		plupload: "lib/plupload"
@@ -19,7 +20,12 @@ require.config({
 		"plupload": {
 			exports: "plupload",
 			deps: ['moxie']
-		}
+		},
+		"lib/clappr": {
+			exports: "Clappr"
+		},
+		"lib/videojs-markers": ["jquery", "videojs"],
+		"lib/videojs-thumbnails": ["videojs"]
 	}
 });
 
@@ -43,6 +49,7 @@ require.config({
 		"app/page-protect",
 		"app/search",
 		"app/pages/admin/live-streams-edit-page",
+		"app/pages/admin/live-streams-player-page",
 		"app/pages/admin/media-edit-page",
 		"app/pages/admin/playlist-edit-page",
 		"app/pages/admin/users-edit-page"

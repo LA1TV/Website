@@ -664,7 +664,7 @@ define([
 			qualitiesHandler.setAvailableQualities(qualities, tryAndStickWithCurrentQuality);
 		}
 		
-		// retueens the uri group that should be used for the chosen quality
+		// returns the uri group that should be used for the chosen quality
 		function getChosenUris(uriGroups) {
 			var uris = [];
 			var qualityIds = [];
