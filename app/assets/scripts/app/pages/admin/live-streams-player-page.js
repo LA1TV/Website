@@ -34,7 +34,6 @@ define([
 				playerComponent.setPlayerType("live");
 				updatePlayerUris();
 				playerComponent.showPlayer(true);
-				playerComponent.setPlayerStartTime(0, true);
 				playerComponent.render();
 				
 				$(qualitySelectionComponent).on("chosenQualityChanged", function() {
@@ -104,6 +103,7 @@ define([
 			
 			function updatePlayerUris() {
 				playerComponent.setPlayerUris(getChosenUris());
+				playerComponent.setPlayerStartTime(0, true);
 			}
 			
 		});
