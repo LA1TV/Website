@@ -197,37 +197,37 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	// has just become "live"
 	public function hasJustBecomeLive() {
-		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->original["state_id"])));
+		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// has just left "live"
 	public function hasJustLeftLive() {
-		return !$this->isLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return !$this->isLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// has just become "stream over"
 	public function hasJustBecomeStreamOver() {
-		return $this->isOver() && (!$this->exists || !$this->isOver(LiveStreamStateDefinition::find($this->original["state_id"])));
+		return $this->isOver() && (!$this->exists || !$this->isOver(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1))));
 	}
 	
 	// has just left "stream over"
 	public function hasJustLeftStreamOver() {
-		return !$this->isOver() && $this->exists && $this->isOver(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return !$this->isOver() && $this->exists && $this->isOver(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// has just become "not live"
 	public function hasJustBecomeNotLive() {
-		return $this->isNotLive() && (!$this->exists || !$this->isNotLive(LiveStreamStateDefinition::find($this->original["state_id"])));
+		return $this->isNotLive() && (!$this->exists || !$this->isNotLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1))));
 	}
 	
 	// has just left "not live"
 	public function hasJustLeftNotLive() {
-		return !$this->isNotLive() && $this->exists && $this->isNotLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return !$this->isNotLive() && $this->exists && $this->isNotLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// the live stream linked to this has changed from what is currently in the database
 	public function liveStreamHasChanged() {
-		return !$this->exists || $this->original["live_stream_id"] !== $this->live_stream_id;
+		return !$this->exists || $this->getOriginal("live_stream_id") !== $this->live_stream_id;
 	}
 	
 	// $filter can be "all", "dvr", "live"
