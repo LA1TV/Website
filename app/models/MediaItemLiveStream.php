@@ -197,7 +197,7 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	// has just become "live"
 	public function hasJustBecomeLive() {
-		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
+		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1))));
 	}
 	
 	// has just left "live"
