@@ -238,7 +238,7 @@ class MediaItemLiveStream extends MyEloquent {
 		if (is_null($liveStreamModel)) {
 			return array();
 		}
-		return $liveStreamModel->getQualitiesWithUris($filter);
+		return $liveStreamModel->getQualitiesWithUris($filter, $this);
 	}
 	
 	// returns an array containing all the domains that live streams come from which are loaded from a http request. I.e. playlist.m3u8 for mobiles.

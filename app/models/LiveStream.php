@@ -56,9 +56,13 @@ class LiveStream extends MyEloquent {
 	}
 	
 	// $filter can be "all", "dvr", "live"
-	public function getQualitiesWithUris($filter="all") {
+	public function getQualitiesWithUris($filter="all", $mediaItemLiveStream=null) {
 		if ($filter !== "all" && $filter !== "dvr" && $filter !== "live") {
 			throw(new Exception("Filter is not valid."));
+		}
+		
+		if (($filter === "all" || $filter === "dvr") && is_null($mediaItemLiveStream)) {
+			throw("MediaItemLiveStream model required if retrieving dvr urls.");
 		}
 		
 		$qualities = array();
@@ -83,8 +87,8 @@ class LiveStream extends MyEloquent {
 				if(!$uriWithDvrSupport) {
 					$uri = $uriAndInfo['uri'];
 				}
-				else {
-					$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", $this->id)->first();
+				else if ($filter === "all" || $filter === "dvr") {
+					$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", $mediaItemLiveStream->id)->first();
 					if (!is_null($dvrLiveStreamUriModel)) {
 						$uri = $dvrLiveStreamUriModel->uri;
 					}
