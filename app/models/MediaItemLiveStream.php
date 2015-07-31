@@ -23,12 +23,6 @@ class MediaItemLiveStream extends MyEloquent {
 			// depending on stream state so must always change in sync with stream state.
 			DB::beginTransaction();
 			
-			if ($model->hasJustBecomeLive()) {
-				// send command to DVR Bridge Service servers to start recording stream
-				// and create entry in dvr_stream_uris table
-				$model->startDvrs();
-			}
-			
 			if ($model->hasJustLeftLive() && $model->hasJustBecomeStreamOver()) {
 				// send command to DVR Bridge Service servers to stop recording stream
 				// if this fails the dvr link will be removed
@@ -55,6 +49,14 @@ class MediaItemLiveStream extends MyEloquent {
 		});
 		
 		self::saved(function($model) {
+			
+			// this can't be in the saving callback because this needs to have an id so it can be associated with a MediaItemLiveStream,
+			// and if this is the first ever save because the model is being created it won't have an id yet.
+			if ($model->hasJustBecomeLive()) {
+				// send command to DVR Bridge Service servers to start recording stream
+				// and create entry in dvr_stream_uris table
+				$model->startDvrs();
+			}
 			
 			// transaction starts in save event
 			DB::commit();
