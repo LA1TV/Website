@@ -234,6 +234,14 @@ define([
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
 			if (videoJsPlayer !== null && playerType === "vod") {
+				if (startPlaying) {
+					// some mobile devices (iphones) will not allow javascript to start playback unless
+					// it is triggered as a result of a user event. the play() call below  in the callback can become disconnected
+					// from this execution path because it has to wait for the loaded metadata event. If this code
+					// is executed as a result of a user event, then because this call is in the same execution path it
+					// makes ios happy.
+					videoJsPlayer.play();
+				}
 				onPlayerLoadedMetadata(function() {
 					if (time > videoJsPlayer.duration()) {
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
