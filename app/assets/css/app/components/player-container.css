@@ -29,6 +29,7 @@
 
 .player-container .bottom-container .item-container .view-count {
 	font-weight: bold;
+	white-space: nowrap;
 }
 
 .player-container .bottom-container .item-container.right {
