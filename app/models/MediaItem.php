@@ -299,6 +299,7 @@ class MediaItem extends MyEloquent {
 			$items = $pastItems->merge($futureItems);
 			$distances = array();
 			$finalItems = array();
+			$finalItemsIds = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
 			foreach($items as $a) {
 				$playlist = $a->getDefaultPlaylist();
@@ -311,12 +312,18 @@ class MediaItem extends MyEloquent {
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
+				$finalItemIds[] = intval($a->id);
 				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
 			}
 			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
 			if (count($finalItems) < $numItemsToShow) {
 				$popularItems = self::getCachedMostPopularItems();
 				foreach($popularItems as $a) {
+					$itemId = intval($a['mediaItem']->id);
+					if(in_array($itemId, $finalItemsIds)) {
+						// this item is already in the list
+						continue;
+					}
 					$finalItems[] = array(
 						"mediaItem"		=> $a['mediaItem'],
 						"generatedName"	=> $a['generatedName'],
@@ -324,6 +331,7 @@ class MediaItem extends MyEloquent {
 						"uri"			=> $a['uri'],
 						"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 					);
+					$finalItemIds[] = $itemId;
 					if (count($finalItems) === $numItemsToShow) {
 						break;
 					}
