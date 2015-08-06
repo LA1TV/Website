@@ -415,7 +415,7 @@ class UploadManager {
 			if (!is_null($oldFileIdModel)) {
 				// file has moved
 				// return permanent redirect
-				return Redirect::away(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $oldFileIdModel->new_file_id, 301);
+				return Redirect::away($oldFileIdModel->newFile()->getUri(), 301);
 			}
 			else {
 				// file doesn't exist
