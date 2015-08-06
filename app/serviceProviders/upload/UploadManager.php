@@ -412,13 +412,14 @@ class UploadManager {
 		if (is_null($file)) {
 			// see if the file used to exist, and if it did then return a redirect to the new version
 			$oldFileIdModel = OldFileId::where("old_file_id", $fileId)->first();
-			if (!is_null($oldFileIdModel)) {
+			$newFileUri = !is_null($oldFileIdModel) ? $oldFileIdModel->newFile->getUri() : null;
+			if (!is_null($newFileUri)) {
 				// file has moved
 				// return permanent redirect
-				return Redirect::away($oldFileIdModel->newFile()->getUri(), 301);
+				return Redirect::away($newFileUri, 301);
 			}
 			else {
-				// file doesn't exist
+				// file doesn't exist (or is not accessible for some reason)
 				// return 404 response
 				return Response::make("", 404);
 			}
