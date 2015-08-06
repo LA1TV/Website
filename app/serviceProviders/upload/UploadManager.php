@@ -274,13 +274,13 @@ class UploadManager {
 				$oldIds[] = intval($fileToReplace->id);
 			}
 			
-			foreach($oldIds as $a) {
-				$file->oldFileIds()->save(new OldFileId(array(
-					"old_file_id"	=> $a
-				)));
-			}
-			
 			if (!is_null($file)) {
+				foreach($oldIds as $a) {
+					$file->oldFileIds()->save(new OldFileId(array(
+						"old_file_id"	=> $a
+					)));
+				}
+				
 				if ($file->save() === false) {
 					throw(new Exception("Error saving file model."));
 				}
