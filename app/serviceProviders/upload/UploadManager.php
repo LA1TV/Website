@@ -1,6 +1,7 @@
 <?php namespace uk\co\la1tv\website\serviceProviders\upload;
 
 use Response;
+use Redirect;
 use Session;
 use Config;
 use DB;
@@ -12,6 +13,7 @@ use FileHelpers;
 use Auth;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
+use uk\co\la1tv\website\models\OldFileId;
 use uk\co\la1tv\website\models\Session as SessionModel;
 
 class UploadManager {
@@ -263,6 +265,20 @@ class UploadManager {
 			$file->in_use = true; // mark file as being in_use now
 		}
 		DB::transaction(function() use (&$file, &$fileToReplace) {
+			$oldIds = array();
+			// if the old file has old file ids that used to point to it then save them so they can be copied across
+			if (!is_null($fileToReplace)) {
+				$oldIds = $fileToReplace->oldFileIds()->get()->map(function($a) {
+					return intval($a->old_file_id);
+				});
+				$oldIds[] = intval($fileToReplace->id);
+			}
+			
+			foreach($oldIds as $a) {
+				$file->oldFileIds()->save(new OldFileId(array(
+					"old_file_id"	=> $a
+				)));
+			}
 			
 			if (!is_null($file)) {
 				if ($file->save() === false) {
@@ -285,6 +301,7 @@ class UploadManager {
 		}
 		foreach($files as $a) {
 			if (!is_null($a)) {
+				$a->oldFileIds()->delete();
 				$a->markReadyForDelete();
 				$a->save();
 			}
@@ -389,12 +406,22 @@ class UploadManager {
 	}
 	
 	// returns the file laravel response that should be returned to the user.
-	// this will either be the file (with cache header to cache for a year), or a 404
+	// this will either be the file (with cache header to cache for a year), a redirect if the file has been updated, or a 404
 	public static function getFileResponse($fileId) {
 		$file = self::getFile($fileId);
 		if (is_null($file)) {
-			// return 404 response
-			return Response::make("", 404);
+			// see if the file used to exist, and if it did then return a redirect to the new version
+			$oldFileIdModel = OldFileId::where("old_file_id", $fileId)->first();
+			if (!is_null($oldFileIdModel)) {
+				// file has moved
+				// return permanent redirect
+				return Redirect::to(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $oldFileIdModel->new_file_id, 301);
+			}
+			else {
+				// file doesn't exist
+				// return 404 response
+				return Response::make("", 404);
+			}
 		}
 		// return response with cache header set for client to cache for a year
 		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id)->setContentDisposition("inline")->setClientTtl(31556926)->setTtl(31556926)->setEtag($file->id);

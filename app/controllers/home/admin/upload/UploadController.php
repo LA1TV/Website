@@ -19,7 +19,7 @@ class UploadController extends UploadBaseController {
 		return Upload::getResponse();
 	}
 	
-	// serve up a file
+	// serve up a file (or redirect to file)
 	public function getIndex($id) {
 		return Upload::getFileResponse($id);
 	}
