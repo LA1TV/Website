@@ -64,6 +64,10 @@ class File extends MyEloquent {
 		return $this->belongsTo(self::$p.'UploadPoint', 'upload_point_id');
 	}
 	
+	public function oldFileIds() {
+		return $this->hasMany(self::$p.'OldFileId', 'new_file_id');
+	}
+	
 	public function mediaItemVideoWithFile() {
 		return $this->hasOne(self::$p.'MediaItemVideo', 'source_file_id');
 	}

@@ -70,7 +70,8 @@ define([
 			queuedPlayerType = playerType;
 			return this;
 		};
-		 
+		
+		// uris = array of {type, uri, uriWithDvrSupport}
 		this.setPlayerUris = function(uris) {
 			queuedPlayerUris = uris;
 			return this;
@@ -233,6 +234,14 @@ define([
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
 			if (videoJsPlayer !== null && playerType === "vod") {
+				if (startPlaying) {
+					// some mobile devices (iphones) will not allow javascript to start playback unless
+					// it is triggered as a result of a user event. the play() call below  in the callback can become disconnected
+					// from this execution path because it has to wait for the loaded metadata event. If this code
+					// is executed as a result of a user event, then because this call is in the same execution path it
+					// makes ios happy.
+					videoJsPlayer.play();
+				}
 				onPlayerLoadedMetadata(function() {
 					if (time > videoJsPlayer.duration()) {
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
@@ -662,17 +671,21 @@ define([
 					(function(startTime, startPlaying, roundToSafeRegion) {
 						if (playerType === "vod") {
 							onPlayerLoadedMetadata(function() {
-								if (roundToSafeRegion) {
+								if (startTime > videoJsPlayer.duration()) {
+									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
+									return;
+								}
+								else if (roundToSafeRegion) {
 									if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
 										// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
 										startTime = 0;
 									}
 								}
-								else if (startTime > videoJsPlayer.duration()) {
-									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
-									return;
+								if (startTime !== 0) {
+									// if the time is 0 don't seek because seeking appears to replace the poster with the
+									// frame that has been seeked to
+									videoJsPlayer.currentTime(startTime);
 								}
-								videoJsPlayer.currentTime(startTime);
 								if (startPlaying) {
 									videoJsPlayer.play();
 								}
@@ -747,6 +760,7 @@ define([
 					width: "100%",
 					height: "100%",
 					controls: !disableControls,
+					nativeControlsForTouch: true,
 					preload: playerPreload ? "auto" : "metadata",
 					techOrder: ["html5", "flash"],
 					autoPlay: false, // implementing auto play manually using callback

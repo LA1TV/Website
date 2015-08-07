@@ -18,7 +18,7 @@ class LiveStream extends MyEloquent {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
 	
-	public function getUrisOrganisedByQuality() {
+	private function getUrisOrganisedByQuality() {
 		$this->load("liveStreamUris", "liveStreamUris.qualityDefinition");
 		
 		$addedQualityIds = array();
@@ -52,6 +52,69 @@ class LiveStream extends MyEloquent {
 		}
 		// reorder so in qualities order
 		array_multisort($addedQualityPositions, SORT_NUMERIC, SORT_ASC, $qualities);
+		return $qualities;
+	}
+	
+	// $filter can be "all", "dvr", "live"
+	public function getQualitiesWithUris($filter="all", $mediaItemLiveStream=null) {
+		if ($filter !== "all" && $filter !== "dvr" && $filter !== "live") {
+			throw(new Exception("Filter is not valid."));
+		}
+		
+		if (($filter === "all" || $filter === "dvr") && is_null($mediaItemLiveStream)) {
+			throw("MediaItemLiveStream model required if retrieving dvr urls.");
+		}
+		
+		$qualities = array();
+		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
+		foreach($urisOrganisedByQuality as $quality) {
+			$entry = array(
+				"qualityDefinition"	=> $quality["qualityDefinition"],
+				"uris"				=> array()
+			);
+			
+			foreach($quality['uris'] as $uriAndInfo) {
+				if (!$uriAndInfo['enabled']) {
+					continue;
+				}
+				
+				// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
+				// the url it returns will be a hls url with dvr support.
+				$uriWithDvrSupport = $uriAndInfo['uriForDvrBridgeService'];
+				// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
+				// this may be null if there's been an error, in which case the user should not see it
+				$uri = null;
+				if(!$uriWithDvrSupport) {
+					$uri = $uriAndInfo['uri'];
+				}
+				else if ($filter === "all" || $filter === "dvr") {
+					$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", $mediaItemLiveStream->id)->first();
+					if (!is_null($dvrLiveStreamUriModel)) {
+						$uri = $dvrLiveStreamUriModel->uri;
+					}
+				}
+				
+				if (is_null($uri)) {
+					continue;
+				}
+				
+				if (($filter === "dvr" && !$uriWithDvrSupport) || ($filter === "live" && $uriWithDvrSupport)) {
+					continue;
+				}
+			
+				$entry['uris'][] = array(
+					"uri"	=> $uri,
+					"uriWithDvrSupport"	=> $uriWithDvrSupport,
+					"type"	=> $uriAndInfo['type'],
+					"supportedDevices"	=> $uriAndInfo['supportedDevices']
+				);
+			
+			}
+			
+			if (count($entry["uris"]) > 0) {
+				$qualities[] = $entry;
+			}
+		}
 		return $qualities;
 	}
 	

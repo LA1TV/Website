@@ -23,12 +23,6 @@ class MediaItemLiveStream extends MyEloquent {
 			// depending on stream state so must always change in sync with stream state.
 			DB::beginTransaction();
 			
-			if ($model->hasJustBecomeLive()) {
-				// send command to DVR Bridge Service servers to start recording stream
-				// and create entry in dvr_stream_uris table
-				$model->startDvrs();
-			}
-			
 			if ($model->hasJustLeftLive() && $model->hasJustBecomeStreamOver()) {
 				// send command to DVR Bridge Service servers to stop recording stream
 				// if this fails the dvr link will be removed
@@ -55,6 +49,14 @@ class MediaItemLiveStream extends MyEloquent {
 		});
 		
 		self::saved(function($model) {
+			
+			// this can't be in the saving callback because this needs to have an id so it can be associated with a MediaItemLiveStream,
+			// and if this is the first ever save because the model is being created it won't have an id yet.
+			if ($model->hasJustBecomeLive()) {
+				// send command to DVR Bridge Service servers to start recording stream
+				// and create entry in dvr_stream_uris table
+				$model->startDvrs();
+			}
 			
 			// transaction starts in save event
 			DB::commit();
@@ -195,37 +197,37 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	// has just become "live"
 	public function hasJustBecomeLive() {
-		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->original["state_id"])));
+		return $this->isLive() && (!$this->exists || !$this->isLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1))));
 	}
 	
 	// has just left "live"
 	public function hasJustLeftLive() {
-		return !$this->isLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return !$this->isLive() && $this->exists && $this->isLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// has just become "stream over"
 	public function hasJustBecomeStreamOver() {
-		return $this->isOver() && (!$this->exists || !$this->isOver(LiveStreamStateDefinition::find($this->original["state_id"])));
+		return $this->isOver() && (!$this->exists || !$this->isOver(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1))));
 	}
 	
 	// has just left "stream over"
 	public function hasJustLeftStreamOver() {
-		return !$this->isOver() && $this->exists && $this->isOver(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return !$this->isOver() && $this->exists && $this->isOver(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// has just become "not live"
 	public function hasJustBecomeNotLive() {
-		return $this->isNotLive() && (!$this->exists || !$this->isNotLive(LiveStreamStateDefinition::find($this->original["state_id"])));
+		return $this->isNotLive() && (!$this->exists || !$this->isNotLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1))));
 	}
 	
 	// has just left "not live"
 	public function hasJustLeftNotLive() {
-		return !$this->isNotLive() && $this->exists && $this->isNotLive(LiveStreamStateDefinition::find($this->original["state_id"]));
+		return !$this->isNotLive() && $this->exists && $this->isNotLive(LiveStreamStateDefinition::find($this->getOriginal("state_id", 1)));
 	}
 	
 	// the live stream linked to this has changed from what is currently in the database
 	public function liveStreamHasChanged() {
-		return !$this->exists || $this->original["live_stream_id"] !== $this->live_stream_id;
+		return !$this->exists || $this->getOriginal("live_stream_id") !== $this->live_stream_id;
 	}
 	
 	// $filter can be "all", "dvr", "live"
@@ -238,58 +240,7 @@ class MediaItemLiveStream extends MyEloquent {
 		if (is_null($liveStreamModel)) {
 			return array();
 		}
-		
-		$qualities = array();
-		$urisOrganisedByQuality = $liveStreamModel->getUrisOrganisedByQuality();
-		foreach($urisOrganisedByQuality as $quality) {
-			$entry = array(
-				"qualityDefinition"	=> $quality["qualityDefinition"],
-				"uris"				=> array()
-			);
-			
-			foreach($quality['uris'] as $uriAndInfo) {
-				if (!$uriAndInfo['enabled']) {
-					continue;
-				}
-				
-				// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
-				// the url it returns will be a hls url with dvr support.
-				$uriWithDvrSupport = $uriAndInfo['uriForDvrBridgeService'];
-				// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
-				// this may be null if there's been an error, in which case the user should not see it
-				$uri = null;
-				if(!$uriWithDvrSupport) {
-					$uri = $uriAndInfo['uri'];
-				}
-				else {
-					$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", $this->id)->first();
-					if (!is_null($dvrLiveStreamUriModel)) {
-						$uri = $dvrLiveStreamUriModel->uri;
-					}
-				}
-				
-				if (is_null($uri)) {
-					continue;
-				}
-				
-				if (($filter === "dvr" && !$uriWithDvrSupport) || ($filter === "live" && $uriWithDvrSupport)) {
-					continue;
-				}
-			
-				$entry['uris'][] = array(
-					"uri"	=> $uri,
-					"uriWithDvrSupport"	=> $uriWithDvrSupport,
-					"type"	=> $uriAndInfo['type'],
-					"supportedDevices"	=> $uriAndInfo['supportedDevices']
-				);
-			
-			}
-			
-			if (count($entry["uris"]) > 0) {
-				$qualities[] = $entry;
-			}
-		}
-		return $qualities;
+		return $liveStreamModel->getQualitiesWithUris($filter, $this);
 	}
 	
 	// returns an array containing all the domains that live streams come from which are loaded from a http request. I.e. playlist.m3u8 for mobiles.

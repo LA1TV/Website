@@ -269,6 +269,7 @@ class MediaItem extends MyEloquent {
 		return Cache::remember('promotedMediaItems', Config::get("custom.cache_time"), function() {
 			// retrieve y number of items in each direction, with items that are more than z time away excluded
 			// then ordered by time away from now ascending
+			// if shortage of content then most popular items will be appended to end to bring up to $numItemsToShow
 			$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
 			$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
 			$numItemsToShow = intval(Config::get("promoCarousel.numItemsToShow"));
@@ -302,6 +303,7 @@ class MediaItem extends MyEloquent {
 			$items = $pastItems->merge($futureItems);
 			$distances = array();
 			$finalItems = array();
+			$finalItemsIds = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
 			foreach($items as $a) {
 				$playlist = $a->getDefaultPlaylist();
@@ -314,10 +316,34 @@ class MediaItem extends MyEloquent {
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
+				$finalItemIds[] = intval($a->id);
 				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
 			}
 			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
-			$finalItems = array_slice($finalItems, 0, $numItemsToShow);
+			if (count($finalItems) < $numItemsToShow) {
+				$popularItems = self::getCachedMostPopularItems();
+				foreach($popularItems as $a) {
+					$itemId = intval($a['mediaItem']->id);
+					if(in_array($itemId, $finalItemsIds)) {
+						// this item is already in the list
+						continue;
+					}
+					$finalItems[] = array(
+						"mediaItem"		=> $a['mediaItem'],
+						"generatedName"	=> $a['generatedName'],
+						"seriesName"	=> !is_null($a['playlist']->show) ? $a['playlistName'] : null,
+						"uri"			=> $a['uri'],
+						"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+					);
+					$finalItemIds[] = $itemId;
+					if (count($finalItems) === $numItemsToShow) {
+						break;
+					}
+				}
+			}
+			else {
+				$finalItems = array_slice($finalItems, 0, $numItemsToShow);
+			}
 			return $finalItems;
 		});
 	}
@@ -338,12 +364,9 @@ class MediaItem extends MyEloquent {
 				$generatedName = $playlist->generateEpisodeTitle($a);
 				$uri = $playlist->getMediaItemUri($a);
 				
-				$playlistName = null;
-				if (!is_null($playlist->show)) {
-					// the current item is part of a show.
-					$playlistName = $playlist->generateName();
-				}
+				$playlistName = $playlist->generateName();
 				$items[] = array(
+					"playlist"		=> $playlist,
 					"mediaItem"		=> $a,
 					"generatedName"	=> $generatedName,
 					"playlistName"	=> $playlistName,
@@ -381,12 +404,9 @@ class MediaItem extends MyEloquent {
 				$generatedName = $playlist->generateEpisodeTitle($a);
 				$uri = $playlist->getMediaItemUri($a);
 				
-				$playlistName = null;
-				if (!is_null($playlist->show)) {
-					// the current item is part of a show.
-					$playlistName = $playlist->generateName();
-				}
+				$playlistName = $playlist->generateName();
 				$items[] = array(
+					"playlist"		=> $playlist,
 					"mediaItem"		=> $a,
 					"generatedName"	=> $generatedName,
 					"playlistName"	=> $playlistName,

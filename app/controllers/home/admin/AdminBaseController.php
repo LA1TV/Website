@@ -7,23 +7,28 @@ use Auth;
 use Config;
 use DebugHelpers;
 use Session;
+use View;
+use MyResponse;
 
 class AdminBaseController extends BaseController {
 
-	protected $layout = "layouts.home.admin.master";
+	protected $layout = null;
 	
 	protected function setContent($content, $navPage, $cssPageId, $title=NULL) {
-		$this->layout->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
-		$this->layout->currentNavPage = $navPage;
-		$this->layout->cssPageId = $cssPageId;
-		$this->layout->title = !is_null($title) ? $title : "LA1:TV CMS";
-		$this->layout->content = $content;
-		$this->layout->description = "The custom built content management system for LA1:TV's website.";
-		$this->layout->allowRobots = false;
-		$this->layout->cssBootstrap = asset("assets/css/bootstrap/admin.css");
-		$this->layout->requireJsBootstrap = asset("assets/scripts/bootstrap/admin.js");		
 		
-		$this->layout->pageData = array(
+		$view = View::make("layouts.home.admin.master");
+		
+		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
+		$view->currentNavPage = $navPage;
+		$view->cssPageId = $cssPageId;
+		$view->title = !is_null($title) ? $title : "LA1:TV CMS";
+		$view->content = $content;
+		$view->description = "The custom built content management system for LA1:TV's website.";
+		$view->allowRobots = false;
+		$view->cssBootstrap = asset("assets/css/bootstrap/admin.css");
+		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/admin.js");		
+		
+		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
@@ -36,18 +41,23 @@ class AdminBaseController extends BaseController {
 			"version"		=> DebugHelpers::getVersion()
 		);
 		
-		$this->layout->mainMenuItems = array();
-		$this->layout->moreMenuItems = array();
+		$view->mainMenuItems = array();
+		$view->moreMenuItems = array();
 		if (Auth::isLoggedIn()) {
-			$this->layout->mainMenuItems[] = "dashboard";
-			if (Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) $this->layout->mainMenuItems[] = "media";
-			if (Auth::getUser()->hasPermission(Config::get("permissions.shows"), 0)) $this->layout->mainMenuItems[] = "shows";
-			if (Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) $this->layout->mainMenuItems[] = "playlists";
-			if (Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0)) $this->layout->mainMenuItems[] = "livestreams";
+			$view->mainMenuItems[] = "dashboard";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0)) $view->mainMenuItems[] = "media";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.shows"), 0)) $view->mainMenuItems[] = "shows";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0)) $view->mainMenuItems[] = "playlists";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0)) $view->mainMenuItems[] = "livestreams";
 					
-			if (Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 0)) $this->layout->moreMenuItems[] = "siteusers";
-			if (Auth::getUser()->hasPermission(Config::get("permissions.users"), 0)) $this->layout->moreMenuItems[] = "users";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 0)) $view->moreMenuItems[] = "siteusers";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.users"), 0)) $view->moreMenuItems[] = "users";
 		}
+		
+		$response = new MyResponse($view);
+		// disable csp for main site because causing too many issues with live streams (and clappr uses unsafe evals etc)
+		$response->enableContentSecurityPolicy(false);
+		$this->layout = $response;
 	}
 
 }
