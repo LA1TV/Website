@@ -2,9 +2,9 @@
 
 use uk\co\la1tv\website\models\PlaylistProductionRole;
 
-class PlaylistCreditsReorderableList extends CreditsReordableList {
+class PlaylistCreditsReorderableList extends CreditsReorderableList {
 
-	private function getProductionRoleModel() {
+	protected function getProductionRoleModel() {
 		return new PlaylistProductionRole();
 	}
 	

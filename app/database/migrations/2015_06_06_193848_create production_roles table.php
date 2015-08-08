@@ -17,9 +17,11 @@ class CreateProductionRolesTable extends Migration {
 			$table->integer('id')->unsigned();
 			$table->text("name");
 			$table->text("description")->nullable();
+			$table->smallInteger("position")->unsigned();
 			$table->timestamps();
 			
 			$table->primary('id');
+			$table->unique("position");
 		});
 	}
 

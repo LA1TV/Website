@@ -8,7 +8,7 @@ abstract class CreditsReorderableList implements ReorderableList {
 	private $initialDataString = null;
 	private $stringForInput = null;
 	
-	// $data should be the an array of {productionRole:{id, text}, siteUser:{id, text}, nameOverride}
+	// $data should be the an array of {productionRoleId, siteUserId}, nameOverride}
 	// will be handled if this is not the format of the data, and obviously flagged as invalid
 	// does not need to be valid. Anything invalid will be ignored.
 	public function __construct($data) {
@@ -25,7 +25,7 @@ abstract class CreditsReorderableList implements ReorderableList {
 			
 			$currentItemOutput = array();
 			
-			if (!isset($a['productionRole'] || !isset($a['productionRole']['id'])) {
+			if (!isset($a['productionRoleId'])) {
 				$this->valid = false;
 				$currentItemOutput["productionRole"] = array(
 					"id"	=> null,
@@ -34,7 +34,7 @@ abstract class CreditsReorderableList implements ReorderableList {
 			}
 			else {
 				// lookup the production role and replace the name
-				$productionRoleId = intval($a['productionRole']['id']);
+				$productionRoleId = intval($a['productionRoleId']);
 				// TODO check 0 is returned on error
 				if ($productionRoleId === 0) {
 					$productionRoleId = null;
@@ -59,14 +59,14 @@ abstract class CreditsReorderableList implements ReorderableList {
 				}
 			}
 			
-			if (!isset($a['siteUser'] || !isset($a['siteUser']['id'])) {
+			if (!isset($a['siteUserId'])) {
 				$this->valid = false;
 				$currentItemOutput["siteUser"] = array(
 					"id"	=> null,
 					"text"	=> ""
 				);
 			}
-			else if (is_null($a['siteUser']['id'])) {
+			else if (is_null($a['siteUserId'])) {
 				// a check will be made later to ensure that the nameOverride is provided
 				$currentItemOutput["siteUser"] = array(
 					"id"	=> null,
@@ -74,8 +74,8 @@ abstract class CreditsReorderableList implements ReorderableList {
 				);
 			}
 			else {
-				// lookup the user and replace the name
-				$siteUserId = intval($a['siteUser']['id']);
+				// lookup the user and set name
+				$siteUserId = intval($a['siteUserId']);
 				// TODO check 0 is returned on error
 				if ($siteUserId === 0) {
 					$siteUserId = null;
@@ -125,7 +125,7 @@ abstract class CreditsReorderableList implements ReorderableList {
 		$this->stringForInput = json_encode($output);
 	}
 	
-	private abstract function getProductionRoleModel();
+	protected abstract function getProductionRoleModel();
 	
 	// returns true if the $data is valid and all related models exist.
 	public function isValid() {

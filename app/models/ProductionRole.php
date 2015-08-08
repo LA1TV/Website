@@ -3,7 +3,7 @@
 class ProductionRole extends MyEloquent {
 
 	protected $table = 'production_roles';
-	protected $fillable = array('name', 'description');
+	protected $fillable = array('name', 'description', 'position');
 	
 	public function credits() {
 		$this->hasMany(self::$p.'Credit', 'production_role_id');

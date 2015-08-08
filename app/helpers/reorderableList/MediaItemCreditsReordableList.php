@@ -2,9 +2,9 @@
 
 use uk\co\la1tv\website\models\MediaItemProductionRole;
 
-class MediaItemCreditsReorderableList extends CreditsReordableList {
+class MediaItemCreditsReorderableList extends CreditsReorderableList {
 
-	private function getProductionRoleModel() {
+	protected function getProductionRoleModel() {
 		return new MediaItemProductionRole();
 	}
 	

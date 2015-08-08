@@ -24,6 +24,7 @@ use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\LiveStreamStateDefinition;
+use uk\co\la1tv\website\models\Credit;
 
 class MediaController extends MediaBaseController {
 	
@@ -174,13 +175,13 @@ class MediaController extends MediaBaseController {
 		
 		if (!$formSubmitted) {
 			$additionalFormData['creditsInput'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "credits_for_input");
-			$additionalFormData['creditsInputInitialData'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "credits_for_reorderable_list");
+			$additionalFormData['creditsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "credits_for_reorderable_list");
 			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "related_items_for_input");
 			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $mediaItem, "related_items_for_reorderable_list");
 		}
 		else {
-			$additionalFormData['creditsInput'] = MediaItem::generateInputValueForCreditsOrderableList(JsonHelpers::jsonDecodeOrNull($formData['credits'], true));
-			$additionalFormData['creditsInputInitialData'] = MediaItem::generateInitialDataForCreditsOrderableList(JsonHelpers::jsonDecodeOrNull($formData['credits'], true));
+			$additionalFormData['creditsInput'] = MediaItem::generateInputValueForMediaItemCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($formData['credits'], true));
+			$additionalFormData['creditsInitialData'] = MediaItem::generateInitialDataForMediaItemCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($formData['credits'], true));
 			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
 			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData['related-items'], true));
 		}
@@ -211,13 +212,13 @@ class MediaController extends MediaBaseController {
 			Validator::extend('valid_stream_id', FormHelpers::getValidStreamValidatorFunction());
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			Validator::extend('valid_credits', function($attribute, $value, $parameters) {
-				return MediaItem::isValidDataFromCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+				return MediaItem::isValidDataFromMediaItemCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('valid_vod_chapters', function($attribute, $value, $parameters) {
-				return MediaItemVideo::isValidDataFromChaptersRerderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+				return MediaItemVideo::isValidDataFromChaptersReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('valid_stream_state_id', function($attribute, $value, $parameters) {
 				return !is_null(LiveStreamStateDefinition::find(intval($value)));
@@ -243,7 +244,7 @@ class MediaController extends MediaBaseController {
 					'stream-info-msg'	=> array('max:500'),
 					'stream-stream-id'	=> array('valid_stream_id'),
 					'stream-external-stream-url'=> array('url'),
-					'related-credits'	=> array('required', 'valid_credits'),
+					'credits'	=> array('required', 'valid_credits'),
 					'related-items'	=> array('required', 'valid_related_items')
 				), array(
 					'name.required'		=> FormHelpers::getRequiredMsg(),
@@ -417,7 +418,29 @@ class MediaController extends MediaBaseController {
 						}
 					}
 					
-					// TODO credits
+					// update credits
+					if ($mediaItem->credits()->count() > 0) {
+						if (!$mediaItem->credits()->delete()) { // remove all chapters
+							throw(new Exception("Error deleting MediaItem credits."));
+						}
+					}
+					
+					$creditsData = json_decode($formData['credits'], true);
+					foreach($creditsData as $credit) {
+						$creditModel = new Credit(array(
+							"name_override"	=> $credit["nameOverride"]
+						));
+						if (!is_null($credit["siteUserId"])) {
+							$siteUser = SiteUser::find($credit["siteUserId"]);
+							if (is_null($siteUser)) {
+								// given the credits data has been validated earlier, it shouldn't have passed if the SiteUser didn't exist
+								throw(new Exception("Was expecting the SiteUser to exist."));
+							}
+							$productionRole = MediaItemProductionRole::
+							$creditModel->siteUser()->associate($siteUser);
+						}
+						$mediaItem->credits()->save($creditModel);
+					}
 					
 					$mediaItem->relatedItems()->detach(); // detaches all
 					$ids = json_decode($formData['related-items'], true);
