@@ -85,6 +85,14 @@ class MediaController extends MediaBaseController {
 			}
 			$playlistsStr = count($names) > 0 ? '"'.implode('", "', $names).'"' : "[Not In A Playlist]";
 			
+			$viewUri = null;
+			if ($a->getIsAccessible()) {
+				$defaultPlaylist = $a->getDefaultPlaylist();
+				if (!is_null($defaultPlaylist)) {
+					$viewUri = $defaultPlaylist->getMediaItemUri($a);
+				}
+			}
+			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
@@ -97,6 +105,7 @@ class MediaController extends MediaBaseController {
 				"hasStreamCss"	=> $streamEnabled ? "text-success" : "text-danger",
 				"streamState"	=> $streamState,
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"viewUri"		=> $viewUri,
 				"editUri"		=> Config::get("custom.admin_base_url") . "/media/edit/" . $a->id,
 				"id"			=> $a->id
 			);

@@ -32,7 +32,7 @@
 					<td><?=e($a['streamState']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<?php if ($editEnabled): ?>
-					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
+					<td class="action-col"><?php if(!is_null($a['viewUri'])):?><a class="btn btn-xs btn-info" href="<?=e($a['viewUri'])?>">View</a> <?php endif; ?><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
 					<?php endif; ?>
 				</tr>
 			<?php endforeach; ?>

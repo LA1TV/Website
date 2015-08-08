@@ -39,12 +39,18 @@ class ShowsController extends ShowsBaseController {
 			$enabled = (boolean) $a->enabled;
 			$enabledStr = $enabled ? "Yes" : "No";
 			
+			$viewUri = null;
+			if ($a->getIsAccessible()) {
+				$viewUri = $a->getUri();
+			}
+			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"viewUri"		=> $viewUri,
 				"editUri"		=> Config::get("custom.admin_base_url") . "/shows/edit/" . $a->id,
 				"id"			=> $a->id
 			);
