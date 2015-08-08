@@ -29,7 +29,10 @@
 <div class="page-footer-bg"></div>
 <div id="footer" class="page-footer">
 	<div class="container">
-		<p class="text-muted footer-txt"><a href="https://github.com/LA1TV/Website" target="_blank">Click here to view the source code on GitHub.</a></p>
+		<div class="footer-txt-container">
+			<div><a href="https://github.com/LA1TV/Website" target="_blank">Click here to view the source code on GitHub.</a></div>
+			<div class="admin-link"><a href="<?=e($adminUri);?>">Admin</a></div>
+		</div>
 	</div>
 </div>
 @yield('promo', '')
