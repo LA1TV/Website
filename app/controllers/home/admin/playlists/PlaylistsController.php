@@ -53,6 +53,11 @@ class PlaylistsController extends PlaylistsBaseController {
 			$showStr = !is_null($show) ? $show->name . " (" . $a->series_no . ")" : "[Not Part Of Show]";
 			$customUri = $a->custom_uri_name;
 			
+			$viewUri = null;
+			if ($a->getIsAccessibleToPublic()) {
+				$viewUri = $a->getUri();
+			}
+			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
@@ -62,6 +67,7 @@ class PlaylistsController extends PlaylistsBaseController {
 				"noPlaylistItems"	=> $noPlaylistItems,
 				"customUri"		=> !is_null($customUri) ? $customUri : "[No Custom URI]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
+				"viewUri"		=> $viewUri,
 				"editUri"		=> Config::get("custom.admin_base_url") . "/playlists/edit/" . $a->id,
 				"id"			=> $a->id
 			);
