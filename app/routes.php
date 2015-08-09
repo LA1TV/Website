@@ -39,7 +39,8 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 				Route::controller('/admin/shows', $p.'home\admin\shows\ShowsController');
 				Route::controller('/admin/playlists', $p.'home\admin\playlists\PlaylistsController');
 				Route::controller('/admin/livestreams', $p.'home\admin\livestreams\LiveStreamsController');
-				Route::controller('/admin/quality-definitions', $p.'home\admin\qualityDefinitions\QualityDefinitionsController');
+				Route::controller('/admin/qualitydefinitions', $p.'home\admin\qualityDefinitions\QualityDefinitionsController');
+				Route::controller('/admin/productionroles', $p.'home\admin\productionRoles\ProductionRolesController');
 				Route::controller('/admin/siteusers', $p.'home\admin\siteUsers\SiteUsersController');
 				Route::controller('/admin/users', $p.'home\admin\users\UsersController');
 				Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');

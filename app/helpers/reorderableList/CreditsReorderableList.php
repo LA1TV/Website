@@ -25,17 +25,16 @@ abstract class CreditsReorderableList implements ReorderableList {
 			
 			$currentItemOutput = array();
 			
-			if (!isset($a['productionRoleId'])) {
+			if (!isset($a['productionRoleId']) || !is_numeric($a['productionRoleId'])) {
 				$this->valid = false;
-				$currentItemOutput["productionRole"] = array(
+				$currentItemOutput["productionRoleState"] = array(
 					"id"	=> null,
-					"text"	=> ""
+					"text"	=> null
 				);
 			}
 			else {
 				// lookup the production role and replace the name
 				$productionRoleId = intval($a['productionRoleId']);
-				// TODO check 0 is returned on error
 				if ($productionRoleId === 0) {
 					$productionRoleId = null;
 				}
@@ -44,12 +43,12 @@ abstract class CreditsReorderableList implements ReorderableList {
 					$productionRole = $this->getProductionRoleModel()->find($productionRoleId);
 				}
 				
-				$currentItemOutput['prouctionRole'] = array(
+				$currentItemOutput['productionRoleState'] = array(
 					"id"	=> null,
-					"text"	=> ""
+					"text"	=> null
 				);
 				if (!is_null($productionRole)) {
-					$currentItemOutput['prouctionRole'] = array(
+					$currentItemOutput['productionRoleState'] = array(
 						"id"	=> intval($productionRole->id),
 						"text"	=> $productionRole->getName()
 					);
@@ -61,22 +60,21 @@ abstract class CreditsReorderableList implements ReorderableList {
 			
 			if (!isset($a['siteUserId'])) {
 				$this->valid = false;
-				$currentItemOutput["siteUser"] = array(
+				$currentItemOutput["siteUserState"] = array(
 					"id"	=> null,
-					"text"	=> ""
+					"text"	=> null
 				);
 			}
-			else if (is_null($a['siteUserId'])) {
+			else if (is_null($a['siteUserId']) || !is_numeric($a['siteUserId'])) {
 				// a check will be made later to ensure that the nameOverride is provided
-				$currentItemOutput["siteUser"] = array(
+				$currentItemOutput["siteUserState"] = array(
 					"id"	=> null,
-					"text"	=> ""
+					"text"	=> null
 				);
 			}
 			else {
 				// lookup the user and set name
 				$siteUserId = intval($a['siteUserId']);
-				// TODO check 0 is returned on error
 				if ($siteUserId === 0) {
 					$siteUserId = null;
 				}
@@ -85,12 +83,12 @@ abstract class CreditsReorderableList implements ReorderableList {
 					$siteUser = SiteUser::find($siteUserId);
 				}
 				
-				$currentItemOutput['siteUser'] = array(
+				$currentItemOutput['siteUserState'] = array(
 					"id"	=> null,
-					"text"	=> ""
+					"text"	=> null
 				);
 				if (!is_null($siteUser)) {
-					$currentItemOutput['siteUser'] = array(
+					$currentItemOutput['siteUserState'] = array(
 						"id"	=> intval($siteUser->id),
 						"text"	=> $siteUser->name
 					);
@@ -108,11 +106,12 @@ abstract class CreditsReorderableList implements ReorderableList {
 			else {
 				$a['nameOverride'] = trim($a['nameOverride']);
 				$currentItemOutput["nameOverride"] = $a['nameOverride'];
+				$currentItemOutput["siteUserState"] = null;
 			}
 			
 			if (
-				(!is_null($currentItemOutput['siteUser']['id']) && $currentItemOutput["nameOverride"] !== "") ||
-				(is_null($currentItemOutput['siteUser']['id']) && $currentItemOutput["nameOverride"] === "")
+				(!is_null($currentItemOutput['siteUserState']['id']) && $currentItemOutput["nameOverride"] !== "") ||
+				(is_null($currentItemOutput['siteUserState']['id']) && $currentItemOutput["nameOverride"] === "")
 			) {
 				// either a site user must be provided or a name
 				$this->valid = false;

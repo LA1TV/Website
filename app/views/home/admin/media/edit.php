@@ -16,7 +16,7 @@
 		<?=FormHelpers::getFormDateInput(1, "Scheduled Publish/Live Time (Optional)", "publish-time", $form['publish-time'], $formErrors);?>
 		<?=FormHelpers::getFormDateInput(1, "Scheduled Publish/Live Time (Optional)", "publish-time", $form['publish-time'], $formErrors);?>
 		<?=FormHelpers::getFormGroupStart("credits", $formErrors);
-		?><label class="control-label">Credits</label><div class="form-control form-vod-credits" data-initialdata="<?=e($additionalForm['creditsInitialData'])?>"></div><?php
+		?><label class="control-label">Credits</label><div class="form-control form-credits" data-initialdata="<?=e($additionalForm['creditsInitialData'])?>"></div><?php
 		echo(FormHelpers::getFormHiddenInput(1, "credits", $additionalForm['creditsInput']));
 		echo(FormHelpers::getErrMsgHTML($formErrors, "credits"));?></div>
 		<div class="panel-group custom-accordian" data-grouptogether="0">

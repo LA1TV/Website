@@ -3,17 +3,17 @@
 class ProductionRolePlaylist extends MyEloquent {
 
 	protected $table = 'production_roles_playlist';
-	protected $fillable = array('name', 'description');
+	protected $fillable = array('name_override', 'description_override');
 	
 	public function productionRole() {
-		$this->belongsTo(self::$p.'ProductionRole', 'production_role_id');
+		return $this->belongsTo(self::$p.'ProductionRole', 'production_role_id');
 	}
 	
 	public function getName() {
-		return !is_null($this->name) ? $this->name : $this->productionRole()->name;
+		return !is_null($this->name_override) ? $this->name_override : $this->productionRole->name;
 	}
 	
 	public function getDescription() {
-		return !is_null($this->description) ? $this->description : $this->productionRole()->description;
+		return !is_null($this->description_override) ? $this->description_override : $this->productionRole->description;
 	}
 }

@@ -3,18 +3,18 @@
 class ProductionRole extends MyEloquent {
 
 	protected $table = 'production_roles';
-	protected $fillable = array('name', 'description', 'position');
+	protected $fillable = array('id', 'name', 'description', 'position');
 	
 	public function credits() {
-		$this->hasMany(self::$p.'Credit', 'production_role_id');
+		return $this->hasMany(self::$p.'Credit', 'production_role_id');
 	}
 	
 	public function productionRolePlaylist() {
-		$this->hasOne(self::$p.'ProductionRolePlaylist', 'production_role_id');
+		return $this->hasOne(self::$p.'ProductionRolePlaylist', 'production_role_id');
 	}
 	
 	public function productionRoleMediaItem() {
-		$this->hasOne(self::$p.'ProductionRoleMediaItem', 'production_role_id');
+		return $this->hasOne(self::$p.'ProductionRoleMediaItem', 'production_role_id');
 	}
 
 }

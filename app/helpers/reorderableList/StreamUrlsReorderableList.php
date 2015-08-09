@@ -25,7 +25,7 @@ class StreamUrlsReorderableList implements ReorderableList {
 			
 			$currentItemOutput = array();
 			
-			if (!isset($a['qualityState']) || !isset($a['qualityState']['id'])) {
+			if (!isset($a['qualityState']) || !isset($a['qualityState']['id']) || !is_numeric($a['qualityState']['id'])) {
 				$this->valid = false;
 				$currentItemOutput["qualityState"] = array(
 					"id"	=> null,
