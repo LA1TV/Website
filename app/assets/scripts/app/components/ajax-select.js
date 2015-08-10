@@ -1,8 +1,10 @@
 define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageData, AjaxHelpers) {
 
-	var AjaxSelect = function(dataSourceUri, state) {
+	var AjaxSelect = function(dataSourceUri, state, placeholderText) {
 		
 		var self = this;
+		
+		placeholderText = placeholderText || "Search...";
 		
 		this.getId = function() {
 			return chosenItemId;
@@ -59,7 +61,7 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 		var $buttonContainer = $('<div />').addClass("button-container");
 		var $clearButton = $('<button />').attr("type", "button").addClass("btn btn-xs btn-default").html("&times;");
 		var $searching = $('<div />').addClass("searching");
-		var $search = $('<input />').prop("type", "text").prop("placeholder", "Search...").addClass("form-control search");
+		var $search = $('<input />').prop("type", "text").prop("placeholder", placeholderText).addClass("form-control search");
 		var $dropdownContainer = $('<div />').addClass("dropdown-container form-control");
 		var $loading = $('<div />').addClass("loading").html('<img src="'+PageData.get("assetsBaseUrl")+'assets/admin/img/loading.gif"> <span class="txt">Loading...</span>');
 		var $results = $('<div />').addClass("results").hide();

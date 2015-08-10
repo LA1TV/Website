@@ -13,6 +13,10 @@ class SiteUser extends MyEloquent {
 		return $this->hasMany(self::$p.'MediaItemLike', 'site_user_id');
 	}
 	
+	public function credits() {
+		return $this->hasMany(self::$p.'Credit', 'site_user_id');
+	}
+	
 	public function getProfilePicUri($w, $h) {
 		// https://developers.facebook.com/docs/graph-api/reference/v2.1/user/picture
 		return "https://graph.facebook.com/v2.1/".urlencode($this->fb_uid)."/picture?redirect=1&height=".urlencode($h)."&type=normal&width=".urlencode($w);
@@ -43,6 +47,6 @@ class SiteUser extends MyEloquent {
 	}
 
 	public function scopeSearch($q, $value) {
-		return $value === "" ? $q : $q->whereContains(array("name", "first_name", "last_name"), $value);
+		return $value === "" ? $q : $q->whereContains(array("name", "first_name", "last_name", "fb_email"), $value);
 	}
 }
