@@ -128,4 +128,30 @@ class SiteUsersController extends SiteUsersBaseController {
 		}
 		return Response::json($resp);
 	}
+	
+	// json data for ajaxSelect element
+	public function postAjaxselect() {
+		// used on media items page for credits
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 0);
+	
+		$resp = array("success"=>false, "payload"=>null);
+		
+		$searchTerm = FormHelpers::getValue("term", "");
+		$qualities = null;
+		if (!empty($searchTerm)) {
+			$siteUsers = SiteUser::search($searchTerm)->orderBy("last_name", "asc")->orderBy("first_name", "asc")->orderBy("name", "asc")->take(100)->get();
+		}
+		else {
+			$siteUsers = SiteUser::orderBy("last_name", "asc")->orderBy("first_name", "asc")->orderBy("name", "asc")->take(100)->get();
+		}
+		
+		$results = array();
+		foreach($siteUsers as $a) {
+			$results[] = array("id"=>intval($a->id), "text"=>$a->name);
+		}
+			
+		$resp['payload'] = array("results"=>$results, "term"=>$searchTerm);
+		$resp['success'] = true;
+		return Response::json($resp);
+	}
 }

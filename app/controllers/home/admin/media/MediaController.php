@@ -25,6 +25,8 @@ use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\LiveStreamStateDefinition;
 use uk\co\la1tv\website\models\Credit;
+use uk\co\la1tv\website\models\ProductionRoleMediaItem;
+use uk\co\la1tv\website\models\SiteUser;
 
 class MediaController extends MediaBaseController {
 	
@@ -430,13 +432,16 @@ class MediaController extends MediaBaseController {
 						$creditModel = new Credit(array(
 							"name_override"	=> $credit["nameOverride"]
 						));
+						
+						$productionRole = ProductionRoleMediaItem::find($credit["productionRoleId"]);
+						$creditModel->productionRole()->associate($productionRole);
+						
 						if (!is_null($credit["siteUserId"])) {
 							$siteUser = SiteUser::find($credit["siteUserId"]);
 							if (is_null($siteUser)) {
 								// given the credits data has been validated earlier, it shouldn't have passed if the SiteUser didn't exist
 								throw(new Exception("Was expecting the SiteUser to exist."));
 							}
-							$productionRole = MediaItemProductionRole::
 							$creditModel->siteUser()->associate($siteUser);
 						}
 						$mediaItem->credits()->save($creditModel);

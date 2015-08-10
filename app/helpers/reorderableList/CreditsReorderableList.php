@@ -58,7 +58,7 @@ abstract class CreditsReorderableList implements ReorderableList {
 				}
 			}
 			
-			if (!isset($a['siteUserId'])) {
+			if (!array_key_exists('siteUserId', $a)) {
 				$this->valid = false;
 				$currentItemOutput["siteUserState"] = array(
 					"id"	=> null,
@@ -98,30 +98,57 @@ abstract class CreditsReorderableList implements ReorderableList {
 				}
 			}
 			
-			
-			if (!isset($a['nameOverride']) || !is_string($a['nameOverride'])) {
+			if (!array_key_exists('nameOverride', $a) || (!is_null($a['nameOverride']) && !is_string($a['nameOverride']))) {
 				$this->valid = false;
-				$currentItemOutput["nameOverride"] = "";
+				$currentItemOutput["nameOverride"] = null;
+				$currentItemOutput['siteUserState'] = array(
+					"id"	=> null,
+					"text"	=> null
+				);
+			}
+			else if (!is_null($a["nameOverride"])) {
+				if (trim($a['nameOverride']) === "") {
+					$this->valid = false;
+					$currentItemOutput["nameOverride"] = "";
+				}
+				else if (strlen(trim($a['nameOverride'])) > 50) {
+					$this->valid = false;
+					$currentItemOutput["nameOverride"] = trim($a['nameOverride']);
+				}
+				else {
+					$a['nameOverride'] = trim($a['nameOverride']);
+					$currentItemOutput["nameOverride"] = $a['nameOverride'];
+					$currentItemOutput["siteUserState"] = null;
+				}
 			}
 			else {
-				$a['nameOverride'] = trim($a['nameOverride']);
-				$currentItemOutput["nameOverride"] = $a['nameOverride'];
-				$currentItemOutput["siteUserState"] = null;
+				$currentItemOutput["nameOverride"] = null;
 			}
 			
-			if (
-				(!is_null($currentItemOutput['siteUserState']['id']) && $currentItemOutput["nameOverride"] !== "") ||
-				(is_null($currentItemOutput['siteUserState']['id']) && $currentItemOutput["nameOverride"] === "")
-			) {
+			if (is_null($currentItemOutput['siteUserState']['id']) === is_null($currentItemOutput["nameOverride"])) {
 				// either a site user must be provided or a name
 				$this->valid = false;
+				$currentItemOutput["nameOverride"] = null;
+				$currentItemOutput['siteUserState'] = array(
+					"id"	=> null,
+					"text"	=> null
+				);
 			}
 			$output[] = $currentItemOutput;
+		}
+		
+		$stringForInputData = [];
+		foreach($output as $a) {
+			$stringForInputData[] = array(
+				"productionRoleId"	=> $a["productionRoleState"]["id"],
+				"siteUserId"		=> !is_null($a["nameOverride"]) ? null : $a["siteUserState"]["id"],
+				"nameOverride"		=> $a["nameOverride"]
+			);
 		}
 	
 		// the string for the input and the initial data string are the same for the chapters reordable list
 		$this->initialDataString = json_encode($output);
-		$this->stringForInput = json_encode($output);
+		$this->stringForInput = json_encode($stringForInputData);
 	}
 	
 	protected abstract function getProductionRoleModel();

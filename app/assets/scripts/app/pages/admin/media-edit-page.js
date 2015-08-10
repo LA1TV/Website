@@ -75,7 +75,17 @@ define([
 				nameOverride: null
 			}, initialData);
 			$(reorderableList).on("stateChanged", function() {
-				$destinationEl.val(JSON.stringify(reorderableList.getState()));
+				var output = [];
+				var state = reorderableList.getState();
+				for (var i=0; i<state.length; i++) {
+					var row = state[i];
+					output.push({
+						productionRoleId: row.productionRoleState.id,
+						siteUserId: row.nameOverride !== null ? null : row.siteUserState.id,
+						nameOverride: row.nameOverride
+					});
+				}
+				$destinationEl.val(JSON.stringify(output));
 			});
 			$container.append(reorderableList.getEl());
 		});

@@ -69,7 +69,7 @@ define([
 		var $siteUserCol = $("<div />").addClass("col-md-5");
 		var $siteUserAjaxSelectEl = siteUserAjaxSelect.getEl();
 		$siteUserCol.append($siteUserAjaxSelectEl);
-		var $nameOverrideEl = $("<input />").addClass("form-control").prop("type", "text").attr("placeholder", "Overridden name...");
+		var $nameOverrideEl = $("<input />").addClass("form-control").prop("type", "text").attr("placeholder", "Overridden name...").attr("maxlength", 50);
 		$siteUserCol.append($nameOverrideEl);
 		$el.append($siteUserCol);
 		

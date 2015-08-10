@@ -47,6 +47,6 @@ class SiteUser extends MyEloquent {
 	}
 
 	public function scopeSearch($q, $value) {
-		return $value === "" ? $q : $q->whereContains(array("name", "first_name", "last_name"), $value);
+		return $value === "" ? $q : $q->whereContains(array("name", "first_name", "last_name", "fb_email"), $value);
 	}
 }

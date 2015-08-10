@@ -121,7 +121,7 @@ class MediaItem extends MyEloquent {
 			$data[] = array(
 				"productionRoleId"	=> intval($a->productionRole->id),
 				"siteUserId"		=> !is_null($siteUser) ? intval($siteUser->id) : null,
-				"nameOverride"		=> $a->nameOverride
+				"nameOverride"		=> $a->name_override
 			);
 		}
 		// sort so that credits are in the correct order

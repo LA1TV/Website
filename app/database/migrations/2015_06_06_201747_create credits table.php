@@ -19,7 +19,7 @@ class CreateCreditsTable extends Migration {
 			$table->integer("creditable_id")->unsigned();
 			$table->text("creditable_type");
 			$table->integer("site_user_id")->unsigned()->nullable();
-			$table->integer("name_override")->nullable();
+			$table->text("name_override", 50)->nullable();
 			$table->timestamps();
 			
 			$table->foreign("production_role_id", "credits_production_role_id_foreign")->references('id')->on('production_roles')->onUpdate("restrict")->onDelete('restrict');

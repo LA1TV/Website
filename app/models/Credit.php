@@ -19,11 +19,11 @@ class Credit extends MyEloquent {
 	}
 	
 	public function productionRole() {
-		$this->belongsTo(self::$p.'ProductionRole', 'production_role_id');
+		return $this->belongsTo(self::$p.'ProductionRole', 'production_role_id');
 	}
 	
 	public function siteUser() {
-		$this->belongsTo(self::$p.'SiteUser', 'site_user_id');
+		return $this->belongsTo(self::$p.'SiteUser', 'site_user_id');
 	}
 
 }
