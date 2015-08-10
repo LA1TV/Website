@@ -136,10 +136,10 @@ class PlaylistsController extends PlaylistsBaseController {
 			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_orderable_list");
 		}
 		else {
-			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
-			$additionalFormData['playlistContentInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
-			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
-			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
+			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
+			$additionalFormData['playlistContentInitialData'] = MediaItem::generateInitialDataForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
+			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
+			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
 		}
 		
 		$errors = null;
@@ -152,10 +152,10 @@ class PlaylistsController extends PlaylistsBaseController {
 				return !is_null(Show::find(intval($value)));
 			});
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
-				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+				return MediaItem::isValidIdsFromAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('valid_related_items', function($attribute, $value, $parameters) {
-				return MediaItem::isValidIdsFromAjaxSelectOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
+				return MediaItem::isValidIdsFromAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('unique_custom_uri', function($attribute, $value, $parameters) use (&$playlist) {
 				$q = CustomUri::where("name", $value);
