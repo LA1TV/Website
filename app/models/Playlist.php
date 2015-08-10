@@ -145,11 +145,11 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function getPlaylistContentForInputAttribute() {
-		return MediaItem::generateInputValueForAjaxSelectOrderableList($this->getPlaylistContentIdsForOrderableList());
+		return MediaItem::generateInputValueForAjaxSelectReorderableList($this->getPlaylistContentIdsForOrderableList());
 	}
 	
 	public function getPlaylistContentForOrderableListAttribute() {
-		return MediaItem::generateInitialDataForAjaxSelectOrderableList($this->getPlaylistContentIdsForOrderableList());
+		return MediaItem::generateInitialDataForAjaxSelectReorderableList($this->getPlaylistContentIdsForOrderableList());
 	}
 	
 	private function getRelatedItemsIdsForOrderableList() {
@@ -162,11 +162,11 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function getRelatedItemsForInputAttribute() {
-		return MediaItem::generateInputValueForAjaxSelectOrderableList($this->getRelatedItemsIdsForOrderableList());
+		return MediaItem::generateInputValueForAjaxSelectReorderableList($this->getRelatedItemsIdsForOrderableList());
 	}
 	
 	public function getRelatedItemsForOrderableListAttribute() {
-		return MediaItem::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemsIdsForOrderableList());
+		return MediaItem::generateInputValueForAjaxSelectReorderableList($this->getRelatedItemsIdsForOrderableList());
 	}
 	
 	public function getUri() {

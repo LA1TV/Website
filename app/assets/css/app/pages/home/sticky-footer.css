@@ -20,7 +20,16 @@ body {
 	z-index: -2; /* to place below side banners */
 }
 
-.page-footer .container .footer-txt {
-	margin: 20px 0;
+.page-footer .container .footer-txt-container {
+	margin: 11px 0;
 	text-align: center;
+	white-space: nowrap;
+}
+
+.page-footer .container .footer-txt-container .admin-link  a {
+	color: #ACACAC;
+}
+
+.page-footer .container .footer-txt-container .admin-link a:hover, .page-footer .container .footer-txt-container .admin-link a:focus {
+	text-decoration: none;
 }

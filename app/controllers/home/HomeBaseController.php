@@ -94,6 +94,7 @@ class HomeBaseController extends BaseController {
 		$view->blogUri = Config::get("custom.blog_url");
 		$view->contactUri = Config::get("custom.base_url") . "/contact";
 		$view->accountUri = Config::get("custom.base_url") . "/account";
+		$view->adminUri = Config::get("custom.base_url") . "/admin";
 		
 		// recent shows in dropdown
 		$shows = Show::getCachedActiveShows();
