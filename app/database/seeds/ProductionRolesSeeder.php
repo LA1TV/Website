@@ -14,19 +14,49 @@ class ProductionRolesSeeder extends Seeder {
 	public function run() {
 		$roles = [
 			// name, description, valid for media item ([name override, description override]), valid for playlist ([name override, description override])
-			["Role 1", "Role 1 Description", ["Role 1 Title Override", null], null],
-			["Role 2", "Role 2 Description", [null, "Role 2 Description Override"], [null, null]],
-			["Role 3 Unique Text To Search For", "Role 3 Description", ["Role 3 Title Override", "Role 3 Description Override"], [null, "Role 3 Playlist Description Override"]],
+			["Presenter", null, [null, null], [null, null]],
+			["Camera Operator", null, [null, null], [null, null]],
+			["Broadcast Vision Mixer", null, [null, null], [null, null]],
+			["Projection Vision Mixer", null, [null, null], [null, null]],
+			["Vision Mixer", null, [null, null], [null, null]],
+			["Communications Manager", null, [null, null], [null, null]],
+			["Autocue", null, [null, null], [null, null]],
+			["Graphics Developer", null, [null, null], [null, null]],
+			["Graphics Operator", null, [null, null], [null, null]],
+			["VT Editor", null, [null, null], [null, null]],
+			["VT Operator", null, [null, null], [null, null]],
+			["Decoder Operator", null, [null, null], [null, null]],
+			["Streaming Technician", null, [null, null], [null, null]],
+			["Lighting", null, [null, null], [null, null]],
+			["Broadcast Sound", null, [null, null], [null, null]],
+			["House Sound", null, [null, null], [null, null]],
+			["Sound", null, [null, null], [null, null]],
+			["Floor Manager", null, [null, null], [null, null]],
+			["Runner", null, [null, null], [null, null]],
+			["Rigging Team", null, [null, null], [null, null]],
+			["Scheduling", null, [null, null], [null, null]],
+			["Social Media", null, [null, null], [null, null]],
+			["Systems Developer", null, [null, null], [null, null]],
+			["Guest Booking", null, [null, null], [null, null]],
+			["Guest", null, [null, null], [null, null]],
+			["Script Writer", null, [null, null], [null, null]],
+			["Production Manager", null, [null, null], [null, null]],
+			["Director", null, [null, null], [null, null]],
+			["Assistant Director", null, [null, null], [null, null]],
+			["Producer", null, [null, null], [null, null]],
+			["Assistant Producer", null, [null, null], [null, null]],
 		];
 		
 		DB::transaction(function() use (&$roles) {
 			foreach($roles as $b=>$a) {
-				$role = ProductionRole::firstOrCreate([
-					"id"			=> $b+1,
-					"position"		=> $b,
-					"name"			=> $a[0],
-					"description"	=> $a[1]
-				]);
+				$role = ProductionRole::find($b+1);
+				if (is_null($role)) {
+					$role = new ProductionRole();
+				}
+				$role->id = $b+1;
+				$role->position = $b;
+				$role->name = $a[0];
+				$role->description = $a[1];
 				$role->save();
 				$role->id = $b+1; // fixes bug
 				
