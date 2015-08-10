@@ -1,6 +1,7 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use uk\co\la1tv\website\helpers\reorderableList\AjaxSelectReorderableList;
+use uk\co\la1tv\website\helpers\reorderableList\MediaItemCreditsReorderableList;
 use FormHelpers;
 use Carbon;
 use Exception;
@@ -14,7 +15,7 @@ class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled');
-	protected $appends = array("related_items_for_orderable_list", "related_items_for_input", "scheduled_publish_time_for_input");
+	protected $appends = array("related_items_for_reorderable_list", "related_items_for_input", "credits_for_reorderable_list", "credits_for_input", "scheduled_publish_time_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -79,6 +80,10 @@ class MediaItem extends MyEloquent {
 		return $this->hasMany(self::$p.'EmailTasksMediaItem', 'media_item_id');
 	}
 	
+	public function credits() {
+		return $this->morphMany('uk\co\la1tv\website\models\Credit', 'creditable');
+	}
+	
 	public function watchingNows() {
 		return $this->hasMany(self::$p.'WatchingNow', 'media_item_id');
 	}
@@ -97,15 +102,42 @@ class MediaItem extends MyEloquent {
 		return $ids;
 	}
 	
-	public function getRelatedItemsForOrderableListAttribute() {
-		return self::generateInitialDataForAjaxSelectOrderableList($this->getRelatedItemIdsForReorderableList());
+	public function getRelatedItemsForReorderableListAttribute() {
+		return self::generateInitialDataForAjaxSelectReorderableList($this->getRelatedItemIdsForReorderableList());
 	}
 	
 	public function getRelatedItemsForInputAttribute() {
-		return self::generateInputValueForAjaxSelectOrderableList($this->getRelatedItemIdsForReorderableList());
+		return self::generateInputValueForAjaxSelectReorderableList($this->getRelatedItemIdsForReorderableList());
 	}
 	
-	public static function isValidIdsFromAjaxSelectOrderableList($ids) {
+	private function getCreditsDataForReorderableList() {
+		$positions = array();
+		$data = array();
+		$this->load("credits", "credits.productionRole", "credits.siteUser", "credits.productionRole.productionRoleMediaItem");
+		$items = $this->credits()->get();
+		foreach($items as $a) {
+			$positions[] = intval($a->productionRole->position);
+			$siteUser = $a->siteUser;
+			$data[] = array(
+				"productionRoleId"	=> intval($a->productionRole->id),
+				"siteUserId"		=> !is_null($siteUser) ? intval($siteUser->id) : null,
+				"nameOverride"		=> $a->name_override
+			);
+		}
+		// sort so that credits are in the correct order
+		array_multisort($positions, SORT_ASC, SORT_NUMERIC, $data);
+		return $data;
+	}
+	
+	public function getCreditsForReorderableListAttribute() {
+		return self::generateInitialDataForMediaItemCreditsReorderableList($this->getCreditsDataForReorderableList());
+	}
+	
+	public function getCreditsForInputAttribute() {
+		return self::generateInputValueForMediaItemCreditsReorderableList($this->getCreditsDataForReorderableList());
+	}
+	
+	public static function isValidIdsFromAjaxSelectReorderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
@@ -114,7 +146,7 @@ class MediaItem extends MyEloquent {
 		return $reorderableList->isValid();
 	}
 	
-	public static function generateInitialDataForAjaxSelectOrderableList($ids) {
+	public static function generateInitialDataForAjaxSelectReorderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
@@ -123,12 +155,27 @@ class MediaItem extends MyEloquent {
 		return $reorderableList->getInitialDataString();
 	}
 	
-	public static function generateInputValueForAjaxSelectOrderableList($ids) {
+	public static function generateInputValueForAjaxSelectReorderableList($ids) {
 		$reorderableList = new AjaxSelectReorderableList($ids, function() {
 			return new MediaItem();
 		}, function($model) {
 			return $model->name;
 		});
+		return $reorderableList->getStringForInput();
+	}
+	
+	public static function isValidDataFromMediaItemCreditsReorderableList($data) {
+		$reorderableList = new MediaItemCreditsReorderableList($data);
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForMediaItemCreditsReorderableList($data) {
+		$reorderableList = new MediaItemCreditsReorderableList($data);
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForMediaItemCreditsReorderableList($data) {
+		$reorderableList = new MediaItemCreditsReorderableList($data);
 		return $reorderableList->getStringForInput();
 	}
 	

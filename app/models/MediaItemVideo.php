@@ -11,7 +11,7 @@ class MediaItemVideo extends MyEloquent {
 
 	protected $table = 'media_items_video';
 	protected $fillable = array('time_recorded', 'enabled');
-	protected $appends = array("time_recorded_for_input", "chapters_for_orderable_list", "chapters_for_input");
+	protected $appends = array("time_recorded_for_input", "chapters_for_reorderable_list", "chapters_for_input");
 	
 	
 	protected static function boot() {
@@ -200,25 +200,25 @@ class MediaItemVideo extends MyEloquent {
 		return $data;
 	}	
 
-	public function getChaptersForOrderableListAttribute() {
-		return self::generateInitialDataForChaptersOrderableList($this->getChaptersDataForReorderableList());
+	public function getChaptersForReorderableListAttribute() {
+		return self::generateInitialDataForChaptersReorderableList($this->getChaptersDataForReorderableList());
 	}
 	
 	public function getChaptersForInputAttribute() {
-		return self::generateInputValueForChaptersOrderableList($this->getChaptersDataForReorderableList());
+		return self::generateInputValueForChaptersReorderableList($this->getChaptersDataForReorderableList());
 	}
 	
-	public static function isValidDataFromChaptersOrderableList($data) {
+	public static function isValidDataFromChaptersReorderableList($data) {
 		$reorderableList = new ChaptersReorderableList($data);
 		return $reorderableList->isValid();
 	}
 	
-	public static function generateInitialDataForChaptersOrderableList($data) {
+	public static function generateInitialDataForChaptersReorderableList($data) {
 		$reorderableList = new ChaptersReorderableList($data);
 		return $reorderableList->getInitialDataString();
 	}
 	
-	public static function generateInputValueForChaptersOrderableList($data) {
+	public static function generateInputValueForChaptersReorderableList($data) {
 		$reorderableList = new ChaptersReorderableList($data);
 		return $reorderableList->getStringForInput();
 	}

@@ -41,7 +41,7 @@ define([
 			return $el;
 		};
 		
-		var qualityAjaxSelect = new AjaxSelect(PageData.get("baseUrl")+"/admin/quality-definitions/ajaxselect", {
+		var qualityAjaxSelect = new AjaxSelect(PageData.get("baseUrl")+"/admin/qualitydefinitions/ajaxselect", {
 			id: null,
 			text: null
 		});

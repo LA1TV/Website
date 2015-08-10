@@ -8,8 +8,9 @@ define([
 	"../../components/ajax-select",
 	"../../components/ajax-upload",
 	"../../components/chapter-input",
+	"../../components/credit-input",
 	"lib/domReady!"
-], function($, PageData, AjaxHelpers, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload, ChapterInput) {
+], function($, PageData, AjaxHelpers, Pinger, CustomForm, ReorderableList, AjaxSelect, AjaxUpload, ChapterInput, CreditInput) {
 	
 	$(".page-media-edit").first().each(function() {
 	
@@ -59,6 +60,35 @@ define([
 			$(".page-media-edit .vod-panel").each(handler);
 			$(".page-media-edit .live-stream-panel").each(handler);
 		})();
+		
+		$(this).find(".form-credits").each(function() {
+			var $container = $(this).first();
+			var $destinationEl = $container.parent().find('[name="credits"]').first();
+			var initialDataStr = $(this).attr("data-initialdata");
+			var initialData = jQuery.parseJSON(initialDataStr);
+			
+			var reorderableList = new ReorderableList(true, true, true, function(state) {
+				return new CreditInput(state);
+			}, {
+				productionRoleState: {id: null, text: null},
+				siteUserState: {id: null, text: null},
+				nameOverride: null
+			}, initialData);
+			$(reorderableList).on("stateChanged", function() {
+				var output = [];
+				var state = reorderableList.getState();
+				for (var i=0; i<state.length; i++) {
+					var row = state[i];
+					output.push({
+						productionRoleId: row.productionRoleState.id,
+						siteUserId: row.nameOverride !== null ? null : row.siteUserState.id,
+						nameOverride: row.nameOverride
+					});
+				}
+				$destinationEl.val(JSON.stringify(output));
+			});
+			$container.append(reorderableList.getEl());
+		});
 		
 		$(this).find(".form-related-items").each(function() {
 			var $container = $(this).first();

@@ -3,7 +3,7 @@
 class ApiUser extends MyEloquent {
 
 	protected $table = 'api_users';
-	protected $fillable = array('id', 'owner', 'information', 'key', 'can_view_stream_uris', 'can_view_vod_uris');
+	protected $fillable = array('owner', 'information', 'key', 'can_view_stream_uris', 'can_view_vod_uris');
 	
 	public function canViewVodUris() {
 		return (boolean) $this->can_view_vod_uris;

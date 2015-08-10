@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder {
 		$this->call('VideoFilesSeeder');
 		$this->call('ShowsSeeder');
 		$this->call('PlaylistsSeeder');
+		$this->call('ProductionRolesSeeder');
 	}
 
 }
