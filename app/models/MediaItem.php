@@ -112,6 +112,7 @@ class MediaItem extends MyEloquent {
 	
 	private function getCreditsDataForReorderableList() {
 		$positions = array();
+		$names = array();
 		$data = array();
 		$this->load("credits", "credits.productionRole", "credits.siteUser", "credits.productionRole.productionRoleMediaItem");
 		$items = $this->credits()->get();
