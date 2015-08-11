@@ -116,16 +116,19 @@ class MediaItem extends MyEloquent {
 		$this->load("credits", "credits.productionRole", "credits.siteUser", "credits.productionRole.productionRoleMediaItem");
 		$items = $this->credits()->get();
 		foreach($items as $a) {
+			$nameOverride = $a->name_override;
 			$positions[] = intval($a->productionRole->position);
+			$names[] = !is_null($nameOverride) ? $nameOverride : $siteUser->name;
 			$siteUser = $a->siteUser;
 			$data[] = array(
 				"productionRoleId"	=> intval($a->productionRole->id),
 				"siteUserId"		=> !is_null($siteUser) ? intval($siteUser->id) : null,
-				"nameOverride"		=> $a->name_override
+				"nameOverride"		=> $nameOverride
 			);
 		}
 		// sort so that credits are in the correct order
-		array_multisort($positions, SORT_ASC, SORT_NUMERIC, $data);
+		// first by role position, then by name (because could be more than one person per role)
+		array_multisort($positions, SORT_ASC, SORT_NUMERIC, $names, SORT_ASC, SORT_STRING, $data);
 		return $data;
 	}
 	
