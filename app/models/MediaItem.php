@@ -118,9 +118,9 @@ class MediaItem extends MyEloquent {
 		$items = $this->credits()->get();
 		foreach($items as $a) {
 			$nameOverride = $a->name_override;
+			$siteUser = $a->siteUser;
 			$positions[] = intval($a->productionRole->position);
 			$names[] = !is_null($nameOverride) ? $nameOverride : $siteUser->name;
-			$siteUser = $a->siteUser;
 			$data[] = array(
 				"productionRoleId"	=> intval($a->productionRole->id),
 				"siteUserId"		=> !is_null($siteUser) ? intval($siteUser->id) : null,
