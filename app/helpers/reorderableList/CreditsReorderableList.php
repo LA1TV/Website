@@ -88,10 +88,22 @@ abstract class CreditsReorderableList implements ReorderableList {
 					"text"	=> null
 				);
 				if (!is_null($siteUser)) {
+					$userId = intval($siteUser->id);
 					$currentItemOutput['siteUserState'] = array(
-						"id"	=> intval($siteUser->id),
+						"id"	=> $userId,
 						"text"	=> $siteUser->name
 					);
+					if ($this->valid) {
+						// check to make sure there isn't a duplicate entry
+						// ie same person to same role
+						foreach($output as $a) {
+							$loopUserId = $a["siteUserState"]["id"];
+							if (!is_null($loopUserId) && $loopUserId === $userId && $a["productionRoleState"]["id"] === $currentItemOutput['productionRoleState']['id']) {
+								$this->valid = false;
+								break;
+							}
+						}
+					}
 				}
 				else {
 					$this->valid = false;
