@@ -41,12 +41,14 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		foreach($liveStreams as $a) {
 			$enabled = (boolean) $a->enabled;
 			$enabledStr = $enabled ? "Yes" : "No";
-			$hasDvr = (boolean) $a->dvr_enabled;
-			$hasDvrStr = $hasDvr ? "Yes" : "No";
+			$shownAsLivestream = (boolean) $a->shown_as_livestream;
+			$shownAsLivestreamStr = $shownAsLivestream ? "Yes" : "No";
 			
 			$tableData[] = array(
 				"enabled"		=> $enabledStr,
 				"enabledCss"	=> $enabled ? "text-success" : "text-danger",
+				"shownAsLivestream"	=> $shownAsLivestreamStr,
+				"shownAsLivestreamCss"	=> $shownAsLivestream ? "text-success" : "text-danger",
 				"name"			=> $a->name,
 				"description"	=> !is_null($a->description) ? $a->description : "[No Description]",
 				"timeCreated"	=> $a->created_at->toDateTimeString(),
@@ -123,6 +125,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(false, $liveStream, "enabled")?"y":""),
+			array("shownAsLivestream", ObjectHelpers::getProp(false, $liveStream, "shown_as_livestream")?"y":""),
 			array("name", ObjectHelpers::getProp("", $liveStream, "name")),
 			array("description", ObjectHelpers::getProp("", $liveStream, "description")),
 			array("urls", json_encode(array())),
@@ -173,6 +176,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					$liveStream->name = $formData['name'];
 					$liveStream->description = FormHelpers::nullIfEmpty($formData['description']);
 					$liveStream->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$liveStream->shown_as_livestream = FormHelpers::toBoolean($formData['shownAsLivestream']);
 					
 					if ($liveStream->save() === false) {
 						throw(new Exception("Error saving LiveStream."));

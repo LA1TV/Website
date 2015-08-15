@@ -7,7 +7,7 @@ use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 class LiveStream extends MyEloquent {
 
 	protected $table = 'live_streams';
-	protected $fillable = array('name', 'description', 'enabled');
+	protected $fillable = array('name', 'description', 'enabled', 'shown_as_livestream');
 	protected $appends = array('urls_for_orderable_list', 'urls_for_input');
 	
 	public function liveStreamItems() {
