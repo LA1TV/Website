@@ -182,11 +182,11 @@ class LiveStream extends MyEloquent {
 
 	// returns true if this should be shown as a livestream on the site
 	public function getShowAsLiveStream() {
-		return $this->getIsAccessible() && $this->shown_as_livestream;
+		return $this->shown_as_livestream;
 	}
 
 	public function scopeShowAsLivestream($q) {
-		return $q->accessible()->where("shown_as_livestream", true);
+		return $q->where("shown_as_livestream", true);
 	}
 
 	public function getIsAccessible() {
