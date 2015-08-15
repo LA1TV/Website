@@ -8,6 +8,7 @@ use Config;
 use App;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\MediaItemLiveStream;
 use Facebook;
 use Request;
@@ -112,6 +113,12 @@ class HomeBaseController extends BaseController {
 		}
 		$view->playlistsUri = Config::get("custom.base_url") . "/playlists";
 		
+		$liveStreams = LiveStream::getCachedSiteLiveStreams();
+		$view->liveStreamsDropdown = array();
+		foreach($liveStreams as $a) {
+			$view->liveStreamsDropdown[] = array("uri"=>Config::get("custom.base_url") . "/livestream/".$a->id, "text"=>$a->name);
+		}
+
 		$contentSecurityPolicyDomains = MediaItemLiveStream::getCachedLiveStreamDomains();
 		$response = new MyResponse($view, $statusCode);
 		// disable csp for main site because causing too many issues with live streams (and clappr uses unsafe evals etc)

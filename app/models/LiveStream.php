@@ -2,6 +2,7 @@
 
 use Exception;
 use Config;
+use Cache;
 use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
@@ -173,10 +174,25 @@ class LiveStream extends MyEloquent {
 		return $reorderableList->getStringForInput();
 	}
 	
+	public static function getCachedSiteLiveStreams() {
+		return Cache::remember('siteLiveStreams', Config::get("custom.cache_time"), function() {
+			return self::showAsLiveStream()->orderBy("name", "asc")->get();
+		});
+	}
+
+	// returns true if this should be shown as a livestream on the site
+	public function getShowAsLiveStream() {
+		return $this->getIsAccessible() && $this->shown_as_livestream;
+	}
+
+	public function scopeShowAsLivestream($q) {
+		return $q->accessible()->where("shown_as_livestream", true);
+	}
+
 	public function getIsAccessible() {
 		return $this->enabled && $this->liveStreamUris()->count() > 0;
 	}
-	
+
 	public function scopeAccessible($q) {
 		return $q->where("enabled", true)->has("liveStreamUris", ">", 0);
 	}

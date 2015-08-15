@@ -72,6 +72,16 @@
 <li><a href="<?=e($playlistsUri);?>">Playlists</a></li>
 <?php endif; ?>
 <li><a href="<?=e($guideUri);?>">Guide</a></li>
+<?php if (count($liveStreamsDropdown) > 0): ?>
+<li class="dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Live Streams<b class="caret"></b></a>
+	<ul class="dropdown-menu">
+		<?php foreach($liveStreamsDropdown as $a): ?>
+		<li><a href="<?=e($a['uri']);?>"><?=e($a['text']);?></a></li>
+		<?php endforeach; ?>
+	</ul>
+</li>
+<?php endif; ?>
 <?php if (!is_null($blogUri)): ?>
 <li><a href="<?=e($blogUri);?>">Blog</a></li>
 <?php endif; ?>

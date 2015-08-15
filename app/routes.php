@@ -54,6 +54,8 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
 			Route::controller('/contact', $p.'home\contact\ContactController');
+			Route::controller('/livestream', $p.'home\liveStream\LiveStreamController');
+			Route::get('/livestream/{a}', array("as"=>"liveStream", "uses"=>$p.'home\liveStream\LiveStreamController@getIndex'));
 			Route::controller('/playlists', $p.'home\playlists\PlaylistsController');
 			Route::get('/playlists/{a?}', array("as"=>"playlists", "uses"=>$p.'home\playlists\PlaylistsController@getIndex'));
 			Route::controller('/playlist', $p.'home\playlist\PlaylistController');
