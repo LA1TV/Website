@@ -23,6 +23,7 @@ define([
 		this.setStartTime = function(startTime, willBeLiveParam) {
 			queuedStartTime = startTime;
 			queuedWillBeLive = willBeLiveParam;
+			window.test = this;
 			return this;
 		};
 		
@@ -398,8 +399,8 @@ define([
 			}
 			else if (queuedShowStartTime) {
 				if (queuedStartTime === null && (startTime !== null || !showStartTime)) {
-					// TODO show unavailable at the moment or something
-					
+					$adLiveAt.text("Currently Unavailable").show();
+					FitTextHandler.register($adLiveAt);
 					currentAdTimeTxt = null;
 				}
 				else if (queuedStartTime !== null) {
