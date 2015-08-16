@@ -27,8 +27,8 @@ define([
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
-	// registerViewCount, registerLikeUri and updatePlaybackTimeUri can be null to disable these features
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	// registerViewCount, registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri can be null to disable these features
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -62,27 +62,39 @@ define([
 			return null;
 		};
 		
-		// get the media item id corresponding to this players content
-		this.getMediaItemId = function() {
-			return mediaItemId;
+		// get the id corresponding to this players content
+		this.getContentId = function() {
+			return getContentId;
 		};
 		
 		// total number of likes or null if like total is disabled.
 		this.getNumLikes = function() {
+			if (!registerLikeUri) {
+				throw "Likes disabled because registerLikeUri not provided.";
+			}
 			return numLikes;
 		};
 		
 		// total number of dislikes or null if dislike total is disabled
 		this.getNumDislikes = function() {
+			if (!registerLikeUri) {
+				throw "Likes disabled because registerLikeUri not provided.";
+			}
 			return numDisikes;
 		};
 		
 		// returns 'like' if person liked this, 'dislike' if disliked, or null if neither
 		this.getLikeType = function() {
+			if (!registerLikeUri) {
+				throw "Likes disabled because registerLikeUri not provided.";
+			}
 			return likeType;
 		};
 		
 		this.registerLike = function(type, callback) {
+			if (!registerLikeUri) {
+				throw "Likes are disabled because no registerLikeUri was provided.";
+			}
 			registerLike(type, callback);
 		};
 		
@@ -91,14 +103,23 @@ define([
 		};
 		
 		this.getStreamViewCount = function() {
+			if (!registerViewCountUri) {
+				throw "View count disabled because registerViewCountUri not provided.";
+			}
 			return streamViewCount;
 		};
 		
 		this.getVodViewCount = function() {
+			if (!registerViewCountUri) {
+				throw "View count disabled because registerViewCountUri not provided.";
+			}
 			return vodViewCount;
 		};
 		
 		this.getViewCount = function() {
+			if (!registerViewCountUri) {
+				throw "View count disabled because registerViewCountUri not provided.";
+			}
 			if (cachedData !== null) {
 				var streamCount = self.getStreamViewCount();
 				var vodCount = self.getVodViewCount();
@@ -231,7 +252,7 @@ define([
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
-		var mediaItemId = null;
+		var getContentId = null;
 		var playerType = null;
 		var currentUris = [];
 		var cachedData = null;
@@ -301,7 +322,7 @@ define([
 					
 					var callback = function(time) {
 						cachedData = data;
-						mediaItemId = data.id;
+						getContentId = data.id;
 						vodSourceId = data.vodSourceId;
 						vodRememberedStartTime = time;
 						render();
@@ -806,13 +827,18 @@ define([
 		}
 		
 		function updateRememberedTimeOnServer() {
+			if (!updatePlaybackTimeBaseUri) {
+				// disabled
+				return;
+			}
+
 			if (!PageData.get("loggedIn")) {
 				// don't bother making the request if the user is not logged in.
 				return;
 			}
 			
 			// make request to update time on server.
-			jQuery.ajax(updatePlaybackTimeUri+"/"+vodSourceId, {
+			jQuery.ajax(updatePlaybackTimeBaseUri+"/"+vodSourceId, {
 				cache: false,
 				dataType: "json",
 				headers: AjaxHelpers.getHeaders(),
@@ -974,6 +1000,10 @@ define([
 		}
 		
 		function updateLikes() {
+			if (!registerLikeUri) {
+				// disabled
+				return;
+			}
 			var changed = numLikes !== cachedData.numLikes;
 			numLikes = cachedData.numLikes;
 			if (changed) {
@@ -992,6 +1022,10 @@ define([
 		}
 		
 		function registerViewCount() {
+			if (!registerViewCountUri) {
+				// view counts disabled
+				return;
+			}
 			jQuery.ajax(registerViewCountUri, {
 				cache: false,
 				dataType: "json",
@@ -1005,6 +1039,10 @@ define([
 		}
 		
 		function registerWatching() {
+			if (!registerWatchingUri) {
+				// watching count disabled
+				return;
+			}
 			jQuery.ajax(registerWatchingUri, {
 				cache: false,
 				dataType: "json",
@@ -1017,6 +1055,9 @@ define([
 		}
 		
 		function registerLike(type, callback) {
+			if (!registerLikeUri) {
+				throw "Likes are disabled.";
+			}
 			if (type !== "like" && type !== "dislike" && type !== "reset") {
 				throw "Type must be 'like', 'dislike' or 'reset'.";
 			}
@@ -1114,7 +1155,7 @@ define([
 		}
 		
 		function reportToAnalytics(action) {
-			GoogleAnalytics.registerPlayerEvent(action, playerType, mediaItemId, playerComponent.getPlayerCurrentTime());
+			GoogleAnalytics.registerPlayerEvent(action, playerType, getContentId, playerComponent.getPlayerCurrentTime());
 		}
 		
 	};

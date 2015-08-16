@@ -11,6 +11,7 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, AlertModal, PlayerController, PageData, SynchronisedTime) {
 	
+	// registerViewCountUri, registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri may be null to disable these features
 	var PlayerContainer = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
 		var self = this;
@@ -51,7 +52,10 @@ define([
 		var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 		var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
 		var $likeButtonTxt = $("<span />");
-		$likeButtonItemContainer.append($likeButton);
+		if (registerLikeUri) {
+			// likes enabled
+			$likeButtonItemContainer.append($likeButton);
+		}
 		var $shareButtonItemContainer = $("<div />").addClass("item-container right");
 		var $shareButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 		var $shareButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-share");
@@ -195,12 +199,20 @@ define([
 		}
 		
 		function renderCounts() {
-			var viewCount = playerController.getViewCount();
+			var viewCount = null;
+			if (registerViewCountUri) {
+				// view counts enabled
+				viewCount = playerController.getViewCount();
+			}
 			if (viewCount !== null && viewCount === 0) {
 				viewCount = null;
 			}
 			
-			var numWatchingNow = playerController.getNumWatchingNow();
+			var numWatchingNow = null;
+			if (registerWatchingUri) {
+				// watching now enabled
+				numWatchingNow = playerController.getNumWatchingNow();
+			}
 			if (numWatchingNow !== null && (playerController.getPlayerType() === "ad" || numWatchingNow === 0)) {
 				numWatchingNow = null;
 			}
@@ -238,6 +250,10 @@ define([
 		}
 		
 		function renderLikeButton() {
+			if (!registerLikeUri) {
+				// likes disabled
+				return;
+			}
 			var likeType = playerController.getLikeType();
 			var numLikes = playerController.getNumLikes();
 			var streamState = playerController.getStreamState();
