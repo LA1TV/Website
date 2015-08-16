@@ -349,7 +349,6 @@ define([
 		// updates the ad using the queued data
 		// creates/destroys the ad if necessary
 		function updateAd() {
-			var creatingAd = false;
 			if (queuedShowAd !== showAd) {
 				if (queuedShowAd) {
 					createAd();
