@@ -31,18 +31,23 @@ class LiveStreamController extends HomeBaseController {
 			App::abort(404);
 		}
 
-		$uri = null;
+		$id = intval($liveStream->id);
+		$uri = null; // TODO
 		$title = $liveStream->name;
-		$coverArtUri = Config::get("custom.default_cover_uri");
-		$embedData = null;
-		$streamUris = null;
-		$numWatchingNow = 0;
+		$coverArtUri = Config::get("custom.default_cover_uri"); // TODO allow the user to upload one
+		$embedData = null; // TODO
+		$streamState = $liveStream->enabled ? 1 : 0;
+		$streamUris = null; // TODO
+		$numWatchingNow = 0; // TODO
 
 		$data = array(
-			"uri"						=> $uri, // used for embeddable player so title can be clickable
+			"id"						=> $id,
 			"title"						=> $title, // shown on embeddable player
+			"uri"						=> $uri, // used for embeddable player so title can be clickable
 			"coverUri"					=> $coverArtUri,
 			"embedData"					=> $embedData,
+			"hasStream"					=> true,
+			"streamState"				=> $streamState, // 0=not live, 1=live
 			"streamUris"				=> $streamUris, // if null this means stream is not live
 			"numWatchingNow"			=> $numWatchingNow
 		);
