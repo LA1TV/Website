@@ -21,10 +21,13 @@ class LiveStreamController extends HomeBaseController {
 		$view->title = $liveStream->name;
 		$view->descriptionEscaped = !is_null($liveStream->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($liveStream->description)) : null;
 		$openGraphProperties = array(); // TODO
+		$view->playerInfoUri = $this->getInfoUri($liveStream->id);
+		$view->registerWatchingUri = $this->getRegisterWatchingUri($liveStream->id);
+		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$this->setContent($view, "live-stream", "live-stream", $openGraphProperties, $liveStream->name);
 	}
 	
-	public function postPlayerInfo($liveStreamId) {
+	public function postPlayerInfo($id) {
 		
 		$liveStream = LiveStream::find($id);
 		if (is_null($liveStream) || !$liveStream->getShowAsLiveStream()) {
@@ -47,12 +50,20 @@ class LiveStreamController extends HomeBaseController {
 			"coverUri"					=> $coverArtUri,
 			"embedData"					=> $embedData,
 			"hasStream"					=> true,
-			"streamState"				=> $streamState, // 0=not live, 1=live
+			"streamState"				=> $streamState, // 0=not live, 1=live (2=show over, null=no livestream)
 			"streamUris"				=> $streamUris, // if null this means stream is not live
 			"numWatchingNow"			=> $numWatchingNow
 		);
 
 		return Response::json($data);
+	}
+
+	private function getInfoUri($liveStreamId) {
+		return Config::get("custom.live_stream_player_info_base_uri")."/".$liveStreamId;
+	}
+	
+	private function getRegisterWatchingUri($liveStreamId) {
+		return Config::get("custom.live_stream_player_register_watching_base_uri")."/".$liveStreamId;
 	}
 
 	public function missingMethod($parameters=array()) {

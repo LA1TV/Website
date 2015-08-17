@@ -309,7 +309,7 @@ define([
 					timerId = setTimeout(update, 15000);
 				}
 			};
-		
+
 			jQuery.ajax(playerInfoUri, {
 				cache: false,
 				dataType: "json",
@@ -357,6 +357,10 @@ define([
 		function updateEmbedData() {
 			if (embedData !== null) {
 				// the assumption is that embed data doesn't change
+				return;
+			}
+			if (!cachedData.embedData) {
+				// no embed data available (yet)
 				return;
 			}
 			embedData = cachedData.embedData;

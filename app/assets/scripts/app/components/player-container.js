@@ -42,21 +42,27 @@ define([
 			$container.addClass("embedded-player-container");
 		}
 		var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
-		var $count1ItemContainer = $("<div />").addClass("item-container");
-		var $count1 = $("<div />").addClass("view-count").hide();
+		var $count1ItemContainer = $("<div />").addClass("item-container hide");
+		var $count1 = $("<div />").addClass("view-count");
 		$count1ItemContainer.append($count1);
-		var $count2ItemContainer = $("<div />").addClass("item-container new-line");
-		var $count2 = $("<div />").addClass("view-count").hide();
+		var $count2ItemContainer = $("<div />").addClass("item-container new-line hide");
+		var $count2 = $("<div />").addClass("view-count");
 		$count2ItemContainer.append($count2);
-		var $likeButtonItemContainer = $("<div />").addClass("item-container right");
-		var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
-		var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
-		var $likeButtonTxt = $("<span />");
+		var $likeButtonItemContainer = null;
+		var $likeButton = null;
+		var $likeButtonGlyphicon = null;
+		var $likeButtonTxt = null;
 		if (registerLikeUri) {
 			// likes enabled
+			var $likeButtonItemContainer = $("<div />").addClass("item-container right");
+			var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
+			var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
+			var $likeButtonTxt = $("<span />");
+			$likeButton.append($likeButtonGlyphicon);
+			$likeButton.append($likeButtonTxt);
 			$likeButtonItemContainer.append($likeButton);
 		}
-		var $shareButtonItemContainer = $("<div />").addClass("item-container right");
+		var $shareButtonItemContainer = $("<div />").addClass("item-container right hide");
 		var $shareButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 		var $shareButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-share");
 		var $shareButtonTxt = $("<span />").text(" Share");
@@ -64,17 +70,15 @@ define([
 		var $overrideButtonItemContainer = $("<div />").addClass("item-container");
 		var $overrideButton = $("<button />").attr("type", "button").addClass("override-button btn btn-default btn-xs");
 		$overrideButtonItemContainer.append($overrideButton);
-		var $broadcastTimeContainer = $("<div />").addClass("item-container right new-line");
-		var $broadcastTime = $("<div />").addClass("broadcast-on-msg").hide();
+		var $broadcastTimeContainer = $("<div />").addClass("item-container right new-line hide");
+		var $broadcastTime = $("<div />").addClass("broadcast-on-msg");
 		$broadcastTimeContainer.append($broadcastTime);
 		var $playerComponent = null;
-		$likeButton.append($likeButtonGlyphicon);
-		$likeButton.append($likeButtonTxt);
 		$shareButton.append($shareButtonGlyphicon);
 		$shareButton.append($shareButtonTxt);
 		var $qualitySelectionItemContainer = $("<div />").addClass("item-container right");
 		
-		var $rightGroupContainer = $("<div />").addClass("item-container right");
+		var $rightGroupContainer = $("<div />").addClass("right");
 		
 		$bottomContainer.append($count1ItemContainer);
 		$bottomContainer.append($overrideButtonItemContainer);
@@ -132,24 +136,28 @@ define([
 				playerController.pause();
 				shareModal.show(true);
 			});
+			$shareButtonItemContainer.removeClass("hide");
 		});
 		
 		$(playerController).on("viewCountChanged numWatchingNowChanged playerTypeChanged", function() {
 			renderCounts();
 		});
 		
-		$likeButton.click(function() {
-			if (!PageData.get("loggedIn")) {
-				showLoginRequiredModal();
-				return;
-			}
-			$likeButton.prop("disabled", true);
-			// ignoring dislikes for now. could be added in the future
-			var type = playerController.getLikeType() !== "like" ? "like" : "reset";
-			playerController.registerLike(type, function(success) {
-				$likeButton.prop("disabled", false);
+		if (registerLikeUri) {
+			// likes enabled
+			$likeButton.click(function() {
+				if (!PageData.get("loggedIn")) {
+					showLoginRequiredModal();
+					return;
+				}
+				$likeButton.prop("disabled", true);
+				// ignoring dislikes for now. could be added in the future
+				var type = playerController.getLikeType() !== "like" ? "like" : "reset";
+				playerController.registerLike(type, function(success) {
+					$likeButton.prop("disabled", false);
+				});
 			});
-		});
+		}	
 		
 		$(playerController).on("likeTypeChanged numLikesChanged streamStateChanged playerTypeChanged", function() {
 			renderLikeButton();
@@ -190,10 +198,10 @@ define([
 		
 		function renderQualitySelectionComponent() {
 			if (qualitySelectionComponent.hasQualities()) {
-				$qualitySelectionItemContainer.css("display", "inline-block");
+				$qualitySelectionItemContainer.removeClass("hide");
 			}
 			else {
-				$qualitySelectionItemContainer.css("display", "none");
+				$qualitySelectionItemContainer.addClass("hide");
 			}
 			updatePlayerComponentSize();
 		}
@@ -217,24 +225,30 @@ define([
 				numWatchingNow = null;
 			}
 			
-			var $els = [$count1];
+			var $els = [[$count1ItemContainer, $count1]];
 			if (!embedded) {
 				// if it's not embedded allow 2 rows
-				$els.push($count2);
+				$els.push([$count2ItemContainer, $count2]);
 			}
 			
 			if (viewCount !== null) {
-				$els.shift().text(viewCount+" view"+(viewCount !== 1 ? "s":"")).show()
+				var $el = $els.shift();
+				$el[1].text(viewCount+" view"+(viewCount !== 1 ? "s":""));
+				$el[0].removeClass("hide");
 			}
 			
 			if ($els.length > 0) {
 				if (numWatchingNow !== null) {
-					$els.shift().text(numWatchingNow+" watching now").show();
+					var $el = $els.shift();
+					$el[1].text(numWatchingNow+" watching now");
+					$el[0].removeClass("hide");
 				}
 			}
 			
 			while($els.length > 0) {
-				$els.shift().text("").hide();
+				$el = $els.shift();
+				$el[0].addClass("hide");
+				$el[1].text("");
 			}
 			
 			updatePlayerComponentSize();
@@ -242,10 +256,10 @@ define([
 		
 		function renderShareButton() {
 			if ($playerComponent === null) {
-				$shareButtonItemContainer.css("display", "none");
+				$shareButtonItemContainer.addClass("hide");
 			}
 			else {
-				$shareButtonItemContainer.css("display", "inline-block");
+				// the embedDataAvailable event handler will show it
 			}
 		}
 		
@@ -298,7 +312,7 @@ define([
 		
 		function renderOverrideButton() {
 			if (!enableAdminOverride) {
-				$overrideButton.css("display", "none");
+				$overrideButtonItemContainer.addClass("hide");
 				return;
 			}
 			
@@ -335,10 +349,11 @@ define([
 				if ($broadcastTime.text() !== txt) {
 					$broadcastTime.text(txt);
 				}
-				$broadcastTime.show();
+				$broadcastTimeContainer.removeClass("hide");
 			}
 			else {
-				$broadcastTime.hide().text("");
+				$broadcastTimeContainer.addClass("hide");
+				$broadcastTime.text("");
 			}
 		}
 		
