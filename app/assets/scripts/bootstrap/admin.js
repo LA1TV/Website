@@ -21,9 +21,6 @@ require.config({
 			exports: "plupload",
 			deps: ['moxie']
 		},
-		"lib/clappr": {
-			exports: "Clappr"
-		},
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
