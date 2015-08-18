@@ -16,9 +16,6 @@ require.config({
 		"lib/modernizr": {
 			exports: "Modernizr"
 		},
-		"lib/clappr": {
-			exports: "Clappr"
-		},
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
