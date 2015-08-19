@@ -55,7 +55,7 @@
 		<?php endforeach; ?>
 		<?php endif; ?>
 		<?php if (isset($requireJsBootstrap)): ?>
-		<script data-main="<?=e($requireJsBootstrap);?><?=e(isset($version) ? "?v=".$version : "");?>" src="<?=asset("assets/scripts/require.js".(e(isset($version) ? "?v=".$version : "")));?>"></script>
+		<script data-main="<?=e($requireJsBootstrap);?><?=e(isset($version) ? "?v=".$version : "");?>" src="<?=asset("assets/scripts/require.js");?><?=e(isset($version) ? "?v=".$version : "");?>"></script>
 		<?php endif; ?>
 	</head>
 	<body data-pagedata="<?=e(json_encode(isset($pageData) ? $pageData : array()));?>">
