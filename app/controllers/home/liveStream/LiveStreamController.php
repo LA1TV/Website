@@ -7,6 +7,7 @@ use View;
 use Response;
 use Config;
 use URLHelpers;
+use Auth;
 
 class LiveStreamController extends HomeBaseController {
 
@@ -33,15 +34,40 @@ class LiveStreamController extends HomeBaseController {
 		if (is_null($liveStream) || !$liveStream->getShowAsLiveStream()) {
 			App::abort(404);
 		}
+		$liveStream->load("watchingNows");
+
+		// true if a user is logged into the cms and has permission to view live streams.
+		$userHasLiveStreamsPermission = false;
+		if (Auth::isLoggedIn()) {
+			$userHasLiveStreamsPermission = Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0);
+		}
+
+		$streamAccessible = $liveStream->getIsAccessible();
 
 		$id = intval($liveStream->id);
-		$uri = null; // TODO
+		$uri = $liveStream->getUri();
 		$title = $liveStream->name;
 		$coverArtUri = Config::get("custom.default_cover_uri"); // TODO allow the user to upload one
 		$embedData = null; // TODO
-		$streamState = $liveStream->enabled ? 1 : 0;
-		$streamUris = null; // TODO
-		$numWatchingNow = 0; // TODO
+		$streamState = $streamAccessible ? 2 : 1;
+		$minNumWatchingNow = Config::get("custom.min_num_watching_now");
+		$numWatchingNow = $liveStream->getNumWatchingNow();
+		if (!$userHasLiveStreamsPermission && $numWatchingNow < $minNumWatchingNow) {
+			$numWatchingNow = null;
+		}
+		$streamUris = array();
+
+		if ($streamAccessible) {
+			foreach($liveStream->getQualitiesWithUris("live") as $qualityWithUris) {
+				$streamUris[] = array(
+					"quality"	=> array(
+						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+						"name"	=> $qualityWithUris['qualityDefinition']->name
+					),
+					"uris"		=> $qualityWithUris['uris']
+				);
+			}
+		}
 
 		$data = array(
 			"id"						=> $id,
@@ -50,12 +76,22 @@ class LiveStreamController extends HomeBaseController {
 			"coverUri"					=> $coverArtUri,
 			"embedData"					=> $embedData,
 			"hasStream"					=> true,
-			"streamState"				=> $streamState, // 0=not live, 1=live (2=show over, null=no livestream)
+			"streamState"				=> $streamState, // 1=not live, 2=live (3=show over, null=no livestream)
 			"streamUris"				=> $streamUris, // if null this means stream is not live
 			"numWatchingNow"			=> $numWatchingNow
 		);
 
 		return Response::json($data);
+	}
+
+	public function postRegisterWatching($liveStreamId) {
+		$liveStream = LiveStream::accessible()->find($liveStreamId);
+		if (is_null($liveStream)) {
+			App::abort(404);
+		}
+		
+		$success = $liveStream->registerWatching();
+		return Response::json(array("success"=>$success));
 	}
 
 	private function getInfoUri($liveStreamId) {

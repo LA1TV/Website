@@ -3,6 +3,10 @@
 use Exception;
 use Config;
 use Cache;
+use Carbon;
+use URL;
+use Session;
+use DB;
 use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
@@ -17,6 +21,15 @@ class LiveStream extends MyEloquent {
 	
 	public function liveStreamUris() {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
+	}
+
+	public function watchingNows() {
+		return $this->hasMany(self::$p.'LiveStreamWatchingNow', 'live_stream_id');
+	}
+	
+	public function getNumWatchingNow() {
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		return $this->watchingNows()->where("updated_at", ">", $cutOffTime)->count();
 	}
 	
 	private function getUrisOrganisedByQuality() {
@@ -150,7 +163,32 @@ class LiveStream extends MyEloquent {
 		return $urls;
 	}
 	
-	
+	public function registerWatching() {
+		if (!$this->getIsAccessible() || !$this->getShowAsLiveStream()) {
+			return false;
+		}
+		
+		// delete any entries that have expired.
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		LiveStreamWatchingNow::where("updated_at", "<", $cutOffTime)->delete();
+		
+		DB::transaction(function() {
+			$sessionId = Session::getId();
+			$model = LiveStreamWatchingNow::where("session_id", $sessionId)->where("live_stream_id", $this->id)->first();
+			if (is_null($model)) {
+				$model = new LiveStreamWatchingNow(array(
+					"session_id"	=> $sessionId
+				));
+				$model->liveStream()->associate($this);
+				$model->save();
+			}
+			else {
+				$model->touch();
+			}
+		});
+		return true;
+	}
+
 	public function getUrlsForOrderableListAttribute() {
 		return self::generateInitialDataForUrlsOrderableList($this->getUrlsDataForReorderableList());
 	}
@@ -187,6 +225,10 @@ class LiveStream extends MyEloquent {
 
 	public function scopeShowAsLivestream($q) {
 		return $q->where("shown_as_livestream", true);
+	}
+
+	public function getUri() {
+		return URL::route('liveStream', array($this->id));
 	}
 
 	public function getIsAccessible() {
