@@ -12,56 +12,8 @@
 	</div>
 </div>
 
-<div class="row">
-	<div class="col-md-4">
-		<div class="schedule-box previously-live">
-			<div class="embed-responsive embed-responsive-16by9 window" data-jslink="http://google.com">
-				<div class="art-container">
-					<img src="https://www.la1tv.co.uk/file/25125">
-				</div>
-				<div class="overlay overlay-top">
-					<h2 class="box-name">Previously</h2>
-					<h4 class="box-time">12:20</h4>
-				</div>
-				<div class="overlay overlay-bottom">
-					<h3 class="box-show-name">UniBrass 2016</h3>
-					<div class="box-episode-name">Episode 5 (Freshers Week Special)</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-4">
-		<div class="schedule-box live-now">
-			<div class="embed-responsive embed-responsive-16by9 window" data-jslink="http://google.com">
-				<div class="art-container">
-					<img src="https://www.la1tv.co.uk/file/25125">
-				</div>
-				<div class="overlay overlay-top">
-					<h2 class="box-name">Live Now</h2>
-					<h4 class="box-time">12:20</h4>
-				</div>
-				<div class="overlay overlay-bottom">
-					<h3 class="box-show-name">UniBrass 2016</h3>
-					<div class="box-episode-name">Episode 5 (Freshers Week Special)</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-4">
-		<div class="schedule-box coming-up">
-			<div class="embed-responsive embed-responsive-16by9 window" data-jslink="http://google.com">
-				<div class="art-container">
-					<img src="https://www.la1tv.co.uk/file/25125">
-				</div>
-				<div class="overlay overlay-top">
-					<h2 class="box-name">Up Next</h2>
-					<h4 class="box-time">12:20</h4>
-				</div>
-				<div class="overlay overlay-bottom">
-					<h3 class="box-show-name">UniBrass 2016</h3>
-					<div class="box-episode-name">Episode 5 (Freshers Week Special)</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<div class="row schedule-boxes">
+	<div class="col-md-4 schedule-box-prev-live-container"></div>
+	<div class="col-md-4 schedule-box-live-container"></div>
+	<div class="col-md-4 schedule-box-coming-up-container"></div>
 </div>

@@ -38,6 +38,42 @@ define([
 				$(self).append(playerContainer.getEl());
 			});
 		});
+
+		$pageContainer.find(".schedule-boxes").first().each(function() {
+
+			var $container = $(this).first();
+
+			var $prevLiveContainer = $container.find(".schedule-box-prev-live-container").first();
+			var $liveContainer = $container.find(".schedule-box-live-container").first();
+			var $comingUpContainer = $container.find(".schedule-box-coming-up-container").first();
+
+			$liveContainer.append(buildScheduleBox("Live", "12:20", "UniBrass 2016", "Episode 5 (Freshers Week Special)", "https://www.la1tv.co.uk/file/25125", "https://google.com"));
+			
+			function buildScheduleBox(name, time, showName, episodeName, coverArtUrl, url) {
+				var $box = $("<div />").addClass("schedule-box");
+				var $window = $("<div />").addClass("embed-responsive embed-responsive-16by9 window").attr("data-jslink", url);
+				var $artContainer = $("<div />").addClass("art-container");
+				var $img = $("<img />").attr("src", coverArtUrl);
+				var $overlayTop = $("<div />").addClass("overlay overlay-top");
+				var $name = $("<h2 />").addClass("box-name").text(name);
+				var $time = $("<h4 />").addClass("box-time").text(time);
+				var $overlayBottom = $("<div />").addClass("overlay overlay-bottom");
+				var $showName = $("<h3 />").addClass("box-show-name").text(showName);
+				var $episodeName = $("<div />").addClass("box-episode-name").text(episodeName);
+
+				$box.append($window);
+				$window.append($artContainer);
+				$artContainer.append($img);
+				$window.append($overlayTop);
+				$overlayTop.append($name);
+				$overlayTop.append($time);
+				$window.append($overlayBottom)
+				$overlayBottom.append($showName);
+				$overlayBottom.append($episodeName);
+				return $box;
+			}
+
+		});
 		
 	});
 
