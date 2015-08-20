@@ -47,8 +47,48 @@ define([
 			var $liveContainer = $container.find(".schedule-box-live-container").first();
 			var $comingUpContainer = $container.find(".schedule-box-coming-up-container").first();
 
-			$liveContainer.append(buildScheduleBox("Live", "12:20", "UniBrass 2016", "Episode 5 (Freshers Week Special)", "https://www.la1tv.co.uk/file/25125", "https://google.com"));
+			var $box = buildScheduleBox("Live", "12:20", "UniBrass 2016", "Episode 5 (Freshers Week Special)", "https://www.la1tv.co.uk/file/25125", "https://google.com");
+			var $box2 = buildScheduleBox("Live", "12:20", "UniBrass 2016", "Episode 5 (Freshers Week Special)", "https://www.la1tv.co.uk/file/25125", "https://google.com");
 			
+			setTimeout(function() {
+				animateIn($box, $liveContainer);
+			}, 1000);
+			
+			setTimeout(function() {
+				animateOut($box, function() {
+					animateIn($box2, $liveContainer);
+				});
+			}, 4000);
+
+			function animateIn($el, $destination, callback) {
+				$el.css("opacity", 0);
+				$el.css("top", "-200px");
+				$el.css("z-index", -1);
+				$destination.append($el);
+				$el.animate({
+					top: 0,
+					opacity: 1
+				}, 500, function() {
+					$el.css("z-index", "");
+					if (callback) {
+						callback();
+					}
+				});
+			}
+
+			function animateOut($el, callback) {
+				$el.css("z-index", -1);
+				$el.animate({
+					top: "-200px",
+					opacity: 0
+				}, 500, function() {
+					$el.remove();
+					if (callback) {
+						callback();
+					}
+				});
+			}
+
 			function buildScheduleBox(name, time, showName, episodeName, coverArtUrl, url) {
 				var $box = $("<div />").addClass("schedule-box");
 				var $window = $("<div />").addClass("embed-responsive embed-responsive-16by9 window").attr("data-jslink", url);
