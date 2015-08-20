@@ -1,0 +1,93 @@
+.schedule-box {
+	position: relative;
+	top: 0;
+	margin-top: 10px;
+	text-align: center;
+}
+
+.schedule-box .window {
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.schedule-box .window .art-container {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+}
+
+.schedule-box .window .art-container img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.schedule-box .window .overlay {
+	position: absolute;
+	left: 0;
+	right: 0;
+	overflow: auto;
+	max-height: 100%;
+	color: #ffffff;
+}
+
+.schedule-box .window .overlay.overlay-top {
+	top: 0;
+}
+
+.schedule-box .window .overlay.overlay-bottom {
+	bottom: 0;
+	padding: 2px 10px;
+	background-color: rgba(255, 0, 0, 0.65);
+}
+
+html.csstransforms:not(.mobile) .schedule-box .window .overlay.overlay-bottom {
+	-webkit-transform: translateY(100%);
+	-ms-transform: translateY(100%);
+	transform: translateY(100%);
+	-webkit-transition: -webkit-transform 0.2s;
+    transition: transform 0.2s;
+}
+
+html.csstransforms:not(.mobile) .schedule-box .window:hover .overlay.overlay-bottom {
+	-webkit-transform: translateY(0);
+	-ms-transform: translateY(0);
+	transform: translateY(0);
+}
+
+.schedule-box .window .overlay .box-name {
+	margin: 0;
+	padding: 2px 10px;
+	background-color: rgba(255, 0, 0, 0.65);
+}
+
+.schedule-box .window .overlay .box-time {
+	margin: 0;
+	padding: 2px 10px;
+	background-color: rgba(255, 0, 0, 0.65);
+}
+
+.schedule-box .window .overlay .box-show-name {
+	margin-bottom: 2px;
+	margin-top: 0;
+	font-size: 20px;
+}
+
+.schedule-box .window .overlay .box-episode-name {
+	margin-bottom: 0;
+	margin-top: 0;
+	font-size: 14px;
+}
+
+.schedule-box.previously-live {
+}
+
+.schedule-box.live-now {
+}
+
+.schedule-box.coming-up {
+}
