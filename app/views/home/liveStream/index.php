@@ -12,7 +12,7 @@
 	</div>
 </div>
 
-<div class="row schedule-boxes">
+<div class="row schedule-boxes" data-schedule-uri="<?=e($scheduleUri);?>">
 	<div class="col-md-4 schedule-box-prev-live-container"></div>
 	<div class="col-md-4 schedule-box-live-container"></div>
 	<div class="col-md-4 schedule-box-coming-up-container"></div>

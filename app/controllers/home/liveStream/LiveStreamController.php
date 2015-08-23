@@ -8,6 +8,7 @@ use Response;
 use Config;
 use URLHelpers;
 use Auth;
+use Exception;
 
 class LiveStreamController extends HomeBaseController {
 
@@ -18,14 +19,38 @@ class LiveStreamController extends HomeBaseController {
 			App::abort(404);
 		}
 
+		$twitterProperties = array();
+		// $twitterProperties[] = array("name"=> "card", "content"=> "player");
+		// $twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
+		$openGraphProperties = array();
+		$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
+
+		// TODO get embeddable player url, and enable all twitter card properties
+		// $twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
+		// $twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
+		// $twitterProperties[] = array("name"=> "player:height", "content"=> "720");
+		
+		
+		if (!is_null($liveStream->description)) {
+			$openGraphProperties[] = array("name"=> "og:description", "content"=> $liveStream->description);
+		//	$twitterProperties[] = array("name"=> "description", "content"=> str_limit($liveStream->description, 197, "..."));
+		}
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $liveStream->name);
+		// $twitterProperties[] = array("name"=> "title", "content"=> $liveStream->name);
+		// TODO set to actual cover when cover art uploading implemented
+		$openGraphCoverArtUri = Config::get("custom.default_cover_uri"); 
+		// $twitterCardCoverArtUri = Config::get("custom.default_cover_uri");
+		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+		// $twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
+		
 		$view = View::make("home.livestream.index");
 		$view->title = $liveStream->name;
 		$view->descriptionEscaped = !is_null($liveStream->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($liveStream->description)) : null;
-		$openGraphProperties = array(); // TODO
 		$view->playerInfoUri = $this->getInfoUri($liveStream->id);
 		$view->registerWatchingUri = $this->getRegisterWatchingUri($liveStream->id);
+		$view->scheduleUri = $this->getScheduleUri($liveStream->id);
 		$view->loginRequiredMsg = "Please log in to use this feature.";
-		$this->setContent($view, "live-stream", "live-stream", $openGraphProperties, $liveStream->name);
+		$this->setContent($view, "live-stream", "live-stream", $openGraphProperties, $liveStream->name, 200, $twitterProperties);
 	}
 	
 	public function postPlayerInfo($id) {
@@ -84,6 +109,57 @@ class LiveStreamController extends HomeBaseController {
 		return Response::json($data);
 	}
 
+	public function postScheduleInfo($id) {
+		
+		$liveStream = LiveStream::find($id);
+		if (is_null($liveStream) || !$liveStream->getShowAsLiveStream()) {
+			App::abort(404);
+		}
+
+		// there may be more than one media item live stream which is live at the same time
+		// this will just pick the first one which is returned which should be consistant
+		// if there is ever more than one media item live at once it would probably only be
+		// for a short period of time anyway during a switch over
+		$liveMediaItemLiveStream = $liveStream->liveStreamItems()->accessible()->live()->has("mediaItem")->first();
+		$liveMediaItem = !is_null($liveMediaItemLiveStream) ? $liveMediaItemLiveStream->mediaItem : null;
+
+		$previouslyLive = null;
+		$live = !is_null($liveMediaItem) ? $this->getMediaItemArray($liveMediaItem) : null;
+		$comingUp = null;
+
+		// TODO remove
+		$previouslyLive = $live;
+		$comingUp = $live;
+
+		$data = array(
+			"previouslyLive"	=> $previouslyLive,
+			"live"				=> $live,
+			"comingUp"			=> $comingUp
+		);
+
+		return Response::json($data);
+	}
+
+	private function getMediaItemArray($mediaItem) {
+		$playlist = $mediaItem->getDefaultPlaylist();
+		if (is_null($playlist)) {
+			throw(new Exception("MediaItem not in an accessible playlist."));
+		}
+		$uri = $playlist->getMediaItemUri($mediaItem);
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+		$seriesName = !is_null($playlist->show) ? $playlist->generateName() : null;
+		$name = $playlist->generateEpisodeTitle($mediaItem);
+		return array(
+			"id"			=> intval($mediaItem->id),
+			"uri"			=> $uri,
+			"coverArtUri"	=> $coverArtUri,
+			"scheduledPublishTime"	=> $mediaItem->scheduled_publish_time->timestamp,
+			"seriesName"	=> $seriesName,
+			"name"			=> $name
+		);
+	}
+
 	public function postRegisterWatching($liveStreamId) {
 		$liveStream = LiveStream::accessible()->find($liveStreamId);
 		if (is_null($liveStream)) {
@@ -100,6 +176,10 @@ class LiveStreamController extends HomeBaseController {
 	
 	private function getRegisterWatchingUri($liveStreamId) {
 		return Config::get("custom.live_stream_player_register_watching_base_uri")."/".$liveStreamId;
+	}
+
+	private function getScheduleUri($liveStreamId) {
+		return Config::get("custom.live_stream_player_schedule_base_uri")."/".$liveStreamId;
 	}
 
 	public function missingMethod($parameters=array()) {
