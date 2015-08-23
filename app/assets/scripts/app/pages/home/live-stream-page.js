@@ -91,7 +91,9 @@ define([
 
 			function buildScheduleBox(name, time, showName, episodeName, coverArtUrl, url) {
 				var $box = $("<div />").addClass("schedule-box");
-				var $window = $("<div />").addClass("embed-responsive embed-responsive-16by9 window").attr("data-jslink", url);
+				var $window = $("<div />").addClass("embed-responsive embed-responsive-16by9 window").click(function() {
+						window.location = url;
+					});
 				var $artContainer = $("<div />").addClass("art-container");
 				var $img = $("<img />").attr("src", coverArtUrl);
 				var $overlayTop = $("<div />").addClass("overlay overlay-top");
