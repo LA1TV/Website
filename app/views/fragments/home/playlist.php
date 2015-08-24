@@ -34,7 +34,7 @@
 		<table class="playlist-table table table-bordered <?=$stripedTable?"table-striped":""?> table-hover">
 			<tbody>
 				<?php foreach($tableData as $row):?>
-				<tr class="<?=$row['active'] ? "chosen" : ""?>" data-link="<?=e($row['uri']);?>">
+				<tr class="<?=$row['active'] ? "chosen" : ""?> zoom-animation-container" data-link="<?=e($row['uri']);?>">
 					<?php if (!is_null($row['episodeNo'])): ?>
 					<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
 					<?php endif; ?>
