@@ -15,8 +15,9 @@ define(["jquery", "lib/domReady!"], function($) {
 			});
 			
 			var uri = $(this).attr("data-link");
-			$(this).click(function() {
+			$(this).click(function(e) {
 				window.location = uri;
+				e.preventDefault();
 			});
 			
 			$(this).hover(function() {
