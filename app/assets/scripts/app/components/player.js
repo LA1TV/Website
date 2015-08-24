@@ -23,7 +23,6 @@ define([
 		this.setStartTime = function(startTime, willBeLiveParam) {
 			queuedStartTime = startTime;
 			queuedWillBeLive = willBeLiveParam;
-			window.test = this;
 			return this;
 		};
 		
