@@ -468,7 +468,7 @@ class PlayerController extends HomeBaseController {
 			"embedData"					=> $embedData,
 			"hasStream"					=> $hasStream, // true if this media item has a live stream
 			"streamInfoMsg"				=> $streamInfoMsg,
-			"streamState"				=> $streamState, // 0=pending live, 1=live, 2=stream over, null=no stream
+			"streamState"				=> $streamState, // 1=pending live, 2=live, 3=stream over, null=no stream
 			"streamEndTime"				=> $streamEndTime, // the time the stream was marked as "stream over". null if not "stream over"
 			"streamUris"				=> $streamUris,
 			"availableOnDemand"			=> $availableOnDemand, // true if the stream is being recorded

@@ -19,9 +19,11 @@ define([
 			return $container;
 		};
 		
+		// if set to null start time will be presumed as unknown
 		this.setStartTime = function(startTime, willBeLiveParam) {
 			queuedStartTime = startTime;
 			queuedWillBeLive = willBeLiveParam;
+			window.test = this;
 			return this;
 		};
 		
@@ -257,6 +259,7 @@ define([
 		
 		var showAd = null;
 		var queuedShowAd = true;
+		var showStartTime = false;
 		var startTime = null;
 		var queuedStartTime = null;
 		var willBeLive = null;
@@ -368,9 +371,10 @@ define([
 			}
 			
 			// only show the start time if there is one set or if stream over message is not visible/going visible
+			var queuedShowStartTime = true;
 			if (queuedShowStreamOver) {
 				// disable showing the time or external live stream url if stream over message visible
-				queuedStartTime = null;
+				queuedShowStartTime = false;
 				queuedExternalLiveStreamUrl = null;
 			}
 			
@@ -385,83 +389,92 @@ define([
 				adExternalLiveStreamUrl = queuedExternalLiveStreamUrl;
 			}
 			
-			if (queuedStartTime === null && startTime !== null) {
+			if (!queuedShowStartTime && showStartTime) {
 				// hiding start time
 				$adLiveAt.hide().text("");
 				currentAdLiveAtTxt = null;
 				willBeLive = queuedWillBeLive = null;
-				$adTime.hide().text("")
+				$adTime.hide().text("");
 				currentAdTimeTxt = null;
 			}
-			else if (queuedStartTime !== null) {
-				var currentDate = SynchronisedTime.getDate();
-				var tomorrowDate = new Date(currentDate.valueOf());
-				tomorrowDate.setDate(currentDate.getDate()+1);
-				var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
-				var timePassed = currentDate.getTime() >= queuedStartTime.getTime();
-				
-				var sameMonthAndYear = function(a, b) {
-					return a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
-				};
-				
-				var txt = null;
-				if (!timePassed) {
-					if (!showCountdown) {
-						if (queuedStartTime.getDate() === currentDate.getDate() && sameMonthAndYear(queuedStartTime, currentDate)) {
-							txt = "Today at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
-						}
-						else if (queuedStartTime.getDate() === tomorrowDate.getDate() && sameMonthAndYear(queuedStartTime, tomorrowDate)) {
-							txt = "Tomorrow at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
+			else if (queuedShowStartTime) {
+				if (queuedStartTime === null && (startTime !== null || !showStartTime)) {
+					$adLiveAt.text("Currently Unavailable").show();
+					FitTextHandler.register($adLiveAt);
+					currentAdTimeTxt = null;
+				}
+				else if (queuedStartTime !== null) {
+					var currentDate = SynchronisedTime.getDate();
+					var tomorrowDate = new Date(currentDate.valueOf());
+					tomorrowDate.setDate(currentDate.getDate()+1);
+					var showCountdown = queuedStartTime.getTime() < currentDate.getTime() + 300000 && queuedStartTime.getTime() > currentDate.getTime();
+					var timePassed = currentDate.getTime() >= queuedStartTime.getTime();
+					
+					var sameMonthAndYear = function(a, b) {
+						return a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+					};
+					
+					var txt = null;
+					if (!timePassed) {
+						if (!showCountdown) {
+							if (queuedStartTime.getDate() === currentDate.getDate() && sameMonthAndYear(queuedStartTime, currentDate)) {
+								txt = "Today at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
+							}
+							else if (queuedStartTime.getDate() === tomorrowDate.getDate() && sameMonthAndYear(queuedStartTime, tomorrowDate)) {
+								txt = "Tomorrow at "+$.format.date(queuedStartTime.getTime(), "HH:mm");
+							}
+							else {
+								txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
+							}
 						}
 						else {
-							txt = $.format.date(queuedStartTime.getTime(), "HH:mm on D MMM yyyy");
+							var secondsToGo = Math.ceil((queuedStartTime.getTime() - currentDate.getTime()) / 1000);
+							var minutes = Math.floor(secondsToGo/60);
+							var seconds = secondsToGo%60;
+							txt = minutes+" minute"+(minutes!==1?"s":"")+" "+pad(seconds, 2)+" second"+(seconds!==1?"s":"");
+						}
+					}
+					
+					willBeLive = queuedWillBeLive;
+					
+					var queuedAdLiveAtTxt = null;
+					if (queuedWillBeLive) {
+						queuedAdLiveAtTxt = "Live";
+					}
+					else {
+						queuedAdLiveAtTxt = "Available";
+					}
+					
+					if (!timePassed) {
+						if (showCountdown) {
+							queuedAdLiveAtTxt = queuedAdLiveAtTxt+" In";
 						}
 					}
 					else {
-						var secondsToGo = Math.ceil((queuedStartTime.getTime() - currentDate.getTime()) / 1000);
-						var minutes = Math.floor(secondsToGo/60);
-						var seconds = secondsToGo%60;
-						txt = minutes+" minute"+(minutes!==1?"s":"")+" "+pad(seconds, 2)+" second"+(seconds!==1?"s":"");
+						queuedAdLiveAtTxt = queuedAdLiveAtTxt+" Soon";
 					}
-				}
-				
-				willBeLive = queuedWillBeLive;
-				
-				var queuedAdLiveAtTxt = null;
-				if (queuedWillBeLive) {
-					queuedAdLiveAtTxt = "Live";
-				}
-				else {
-					queuedAdLiveAtTxt = "Available";
-				}
-				
-				if (!timePassed) {
-					if (showCountdown) {
-						queuedAdLiveAtTxt = queuedAdLiveAtTxt+" In";
+					
+					
+					if (queuedAdLiveAtTxt !== currentAdLiveAtTxt) {
+						$adLiveAt.text(queuedAdLiveAtTxt).show();
+						FitTextHandler.register($adLiveAt);
+						currentAdLiveAtTxt = queuedAdLiveAtTxt;
 					}
-				}
-				else {
-					queuedAdLiveAtTxt = queuedAdLiveAtTxt+" Soon";
-				}
-				
-				
-				if (queuedAdLiveAtTxt !== currentAdLiveAtTxt) {
-					$adLiveAt.text(queuedAdLiveAtTxt).show();
-					FitTextHandler.register($adLiveAt);
-					currentAdLiveAtTxt = queuedAdLiveAtTxt;
-				}
-				if (currentAdTimeTxt !== txt) {
-					if (txt !== null) {
-						$adTime.text(txt).show();
-						FitTextHandler.register($adTime);
+					if (currentAdTimeTxt !== txt) {
+						if (txt !== null) {
+							$adTime.text(txt).show();
+							FitTextHandler.register($adTime);
+						}
+						else {
+							$adTime.hide().text("");
+						}
+						currentAdTimeTxt = txt;
 					}
-					else {
-						$adTime.hide().text("");
-					}
-					currentAdTimeTxt = txt;
 				}
 			}
+			showStartTime = queuedShowStartTime;
 			startTime = queuedStartTime;
+
 			if (customMsg !== queuedCustomMsg) {
 				if (queuedCustomMsg === null) {
 					$adCustomMsg.hide().text("");
@@ -537,6 +550,7 @@ define([
 			$ad.remove();
 			$ad = null;
 			adExternalLiveStreamUrl = null;
+			showStartTime = false;
 			startTime = null;
 			willBeLive = null;
 			customMsg = null;

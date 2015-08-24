@@ -42,6 +42,9 @@ return array(
 	"embed_player_register_view_count_base_uri"	=> URL::to("/") . "/player/register-view",
 	"embed_player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"embed_player_update_playback_time_base_uri"	=> URL::to("/") . "/player/register-playback-time",
+	"live_stream_player_info_base_uri"	=> URL::to("/") . "/livestream/player-info",
+	"live_stream_player_register_watching_base_uri"	=> URL::to("/") . "/livestream/register-watching",
+	"live_stream_player_schedule_base_uri"	=> URL::to("/") . "/livestream/schedule-info",
 	// time in minutes that must pass between views on the same item being registered
 	"interval_between_registering_view_counts"	=> 5
 );

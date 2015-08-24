@@ -2,10 +2,6 @@
 	position: relative;
 }
 
-.player-container .bottom-container {
-	margin-top: 4px;
-}
-
 /* when the player is embedded player-component width and height will be set with javascript to whatever the height of player-container is - bottom-container height. */
 .embedded-player-container .bottom-container {
 	position: absolute;
@@ -16,14 +12,14 @@
 .player-container .bottom-container .item-container {
 	display: inline-block;
 	float: left;
-	margin-bottom: 3px;
+	margin-top: 3px;
 }
 
-.player-container .bottom-container .item-container  > :first-child:not(.item-container) {
+.player-container .bottom-container .item-container > *:not(.item-container) {
 	margin-right: 5px;
 }
 
-.player-container .bottom-container .item-container.new-line {
+.player-container .bottom-container .new-line {
 	clear: left;
 }
 
@@ -32,7 +28,7 @@
 	white-space: nowrap;
 }
 
-.player-container .bottom-container .item-container.right {
+.player-container .bottom-container .right {
 	float: right;
 }
 
@@ -48,6 +44,7 @@
 .page-player .bottom-container .item-container .broadcast-on-msg {
 	font-style: italic;
 	font-size: 12px;
+	text-align: right;
 }
 
 .player-container .override-mode-enabled {

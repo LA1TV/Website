@@ -8,6 +8,7 @@
 			<thead>
 				<tr>
 					<th>Live Now</th>
+					<th>Shown As Livestream On Site</th>
 					<th>Name</th>
 					<th>Description</th>
 					<th>Time Created</th>
@@ -18,6 +19,7 @@
 			<?php foreach($tableData as $a): ?>
 				<tr>
 					<td><span class="<?=e($a['enabledCss']);?>"><?=e($a['enabled']);?></span></td>
+					<td><span class="<?=e($a['shownAsLivestreamCss']);?>"><?=e($a['shownAsLivestream']);?></span></td>
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
@@ -26,6 +28,7 @@
 			<?php endforeach; ?>
 				<?php if ($editEnabled): ?>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
