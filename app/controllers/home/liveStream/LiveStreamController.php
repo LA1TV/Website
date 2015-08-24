@@ -45,7 +45,7 @@ class LiveStreamController extends HomeBaseController {
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
 		// $twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
 		
-		$view = View::make("home.livestream.index");
+		$view = View::make("home.liveStream.index");
 		$view->title = $liveStream->name;
 		$view->descriptionEscaped = !is_null($liveStream->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($liveStream->description)) : null;
 		$view->playerInfoUri = $this->getInfoUri($liveStream->id);
