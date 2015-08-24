@@ -1,4 +1,4 @@
-.zoom-animation-container .zoom-animation {
+html.pc.csstransforms .zoom-animation-container .zoom-animation {
 	-webkit-transition: all 0.3s ease-out;
 	-moz-transition: all 0.3s ease-out;
 	-o-transition: all 0.3s ease-out;
@@ -9,7 +9,7 @@
 	transition-delay: 0;
 }
 
-.zoom-animation-container:hover .zoom-animation {
+html.pc.csstransforms .zoom-animation-container:hover .zoom-animation {
 	-webkit-transform: scale(1.3);
 	-moz-transform: scale(1.3);
 	-o-transform: scale(1.3);
