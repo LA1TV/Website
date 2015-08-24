@@ -1,4 +1,8 @@
-define(["jquery", "lib/domReady!"], function($) {
+define([
+	"jquery",
+	"../../device-detection",
+	"lib/domReady!"
+], function($, DeviceDetection) {
 
 	$(".playlist-element").each(function() {
 		var $table = $(this).find(".playlist-table").first();
@@ -17,14 +21,17 @@ define(["jquery", "lib/domReady!"], function($) {
 			var uri = $(this).attr("data-link");
 			$(this).click(function(e) {
 				window.location = uri;
-				e.preventDefault();
 			});
 			
-			$(this).hover(function() {
-				$imageHolder.attr("data-animate", "1");
-			}, function() {
-				$imageHolder.attr("data-animate", "0");
-			});
+			// on iOS when this was enabled the click event handler would
+			// sometimes not get called for some reason
+			if (!DeviceDetection.isMobile()) {
+				$(this).hover(function() {
+					$imageHolder.attr("data-animate", "1");
+				}, function() {
+					$imageHolder.attr("data-animate", "0");
+				});
+			}
 		});
 	});
 
