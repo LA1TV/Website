@@ -44,12 +44,16 @@ define([
 
 		$pageContainer.find(".schedule-boxes").first().each(function() {
 
+			var $playerContainerCol = $pageContainer.find(".player-container-col");
 			var $container = $(this).first();
+			var $title = $container.find(".title").first();
 			var scheduleUri = $(this).attr("data-schedule-uri");
 
 			var $prevLiveContainer = $container.find(".schedule-box-prev-live-container").first();
 			var $liveContainer = $container.find(".schedule-box-live-container").first();
 			var $comingUpContainer = $container.find(".schedule-box-coming-up-container").first();
+
+			var scheduleBarVisible = false;
 
 			var boxesInfo = [
 				{
@@ -57,6 +61,7 @@ define([
 					showTime: true,
 					dataPropertyName: "comingUp",
 					currentBox: null,
+					queuedBox: null,
 					$container: $comingUpContainer
 				},
 				{
@@ -64,6 +69,7 @@ define([
 					showTime: false,
 					dataPropertyName: "live",
 					currentBox: null,
+					queuedBox: null,
 					$container: $liveContainer
 				},
 				{
@@ -71,6 +77,7 @@ define([
 					showTime: true,
 					dataPropertyName: "previouslyLive",
 					currentBox: null,
+					queuedBox: null,
 					$container: $prevLiveContainer
 				}
 			];
@@ -90,34 +97,158 @@ define([
 				}).always(function(data, textStatus, jqXHR) {
 					if (jqXHR.status === 200) {
 						var now = Date.now();
+						
 						for(var i=0; i<boxesInfo.length; i++) {
 							var boxInfo = boxesInfo[i];
 							var boxData = data[boxInfo.dataPropertyName];
 							var box = null;
 							if (boxData) {
-								box = new Box(boxInfo.name, boxInfo.showTime ? boxData.scheduledPublishTime : null, boxData.seriesName, boxData.name, boxData.coverArtUri, boxData.uri);
+								box = new Box(boxInfo.name, boxInfo.showTime ? boxData.scheduledPublishTime : null, boxData.seriesName, boxData.name, boxData.coverArtUri, boxData.uri, boxInfo.$container);
 								var publishDateObj = box.getDateObj();
 								if (publishDateObj !== null && Math.abs(now - publishDateObj.getTime()) > 21600000) { // 6 hours
 									// don't show boxes which are further than 6 hours away
 									box = null;
 								}
 							}
+							boxInfo.queuedBox = box;
+						}
+						
+						animate(onComplete);
+					}
+					else {
+						onComplete();
+					}
 
-							if ((!box && boxInfo.currentBox) || (box && !box.equals(boxInfo.currentBox))) {
-								switchBox(box, boxInfo.$container, boxInfo.currentBox);
-								boxInfo.currentBox = box;
-							}
+					function onComplete() {
+						// schedule again in 10 seconds
+						setTimeout(makeRequest, 10000);
+					}
+				});
+			}
+
+			function animate(onComplete) {
+				// set to true if everything needs to animate out and back in
+				// to prevent items jumping
+				var fullAnimationNeeded = false;
+				var haveBoxes = false;
+				var firstAnimation = false;
+				for(var i=0; i<boxesInfo.length; i++) {
+					var boxInfo = boxesInfo[i];
+					var currentBox = boxInfo.currentBox;
+					var queuedBox = boxInfo.queuedBox;
+					if (queuedBox) {
+						haveBoxes = true;
+					}
+					if (!queuedBox !== !currentBox) {
+						// box getting added/removed
+						fullAnimationNeeded = true;
+					}
+				}
+
+				if (haveBoxes && !scheduleBarVisible) {
+					$playerContainerCol.removeClass("col-md-12");
+					$playerContainerCol.addClass("col-md-8");
+					$container.removeClass("hidden-col");
+					scheduleBarVisible = true;
+					firstAnimation = true;
+					setTimeout(runOutAnimations, 1100);
+				}
+				else {
+					runOutAnimations();
+				}
+
+				function runOutAnimations() {
+					var numOutAnimationsRunning = 0;
+					if (!haveBoxes && scheduleBarVisible) {
+						// schedule bar will animate out
+						numOutAnimationsRunning++;
+						$title.animate({
+							opacity: 0
+						}, 1300, onAnimateOutCompleted);
+					}
+					for(var i=0; i<boxesInfo.length; i++) {
+						var boxInfo = boxesInfo[i];
+						var currentBox = boxInfo.currentBox;
+						var queuedBox = boxInfo.queuedBox;
+						
+						numOutAnimationsRunning++;
+						if (currentBox && (fullAnimationNeeded || !currentBox.equals(queuedBox))) {
+							boxInfo.currentBox.animateOut(onAnimateOutCompleted);
+						}
+						else {
+							setTimeout(onAnimateOutCompleted, 0);
 						}
 					}
 
-					// schedule again in 10 seconds
-					setTimeout(makeRequest, 10000);
-				});
+					function onAnimateOutCompleted() {
+						if (--numOutAnimationsRunning === 0) {
+							runInAnimations();
+						}
+					}
+
+					function runInAnimations() {
+						var numInAnimationsRunning = 0;
+						if (firstAnimation) {
+							numInAnimationsRunning++;
+							$title.animate({
+								opacity: 1
+							}, 800, onAnimateInCompleted);
+						}
+						for(var i=0; i<boxesInfo.length; i++) {
+							var boxInfo = boxesInfo[i];
+							var currentBox = boxInfo.currentBox;
+							var queuedBox = boxInfo.queuedBox;
+
+							numInAnimationsRunning++;
+							if (currentBox && currentBox.isVisible()) {
+								// the current box was not removed
+								// therefore don't replace it
+								setTimeout(onAnimateInCompleted, 0);
+							}
+							else {
+								if (currentBox) {
+									// remove old box from dom
+									currentBox.remove();
+								}
+								if (queuedBox) {
+									queuedBox.animateIn(onAnimateInCompleted);
+								}
+								else {
+									setTimeout(onAnimateInCompleted, 0);
+								}
+								boxInfo.currentBox = queuedBox;
+							}
+						}
+
+						function onAnimateInCompleted() {
+							numInAnimationsRunning--;
+							if (numInAnimationsRunning === 0) {
+								onOutAnimationsComplete();
+							}
+							else if (numInAnimationsRunning < 0) {
+								throw "numInAnimationsRunning should never go < 0";
+							}
+						
+							function onOutAnimationsComplete() {
+								if (!haveBoxes && scheduleBarVisible) {
+									$container.addClass("hidden-col");
+									$playerContainerCol.removeClass("col-md-8");
+									$playerContainerCol.addClass("col-md-12");
+									scheduleBarVisible = false;
+									setTimeout(onComplete, 1100);
+								}
+								else {
+									onComplete();
+								}
+							}
+						}
+					}
+				}
 			}
 
 
 		
-			function Box(name, time, showName, episodeName, coverArtUri, uri) {
+			function Box(name, time, showName, episodeName, coverArtUri, uri, $destination) {
 
 				var formattedTime = null;
 				var dateObj = null;
@@ -127,22 +258,22 @@ define([
 				}
 
 				var $el = buildEl();
+				var elInDom = false;
 				var visible = false;
 
-				this.animateIn = function($destination, callback) {
+				this.animateIn = function(callback) {
 					if (visible) {
 						throw "Already animated in.";
 					}
-					$el.stop(); // stop a previously running animation.
+					$el.stop(true, true); // stop a previously running animation.
 					$el.css("opacity", 0);
-					$el.css("top", "-200px");
-					$el.css("z-index", -1);
-					$destination.append($el);
+					if (!elInDom) {
+						$destination.append($el);
+						elInDom = true;
+					}
 					$el.animate({
-						top: 0,
 						opacity: 1
-					}, 500, function() {
-						$el.css("z-index", "");
+					}, 800, function() {
 						if (callback) {
 							callback();
 						}
@@ -154,18 +285,30 @@ define([
 					if (!visible) {
 						throw "Not animated in.";
 					}
-					$el.stop(); // stop a previously running animation.					
-					$el.css("z-index", -1);
+					$el.stop(true, true); // stop a previously running animation.
 					$el.animate({
-						top: "-200px",
 						opacity: 0
-					}, 500, function() {
-						$el.remove();
+					}, 1300, function() {
 						if (callback) {
 							callback();
 						}
 					});
 					visible = false;
+				};
+
+				this.isVisible = function() {
+					return visible;
+				};
+
+				this.remove = function() {
+					if (visible) {
+						throw "This box hasn't been animated out.";
+					}
+
+					if (elInDom) {
+						$el.remove();
+						elInDom = false;
+					}
 				};
 
 				this.getName = function() {
@@ -213,6 +356,9 @@ define([
 
 				function buildEl() {
 					var $box = $("<div />").addClass("schedule-box");
+					if (!time) {
+						$box.addClass("live-box");
+					}
 					var $window = $("<div />").addClass("embed-responsive embed-responsive-16by9 window").click(function() {
 						window.location = uri;
 					});
@@ -246,19 +392,6 @@ define([
 					$overlayBottom.append($episodeName);
 					return $box;
 				};
-			}
-
-			function switchBox(box, $destination, oldBox) {
-				if (oldBox) {
-					oldBox.animateOut(animateNewIn);
-				}
-				else {
-					animateNewIn();
-				}
-
-				function animateNewIn() {
-					box.animateIn($destination);
-				}
 			}
 
 		});
