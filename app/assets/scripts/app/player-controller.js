@@ -27,7 +27,8 @@ define([
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	// registerViewCount, registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri can be null to disable these features
+	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -61,43 +62,65 @@ define([
 			return null;
 		};
 		
-		// get the media item id corresponding to this players content
-		this.getMediaItemId = function() {
-			return mediaItemId;
+		// get the id corresponding to this players content
+		this.getContentId = function() {
+			return getContentId;
 		};
 		
 		// total number of likes or null if like total is disabled.
 		this.getNumLikes = function() {
+			if (!registerLikeUri) {
+				throw "Likes disabled because registerLikeUri not provided.";
+			}
 			return numLikes;
 		};
 		
 		// total number of dislikes or null if dislike total is disabled
 		this.getNumDislikes = function() {
+			if (!registerLikeUri) {
+				throw "Likes disabled because registerLikeUri not provided.";
+			}
 			return numDisikes;
 		};
 		
 		// returns 'like' if person liked this, 'dislike' if disliked, or null if neither
 		this.getLikeType = function() {
+			if (!registerLikeUri) {
+				throw "Likes disabled because registerLikeUri not provided.";
+			}
 			return likeType;
 		};
 		
 		this.registerLike = function(type, callback) {
+			if (!registerLikeUri) {
+				throw "Likes are disabled because no registerLikeUri was provided.";
+			}
 			registerLike(type, callback);
 		};
 		
+		// a date object or null if the publish time is unknown
 		this.getScheduledPublishTime = function() {
 			return scheduledPublishTime;
 		};
 		
 		this.getStreamViewCount = function() {
+			if (!registerViewCountUri) {
+				throw "View count disabled because registerViewCountUri not provided.";
+			}
 			return streamViewCount;
 		};
 		
 		this.getVodViewCount = function() {
+			if (!registerViewCountUri) {
+				throw "View count disabled because registerViewCountUri not provided.";
+			}
 			return vodViewCount;
 		};
 		
 		this.getViewCount = function() {
+			if (!registerViewCountUri) {
+				throw "View count disabled because registerViewCountUri not provided.";
+			}
 			if (cachedData !== null) {
 				var streamCount = self.getStreamViewCount();
 				var vodCount = self.getVodViewCount();
@@ -230,7 +253,7 @@ define([
 		var destroyed = false;
 		var timerId = null;
 		var playerComponent = null;
-		var mediaItemId = null;
+		var getContentId = null;
 		var playerType = null;
 		var currentUris = [];
 		var cachedData = null;
@@ -286,7 +309,7 @@ define([
 					timerId = setTimeout(update, 15000);
 				}
 			};
-		
+
 			jQuery.ajax(playerInfoUri, {
 				cache: false,
 				dataType: "json",
@@ -298,20 +321,21 @@ define([
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200) {
 					
+					var localVodSourceId = nullify(data.vodSourceId);
 					var callback = function(time) {
 						cachedData = data;
-						mediaItemId = data.id;
-						vodSourceId = data.vodSourceId;
+						getContentId = data.id;
+						vodSourceId = localVodSourceId;
 						vodRememberedStartTime = time;
 						render();
 						onComplete();
 					};
 				
-					if (data.vodSourceId !== null) {
+					if (localVodSourceId !== null) {
 						getRememberedTime(data, callback);
 					}
 					else {
-						callback();
+						callback(null);
 					}
 				}
 				else {
@@ -333,6 +357,10 @@ define([
 		function updateEmbedData() {
 			if (embedData !== null) {
 				// the assumption is that embed data doesn't change
+				return;
+			}
+			if (!cachedData.embedData) {
+				// no embed data available (yet)
 				return;
 			}
 			embedData = cachedData.embedData;
@@ -392,10 +420,10 @@ define([
 				});
 			}
 			
-			var deviceStreamUriGroups = data.streamUris !== null ? extractUrisForDevice(data.streamUris) : null;
-			var deviceVideoUriGroups = data.videoUris !== null ? extractUrisForDevice(data.videoUris) : null;
+			var deviceStreamUriGroups = nullify(data.streamUris) !== null ? extractUrisForDevice(data.streamUris) : null;
+			var deviceVideoUriGroups = nullify(data.videoUris) !== null ? extractUrisForDevice(data.videoUris) : null;
 			
-			if (data.hasStream && data.streamState === 3) {
+			if (nullify(data.hasStream) && data.streamState === 3) {
 				// stream is over so strip out any urls that aren't dvr urls
 				// the dvr stream urls should now be pointing to a static recording
 				for(var i=deviceStreamUriGroups.length-1; i>=0; i--) {
@@ -415,15 +443,15 @@ define([
 				}
 			}
 			
-			var externalStreamUrl = data.hasStream && data.streamState !== 3 && !ignoreExternalStreamUrl ? data.externalStreamUrl : null;
+			var externalStreamUrl = nullify(data.hasStream) && data.streamState !== 3 && !ignoreExternalStreamUrl ? nullify(data.externalStreamUrl) : null;
 			var queuedPlayerType = "ad";
 			// live streams take precedence over vod
-			if (data.hasStream && (data.streamState === 2 || (data.streamState === 3 && deviceStreamUriGroups.length > 0) || (overrideModeEnabled && data.streamState === 1))) {
+			if (nullify(data.hasStream) && (data.streamState === 2 || (data.streamState === 3 && deviceStreamUriGroups.length > 0) || (overrideModeEnabled && data.streamState === 1))) {
 				if (externalStreamUrl !== null || deviceStreamUriGroups.length > 0) {
 					queuedPlayerType = "live";
 				}
 			}
-			else if (data.hasVod && (data.vodLive && (!data.hasStream || data.streamState !== 1)) || overrideModeEnabled) {
+			else if (nullify(data.hasVod) && (data.vodLive && (!nullify(data.hasStream) || data.streamState !== 1)) || overrideModeEnabled) {
 				if (deviceVideoUriGroups.length > 0) {
 					queuedPlayerType = "vod";
 					externalStreamUrl = null;
@@ -541,21 +569,21 @@ define([
 			}
 			
 			if (queuedPlayerType === "ad") {
-				if (data.hasStream && data.streamState === 1) {
+				if (nullify(data.hasStream) && data.streamState === 1) {
 					// show stream info message if the stream is enabled and is "not live"
-					playerComponent.setCustomMsg(data.streamInfoMsg);
+					playerComponent.setCustomMsg(nullify(data.streamInfoMsg));
 				}
 				qualitiesHandler.setAvailableQualities([]);
 			}
 			
-			if (queuedPlayerType === "vod" && data.vodChapters !== null) {
+			if (queuedPlayerType === "vod" && nullify(data.vodChapters) !== null) {
 				playerComponent.setChapters(data.vodChapters);
 			}
 			else {
 				playerComponent.setChapters([]);
 			}
 			
-			if (queuedPlayerType === "vod" && data.vodThumbnails !== null) {
+			if (queuedPlayerType === "vod" && nullify(data.vodThumbnails) !== null) {
 				playerComponent.setScrubThumbnails(data.vodThumbnails);
 			}
 			else {
@@ -586,10 +614,10 @@ define([
 			else {
 				playerComponent.setTitle(null, null);
 			}
-			playerComponent.showStreamOver(data.hasStream && data.streamState === 3);
-			playerComponent.setCustomMsg(data.hasStream && data.streamState === 1 ? data.streamInfoMsg : "");
-			playerComponent.showVodAvailableShortly(data.hasStream && data.streamState === 3 && data.availableOnDemand);
-			playerComponent.setStartTime(data.scheduledPublishTime !== null && (!data.hasStream || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, data.hasStream);
+			playerComponent.showStreamOver(nullify(data.hasStream) && data.streamState === 3);
+			playerComponent.setCustomMsg(nullify(data.hasStream) && data.streamState === 1 ? nullify(data.streamInfoMsg) : null);
+			playerComponent.showVodAvailableShortly(nullify(data.hasStream) && data.streamState === 3 && nullify(data.availableOnDemand));
+			playerComponent.setStartTime(nullify(data.scheduledPublishTime) !== null && (!nullify(data.hasStream) || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, !!data.hasStream);
 			playerComponent.setExternalStreamUrl(externalStreamUrl);
 			playerComponent.disableFullScreen(disableFullScreen);
 			playerComponent.setPlayerPreload(false);
@@ -603,7 +631,7 @@ define([
 				stopRememberedTimeUpdateTimer();
 			}
 			
-			if (data.streamState !== streamState) {
+			if (nullify(data.streamState) !== streamState) {
 				streamState = data.streamState;
 				$(self).triggerHandler("streamStateChanged");
 			}
@@ -732,7 +760,7 @@ define([
 			}
 			
 			// first see if there is a remembered time in the servers info response
-			if (data.rememberedPlaybackTime !== null) {
+			if (updatePlaybackTimeBaseUri && nullify(data.rememberedPlaybackTime) !== null) {
 				callback(data.rememberedPlaybackTime);
 			}
 			else {
@@ -805,13 +833,18 @@ define([
 		}
 		
 		function updateRememberedTimeOnServer() {
+			if (!updatePlaybackTimeBaseUri) {
+				// disabled
+				return;
+			}
+
 			if (!PageData.get("loggedIn")) {
 				// don't bother making the request if the user is not logged in.
 				return;
 			}
 			
 			// make request to update time on server.
-			jQuery.ajax(updatePlaybackTimeUri+"/"+vodSourceId, {
+			jQuery.ajax(updatePlaybackTimeBaseUri+"/"+vodSourceId, {
 				cache: false,
 				dataType: "json",
 				headers: AjaxHelpers.getHeaders(),
@@ -934,6 +967,10 @@ define([
 		}
 		
 		function updateViewCounts() {
+			if (!registerViewCountUri) {
+				// view count disabled
+				return;
+			}
 			var changed = false;
 			var vodCountChanged = false;
 			var streamCountChanged = false;
@@ -953,6 +990,10 @@ define([
 		}
 		
 		function updateNumWatchingNow() {
+			if (!registerWatchingUri) {
+				// watching now disabled
+				return;
+			}
 			var numWatchingNowChanged = numWatchingNow !== cachedData.numWatchingNow;
 			numWatchingNow = cachedData.numWatchingNow;
 			
@@ -963,7 +1004,7 @@ define([
 		
 		function updateScheduledPublishTime() {
 			var a = scheduledPublishTime !== null ? scheduledPublishTime.getTime() : null;
-			var b = cachedData.scheduledPublishTime !== null ? cachedData.scheduledPublishTime * 1000 : null;
+			var b = nullify(cachedData.scheduledPublishTime) !== null ? cachedData.scheduledPublishTime * 1000 : null;
 			var scheduledPublishTimeChanged = a !== b;
 			
 			if (scheduledPublishTimeChanged) {
@@ -973,6 +1014,10 @@ define([
 		}
 		
 		function updateLikes() {
+			if (!registerLikeUri) {
+				// disabled
+				return;
+			}
 			var changed = numLikes !== cachedData.numLikes;
 			numLikes = cachedData.numLikes;
 			if (changed) {
@@ -991,6 +1036,10 @@ define([
 		}
 		
 		function registerViewCount() {
+			if (!registerViewCountUri) {
+				// view counts disabled
+				return;
+			}
 			jQuery.ajax(registerViewCountUri, {
 				cache: false,
 				dataType: "json",
@@ -1004,6 +1053,10 @@ define([
 		}
 		
 		function registerWatching() {
+			if (!registerWatchingUri) {
+				// watching count disabled
+				return;
+			}
 			jQuery.ajax(registerWatchingUri, {
 				cache: false,
 				dataType: "json",
@@ -1016,6 +1069,9 @@ define([
 		}
 		
 		function registerLike(type, callback) {
+			if (!registerLikeUri) {
+				throw "Likes are disabled.";
+			}
 			if (type !== "like" && type !== "dislike" && type !== "reset") {
 				throw "Type must be 'like', 'dislike' or 'reset'.";
 			}
@@ -1113,7 +1169,15 @@ define([
 		}
 		
 		function reportToAnalytics(action) {
-			GoogleAnalytics.registerPlayerEvent(action, playerType, mediaItemId, playerComponent.getPlayerCurrentTime());
+			GoogleAnalytics.registerPlayerEvent(action, playerType, getContentId, playerComponent.getPlayerCurrentTime());
+		}
+
+		// if val is undefined return null, otherwise return value
+		function nullify(val) {
+			if (typeof(val) === "undefined") {
+				return null;
+			}
+			return val;
 		}
 		
 	};
