@@ -2,6 +2,7 @@
 
 use uk\co\la1tv\website\controllers\home\HomeBaseController;
 use uk\co\la1tv\website\models\LiveStream;
+use uk\co\la1tv\website\models\MediaItem;
 use App;
 use View;
 use Response;
@@ -9,13 +10,14 @@ use Config;
 use URLHelpers;
 use Auth;
 use Exception;
+use Carbon;
 
 class LiveStreamController extends HomeBaseController {
 
 	public function getIndex($id) {
 
-		$liveStream = LiveStream::find($id);
-		if (is_null($liveStream) || !$liveStream->getShowAsLiveStream()) {
+		$liveStream = LiveStream::showAsLiveStream()->find($id);
+		if (is_null($liveStream)) {
 			App::abort(404);
 		}
 
@@ -55,8 +57,8 @@ class LiveStreamController extends HomeBaseController {
 	
 	public function postPlayerInfo($id) {
 		
-		$liveStream = LiveStream::find($id);
-		if (is_null($liveStream) || !$liveStream->getShowAsLiveStream()) {
+		$liveStream = LiveStream::showAsLiveStream()->find($id);
+		if (is_null($liveStream)) {
 			App::abort(404);
 		}
 		$liveStream->load("watchingNows");
@@ -111,25 +113,34 @@ class LiveStreamController extends HomeBaseController {
 
 	public function postScheduleInfo($id) {
 		
-		$liveStream = LiveStream::find($id);
-		if (is_null($liveStream) || !$liveStream->getShowAsLiveStream()) {
+		$liveStream = LiveStream::showAsLiveStream()->find($id);
+		if (is_null($liveStream)) {
 			App::abort(404);
 		}
 
+		$comingUpMediaItem = MediaItem::accessible()->whereHas("liveStreamItem", function($q) use(&$liveStream) {
+			$q->accessible()->notLive()->whereHas("livestream", function($q2) use(&$liveStream) {
+				$q2->accessible()->where("id", intval($liveStream->id));
+			});
+		})->orderBy("scheduled_publish_time", "desc")->first();
 		// there may be more than one media item live stream which is live at the same time
-		// this will just pick the first one which is returned which should be consistant
+		// this will just pick the one scheduled later which should be consistant
 		// if there is ever more than one media item live at once it would probably only be
 		// for a short period of time anyway during a switch over
-		$liveMediaItemLiveStream = $liveStream->liveStreamItems()->accessible()->live()->has("mediaItem")->first();
-		$liveMediaItem = !is_null($liveMediaItemLiveStream) ? $liveMediaItemLiveStream->mediaItem : null;
-
-		$previouslyLive = null;
+		$liveMediaItem = MediaItem::accessible()->whereHas("liveStreamItem", function($q) use(&$liveStream) {
+			$q->accessible()->live()->whereHas("livestream", function($q2) use(&$liveStream) {
+				$q2->accessible()->where("id", intval($liveStream->id));
+			});
+		})->orderBy("scheduled_publish_time", "desc")->first();
+		$previouslyLiveMediaItem = MediaItem::accessible()->whereHas("liveStreamItem", function($q) use(&$liveStream) {
+			$q->accessible()->showOver()->whereHas("livestream", function($q2) use(&$liveStream) {
+				$q2->accessible()->where("id", intval($liveStream->id));
+			});
+		})->where("scheduled_publish_time", "<=", Carbon::now())->orderBy("scheduled_publish_time", "desc")->first();
+		
+		$comingUp = !is_null($comingUpMediaItem) ? $this->getMediaItemArray($comingUpMediaItem) : null;
 		$live = !is_null($liveMediaItem) ? $this->getMediaItemArray($liveMediaItem) : null;
-		$comingUp = null;
-
-		// TODO remove
-		$previouslyLive = $live;
-		$comingUp = $live;
+		$previouslyLive = !is_null($previouslyLiveMediaItem) ? $this->getMediaItemArray($previouslyLiveMediaItem) : null;
 
 		$data = array(
 			"previouslyLive"	=> $previouslyLive,
@@ -161,7 +172,7 @@ class LiveStreamController extends HomeBaseController {
 	}
 
 	public function postRegisterWatching($liveStreamId) {
-		$liveStream = LiveStream::accessible()->find($liveStreamId);
+		$liveStream = LiveStream::showAsLiveStream()->find($liveStreamId);
 		if (is_null($liveStream)) {
 			App::abort(404);
 		}
