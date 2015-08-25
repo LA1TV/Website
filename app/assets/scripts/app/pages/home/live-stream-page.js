@@ -105,8 +105,8 @@ define([
 							if (boxData) {
 								box = new Box(boxInfo.name, boxInfo.showTime ? boxData.scheduledPublishTime : null, boxData.seriesName, boxData.name, boxData.coverArtUri, boxData.uri, boxInfo.$container);
 								var publishDateObj = box.getDateObj();
-								if (publishDateObj !== null && Math.abs(now - publishDateObj.getTime()) > 21600000) { // 6 hours
-									// don't show boxes which are further than 6 hours away
+								if (publishDateObj !== null && Math.abs(now - publishDateObj.getTime()) > 43200000) { // 12 hours
+									// don't show boxes which are further than 12 hours away
 									box = null;
 								}
 							}
