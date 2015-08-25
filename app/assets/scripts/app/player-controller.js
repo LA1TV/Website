@@ -27,8 +27,8 @@ define([
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
-	// registerViewCount, registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri can be null to disable these features
-	PlayerController = function(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	// registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri can be null to disable these features
+	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -104,23 +104,14 @@ define([
 		};
 		
 		this.getStreamViewCount = function() {
-			if (!registerViewCountUri) {
-				throw "View count disabled because registerViewCountUri not provided.";
-			}
 			return streamViewCount;
 		};
 		
 		this.getVodViewCount = function() {
-			if (!registerViewCountUri) {
-				throw "View count disabled because registerViewCountUri not provided.";
-			}
 			return vodViewCount;
 		};
 		
 		this.getViewCount = function() {
-			if (!registerViewCountUri) {
-				throw "View count disabled because registerViewCountUri not provided.";
-			}
 			if (cachedData !== null) {
 				var streamCount = self.getStreamViewCount();
 				var vodCount = self.getVodViewCount();
@@ -273,7 +264,6 @@ define([
 		var resolvedAutoPlayVod = autoPlayVod;
 		var resolvedAutoPlayStream = autoPlayStream;
 		var embedData = null;
-		var viewCountRegistered = false;
 		var rememberedTimeTimerId = null;
 		var analyticsReportTimerId = null;
 		
@@ -292,13 +282,13 @@ define([
 		update();
 		
 		// report to analytics the current play position every 10 seconds
-		// also inform the system that the item is being watched
+		// also report whether or not the content is playing for view count etc
 		analyticsReportTimerId = setInterval(function() {
 			// paused() can be null if unknown
 			if ((playerType === "live" || playerType === "vod") && playerComponent !== null && playerComponent.paused() === false) {
 				reportToAnalytics("playing");
-				registerWatching();
 			}
+			registerWatching();
 		}, 10000);
 		
 		function update() {
@@ -386,11 +376,6 @@ define([
 				playerComponent = new PlayerComponent(data.coverUri, responsive, placeQualitySelectionComponentInPlayer ? qualitiesHandler : null);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
-					if (!viewCountRegistered && !overrideModeEnabled) {
-						// register view count first time play occurs if user not in admin override mode
-						viewCountRegistered = true;
-						registerViewCount();
-					}
 					// content is playing (again)
 					// reenable auto play if the user requested it to be enabled
 					resolvedAutoPlayVod = autoPlayVod;
@@ -967,17 +952,13 @@ define([
 		}
 		
 		function updateViewCounts() {
-			if (!registerViewCountUri) {
-				// view count disabled
-				return;
-			}
 			var changed = false;
 			var vodCountChanged = false;
 			var streamCountChanged = false;
-			vodCountChanged = vodViewCount !== cachedData.vodViewCount;
-			vodViewCount = cachedData.vodViewCount;
-			streamCountChanged = streamViewCount !== cachedData.streamViewCount;
-			streamViewCount = cachedData.streamViewCount;
+			vodCountChanged = vodViewCount !== nullify(cachedData.vodViewCount);
+			vodViewCount = nullify(cachedData.vodViewCount);
+			streamCountChanged = streamViewCount !== nullify(cachedData.streamViewCount);
+			streamViewCount = nullify(cachedData.streamViewCount);
 			if (vodCountChanged) {
 				$(self).triggerHandler("vodViewCountChanged");
 			}
@@ -1035,23 +1016,6 @@ define([
 			}
 		}
 		
-		function registerViewCount() {
-			if (!registerViewCountUri) {
-				// view counts disabled
-				return;
-			}
-			jQuery.ajax(registerViewCountUri, {
-				cache: false,
-				dataType: "json",
-				headers: AjaxHelpers.getHeaders(),
-				data: {
-					csrf_token: PageData.get("csrfToken"),
-					type: self.getPlayerType()
-				},
-				type: "POST"
-			});
-		}
-		
 		function registerWatching() {
 			if (!registerWatchingUri) {
 				// watching count disabled
@@ -1062,7 +1026,9 @@ define([
 				dataType: "json",
 				headers: AjaxHelpers.getHeaders(),
 				data: {
-					csrf_token: PageData.get("csrfToken")
+					csrf_token: PageData.get("csrfToken"),
+					// paused() can be null if unknown
+					playing: (playerType === "vod" || playerType === "live") && playerComponent && playerComponent.paused() === false ? "1" : "0"
 				},
 				type: "POST"
 			});

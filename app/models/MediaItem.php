@@ -90,7 +90,7 @@ class MediaItem extends MyEloquent {
 	
 	public function getNumWatchingNow() {
 		$cutOffTime = Carbon::now()->subSeconds(30);
-		return $this->watchingNows()->where("updated_at", ">", $cutOffTime)->count();
+		return $this->watchingNows()->where("updated_at", ">", $cutOffTime)->where("playing", true)->count();
 	}
 	
 	private function getRelatedItemIdsForReorderableList() {
@@ -205,7 +205,8 @@ class MediaItem extends MyEloquent {
 		return $text;
 	}
 	
-	public function registerWatching() {
+	// $playing is true if the video is currently playing
+	public function registerWatching($playing) {
 		if (!(
 			$this->getIsAccessible() &&
 			(!is_null($this->liveStreamItem) && ($this->liveStreamItem->hasWatchableContent())) ||
@@ -216,26 +217,52 @@ class MediaItem extends MyEloquent {
 		}
 		
 		// delete any entries that have expired.
-		$cutOffTime = Carbon::now()->subSeconds(30);
+		$intervalBetweenViewCounts = Config::get("custom.interval_between_registering_view_counts") * 60;
+		$expireDuration = max(30, $intervalBetweenViewCounts);
+		$cutOffTime = Carbon::now()->subSeconds($expireDuration);
 		WatchingNow::where("updated_at", "<", $cutOffTime)->delete();
-		
-		DB::transaction(function() {
+
+		DB::transaction(function() use (&$playing, &$intervalBetweenViewCounts) {
 			$sessionId = Session::getId();
 			$model = WatchingNow::where("session_id", $sessionId)->where("media_item_id", $this->id)->first();
 			if (is_null($model)) {
 				$model = new WatchingNow(array(
-					"session_id"	=> $sessionId
+					"session_id"	=> $sessionId,
+					"playing"		=> $playing
 				));
 				$model->mediaItem()->associate($this);
+				if ($playing) {
+					$this->registerView();
+				}
 				$model->save();
 			}
 			else {
+				if ((boolean) $model->playing !== $playing) {
+					$lastPlayTime = $model->last_play_time;
+					// register as a view if $intervalBetweenViewCounts has passed since last play
+					if (is_null($lastPlayTime) || $lastPlayTime->addSeconds($intervalBetweenViewCounts)->timestamp < Carbon::now()->timestamp) {
+						$this->registerView();
+					}
+				}
+				$model->playing = $playing;
 				$model->touch();
 			}
 		});
 		return true;
 	}
 	
+	public function registerView() {
+		$liveStreamItem = $this->liveStreamItem;
+		$videoItem = $this->videoItem;
+		// try registering the view with the live stream first
+		if (is_null($liveStreamItem) || !$liveStreamItem->registerView()) {
+			// live stream wouldn't accept view so assign to video
+			if (!is_null($videoItem)) {
+				$videoItem->registerView();
+			}
+		}
+	}
+
 	public function registerLike($siteUser) {
 		return $this->registerLikeDislike($siteUser, true);
 	}
