@@ -1,5 +1,5 @@
 # Embeddable Player
-Our embeddable player lives at "https://embed.la1tv.co.uk" and has the structure of "https://embed.la1tv.co.uk/{playlist id}/{media item id}". It should be used inside an iframe and it is recommended that you add the following attributes to the iframe tag:
+Our embeddable player lives at "https://embed.la1tv.co.uk" and has the structure of "https://embed.la1tv.co.uk/{playlist id}/{media item id}" for media items, and "https://embed.la1tv.co.uk/livestream/{live stream item id}" for live streams. It should be used inside an iframe and it is recommended that you add the following attributes to the iframe tag:
 - frameborder="0"
 - allowfullscreen
 - webkitallowfullscreen
@@ -7,7 +7,7 @@ Our embeddable player lives at "https://embed.la1tv.co.uk" and has the structure
 
 You can get an example embed code by clicking on the "share" button under the player on the site.
 
-**Note:** You can omit the playlist id from the url and this means the system will automatically choose a playlist that the media item is contained in.
+**Note:** For the media items url you can omit the playlist id and this means the system will automatically choose a playlist that the media item is contained in.
 
 ## Parameters
 There are quite a few url paramaters that can be provided to contol it's behaviour which are provided below along with there default values.

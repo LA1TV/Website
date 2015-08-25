@@ -4,6 +4,7 @@ use View;
 use Config;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\LiveStream;
 use URL;
 use Auth;
 use URLHelpers;
@@ -21,7 +22,7 @@ class EmbedController extends EmbedBaseController {
 			$this->do404Response();
 			return;
 		}
-		$this->doResponse($playlist, $mediaItem);
+		$this->prepareResponse($playlist, $mediaItem);
 	}
 	
 	public function handleRequest($playlistId, $mediaItemId) {
@@ -36,12 +37,46 @@ class EmbedController extends EmbedBaseController {
 			return;
 		}
 		
-		$this->doResponse($playlist, $mediaItem);
+		$this->prepareResponse($playlist, $mediaItem);
+	}
+
+	public function handleLiveStreamRequest($liveStreamId) {
+		$liveStream = LiveStream::showAsLiveStream()->find($liveStreamId);
+		if (is_null($liveStream)) {
+			$this->do404Response($this->getDisableRedirect());
+			return;
+		}
+
+		$title = $liveStream->name;
+		$playerInfoUri = $this->getLiveStreamInfoUri($liveStream->id);
+		$registerWatchingUri = $this->getLiveStreamRegisterWatchingUri($liveStream->id);
+		$registerViewCountUri = null;
+		$registerLikeUri = null;
+		$updatePlaybackTimeBaseUri = null;
+		$adminOverrideEnabled = false;
+		$hyperlink = URL::route('liveStream', array($liveStream->id));
+
+		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerViewCountUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink);
 	}
 	
-	private function doResponse($playlist, $mediaItem) {
-		
-		$title = null;
+	private function prepareResponse($playlist, $mediaItem) {
+		// true if a user is logged into the cms and has permission to view media items.
+		$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
+
+		$title = $mediaItem->name;
+		$playerInfoUri = $this->getInfoUri($playlist->id, $mediaItem->id);
+		$registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $mediaItem->id);
+		$registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $mediaItem->id);
+		$registerLikeUri = $this->getRegisterLikeUri($playlist->id, $mediaItem->id);
+		$updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
+		$adminOverrideEnabled = $userHasMediaItemsPermission;
+		$hyperlink = URL::route('player', array($playlist->id, $mediaItem->id));
+
+		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerViewCountUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink);
+	}
+
+
+	private function doResponse($title, $playerInfoUri, $registerWatchingUri, $registerViewCountUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink) {
 		
 		$kioskMode = isset($_GET['kiosk']) && $_GET['kiosk'] === "1";
 		$autoPlayVod = $kioskMode || (isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1");
@@ -57,13 +92,7 @@ class EmbedController extends EmbedBaseController {
 		$disablePlayerControls = $kioskMode;
 		$initialVodQualityId = isset($_GET['vodQualityId']) && ctype_digit($_GET['vodQualityId']) ? $_GET['vodQualityId'] : "";
 		$initialStreamQualityId = isset($_GET['streamQualityId']) && ctype_digit($_GET['streamQualityId']) ? $_GET['streamQualityId'] : "";
-		
-		
-		// true if a user is logged into the cms and has permission to view media items.
-		$userHasMediaItemsPermission = Auth::isLoggedIn() ? Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) : false;
-		
-		$title = $mediaItem->name;
-		
+
 		$view = View::make("embed.player");
 		$view->showHeading = $showHeading;
 		$view->disableRedirect = $this->getDisableRedirect();
@@ -79,14 +108,14 @@ class EmbedController extends EmbedBaseController {
 		$view->disablePlayerControls = $disablePlayerControls;
 		$view->enableSmartAutoPlay = $enableSmartAutoPlay;
 		$view->episodeTitle = $title;
-		$view->playerInfoUri = $this->getInfoUri($playlist->id, $mediaItem->id);
-		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $mediaItem->id);
-		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $mediaItem->id);
-		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $mediaItem->id);
-		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
+		$view->playerInfoUri = $playerInfoUri;
+		$view->registerWatchingUri = $registerWatchingUri;
+		$view->registerViewCountUri = $registerViewCountUri;
+		$view->registerLikeUri = $registerLikeUri;
+		$view->updatePlaybackTimeBaseUri = $updatePlaybackTimeBaseUri;
 		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
-		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
-		$view->hyperlink = URL::route('player', array($playlist->id, $mediaItem->id));
+		$view->adminOverrideEnabled = $adminOverrideEnabled;
+		$view->hyperlink = $hyperlink;
 		$view->hasVideo = true;
 		$this->setContent($view, "player", 'LA1:TV- "' . $title . '"');
 	}
@@ -124,6 +153,14 @@ class EmbedController extends EmbedBaseController {
 	
 	private function getUpdatePlaybackTimeBaseUri() {
 		return Config::get("custom.embed_player_update_playback_time_base_uri");
+	}
+
+	private function getLiveStreamInfoUri($liveStreamId) {
+		return Config::get("custom.embed_live_stream_player_info_base_uri")."/".$liveStreamId;
+	}
+	
+	private function getLiveStreamRegisterWatchingUri($liveStreamId) {
+		return Config::get("custom.embed_live_stream_player_register_watching_base_uri")."/".$liveStreamId;
 	}
 	
 	private function getDisableRedirect() {

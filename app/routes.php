@@ -117,13 +117,21 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 		
 		Route::group(array('before' => 'csrf'), function() use(&$p) {
 			
-			// /player and /ajax and /file should also be accessible from the embed subdomain as well
-			Route::controller('/player', $p.'home\player\PlayerController');
+			// the following should also be accessible from the embed subdomain as well
+			Route::post('/mediaitem/player-info/{id}/{id2}', $p.'home\player\PlayerController@postPlayerInfo');
+			Route::post('/mediaitem/register-watching/{id}/{id2}', $p.'home\player\PlayerController@postRegisterWatching');
+			Route::post('/mediaitem/register-view/{id}/{id2}', $p.'home\player\PlayerController@postRegisterView');
+			Route::post('/mediaitem/register-like/{id}/{id2}', $p.'home\player\PlayerController@postRegisterLike');
+			Route::post('/mediaitem/register-playback-time/{id}/{id2}', $p.'home\player\PlayerController@postRegisterPlaybackTime');
+			Route::post('/livestream/player-info/{id}', $p.'home\liveStream\LiveStreamController@postPlayerInfo');
+			Route::post('/livestream/register-watching/{id}', $p.'home\liveStream\LiveStreamController@postRegisterWatching');
+			
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
 			Route::controller('/file', $p.'home\admin\upload\UploadController');
 			
 			Route::get('/{id}/{id2}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@handleRequest'));
 			Route::get('/{id}', array("as"=>"embed-player-media-item", "uses"=>$p.'embed\EmbedController@handleMediaItemRequest'));
+			Route::get('/livestream/{id}', array("as"=>"embed-player-live-stream", "uses"=>$p.'embed\EmbedController@handleLiveStreamRequest'));
 			Route::get('{catchAll}', array("uses"=>$p.'embed\EmbedController@do404'));
 		});
 	});
