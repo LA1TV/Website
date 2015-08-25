@@ -122,7 +122,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::post('/mediaitem/register-watching/{id}/{id2}', $p.'home\player\PlayerController@postRegisterWatching');
 			Route::post('/mediaitem/register-view/{id}/{id2}', $p.'home\player\PlayerController@postRegisterView');
 			Route::post('/mediaitem/register-like/{id}/{id2}', $p.'home\player\PlayerController@postRegisterLike');
-			Route::post('/mediaitem/register-playback-time/{id}/{id2}', $p.'home\player\PlayerController@postRegisterPlaybackTime');
+			Route::post('/mediaitem/register-playback-time/{id}', $p.'home\player\PlayerController@postRegisterPlaybackTime');
 			Route::post('/livestream/player-info/{id}', $p.'home\liveStream\LiveStreamController@postPlayerInfo');
 			Route::post('/livestream/register-watching/{id}', $p.'home\liveStream\LiveStreamController@postRegisterWatching');
 			
