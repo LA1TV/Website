@@ -164,7 +164,10 @@ define([
 						numOutAnimationsRunning++;
 						$title.animate({
 							opacity: 0
-						}, 1300, onAnimateOutCompleted);
+						}, 1300, function() {
+							$title.addClass("hidden");
+							onAnimateOutCompleted();
+						});
 					}
 					for(var i=0; i<boxesInfo.length; i++) {
 						var boxInfo = boxesInfo[i];
@@ -190,6 +193,7 @@ define([
 						var numInAnimationsRunning = 0;
 						if (firstAnimation) {
 							numInAnimationsRunning++;
+							$title.removeClass("hidden");
 							$title.animate({
 								opacity: 1
 							}, 800, onAnimateInCompleted);
