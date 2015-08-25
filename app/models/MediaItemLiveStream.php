@@ -1,6 +1,5 @@
 <?php namespace uk\co\la1tv\website\models;
 
-use \Session as SessionProvider;
 use Carbon;
 use Config;
 use Queue;
@@ -99,21 +98,13 @@ class MediaItemLiveStream extends MyEloquent {
 		return $stateDefinition;
 	}
 	
-	public function registerViewCount() {	
+	public function registerView() {	
 		$stateDefinitionId = intval($this->getResolvedStateDefinition()->id);
 		if (!$this->getIsAccessible() || !$this->hasWatchableContent()) {
 			// shouldn't be accessible or stream not live
 			return false;
 		}
-	
-		$sessionKey = "viewCount-".$this->id;
-		$lastTimeRegistered = SessionProvider::get($sessionKey, null);
-		if (!is_null($lastTimeRegistered) && $lastTimeRegistered >= Carbon::now()->subMinutes(Config::get("custom.interval_between_registering_view_counts"))->timestamp) {
-			// already registered view not that long ago.
-			return false;
-		}
 		$this->increment("view_count");
-		SessionProvider::set($sessionKey, Carbon::now()->timestamp);
 		return true;
 	}
 	

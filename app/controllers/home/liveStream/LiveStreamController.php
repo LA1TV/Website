@@ -175,8 +175,12 @@ class LiveStreamController extends HomeBaseController {
 		if (is_null($liveStream)) {
 			App::abort(404);
 		}
-		
-		$success = $liveStream->registerWatching();
+
+		$success = false;
+		if (isset($_POST['playing'])) {
+			$playing = $_POST['playing'] === "1";
+			$success = $liveStream->registerWatching($playing);
+		}
 		return Response::json(array("success"=>$success));
 	}
 

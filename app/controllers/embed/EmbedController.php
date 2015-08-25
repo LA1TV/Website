@@ -50,7 +50,6 @@ class EmbedController extends EmbedBaseController {
 		$title = $liveStream->name;
 		$playerInfoUri = $this->getLiveStreamInfoUri($liveStream->id);
 		$registerWatchingUri = $this->getLiveStreamRegisterWatchingUri($liveStream->id);
-		$registerViewCountUri = null;
 		$registerLikeUri = null;
 		$updatePlaybackTimeBaseUri = null;
 		$adminOverrideEnabled = false;
@@ -66,17 +65,16 @@ class EmbedController extends EmbedBaseController {
 		$title = $mediaItem->name;
 		$playerInfoUri = $this->getInfoUri($playlist->id, $mediaItem->id);
 		$registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $mediaItem->id);
-		$registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $mediaItem->id);
 		$registerLikeUri = $this->getRegisterLikeUri($playlist->id, $mediaItem->id);
 		$updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 		$adminOverrideEnabled = $userHasMediaItemsPermission;
 		$hyperlink = URL::route('player', array($playlist->id, $mediaItem->id));
 
-		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerViewCountUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink);
+		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink);
 	}
 
 
-	private function doResponse($title, $playerInfoUri, $registerWatchingUri, $registerViewCountUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink) {
+	private function doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $updatePlaybackTimeBaseUri, $adminOverrideEnabled, $hyperlink) {
 		
 		$kioskMode = isset($_GET['kiosk']) && $_GET['kiosk'] === "1";
 		$autoPlayVod = $kioskMode || (isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1");
@@ -110,7 +108,6 @@ class EmbedController extends EmbedBaseController {
 		$view->episodeTitle = $title;
 		$view->playerInfoUri = $playerInfoUri;
 		$view->registerWatchingUri = $registerWatchingUri;
-		$view->registerViewCountUri = $registerViewCountUri;
 		$view->registerLikeUri = $registerLikeUri;
 		$view->updatePlaybackTimeBaseUri = $updatePlaybackTimeBaseUri;
 		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
@@ -141,10 +138,6 @@ class EmbedController extends EmbedBaseController {
 	
 	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
 		return Config::get("custom.embed_player_register_watching_base_uri")."/".$playlistId ."/".$mediaItemId;
-	}
-	
-	private function getRegisterViewCountUri($playlistId, $mediaItemId) {
-		return Config::get("custom.embed_player_register_view_count_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {

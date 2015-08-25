@@ -120,7 +120,6 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			// the following should also be accessible from the embed subdomain as well
 			Route::post('/mediaitem/player-info/{id}/{id2}', $p.'home\player\PlayerController@postPlayerInfo');
 			Route::post('/mediaitem/register-watching/{id}/{id2}', $p.'home\player\PlayerController@postRegisterWatching');
-			Route::post('/mediaitem/register-view/{id}/{id2}', $p.'home\player\PlayerController@postRegisterView');
 			Route::post('/mediaitem/register-like/{id}/{id2}', $p.'home\player\PlayerController@postRegisterLike');
 			Route::post('/mediaitem/register-playback-time/{id}', $p.'home\player\PlayerController@postRegisterPlaybackTime');
 			Route::post('/livestream/player-info/{id}', $p.'home\liveStream\LiveStreamController@postPlayerInfo');

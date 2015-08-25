@@ -46,7 +46,6 @@ define([
 			
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerWatchingUri = $(this).attr("data-register-watching-uri");
-			var registerViewCountUri = $(this).attr("data-register-view-count-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
 			var updatePlaybackTimeBaseUri = $(this).attr("data-update-playback-time-base-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
@@ -66,7 +65,7 @@ define([
 			var enableSmartAutoPlay = $(this).attr("data-enable-smart-auto-play") === "1";
 			
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerViewCountUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+			playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 			
 			playerContainer.onLoaded(function() {
 				

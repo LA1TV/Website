@@ -164,7 +164,8 @@ class LiveStream extends MyEloquent {
 		return $urls;
 	}
 	
-	public function registerWatching() {
+	// $playing is true if the content is currently playing
+	public function registerWatching($playing) {
 		if (!$this->getIsAccessible() || !$this->getShowAsLiveStream()) {
 			return false;
 		}
@@ -173,20 +174,22 @@ class LiveStream extends MyEloquent {
 		$cutOffTime = Carbon::now()->subSeconds(30);
 		LiveStreamWatchingNow::where("updated_at", "<", $cutOffTime)->delete();
 		
-		DB::transaction(function() {
-			$sessionId = Session::getId();
-			$model = LiveStreamWatchingNow::where("session_id", $sessionId)->where("live_stream_id", $this->id)->first();
-			if (is_null($model)) {
-				$model = new LiveStreamWatchingNow(array(
-					"session_id"	=> $sessionId
-				));
-				$model->liveStream()->associate($this);
-				$model->save();
-			}
-			else {
-				$model->touch();
-			}
-		});
+		if ($playing) {
+			DB::transaction(function() {
+				$sessionId = Session::getId();
+				$model = LiveStreamWatchingNow::where("session_id", $sessionId)->where("live_stream_id", $this->id)->first();
+				if (is_null($model)) {
+					$model = new LiveStreamWatchingNow(array(
+						"session_id"	=> $sessionId
+					));
+					$model->liveStream()->associate($this);
+					$model->save();
+				}
+				else {
+					$model->touch();
+				}
+			});
+		}
 		return true;
 	}
 

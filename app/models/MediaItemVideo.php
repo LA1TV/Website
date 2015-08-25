@@ -1,7 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
 use FormHelpers;
-use \Session as SessionProvider;
 use Carbon;
 use Config;
 use DB;
@@ -125,21 +124,12 @@ class MediaItemVideo extends MyEloquent {
 		return $thumbnails;
 	}
 	
-	public function registerViewCount() {
-	
+	public function registerView() {
 		if (!$this->getIsAccessible() || !$this->getIsLive()) {
 			// shouldn't be accessible or isn't live
 			return false;
 		}
-		
-		$sessionKey = "viewCount-".$this->id;
-		$lastTimeRegistered = SessionProvider::get($sessionKey, null);
-		if (!is_null($lastTimeRegistered) && $lastTimeRegistered >= Carbon::now()->subMinutes(Config::get("custom.interval_between_registering_view_counts"))->timestamp) {
-			// already registered view not that long ago.
-			return false;
-		}
 		$this->increment("view_count");
-		SessionProvider::set($sessionKey, Carbon::now()->timestamp);
 		return true;
 	}
 	

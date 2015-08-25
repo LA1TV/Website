@@ -266,7 +266,6 @@ class PlayerController extends HomeBaseController {
 		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
 		$view->autoContinueMode = $this->getAutoContinueMode();
 		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
-		$view->registerViewCountUri = $this->getRegisterViewCountUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
@@ -491,38 +490,6 @@ class PlayerController extends HomeBaseController {
 		return Response::json($data);
 	}
 	
-	public function postRegisterView($playlistId, $mediaItemId) {
-		$playlist = Playlist::accessibleToPublic()->find($playlistId);
-		if (is_null($playlist)) {
-			App::abort(404);
-		}
-		
-		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
-		if (is_null($mediaItem)) {
-			App::abort(404);
-		}
-		
-		$success = false;
-		if (isset($_POST['type'])) {
-			$type = $_POST['type'];
-			if ($type === "live" || $type === "vod") {
-				if ($type === "live") {
-					$liveStreamItem = $mediaItem->liveStreamItem;
-					if (!is_null($liveStreamItem)) {
-						$success = $liveStreamItem->registerViewCount();
-					}
-				}
-				else {
-					$videoItem = $mediaItem->videoItem;
-					if (!is_null($videoItem)) {
-						$success = $videoItem->registerViewCount();
-					}
-				}
-			}
-		}
-		return Response::json(array("success"=>$success));
-	}
-	
 	public function postRegisterWatching($playlistId, $mediaItemId) {
 		$playlist = Playlist::accessibleToPublic()->find($playlistId);
 		if (is_null($playlist)) {
@@ -533,7 +500,12 @@ class PlayerController extends HomeBaseController {
 		if (is_null($mediaItem)) {
 			App::abort(404);
 		}
-		$success = $mediaItem->registerWatching();
+
+		$success = false;
+		if (isset($_POST['playing'])) {
+			$playing = $_POST['playing'] === "1";
+			$success = $mediaItem->registerWatching($playing);
+		}
 		return Response::json(array("success"=>$success));
 	}
 	
@@ -816,10 +788,6 @@ class PlayerController extends HomeBaseController {
 	
 	private function getPlaylistInfoUri($playlistId) {
 		return Config::get("custom.playlist_info_base_uri")."/".$playlistId;
-	}
-	
-	private function getRegisterViewCountUri($playlistId, $mediaItemId) {
-		return Config::get("custom.player_register_view_count_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
