@@ -14,6 +14,8 @@ define(["jquery", "lib/jquery.fittext", "lib/domReady!"], function($) {
 		$el.fitText($el.attr("data-compressor"));
 	};
 	
+	// TODO there is no way to unregister before an element which has this applied is removed
+	// from the DOM.
 	return {
 		register: registerFitText
 	}

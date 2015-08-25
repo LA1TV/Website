@@ -1,5 +1,9 @@
 define(["jquery"], function(jQuery) {
 
+	// This has been modified to call resizer() at a set interval to reduce impact
+	// of issues where an elements width is adjusted with css
+	// TODO provide a destroy method or something which can be called to clear
+	// the timer and remove the event listener
 
 	/*global jQuery */
 	/*!
@@ -39,6 +43,8 @@ define(["jquery"], function(jQuery) {
 		  // Call on resize. Opera debounces their resize by default.
 		  $(window).on('resize.fittext orientationchange.fittext', resizer);
 
+		  // so that if the width is resized in css it will stil cope ok
+		  setInterval(resizer, 15);
 		});
 
 	  };
