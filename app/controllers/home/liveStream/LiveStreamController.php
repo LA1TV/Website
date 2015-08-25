@@ -22,28 +22,27 @@ class LiveStreamController extends HomeBaseController {
 		}
 
 		$twitterProperties = array();
-		// $twitterProperties[] = array("name"=> "card", "content"=> "player");
-		// $twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
+		$twitterProperties[] = array("name"=> "card", "content"=> "player");
+		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 		$openGraphProperties = array();
 		$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
 
-		// TODO get embeddable player url, and enable all twitter card properties
-		// $twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
-		// $twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
-		// $twitterProperties[] = array("name"=> "player:height", "content"=> "720");
+		$twitterProperties[] = array("name"=> "player", "content"=> $liveStream->getEmbedUri()."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
+		$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
+		$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
 		
 		
 		if (!is_null($liveStream->description)) {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $liveStream->description);
-		//	$twitterProperties[] = array("name"=> "description", "content"=> str_limit($liveStream->description, 197, "..."));
+			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($liveStream->description, 197, "..."));
 		}
 		$openGraphProperties[] = array("name"=> "og:title", "content"=> $liveStream->name);
-		// $twitterProperties[] = array("name"=> "title", "content"=> $liveStream->name);
+		 $twitterProperties[] = array("name"=> "title", "content"=> $liveStream->name);
 		// TODO set to actual cover when cover art uploading implemented
 		$openGraphCoverArtUri = Config::get("custom.default_cover_uri"); 
-		// $twitterCardCoverArtUri = Config::get("custom.default_cover_uri");
+		$twitterCardCoverArtUri = Config::get("custom.default_cover_uri");
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
-		// $twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
+		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
 		
 		$view = View::make("home.liveStream.index");
 		$view->title = $liveStream->name;
@@ -75,7 +74,7 @@ class LiveStreamController extends HomeBaseController {
 		$uri = $liveStream->getUri();
 		$title = $liveStream->name;
 		$coverArtUri = Config::get("custom.default_cover_uri"); // TODO allow the user to upload one
-		$embedData = null; // TODO
+		$embedData = $liveStream->getEmbedData();
 		$streamState = $streamAccessible ? 2 : 1;
 		$minNumWatchingNow = Config::get("custom.min_num_watching_now");
 		$numWatchingNow = $liveStream->getNumWatchingNow();

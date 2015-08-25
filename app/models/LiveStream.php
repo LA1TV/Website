@@ -7,6 +7,7 @@ use Carbon;
 use URL;
 use Session;
 use DB;
+use Facebook;
 use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
@@ -229,6 +230,18 @@ class LiveStream extends MyEloquent {
 
 	public function getUri() {
 		return URL::route('liveStream', array($this->id));
+	}
+
+	public function getEmbedUri() {
+		return URL::route('embed-player-live-stream', array($this->id));
+	}
+
+	public function getEmbedData() {
+		return array(
+			"embedCodeTemplate"	=> '<iframe src="'.$this->getEmbedUri().'" width="{w}" height="{h}" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>',
+			"facebookShareUri"	=> Facebook::getShareUri($this->getUri()),
+			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getEmbedUri())."&text=".urlencode($this->name)."&via=".urlencode("LA1TV")
+		);
 	}
 
 	public function getIsAccessible() {
