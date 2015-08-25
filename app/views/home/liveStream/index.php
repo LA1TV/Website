@@ -17,7 +17,7 @@
 		<?php endif; ?>
 	</div>
 	<div class="col-md-4 schedule-boxes hidden-col" data-schedule-uri="<?=e($scheduleUri);?>">
-		<h2 class="title">What's On?</h2>
+		<h2 class="title hidden">What's On?</h2>
 		<div class="schedule-box-live-container"></div>
 		<div class="schedule-box-coming-up-container"></div>
 		<div class="schedule-box-prev-live-container"></div>

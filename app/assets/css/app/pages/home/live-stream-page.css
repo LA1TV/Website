@@ -1,12 +1,13 @@
 .page-live-stream .schedule-boxes.hidden-col {
 	width: 0;
+	padding: 0;
 }
 
 .page-live-stream .player-container-col, .page-live-stream .schedule-boxes {
-	-webkit-transition: width 1s ease-in-out;
-	-moz-transition: width 1s ease-in-out;
-	-o-transition: width 1s ease-in-out;
-	transition: width 1s ease-in-out;
+	-webkit-transition: width 1s ease-in-out, padding 1s ease-in-out;
+	-moz-transition: width 1s ease-in-out, ease-in-out;
+	-o-transition: width 1s ease-in-out, padding 1s ease-in-out;
+	transition: width 1s ease-in-out, padding 1s ease-in-out;
 }
 
 .page-live-stream .player-container-component-container {

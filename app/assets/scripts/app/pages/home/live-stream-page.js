@@ -105,8 +105,8 @@ define([
 							if (boxData) {
 								box = new Box(boxInfo.name, boxInfo.showTime ? boxData.scheduledPublishTime : null, boxData.seriesName, boxData.name, boxData.coverArtUri, boxData.uri, boxInfo.$container);
 								var publishDateObj = box.getDateObj();
-								if (publishDateObj !== null && Math.abs(now - publishDateObj.getTime()) > 21600000) { // 6 hours
-									// don't show boxes which are further than 6 hours away
+								if (publishDateObj !== null && Math.abs(now - publishDateObj.getTime()) > 43200000) { // 12 hours
+									// don't show boxes which are further than 12 hours away
 									box = null;
 								}
 							}
@@ -164,7 +164,10 @@ define([
 						numOutAnimationsRunning++;
 						$title.animate({
 							opacity: 0
-						}, 1300, onAnimateOutCompleted);
+						}, 1300, function() {
+							$title.addClass("hidden");
+							onAnimateOutCompleted();
+						});
 					}
 					for(var i=0; i<boxesInfo.length; i++) {
 						var boxInfo = boxesInfo[i];
@@ -190,6 +193,7 @@ define([
 						var numInAnimationsRunning = 0;
 						if (firstAnimation) {
 							numInAnimationsRunning++;
+							$title.removeClass("hidden");
 							$title.animate({
 								opacity: 1
 							}, 800, onAnimateInCompleted);
