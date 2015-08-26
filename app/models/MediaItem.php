@@ -224,7 +224,7 @@ class MediaItem extends MyEloquent {
 
 		DB::transaction(function() use (&$playing, &$intervalBetweenViewCounts) {
 			$sessionId = Session::getId();
-			$model = WatchingNow::where("session_id", $sessionId)->where("media_item_id", $this->id)->first();
+			$model = WatchingNow::where("session_id", $sessionId)->where("media_item_id", intval($this->id))->first();
 			if (is_null($model)) {
 				$model = new WatchingNow(array(
 					"session_id"	=> $sessionId,
@@ -234,19 +234,33 @@ class MediaItem extends MyEloquent {
 				if ($playing) {
 					$this->registerView();
 				}
-				$model->save();
 			}
 			else {
-				if ((boolean) $model->playing !== $playing) {
-					$lastPlayTime = $model->last_play_time;
+				$lastPlayTime = $model->last_play_time;
+				$now = Carbon::now();
+				
+				if ($playing) {
+					// this is the last time the content was reported as playing (by any tab)
+					$model->last_play_time = $now;
+				}
+
+				if (!$playing && $lastPlayTime->timestamp >= $now->timestamp - 30) {
+					// there was a play reported recently.
+					// assume the content is still playing
+					// could be a different browser tab with the content paused which made this request
+					$playing = true;
+				}
+
+				if ($playing && !$model->playing) {
 					// register as a view if $intervalBetweenViewCounts has passed since last play
-					if (is_null($lastPlayTime) || $lastPlayTime->addSeconds($intervalBetweenViewCounts)->timestamp < Carbon::now()->timestamp) {
+					if (is_null($lastPlayTime) || $lastPlayTime->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
 						$this->registerView();
 					}
 				}
+
 				$model->playing = $playing;
-				$model->touch();
 			}
+			$model->save();
 		});
 		return true;
 	}
