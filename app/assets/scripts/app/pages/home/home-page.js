@@ -36,6 +36,10 @@ define([
 					controlNav: true,
 					directionNav: true,
 					allowOneSlide: false,
+					pauseText: "",
+					playText: "",
+					prevText: "",
+					nextText: "",
 					before: function(slider) {
 						$carousel.attr("data-animate", "0");
 						setTimeout(function() {
