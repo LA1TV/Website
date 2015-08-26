@@ -10,6 +10,7 @@ require.config({
 	shim: {
 		"lib/bootstrap": ["jquery"],
 		"lib/jquery.hotkeys": ["jquery"],
+		"lib/jquery.flexslider": ["jquery"],
 		"ga": {
 			exports: "ga"
 		},

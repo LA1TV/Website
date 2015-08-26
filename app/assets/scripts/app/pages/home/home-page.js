@@ -1,62 +1,56 @@
 define([
 	"jquery",
-	"lib/jquery.slick",
+	"lib/jquery.flexslider",
 	"lib/domReady!"
-], function($, FitTextHandler) {
+], function($) {
 	
 	$(".page-home").first().each(function() {
 		
-		function animateInPage() {
-			$pageContainer.animate({opacity: 1}, 500);
-		}
-		
 		var $pageContainer = $(this).first();
-		
-		$pageContainer.css("display", "block");
-		
+		var $wrapper = $pageContainer.find(".wrapper").first();
+		$wrapper.removeClass("hidden");
+
+		function animatePageIn() {
+			setTimeout(function() {
+				$wrapper.attr("data-animate-in", "1");
+			}, 0);
+		}
+
 		var $promoCarousel = $pageContainer.find(".promo-carousel").first();
 		if ($promoCarousel.length > 0) {
 			$promoCarousel.each(function() {
 				var self = this;
-				
-				function animateFooter(show, footerPos) {
-					$footers[footerPos].animate({opacity: show ? 1 : 0}, aniDuration/2);
-				}
-			
-				$(this).css("display", "block");
-				
-				var $footers = [];
-				
-				$(this).find(".footer").each(function() {
-					$footers.push($(this).first());
-					if ($footers.length === 1) {
-						$(this).css("opacity", 1);
-					}
-				});
+				var $carousel = $(this).first();
 				
 				var aniDuration = 800;
-				
-				var slick = $(this).slick({
-					dots: true,
-					autoplay: true,
-					autoplaySpeed: 4500,
-					infinite: false,
-					arrows: true,
-					fade: false,
+
+				$carousel.flexslider({
+					animation: "slide",
+					touch: true,
+					slideshow: true,
+					slideshowSpeed: 4000,
+					fadeFirstSlide: false,
+					animationSpeed: aniDuration,
+					pauseOnAction: true,
 					pauseOnHover: true,
-					speed: aniDuration,
-					onBeforeChange: function() {
-						animateFooter(false, slick.slickCurrentSlide());
+					controlNav: true,
+					directionNav: true,
+					allowOneSlide: false,
+					before: function(slider) {
+						$carousel.attr("data-animate", "0");
+						setTimeout(function() {
+							$carousel.attr("data-animate", "1");
+						});
 					},
-					onAfterChange: function() {
-						animateFooter(true, slick.slickCurrentSlide());
+					start: function() {
+						$carousel.attr("data-animate", "1");
+						animatePageIn();
 					}
 				});
-				animateInPage();
 			});
 		}
 		else {
-			animateInPage();
+			animatePageIn();
 		}
 		
 	});
