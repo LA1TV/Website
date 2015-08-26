@@ -1,5 +1,9 @@
+// Note I have modified this so that when animationLoop is false, the slideshow will continue to run after the last slide
+// the orignal version would stopp the slideshow when the last slide was reached.
+// marked change with "MODIFICATION"
+
 /*
- * jQuery FlexSlider v2.5.0
+ * jQuery FlexSlider v2.5.0 (modified, see comment above)
  * Copyright 2012 WooThemes
  * Contributing Author: Tyler Smith
  */
@@ -727,7 +731,7 @@
           // API: end() of cycle Callback
           slider.vars.end(slider);
           // SLIDESHOW && !INFINITE LOOP:
-          if (!slider.vars.animationLoop) { slider.pause(); }
+          // MODIFICATION if (!slider.vars.animationLoop) { slider.pause(); }
         }
 
         // SLIDE:
