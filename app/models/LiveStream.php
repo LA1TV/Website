@@ -190,6 +190,13 @@ class LiveStream extends MyEloquent {
 				}
 			});
 		}
+
+		// determine what media item is currently live on the stream
+		// and if there is one register the user as watching that as well
+		$liveMediaItem = $this->getLiveMediaItem();
+		if (!is_null($liveMediaItem)) {
+			$liveMediaItem->registerWatching($playing);
+		}
 		return true;
 	}
 
@@ -245,6 +252,37 @@ class LiveStream extends MyEloquent {
 			"facebookShareUri"	=> Facebook::getShareUri($this->getUri()),
 			"twitterShareUri"	=> "https://twitter.com/share?url=".urlencode($this->getEmbedUri())."&text=".urlencode($this->name)."&via=".urlencode("LA1TV")
 		);
+	}
+
+	// get the MediaItem that is live on this stream at the moment
+	public function getLiveMediaItem() {
+		// there may be more than one media item live stream which is live at the same time
+		// this will just pick the one scheduled later which should be consistant
+		// if there is ever more than one media item live at once it would probably only be
+		// for a short period of time anyway during a switch over
+		return MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
+			$q->accessible()->live()->whereHas("livestream", function($q2) {
+				$q2->accessible()->where("id", intval($this->id));
+			});
+		})->orderBy("scheduled_publish_time", "desc")->first();
+	}
+
+	// get the MediaItem that was last on this stream
+	public function getPreviouslyLiveMediaItem() {
+		return MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
+			$q->accessible()->showOver()->whereHas("livestream", function($q2) {
+				$q2->accessible()->where("id", intval($this->id));
+			});
+		})->where("scheduled_publish_time", "<=", Carbon::now())->orderBy("scheduled_publish_time", "desc")->first();
+	}
+
+	// get the MediaItem that will be next on this stream
+	public function getComingUpMediaItem() {
+		return MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
+			$q->accessible()->notLive()->whereHas("livestream", function($q2) {
+				$q2->accessible()->where("id", intval($this->id));
+			});
+		})->orderBy("scheduled_publish_time", "desc")->first();
 	}
 
 	public function getIsAccessible() {
