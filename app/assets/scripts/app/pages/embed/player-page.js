@@ -71,6 +71,9 @@ define([
 				
 				$(self).empty();
 				$pageContainer.attr("data-loaded", "1");
+				setTimeout(function() {
+					$pageContainer.attr("data-animate-in", "1");
+				}, 0);
 				var $componentEl = playerContainer.getEl();
 				$(self).append($componentEl);
 				$playerContainer = $componentEl;
