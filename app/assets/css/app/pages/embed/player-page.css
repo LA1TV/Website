@@ -10,6 +10,14 @@
 
 .page-player[data-loaded="1"] {
 	background-color: #ffffff;
+	opacity: 0;
+}
+
+.page-player[data-animate-in="1"] {
+	opacity: 1;
+	-webkit-transition: opacity 0.8s ease-in-out;
+	-moz-transition: opacity 0.8s ease-in-out;
+	transition: opacity 0.8s ease-in-out;
 }
 
 .page-player[data-loaded="1"] .heading-container {
