@@ -1,5 +1,6 @@
 .player-container {
 	position: relative;
+	background-color: #ffffff;
 }
 
 /* when the player is embedded player-component width and height will be set with javascript to whatever the height of player-container is - bottom-container height. */

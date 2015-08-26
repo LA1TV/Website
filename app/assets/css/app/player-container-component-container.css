@@ -1,5 +1,8 @@
-.player-container-component-container .msg-container {
+.player-container-component-container {
 	background-color: #000000;
+}
+
+.player-container-component-container .msg-container {
 	text-align: center;
 	overflow: hidden;
 	position: relative;
