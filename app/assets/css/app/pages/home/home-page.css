@@ -124,6 +124,10 @@ html.csstransforms .page-home .promo-carousel[data-animate="1"] .item.flex-activ
 	}
 }
 
+.page-home .promo-carousel .flex-disabled {
+	display: none;
+}
+
 .page-home .promo-carousel .flex-direction-nav a {
 	height: auto;
 }
