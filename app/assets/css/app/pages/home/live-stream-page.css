@@ -5,7 +5,7 @@
 
 .page-live-stream .player-container-col, .page-live-stream .schedule-boxes {
 	-webkit-transition: width 1s ease-in-out, padding 1s ease-in-out;
-	-moz-transition: width 1s ease-in-out, ease-in-out;
+	-moz-transition: width 1s ease-in-out, padding 1s ease-in-out;
 	-o-transition: width 1s ease-in-out, padding 1s ease-in-out;
 	transition: width 1s ease-in-out, padding 1s ease-in-out;
 }
@@ -56,10 +56,12 @@
 html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window .art-container img {
 	-webkit-transition: -webkit-transform 0.2s;
 	transition: transform 0.2s;
+
+	-webkit-transform: scale(1);
+	transform: scale(1);
 }
 
 html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window:hover .art-container img {
-	-ms-transform: scale(1.3);
 	-webkit-transform: scale(1.3);
 	transform: scale(1.3);
 }
@@ -88,7 +90,6 @@ html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window:hover
 
 html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window .overlay.overlay-top {
 	-webkit-transform: translateY(0);
-	-ms-transform: translateY(0);
 	transform: translateY(0);
 	-webkit-transition: -webkit-transform 0.2s;
 	transition: transform 0.2s;
@@ -96,13 +97,11 @@ html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window .over
 
 html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window:hover .overlay.overlay-top {
 	-webkit-transform: translateY(-100%);
-	-ms-transform: translateY(-100%);
 	transform: translateY(-100%);
 }
 
 html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window .overlay.overlay-bottom {
 	-webkit-transform: translateY(0);
-	-ms-transform: translateY(0);
 	transform: translateY(0);
 	-webkit-transition: -webkit-transform 0.2s;
 	transition: transform 0.2s;
@@ -110,7 +109,6 @@ html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window .over
 
 html.csstransforms .page-live-stream .schedule-boxes .schedule-box .window:hover .overlay.overlay-bottom {
 	-webkit-transform: translateY(100%);
-	-ms-transform: translateY(100%);
 	transform: translateY(100%);
 }
 
