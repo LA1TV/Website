@@ -244,7 +244,7 @@ class MediaItem extends MyEloquent {
 					$model->last_play_time = $now;
 				}
 
-				if (!$playing && $lastPlayTime->timestamp >= $now->timestamp - 30) {
+				if (!$playing && !is_null($lastPlayTime) && $lastPlayTime->timestamp >= $now->timestamp - 30) {
 					// there was a play reported recently.
 					// assume the content is still playing
 					// could be a different browser tab with the content paused which made this request
