@@ -20,6 +20,8 @@ class LiveStreamController extends HomeBaseController {
 			App::abort(404);
 		}
 
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+
 		$twitterProperties = array();
 		$twitterProperties[] = array("name"=> "card", "content"=> "player");
 		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
@@ -36,10 +38,9 @@ class LiveStreamController extends HomeBaseController {
 			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($liveStream->description, 197, "..."));
 		}
 		$openGraphProperties[] = array("name"=> "og:title", "content"=> $liveStream->name);
-		 $twitterProperties[] = array("name"=> "title", "content"=> $liveStream->name);
-		// TODO set to actual cover when cover art uploading implemented
-		$openGraphCoverArtUri = Config::get("custom.default_cover_uri"); 
-		$twitterCardCoverArtUri = Config::get("custom.default_cover_uri");
+		$twitterProperties[] = array("name"=> "title", "content"=> $liveStream->name);
+		$openGraphCoverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+		$twitterCardCoverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
 		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
 		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
 		
@@ -69,10 +70,12 @@ class LiveStreamController extends HomeBaseController {
 
 		$streamAccessible = $liveStream->getIsAccessible();
 
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		$coverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']);
+
 		$id = intval($liveStream->id);
 		$uri = $liveStream->getUri();
 		$title = $liveStream->name;
-		$coverArtUri = Config::get("custom.default_cover_uri"); // TODO allow the user to upload one
 		$embedData = $liveStream->getEmbedData();
 		$streamState = $streamAccessible ? 2 : 1;
 		$minNumWatchingNow = Config::get("custom.min_num_watching_now");

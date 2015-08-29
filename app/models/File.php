@@ -103,6 +103,10 @@ class File extends MyEloquent {
 	public function playlistWithCoverArt() {
 		return $this->hasOne(self::$p.'Playlist', 'cover_art_file_id');
 	}
+
+	public function liveStreamWithCoverArt() {
+		return $this->hasOne(self::$p.'Livestream', 'cover_art_file_id');
+	}
 	
 	public function videoFile() {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
