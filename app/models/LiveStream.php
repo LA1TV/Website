@@ -24,6 +24,10 @@ class LiveStream extends MyEloquent {
 		return $this->hasMany(self::$p.'LiveStreamUri', 'live_stream_id');
 	}
 
+	public function coverArtFile() {
+		return $this->belongsTo(self::$p.'File', 'cover_art_file_id');
+	}
+
 	public function watchingNows() {
 		return $this->hasMany(self::$p.'LiveStreamWatchingNow', 'live_stream_id');
 	}
@@ -162,6 +166,19 @@ class LiveStream extends MyEloquent {
 			}
 		}
 		return $urls;
+	}
+
+	// get the cover art for the playlist or the default if there isn't one set
+	public function getCoverArtUri($width, $height) {
+		$coverArtFile = $this->coverArtFile;
+		if (!is_null($coverArtFile)) {
+			$coverArtImageFile = $coverArtFile->getImageFileWithResolution($width, $height);
+			if (!is_null($coverArtImageFile) && $coverArtFile->getShouldBeAccessible()) {
+				return $coverArtImageFile->getUri();
+			}
+		}
+		// return default cover
+		return Config::get("custom.default_cover_uri");
 	}
 	
 	// $playing is true if the content is currently playing

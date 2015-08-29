@@ -11,6 +11,8 @@ use Response;
 use Auth;
 use App;
 use JsonHelpers;
+use Upload;
+use EloquentHelpers;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\LiveStreamUri;
 use uk\co\la1tv\website\models\QualityDefinition;
@@ -128,15 +130,17 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			array("shownAsLivestream", ObjectHelpers::getProp(false, $liveStream, "shown_as_livestream")?"y":""),
 			array("name", ObjectHelpers::getProp("", $liveStream, "name")),
 			array("description", ObjectHelpers::getProp("", $liveStream, "description")),
+			array("cover-art-id", ObjectHelpers::getProp("", $liveStream, "coverArtFile", "id")),
 			array("urls", json_encode(array())),
 		), !$formSubmitted);
 		
 		// this will contain any additional data which does not get saved anywhere
 		$additionalFormData = array(
+			"coverArtFile"		=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"urlsInput"			=> null,
 			"urlsInitialData"	=> null
 		);
-		
+
 		if (!$formSubmitted) {
 			$additionalFormData['urlsInput'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "urls_for_input");
 			$additionalFormData['urlsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $liveStream, "urls_for_orderable_list");
@@ -151,6 +155,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		if ($formSubmitted) {
 			$modelCreated = DB::transaction(function() use (&$formData, &$liveStream, &$errors) {
 				
+				Validator::extend('valid_file_id', FormHelpers::getValidFileValidatorFunction());
 				Validator::extend('valid_urls', function($attribute, $value, $parameters) {
 					return LiveStream::isValidDataFromUrlsOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 				});
@@ -158,11 +163,13 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				$validator = Validator::make($formData,	array(
 					'name'				=> array('required', 'max:50'),
 					'description'		=> array('max:500'),
+					'cover-art-id'		=> array('valid_file_id'),
 					'urls'				=> array('required', 'valid_urls')
 				), array(
 					'name.required'			=> FormHelpers::getRequiredMsg(),
 					'name.max'				=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'		=> FormHelpers::getLessThanCharactersMsg(500),
+					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'urls.required'			=> FormHelpers::getGenericInvalidMsg(),
 					'urls.valid_urls'		=> FormHelpers::getGenericInvalidMsg()
 				));
@@ -178,6 +185,10 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					$liveStream->enabled = FormHelpers::toBoolean($formData['enabled']);
 					$liveStream->shown_as_livestream = FormHelpers::toBoolean($formData['shownAsLivestream']);
 					
+					$coverArtFileId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
+					$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtFileId, $liveStream->coverArtFile);
+					EloquentHelpers::associateOrNull($liveStream->coverArtFile(), $file);
+
 					if ($liveStream->save() === false) {
 						throw(new Exception("Error saving LiveStream."));
 					}
@@ -227,6 +238,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		$view->editing = $editing;
 		$view->form = $formData;
 		$view->additionalForm = $additionalFormData;
+		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->formErrors = $errors;
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/livestreams";
 	
