@@ -323,6 +323,7 @@ class UploadManager {
 			"sourceFile.playlistWithBanner",
 			"sourceFile.playlistWithBannerFill",
 			"sourceFile.playlistWithCover",
+			"sourceFile.liveStreamWithCoverArt",
 			"sourceFile.mediaItemVideoWithFile.mediaItem"
 		);
 
@@ -393,6 +394,11 @@ class UploadManager {
 		}
 		else if ($fileTypeId === 8 && !is_null($sourceFile->playlistWithCoverArt)) {
 			if ($sourceFile->playlistWithCoverArt->getIsAccessible() && ($sourceFile->playlistWithCoverArt->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+				$accessAllowed = true;
+			}
+		}
+		else if ($fileTypeId === 8 && !is_null($sourceFile->liveStreamWithCoverArt)) {
+			if ($sourceFile->liveStreamWithCoverArt->getShowAsLiveStream()) {
 				$accessAllowed = true;
 			}
 		}
