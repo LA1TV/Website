@@ -91,7 +91,7 @@ define([
 		
 		var chosenQuaityIdCookieName = "chosenQualityId-v2"; // renamed because version 1 had wrong path and don't want old v1 cookies taking precedence.
 		
-		var $container = $("<div />").addClass("quality-selection-component").hide();
+		var $container = $("<div />").addClass("quality-selection-component").addClass("hide");
 		var $btnGroup = $("<div />").addClass("btn-group");
 		var $button = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs dropdown-toggle").attr("data-toggle", "dropdown");
 		var $buttonTxt = $("<span />");
@@ -145,7 +145,7 @@ define([
 		
 		function render() {
 			if (!self.hasQualities()) {
-				$container.hide();
+				$container.addClass("hide");
 			}
 			else {
 				$dropdownMenu.empty();
@@ -169,7 +169,7 @@ define([
 					}
 				}
 				$buttonTxt.text("Quality: "+chosenQuality.name+" ");
-				$container.show();
+				$container.removeClass("hide");
 			}
 		}
 	};

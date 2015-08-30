@@ -54,7 +54,7 @@ define([
 		var $likeButtonTxt = null;
 		if (registerLikeUri) {
 			// likes enabled
-			var $likeButtonItemContainer = $("<div />").addClass("item-container right");
+			var $likeButtonItemContainer = $("<div />").addClass("item-container right hide");
 			var $likeButton = $("<button />").attr("type", "button").addClass("btn btn-default btn-xs");
 			var $likeButtonGlyphicon = $("<span />").addClass("glyphicon glyphicon-thumbs-up");
 			var $likeButtonTxt = $("<span />");
@@ -273,10 +273,10 @@ define([
 			
 			// enable like button if no content unless it's an ad because stream is over.
 			if (playerType === null || (playerType === "ad" && streamState !== 3)) {
-				$likeButtonItemContainer.css("display", "none");
+				$likeButtonItemContainer.addClass("hide");
 			}
 			else {
-				$likeButtonItemContainer.css("display", "inline-block");
+				$likeButtonItemContainer.removeClass("hide");
 			}
 			
 			if (likeType === "like") {
