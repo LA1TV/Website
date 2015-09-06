@@ -23,7 +23,7 @@
 					<td><?=e($a['name']);?></td>
 					<td><?=e($a['description']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
-					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['playerUri'])?>">Watch</a><?php if ($editEnabled): ?> <a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button><?php endif; ?></td>
+					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['playerUri'])?>">Preview</a><?php if ($editEnabled): ?> <a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button><?php endif; ?></td>
 				</tr>
 			<?php endforeach; ?>
 				<?php if ($editEnabled): ?>
