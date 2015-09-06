@@ -221,17 +221,12 @@ class MediaItemLiveStream extends MyEloquent {
 		return !$this->exists || $this->getOriginal("live_stream_id") !== $this->live_stream_id;
 	}
 	
-	// $filter can be "all", "dvr", "live"
-	public function getQualitiesWithUris($filter="all") {
-		if ($filter !== "all" && $filter !== "dvr" && $filter !== "live") {
-			throw(new Exception("Filter is not valid."));
-		}
-		
+	public function getQualitiesWithUris($filters=null) {
 		$liveStreamModel = $this->liveStream;
 		if (is_null($liveStreamModel)) {
 			return array();
 		}
-		return $liveStreamModel->getQualitiesWithUris($filter, $this);
+		return $liveStreamModel->getQualitiesWithUris($filters, $this);
 	}
 	
 	// returns an array containing all the domains that live streams come from which are loaded from a http request. I.e. playlist.m3u8 for mobiles.
@@ -240,7 +235,7 @@ class MediaItemLiveStream extends MyEloquent {
 			$uris = array();
 			$models = self::get();
 			foreach($models as $a) {
-				foreach($a->getQualitiesWithUris() as $b) {
+				foreach($a->getQualitiesWithUris(array("live", "nativeDvr", "dvrBridge")) as $b) {
 					foreach($b['uris'] as $uri) {
 						$uris[] = $uri['uri'];
 					}
