@@ -15,7 +15,8 @@ define([
 		this.getState = function() {
 			return {
 				url: url,
-				dvr: dvr,
+				dvrBridgeServiceUrl: dvrBridgeServiceUrl,
+				nativeDvr: nativeDvr,
 				type: type,
 				support: support,
 				qualityState: qualityState
@@ -24,16 +25,18 @@ define([
 		
 		this.setState = function(state) {
 			url = state.url;
-			dvr = state.dvr;
+			dvrBridgeServiceUrl = state.dvrBridgeServiceUrl;
+			nativeDvr = state.nativeDvr;
 			type = state.type;
 			support = state.support;
 			qualityState = state.qualityState;
 			$urlEl.val(url);
-			$dvrCheckbox.prop("checked", dvr);
+			$dvrBridgeCheckbox.prop("checked", dvrBridgeServiceUrl);
+			$nativeDvrCheckbox.prop("checked", nativeDvr);
 			$typeEl.val(type);
 			$supportSelect.val(support);
 			qualityAjaxSelect.setState(qualityState);
-			onCheckboxChanged(true);
+			onDvrBridgeCheckboxChanged(true);
 			$(self).triggerHandler("stateChanged");
 		};
 		
@@ -53,7 +56,8 @@ define([
 		
 		var qualityState = null;
 		var url = null;
-		var dvr = false;
+		var dvrBridgeServiceUrl = false;
+		var nativeDvr = false;
 		var type = null;
 		var support = null;
 		
@@ -62,14 +66,20 @@ define([
 		var $qualityAjaxSelectEl = qualityAjaxSelect.getEl();
 		$qualityCol.append($qualityAjaxSelectEl);
 		$el.append($qualityCol);
-		var $urlCol = $("<div />").addClass("col-md-5");
+		var $urlCol = $("<div />").addClass("col-md-4");
 		var $urlEl = $("<input />").addClass("form-control").prop("type", "url").attr("placeholder", "Stream URL");
 		$urlCol.append($urlEl);
 		$el.append($urlCol);
-		var $dvrCol = $("<div />").addClass("col-md-1");
-		var $dvrCheckbox = $("<input />").prop("type", "checkbox");
-		$dvrCol.append($("<div />").addClass("checkbox").append($("<label />").append($dvrCheckbox).append($("<span />").text("DVR"))));
-		$el.append($dvrCol);
+		var $dvrBridgeCol = $("<div />").addClass("col-md-1");
+		var $dvrBridgeCheckbox = $("<input />").prop("type", "checkbox");
+		$dvrBridgeCol.append($("<div />").addClass("checkbox").append($("<label />").append($dvrBridgeCheckbox).append($("<span />").text("URL for DVR bridge service?"))));
+		$el.append($dvrBridgeCol);
+		var $nativeDvrCol = $("<div />").addClass("col-md-1");
+		var $nativeDvrCheckbox = $("<input />").prop("type", "checkbox");
+		var $nativeDvrCheckboxContainer = $("<div />").addClass("checkbox");
+		$nativeDvrCheckboxContainer.append($("<label />").append($nativeDvrCheckbox).append($("<span />").text("URL has native DVR support?")));
+		$nativeDvrCol.append($nativeDvrCheckboxContainer);
+		$el.append($nativeDvrCol);
 		var $typeCol = $("<div />").addClass("col-md-2");
 		var $typeEl = $("<input />").addClass("form-control").prop("type", "text").attr("placeholder", "Stream Type");
 		$typeCol.append($typeEl);
@@ -92,24 +102,34 @@ define([
 		};
 		$typeEl.on("keyup change", onTypeChanged);
 		
-		var onCheckboxChanged = function(initial) {
-			var checked = $dvrCheckbox.prop("checked");
+		var onDvrBridgeCheckboxChanged = function(initial) {
+			var checked = $dvrBridgeCheckbox.prop("checked");
 			if (checked) {
 				$typeEl.prop("readonly", true).val("application/x-mpegURL");
+				$nativeDvrCheckbox.prop("disabled", true).prop("checked", false);
+				nativeDvr = null;
+				$nativeDvrCheckboxContainer.addClass("disabled");
 			}
 			else {
 				$typeEl.prop("readonly", false);
 				if (initial !== true) {
 					$typeEl.val("");
+					$nativeDvrCheckbox.prop("disabled", false).prop("checked", false);
+					nativeDvr = false;
+					$nativeDvrCheckboxContainer.removeClass("disabled");
 				}
 			}
 			onTypeChanged();
-			if (dvr !== checked) {
-				dvr = checked;
+			if (dvrBridgeServiceUrl !== checked) {
+				dvrBridgeServiceUrl = checked;
 				$(self).triggerHandler("stateChanged");
 			}
 		};
-		$dvrCheckbox.change(onCheckboxChanged);
+		$dvrBridgeCheckbox.change(onDvrBridgeCheckboxChanged);
+		$nativeDvrCheckbox.change(function() {
+			nativeDvr = $nativeDvrCheckbox.prop("checked");
+			$(self).triggerHandler("stateChanged");
+		});
 		
 		$urlEl.on("keyup change", function() {
 			var val = $(this).val();

@@ -56,11 +56,13 @@ class LiveStream extends MyEloquent {
 					"uris"				=> array()
 				);
 			}
+
+			$uriForDvrBridgeService = (boolean) $a->dvr_bridge_service_uri;
 			
 			$uri = array(
 				"uri"	=> $a->uri,
-				"uriForDvrBridgeService"	=> (boolean) $a->dvr_bridge_service_uri,
-				"uriFromDvrBridgeService"	=> $a->uri_from_dvr_bridge_service,
+				"uriForDvrBridgeService"	=> $uriForDvrBridgeService,
+				"hasDvr"	=> $uriForDvrBridgeService ? null : (boolean) $a->has_dvr,
 				"type"	=> $a->type,
 				"supportedDevices"	=> $a->supported_devices,
 				"enabled"	=> (boolean) $a->enabled,
@@ -74,19 +76,34 @@ class LiveStream extends MyEloquent {
 		return $qualities;
 	}
 	
-	// $filter can be "all", "dvr", "live"
-	public function getQualitiesWithUris($filter="all", $mediaItemLiveStream=null) {
-		if ($filter !== "all" && $filter !== "dvr" && $filter !== "live") {
-			throw(new Exception("Filter is not valid."));
+	// $filters is array of "dvrBridge", "nativeDvr", or "live"
+	// "dvrBridge" will return all urls which have been created by the dvr bridge service for the provided $mediaItemLiveStream
+	// "nativeDvr" will return all urls which point to streams which provide dvr functionality
+	// "live" will return all urls which point to streams which do not provide dvr functionality
+	public function getQualitiesWithUris($filters=null, $mediaItemLiveStream=null) {
+		$validFilters = array("dvrBridge", "nativeDvr", "live");
+		if (is_null($filters)) {
+			$filters = array("dvrBridge", "live");
 		}
-		
-		if (($filter === "all" || $filter === "dvr") && is_null($mediaItemLiveStream)) {
-			throw("MediaItemLiveStream model required if retrieving dvr urls.");
+
+		if (!is_array($filters)) {
+			throw new Exception("filters must be an array.");
+		}
+
+		foreach($filters as $a) {
+			if (!in_array($a, $validFilters)) {
+				throw new Exception("Unrecognised filter.");
+			}
+		}
+
+		if (in_array("dvrBridge", $filters) && is_null($mediaItemLiveStream)) {
+			throw new Exception("MediaItemLiveStream model required if retrieving dvr bridge service urls.");
 		}
 		
 		$qualities = array();
 		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
 		foreach($urisOrganisedByQuality as $quality) {
+
 			$entry = array(
 				"qualityDefinition"	=> $quality["qualityDefinition"],
 				"uris"				=> array()
@@ -99,17 +116,25 @@ class LiveStream extends MyEloquent {
 				
 				// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
 				// the url it returns will be a hls url with dvr support.
-				$uriWithDvrSupport = $uriAndInfo['uriForDvrBridgeService'];
+				$uriForDvrBridgeService = $uriAndInfo['uriForDvrBridgeService'];
+				$uriWithDvrSupport = $uriForDvrBridgeService || $uriAndInfo["hasDvr"];
 				// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
 				// this may be null if there's been an error, in which case the user should not see it
 				$uri = null;
-				if(!$uriWithDvrSupport) {
-					$uri = $uriAndInfo['uri'];
+				if(!$uriForDvrBridgeService) {
+					if (in_array("nativeDvr", $filters) && $uriWithDvrSupport) {
+						$uri = $uriAndInfo['uri'];
+					}
+					else if (in_array("live", $filters) && !$uriWithDvrSupport) {
+						$uri = $uriAndInfo['uri'];
+					}
 				}
-				else if ($filter === "all" || $filter === "dvr") {
-					$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", $mediaItemLiveStream->id)->first();
-					if (!is_null($dvrLiveStreamUriModel)) {
-						$uri = $dvrLiveStreamUriModel->uri;
+				else {
+					if (in_array("dvrBridge", $filters)) {
+						$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", intval($mediaItemLiveStream->id))->first();
+						if (!is_null($dvrLiveStreamUriModel)) {
+							$uri = $dvrLiveStreamUriModel->uri;
+						}
 					}
 				}
 				
@@ -117,17 +142,12 @@ class LiveStream extends MyEloquent {
 					continue;
 				}
 				
-				if (($filter === "dvr" && !$uriWithDvrSupport) || ($filter === "live" && $uriWithDvrSupport)) {
-					continue;
-				}
-			
 				$entry['uris'][] = array(
 					"uri"	=> $uri,
 					"uriWithDvrSupport"	=> $uriWithDvrSupport,
 					"type"	=> $uriAndInfo['type'],
 					"supportedDevices"	=> $uriAndInfo['supportedDevices']
 				);
-			
 			}
 			
 			if (count($entry["uris"]) > 0) {
@@ -159,7 +179,8 @@ class LiveStream extends MyEloquent {
 						"text"	=> $a['qualityDefinition']->name
 					),
 					"url"		=> $b['uri'],
-					"dvr"		=> $b['uriForDvrBridgeService'],
+					"dvrBridgeServiceUrl"	=> $b['uriForDvrBridgeService'],
+					"nativeDvr"	=> $b['hasDvr'],
 					"type"		=> $b['type'],
 					"support"	=> $support
 				);

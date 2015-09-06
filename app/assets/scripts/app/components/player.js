@@ -1068,7 +1068,7 @@ define([
 			for (var i=0; i<queuedPlayerUris.length; i++) {
 				var queuedUri = queuedPlayerUris[i];
 				var uri = playerUris[i];
-				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type) {
+				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type || uri.uriWithDvrSupport !== queuedUri.uriWithDvrSupport) {
 					return true;
 				}
 			}

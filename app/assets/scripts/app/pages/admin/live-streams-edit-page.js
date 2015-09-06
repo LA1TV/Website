@@ -21,7 +21,8 @@ define([
 				return qualityAndUrlInput;
 			}, {
 				url: "",
-				dvr: false,
+				dvrBridgeServiceUrl: false,
+				nativeDvr: false,
 				type: "",
 				support: "all",
 				qualityState: {id: null, text: null}
