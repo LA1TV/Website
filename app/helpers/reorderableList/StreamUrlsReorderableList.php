@@ -8,7 +8,7 @@ class StreamUrlsReorderableList implements ReorderableList {
 	private $initialDataString = null;
 	private $stringForInput = null;
 	
-	// $data should be the an array of {qualityDefinition: {id, text}, url, dvr, support, type}
+	// $data should be the an array of {qualityDefinition: {id, text}, url, dvrBridgeServiceUrl, nativeDvr, support, type}
 	// will be handled if this is not the format of the data, and obviously flagged as invalid
 	// does not need to be valid. Anything invalid will be ignored.
 	public function __construct($data) {
@@ -84,21 +84,36 @@ class StreamUrlsReorderableList implements ReorderableList {
 				$currentItemOutput["type"] = $a['type'];
 			}
 			
-			if (!isset($a['dvr']) && !is_bool($a['dvr'])) {
+			if (!isset($a['dvrBridgeServiceUrl']) || !is_bool($a['dvrBridgeServiceUrl'])) {
 				$this->valid = false;
-				$currentItemOutput["dvr"] = false;
+				$currentItemOutput["dvrBridgeServiceUrl"] = false;
 			}
 			else {
-				$currentItemOutput["dvr"] = $a['dvr'];
+				$currentItemOutput["dvrBridgeServiceUrl"] = $a['dvrBridgeServiceUrl'];
 			}
 			
 			// type must be this if using dvr bridge service as this is the type the dvr bridge service uses
-			if ($currentItemOutput["dvr"] && $currentItemOutput["type"] !== "application/x-mpegURL") {
+			if ($currentItemOutput["dvrBridgeServiceUrl"] && $currentItemOutput["type"] !== "application/x-mpegURL") {
 				$this->valid = false;
 			}
+			$currentItemOutput["dvrBridgeServiceUrl"] = isset($a['dvrBridgeServiceUrl']) && $a['dvrBridgeServiceUrl'] === true;
 			
-			$currentItemOutput["dvr"] = isset($a['dvr']) && $a['dvr'] === true;
-			
+			if ($currentItemOutput["dvrBridgeServiceUrl"]) {
+				if (!array_key_exists('nativeDvr', $a) || !is_null($a['nativeDvr'])) {
+					$this->valid = false;
+				}
+				$currentItemOutput["nativeDvr"] = null;
+			}
+			else {
+				if (!array_key_exists('nativeDvr', $a) || !is_bool($a['nativeDvr'])) {
+					$this->valid = false;
+					$currentItemOutput["nativeDvr"] = false;
+				}
+				else {
+					$currentItemOutput["nativeDvr"] = $a['nativeDvr'];
+				}
+			}
+
 			if (!isset($a["support"]) || ($a["support"] !== "all" && $a["support"] !== "pc" && $a["support"] !== "mobile" && $a["support"] !== "none")) {
 				$this->valid = false;
 				$currentItemOutput["support"] = "all";

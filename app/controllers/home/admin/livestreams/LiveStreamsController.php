@@ -198,7 +198,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					foreach($urlsData as $a) {
 						$qualityDefinition = QualityDefinition::find(intval($a['qualityState']['id']));
 						$url = $a['url'];
-						$dvrBridgeServiceUri = $a['dvr'];
+						$dvrBridgeServiceUri = $a['dvrBridgeServiceUrl'];
+						$nativeDvr = $a['nativeDvr'];
 						$type = $a['type'];
 						$support = $a['support'];
 						$supportedDevices = null;
@@ -211,9 +212,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						$liveStreamUri = new LiveStreamUri(array(
 							"uri"						=> $url,
 							"dvr_bridge_service_uri"	=> $dvrBridgeServiceUri,
-							// TODO allow the user to check a box in the ui to tell the system that
-							// the url they entered supports dvr (provifing it's not a bridge service url)
-							"has_dvr"					=> $dvrBridgeServiceUri ? null : false,
+							"has_dvr"					=> $nativeDvr,
 							"type"						=> $type,
 							"supported_devices"			=> $supportedDevices,
 							"enabled"					=> $support !== "none"

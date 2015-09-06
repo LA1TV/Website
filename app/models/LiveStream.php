@@ -179,7 +179,8 @@ class LiveStream extends MyEloquent {
 						"text"	=> $a['qualityDefinition']->name
 					),
 					"url"		=> $b['uri'],
-					"dvr"		=> $b['uriForDvrBridgeService'],
+					"dvrBridgeServiceUrl"	=> $b['uriForDvrBridgeService'],
+					"nativeDvr"	=> $b['hasDvr'],
 					"type"		=> $b['type'],
 					"support"	=> $support
 				);
