@@ -85,7 +85,7 @@ class MediaItemTransformer extends Transformer {
 					$streamUrlData = [];
 				}
 				// don't retrieve urls that support dvr
-				foreach($mediaItemLiveStream->getQualitiesWithUris("live") as $qualityWithUris) {
+				foreach($mediaItemLiveStream->getQualitiesWithUris(array("live")) as $qualityWithUris) {
 					$urls = [];
 					foreach($qualityWithUris['uris'] as $a) {
 						$urls[] = [

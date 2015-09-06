@@ -488,7 +488,7 @@ define([
 					for(var i=0; i<chosenUris.length; i++) {
 						var current = currentUris[i];
 						var pending = chosenUris[i];
-						if (current.uri !== pending.uri || current.type !== pending.type || current.supportedDevices !== pending.supportedDevices) {
+						if (current.uri !== pending.uri || current.type !== pending.type || current.supportedDevices !== pending.supportedDevices || current.uriWithDvrSupport !== pending.uriWithDvrSupport) {
 							urisChanged = true;
 							break;
 						}
