@@ -84,7 +84,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		$streamUris = null;
 		if ($streamAccessible) {
 			$streamUris = array();
-			foreach($liveStream->getQualitiesWithUris("live") as $qualityWithUris) {
+			foreach($liveStream->getQualitiesWithUris(array("live", "nativeDvr")) as $qualityWithUris) {
 				$streamUris[] = array(
 					"quality"	=> array(
 						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
