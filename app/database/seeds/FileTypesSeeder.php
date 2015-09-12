@@ -23,6 +23,11 @@ class FileTypesSeeder extends Seeder {
 			array("id"=>9, "description"=>"For vod scrub thumbnails.", "extensions"=>array()),
 			array("id"=>10, "description"=>"For side banner fill source images.", "extensions"=>array(1, 2, 3)),
 			array("id"=>11, "description"=>"For side banner fill image renders.", "extensions"=>array()),
+			array("id"=>12, "description"=>"For dash media presentation description files.", "extensions"=>array()),
+			array("id"=>13, "description"=>"For dash segment files.", "extensions"=>array()),
+			array("id"=>14, "description"=>"For hls master playlist files.", "extensions"=>array()),
+			array("id"=>15, "description"=>"For hls media playlist files.", "extensions"=>array()),
+			array("id"=>16, "description"=>"For hls segment files.", "extensions"=>array()),
 		);
 		
 		foreach($fileTypes as $a) {
