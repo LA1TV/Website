@@ -74,25 +74,37 @@ class MediaItemVideo extends MyEloquent {
 		$positions = array();
 		foreach($renders as $a) {
 			
-			if (is_null($a->videoFile)) {
+			$videoFile = $a->videoFile;
+			if (is_null($videoFile)) {
 				// this file is not a render. e.g. could be thumbnail
 				continue;
 			}
 			
 			$uris = array();
+
+			$videoFileDash = $videoFile->videoFileDash;
+			if (!is_null($videoFileDash)) {
+				// there is a dash render for this as well
+				$uris[] = array(
+					"uri"	=> $videoFileDash->mediaPresentationDescriptionFile->getUri(),
+					"type"	=> "application/dash+xml",
+					"supportedDevices"	=> null
+				);
+			}
+
 			$uris[] = array(
 				"uri"	=> $a->getUri(),
 				"type"	=> "video/mp4",
 				"supportedDevices"	=> null
 			);
-			
+
 			$positions[] = intval($a->videoFile->qualityDefinition->position);
 			$qualities[] = array(
 				"qualityDefinition"		=> $a->videoFile->qualityDefinition,
 				"uris"					=> $uris
 			);
 		}
-		// reorder so in qualities order
+		// reorder so in qualities order with dash entries first
 		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $qualities);
 		return $qualities;
 	}

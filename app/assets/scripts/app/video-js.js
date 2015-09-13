@@ -1,6 +1,7 @@
 define([
 	"videojs",
 	"./page-data",
+	"lib/videojs-dash",
 	"lib/videojs-markers",
 	"lib/videojs-thumbnails"
 ], function(videojs, PageData) {

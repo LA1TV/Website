@@ -12,6 +12,10 @@ require.config({
 		"ga": {
 			exports: "ga"
 		},
+		"lib/dash": {
+			exports: "Dash"
+		},
+		"lib/videojs-dash": ["lib/dash", "videojs"],
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}

@@ -274,6 +274,12 @@ class UploadManager {
 				$oldIds[] = intval($fileToReplace->id);
 			}
 			
+			// this must happen before new file is saved (after the old ids that pointed to this file have been retrieved)
+			// so that don't end up with duplicate old file ids
+			if (!is_null($fileToReplace)) {
+				self::delete($fileToReplace);
+			}
+
 			if (!is_null($file)) {
 				foreach($oldIds as $a) {
 					$file->oldFileIds()->save(new OldFileId(array(
@@ -284,9 +290,6 @@ class UploadManager {
 				if ($file->save() === false) {
 					throw(new Exception("Error saving file model."));
 				}
-			}
-			if (!is_null($fileToReplace)) {
-				self::delete($fileToReplace);
 			}
 		});
 		
@@ -324,7 +327,10 @@ class UploadManager {
 			"sourceFile.playlistWithBannerFill",
 			"sourceFile.playlistWithCover",
 			"sourceFile.liveStreamWithCoverArt",
-			"sourceFile.mediaItemVideoWithFile.mediaItem"
+			"sourceFile.mediaItemVideoWithFile.mediaItem",
+			"sourceFile.videoFileDashWithMediaPresentationDescription",
+			"sourceFile.videoFileDashWithAudioChannel",
+			"sourceFile.videoFileDashWithVideoChannel"
 		);
 
 		$requestedFile = File::with($relationsToLoad)->finishedProcessing()->find($fileId);
@@ -371,8 +377,11 @@ class UploadManager {
 				$accessAllowed = true;
 			}
 		}
-		// file type 9 is video scrub thumbnail, these should only be accessible if the video itself is
-		else if (($fileTypeId === 7 || $fileTypeId === 9) && !is_null($sourceFile->mediaItemVideoWithFile)) {
+		// file type 9 = video scrub thumbnail,
+		// 12 = dash media presentation description files
+		// 13 = dash segment file
+		// these should only be accessible if the video itself is
+		else if (($fileTypeId === 7 || $fileTypeId === 9 || $fileTypeId === 12 || $fileTypeId === 13) && !is_null($sourceFile->mediaItemVideoWithFile)) {
 			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() && ($sourceFile->mediaItemVideoWithFile->getIsLive() || $hasMediaItemsPermission)) {
 				$accessAllowed = true;
 			}
