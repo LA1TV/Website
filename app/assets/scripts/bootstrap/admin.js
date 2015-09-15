@@ -21,6 +21,10 @@ require.config({
 			exports: "plupload",
 			deps: ['moxie']
 		},
+		"lib/dash": {
+			exports: "Dash"
+		},
+		"lib/videojs-dash": ["lib/dash", "videojs"],
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
