@@ -380,8 +380,10 @@ class UploadManager {
 		// file type 9 = video scrub thumbnail,
 		// 12 = dash media presentation description files
 		// 13 = dash segment file
+		// 15 = hls playlist file
+		// 16 = hls segment file
 		// these should only be accessible if the video itself is
-		else if (($fileTypeId === 7 || $fileTypeId === 9 || $fileTypeId === 12 || $fileTypeId === 13) && !is_null($sourceFile->mediaItemVideoWithFile)) {
+		else if (($fileTypeId === 7 || $fileTypeId === 9 || $fileTypeId === 12 || $fileTypeId === 13 || $fileTypeId === 15 || $fileTypeId === 16) && !is_null($sourceFile->mediaItemVideoWithFile)) {
 			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() && ($sourceFile->mediaItemVideoWithFile->getIsLive() || $hasMediaItemsPermission)) {
 				$accessAllowed = true;
 			}
@@ -439,7 +441,16 @@ class UploadManager {
 				return Response::make("", 404);
 			}
 		}
+
+		$headers = array();
+		$mimeType = $file->fileType->mime_type;
+		if (!is_null($mimeType)) {
+			// explicitly set the mime type
+			// if not set it 'should' be detected automatically
+			$headers["Content-Type"] = $mimeType;
+		}
+
 		// return response with cache header set for client to cache for a year
-		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id)->setContentDisposition("inline")->setClientTtl(31556926)->setTtl(31556926)->setEtag($file->id);
+		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id, $headers)->setContentDisposition("inline")->setClientTtl(31556926)->setTtl(31556926)->setEtag($file->id);
 	}
 }

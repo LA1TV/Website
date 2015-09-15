@@ -92,6 +92,16 @@ class MediaItemVideo extends MyEloquent {
 				);
 			}
 
+			$videoFileHls = $videoFile->videoFileHls;
+			if (!is_null($videoFileHls)) {
+				// there is a hls render for this as well
+				$uris[] = array(
+					"uri"	=> $videoFileHls->playlistFile->getUri(),
+					"type"	=> "application/x-mpegURL",
+					"supportedDevices"	=> null
+				);
+			}
+
 			$uris[] = array(
 				"uri"	=> $a->getUri(),
 				"type"	=> "video/mp4",

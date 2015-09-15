@@ -124,7 +124,13 @@ class File extends MyEloquent {
 		return $this->hasOne(self::$p.'VideoFileDash', 'video_channel_file_id');
 	}
 
-	// TODO add HLS ones which shoul be similar to dash ones above
+	public function videoFileHlsWithPlaylist() {
+		return $this->hasOne(self::$p.'VideoFileHls', 'playlist_file_id');
+	}
+
+	public function videoFileHlsWithSegment() {
+		return $this->hasOne(self::$p.'VideoFileHls', 'segment_file_id');
+	}
 
 	public function imageFile() {
 		return $this->hasOne(self::$p.'ImageFile', 'file_id');

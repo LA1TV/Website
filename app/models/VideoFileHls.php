@@ -5,8 +5,12 @@ class VideoFileHls extends MyEloquent {
 	protected $table = 'video_files_hls';
 	protected $guarded = array('*');
 	
-	public function file() {
-		return $this->belongsTo(self::$p.'File', 'file_id');
+	public function playlistFile() {
+		return $this->belongsTo(self::$p.'File', 'playlist_file_id');
+	}
+
+	public function segmentFile() {
+		return $this->belongsTo(self::$p.'File', 'segment_file_id');
 	}
 	
 	public function videoFile() {

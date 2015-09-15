@@ -16,14 +16,17 @@ class CreateVideoFilesHls extends Migration {
 		{
 			$table->increments('id');
 			$table->integer("video_files_id")->unsigned();
-			$table->integer("file_id")->unsigned();
+			$table->integer("playlist_file_id")->unsigned();
+			$table->integer("segment_file_id")->unsigned();
 			$table->timestamps();
 
 			$table->index("video_files_id");
-			$table->index("file_id");
+			$table->index("playlist_file_id");
+			$table->index("segment_file_id");
 			
 			$table->foreign("video_files_id")->references('id')->on('video_files')->onUpdate("restrict")->onDelete('cascade');
-			$table->foreign("file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("playlist_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
+			$table->foreign("segment_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('cascade');
 		});
 	}
 
