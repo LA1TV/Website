@@ -13,4 +13,11 @@ class VideoFile extends MyEloquent {
 		return $this->belongsTo(self::$p.'QualityDefinition', 'quality_definition_id');
 	}
 
+	public function videoFileDash() {
+		return $this->hasOne(self::$p.'VideoFileDash', 'video_files_id');
+	}
+
+	public function videoFileHls() {
+		return $this->hasOne(self::$p.'VideoFileHls', 'video_files_id');
+	}
 }

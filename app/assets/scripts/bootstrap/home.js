@@ -17,6 +17,10 @@ require.config({
 		"lib/modernizr": {
 			exports: "Modernizr"
 		},
+		"lib/dash": {
+			exports: "Dash"
+		},
+		"lib/videojs-dash": ["lib/dash", "videojs"],
 		"lib/videojs-markers": ["jquery", "videojs"],
 		"lib/videojs-thumbnails": ["videojs"]
 	}
