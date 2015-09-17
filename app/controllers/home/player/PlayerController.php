@@ -166,7 +166,6 @@ class PlayerController extends HomeBaseController {
 			
 		$twitterProperties = array();
 		$twitterProperties[] = array("name"=> "card", "content"=> "player");
-		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 		$openGraphProperties = array();
 		if (is_null($playlist->show)) {
 			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");

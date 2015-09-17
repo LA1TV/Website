@@ -12,3 +12,5 @@ composer.lock
 .idea
 Thumbs.db
 /app/version
+*.sublime-project
+*.sublime-workspace

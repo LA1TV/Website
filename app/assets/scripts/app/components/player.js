@@ -248,6 +248,10 @@ define([
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
 						return;
 					}
+					// on ios this doesn't appear to work unless the video is already playing
+					// http://stackoverflow.com/a/13826802/1048589
+					// the work around involves waiting until the user plays which introduces more complexity
+					// because then the extra play event listener would need to be managed.
 					videoJsPlayer.currentTime(time);
 					if (startPlaying) {
 						videoJsPlayer.play();

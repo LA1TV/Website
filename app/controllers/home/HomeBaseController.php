@@ -22,7 +22,7 @@ class HomeBaseController extends BaseController {
 
 	protected $layout = null;
 	
-	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=array(), $sideBannersImageUrl=null, $sideBannersFillImageUrl=null) {
+	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=null, $sideBannersImageUrl=null, $sideBannersFillImageUrl=null) {
 		$description = Config::get("custom.site_description");
 	
 		$view = View::make("layouts.home.master");
@@ -70,23 +70,21 @@ class HomeBaseController extends BaseController {
 		$defaultOpenGraphProperties[] = array("name"=> "og:site_name", "content"=> "LA1:TV");
 		$defaultOpenGraphProperties[] = array("name"=> "og:description", "content"=> $description);
 		$defaultOpenGraphProperties[] = array("name"=> "og:image", "content"=> Config::get("custom.open_graph_logo_uri"));
-		$usedOpenGraphNames = array();
-		$finalOpenGraphProperties = array();
-		foreach($openGraphProperties as $a) {
-			if (!is_null($a['content'])) {
-				$finalOpenGraphProperties[] = $a;
-			}
-			if (!in_array($a['name'], $usedOpenGraphNames)) {
-				$usedOpenGraphNames[] = $a['name'];
-			}
+		$finalOpenGraphProperties = $this->mergeProperties($defaultOpenGraphProperties, $openGraphProperties);
+
+		$finalTwitterProperties = array();
+		if (!is_null($twitterProperties)) {
+			$defaultTwitterProperties = array(
+				array("name"=> "card", "content"=> "summary"),
+				array("name"=> "site", "content"=> "@LA1TV"),
+				array("name"=> "description", "content"=> str_limit($description, 197, "...")),
+				array("name"=> "image", "content"=> Config::get("custom.twitter_card_logo_uri")),
+			);
+			$finalTwitterProperties = $this->mergeProperties($defaultTwitterProperties, $twitterProperties);
 		}
-		foreach($defaultOpenGraphProperties as $a) {
-			if (!in_array($a['name'], $usedOpenGraphNames)) {
-				$finalOpenGraphProperties[] = $a;
-			}
-		}
+
 		$view->openGraphProperties = $finalOpenGraphProperties;
-		$view->twitterProperties = $twitterProperties;
+		$view->twitterProperties = $finalTwitterProperties;
 		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
 		
 		$view->loginUri = URLHelpers::generateLoginUrl();
@@ -125,6 +123,25 @@ class HomeBaseController extends BaseController {
 		$response->enableContentSecurityPolicy(false);
 		//$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
 		$this->layout = $response;
+	}
+
+	private function mergeProperties($defaultProperties, $properties) {
+		$usedNames = array();
+		$finalProperties = array();
+		foreach($properties as $a) {
+			if (!is_null($a['content'])) {
+				$finalProperties[] = $a;
+			}
+			if (!in_array($a['name'], $usedNames)) {
+				$usedNames[] = $a['name'];
+			}
+		}
+		foreach($defaultProperties as $a) {
+			if (!in_array($a['name'], $usedNames)) {
+				$finalProperties[] = $a;
+			}
+		}
+		return $finalProperties;
 	}
 
 }
