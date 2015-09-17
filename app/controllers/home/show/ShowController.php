@@ -44,15 +44,11 @@ class ShowController extends HomeBaseController {
 		
 		$twitterProperties = array();
 		$twitterProperties[] = array("name"=> "card", "content"=> "summary_large_image");
-		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
-	
+		
 		$openGraphProperties = array();
 		if (!is_null($show->description)) {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $show->description);
 			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($show->description, 197, "..."));
-		}
-		else {
-			$twitterProperties[] = array("name"=> "description", "content"=> str_limit(Config::get("custom.site_description"), 197, "..."));
 		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> null);
 		$twitterProperties[] = array("name"=> "title", "content"=> $show->name);

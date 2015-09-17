@@ -84,6 +84,19 @@ class GuideController extends HomeBaseController {
 				"playlistFragment"	=> $playlistFragment
 			);
 		}
+
+		$twitterProperties = array();
+		$twitterProperties[] = array("name"=> "card", "content"=> "summary");
+		
+		$openGraphProperties = array();
+		$description = "View a schedule of our upcoming content and also content you may have missed.";
+		$twitterProperties[] = array("name"=> "description", "content"=> str_limit($description, 197, "..."));
+		$openGraphProperties[] = array("name"=> "og:description", "content"=> $description);
+		
+		$title = "Guide";
+		$twitterProperties[] = array("name"=> "title", "content"=> $title);
+		$openGraphProperties[] = array("name"=> "og:title", "content"=> $title);
+	
 		
 		$view = View::make("home.guide.index");
 		$view->calendarData = $viewCalendarData;
@@ -92,7 +105,7 @@ class GuideController extends HomeBaseController {
 		$view->previousPageStartDateStr = $this->getDateString($startDate->subDays($daysPerPage));
 		$view->nextPageUri = $dayGroupOffset !== $numPages ? URL::route("guide", array($dayGroupOffset+1)) : null;
 		$view->nextPageStartDateStr = $this->getDateString($endDate);
-		$this->setContent($view, "guide", "guide", array(), "Guide");
+		$this->setContent($view, "guide", "guide", $openGraphProperties, $title, 200, $twitterProperties);
 	}
 	
 	private function getDateString($date) {

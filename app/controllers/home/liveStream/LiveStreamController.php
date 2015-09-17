@@ -24,7 +24,6 @@ class LiveStreamController extends HomeBaseController {
 
 		$twitterProperties = array();
 		$twitterProperties[] = array("name"=> "card", "content"=> "player");
-		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 		$openGraphProperties = array();
 		$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
 

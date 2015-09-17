@@ -28,6 +28,7 @@ return array(
 	"blog_url"			=> isset($_ENV['BLOG_URL']) ? $_ENV['BLOG_URL'] : null,
 	"default_cover_uri"		=> asset("assets/img/default-cover.jpg"),
 	"open_graph_logo_uri"	=> asset("assets/img/og-logo.jpg"),
+	"twitter_card_logo_uri"	=> asset("assets/img/og-logo.jpg"),
 	"live_shows_uri"	=> URL::to("/") . "/player/live-shows",
 	"player_info_base_uri"	=> URL::to("/") . "/player/player-info",
 	"playlist_info_base_uri"	=> URL::to("/") . "/playlist/playlist-info",

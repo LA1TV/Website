@@ -82,7 +82,6 @@ class PlaylistController extends HomeBaseController {
 		
 		$twitterProperties = array();
 		$twitterProperties[] = array("name"=> "card", "content"=> "summary_large_image");
-		$twitterProperties[] = array("name"=> "site", "content"=> "@LA1TV");
 		
 		$openGraphProperties = array();
 		if (!is_null($playlist->show)) {
@@ -91,9 +90,6 @@ class PlaylistController extends HomeBaseController {
 		if (!is_null($playlist->description)) {
 			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($playlist->description, 197, "..."));
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $playlist->description);
-		}
-		else {
-			$twitterProperties[] = array("name"=> "description", "content"=> str_limit(Config::get("custom.site_description"), 197, "..."));
 		}
 		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $playlist->scheduled_publish_time->toISO8601String());
 		$twitterProperties[] = array("name"=> "title", "content"=> $playlistName);

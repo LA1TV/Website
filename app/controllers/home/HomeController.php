@@ -73,7 +73,7 @@ class HomeController extends HomeBaseController {
 			"tableData"		=> $mostPopularTableData
 		)) : null;
 		$view->twitterWidgetId = Config::get("twitter.timeline_widget_id");
-		$this->setContent($view, "home", "home");
+		$this->setContent($view, "home", "home", array(), null, 200, array());
 	}
 	
 	private function buildTimeStr($isLive, $time) {
