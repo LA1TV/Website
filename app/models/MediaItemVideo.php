@@ -82,22 +82,23 @@ class MediaItemVideo extends MyEloquent {
 			
 			$uris = array();
 
-			$videoFileDash = $videoFile->videoFileDash;
-			if (!is_null($videoFileDash)) {
-				// there is a dash render for this as well
-				$uris[] = array(
-					"uri"	=> $videoFileDash->mediaPresentationDescriptionFile->getUri(),
-					"type"	=> "application/dash+xml",
-					"supportedDevices"	=> null
-				);
-			}
-
+			// hls must be before dash because safari 8.0.6 has issues playing the dash version
 			$videoFileHls = $videoFile->videoFileHls;
 			if (!is_null($videoFileHls)) {
 				// there is a hls render for this as well
 				$uris[] = array(
 					"uri"	=> $videoFileHls->playlistFile->getUri(),
 					"type"	=> "application/x-mpegURL",
+					"supportedDevices"	=> null
+				);
+			}
+
+			$videoFileDash = $videoFile->videoFileDash;
+			if (!is_null($videoFileDash)) {
+				// there is a dash render for this as well
+				$uris[] = array(
+					"uri"	=> $videoFileDash->mediaPresentationDescriptionFile->getUri(),
+					"type"	=> "application/dash+xml",
 					"supportedDevices"	=> null
 				);
 			}
