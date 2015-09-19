@@ -2,7 +2,7 @@
 
 return array(
 	"mediaItems"	=> 1,
-	"shows"		=> 2,
+	"shows"			=> 2,
 	"playlists"		=> 3,
 	"liveStreams"	=> 4,
 	"siteUsers"		=> 5,
