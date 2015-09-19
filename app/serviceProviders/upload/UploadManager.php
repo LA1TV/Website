@@ -338,82 +338,131 @@ class UploadManager {
 			return null;
 		}
 		
-		$sourceFile = $requestedFile->sourceFile;
-		if (is_null($sourceFile)) {
-			return null;
-		}
-		
 		$fileType = $requestedFile->file_type;
 		$fileTypeId = intval($fileType->id);
 		
 		$user = Auth::getUser();
 		$hasMediaItemsPermission = false;
 		$hasPlaylistsPermission = false;
+		$hasLiveStreamsPermission = false;
+		$hasMediaItemsEditPermission = false;
+		$hasPlaylistsEditPermission = false;
+		$hasLiveStreamsEditPermission = false;
 		if (!is_null($user)) {
 			$hasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
 			$hasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
+			$hasLiveStreamsPermission = Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 0);
+			$hasMediaItemsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 1);
+			$hasPlaylistsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 1);
+			$hasLiveStreamsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 1);
 		}
-		
+
+
 		$accessAllowed = false;
+
+		$sourceFile = $requestedFile->sourceFile;
+		if (is_null($sourceFile)) {
+			// this is a source file
+			// if the user is logged into the cms and has the relevent edit permission
+			// meaning they would have been able to upload the source file, then allow
+			// them to download it.
+
+			// side banner source images
+			if ($fileTypeId === 1 && $hasMediaItemsEditPermission && !is_null($requestedFile->mediaItemWithBanner)) {
+				$accessAllowed = true;
+			}
+			else if ($fileTypeId === 1 && $hasPlaylistsEditPermission && !is_null($requestedFile->playlistWithBanner)) {
+				$accessAllowed = true;
+			}
+			// cover source images
+			else if ($fileTypeId === 2 && $hasMediaItemsEditPermission && !is_null($requestedFile->mediaItemWithCover)) {
+				$accessAllowed = true;
+			}
+			else if ($fileTypeId === 2 && $hasPlaylistsEditPermission && !is_null($requestedFile->playlistWithCover)) {
+				$accessAllowed = true;
+			}
+			// video upload
+			else if ($fileTypeId === 3 && $hasMediaItemsEditPermission && !is_null($requestedFile->mediaItemVideoWithFile)) {
+				$accessAllowed = true;
+			}
+			//cover art source images
+			else if ($fileTypeId === 4 && $hasMediaItemsEditPermission && !is_null($requestedFile->mediaItemWithCoverArt)) {
+				$accessAllowed = true;
+			}
+			else if ($fileTypeId === 4 && $hasPlaylistsEditPermission && !is_null($requestedFile->playlistWithCoverArt)) {
+				$accessAllowed = true;
+			}
+			else if ($fileTypeId === 4 && $hasLiveStreamsEditPermission && !is_null($requestedFile->liveStreamWithCoverArt)) {
+				$accessAllowed = true;
+			}
+			// side banner fill images
+			else if ($fileTypeId === 10 && $hasMediaItemsEditPermission && !is_null($requestedFile->mediaItemWithBannerFill)) {
+				$accessAllowed = true;
+			}
+			else if ($fileTypeId === 10 && $hasPlaylistsEditPermission && !is_null($requestedFile->playlistWithBannerFill)) {
+				$accessAllowed = true;
+			}
+		}
+		else {
 		
-		// see if the file should be accessible
-		if ($fileTypeId === 5 && !is_null($sourceFile->mediaItemWithBanner)) {
-			if ($sourceFile->mediaItemWithBanner->getIsAccessible()) {
-				$accessAllowed = true;
+			// see if the file should be accessible
+			if ($fileTypeId === 5 && !is_null($sourceFile->mediaItemWithBanner)) {
+				if ($sourceFile->mediaItemWithBanner->getIsAccessible()) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 11 && !is_null($sourceFile->mediaItemWithBannerFill)) {
+				if ($sourceFile->mediaItemWithBannerFill->getIsAccessible()) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 6 && !is_null($sourceFile->mediaItemWithCover)) {
+				if ($sourceFile->mediaItemWithCover->getIsAccessible()) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 8 && !is_null($sourceFile->mediaItemWithCoverArt)) {
+				if ($sourceFile->mediaItemWithCoverArt->getIsAccessible()) {
+					$accessAllowed = true;
+				}
+			}
+			// file type 9 = video scrub thumbnail,
+			// 12 = dash media presentation description files
+			// 13 = dash segment file
+			// 15 = hls playlist file
+			// 16 = hls segment file
+			// these should only be accessible if the video itself is
+			else if (($fileTypeId === 7 || $fileTypeId === 9 || $fileTypeId === 12 || $fileTypeId === 13 || $fileTypeId === 15 || $fileTypeId === 16) && !is_null($sourceFile->mediaItemVideoWithFile)) {
+				if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() && ($sourceFile->mediaItemVideoWithFile->getIsLive() || $hasMediaItemsPermission)) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 5 && !is_null($sourceFile->playlistWithBanner)) {
+				if ($sourceFile->playlistWithBanner->getIsAccessible() && ($sourceFile->playlistWithBanner->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 11 && !is_null($sourceFile->playlistWithBannerFill)) {
+				if ($sourceFile->playlistWithBannerFill->getIsAccessible() && ($sourceFile->playlistWithBannerFill->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 6 && !is_null($sourceFile->playlistWithCover)) {
+				if ($sourceFile->playlistWithCover->getIsAccessible() && ($sourceFile->playlistWithCover->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 8 && !is_null($sourceFile->playlistWithCoverArt)) {
+				if ($sourceFile->playlistWithCoverArt->getIsAccessible() && ($sourceFile->playlistWithCoverArt->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
+					$accessAllowed = true;
+				}
+			}
+			else if ($fileTypeId === 8 && !is_null($sourceFile->liveStreamWithCoverArt)) {
+				if ($sourceFile->liveStreamWithCoverArt->getShowAsLiveStream()) {
+					$accessAllowed = true;
+				}
 			}
 		}
-		else if ($fileTypeId === 11 && !is_null($sourceFile->mediaItemWithBannerFill)) {
-			if ($sourceFile->mediaItemWithBannerFill->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 6 && !is_null($sourceFile->mediaItemWithCover)) {
-			if ($sourceFile->mediaItemWithCover->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 8 && !is_null($sourceFile->mediaItemWithCoverArt)) {
-			if ($sourceFile->mediaItemWithCoverArt->getIsAccessible()) {
-				$accessAllowed = true;
-			}
-		}
-		// file type 9 = video scrub thumbnail,
-		// 12 = dash media presentation description files
-		// 13 = dash segment file
-		// 15 = hls playlist file
-		// 16 = hls segment file
-		// these should only be accessible if the video itself is
-		else if (($fileTypeId === 7 || $fileTypeId === 9 || $fileTypeId === 12 || $fileTypeId === 13 || $fileTypeId === 15 || $fileTypeId === 16) && !is_null($sourceFile->mediaItemVideoWithFile)) {
-			if ($sourceFile->mediaItemVideoWithFile->mediaItem->getIsAccessible() && ($sourceFile->mediaItemVideoWithFile->getIsLive() || $hasMediaItemsPermission)) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 5 && !is_null($sourceFile->playlistWithBanner)) {
-			if ($sourceFile->playlistWithBanner->getIsAccessible() && ($sourceFile->playlistWithBanner->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 11 && !is_null($sourceFile->playlistWithBannerFill)) {
-			if ($sourceFile->playlistWithBannerFill->getIsAccessible() && ($sourceFile->playlistWithBannerFill->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 6 && !is_null($sourceFile->playlistWithCover)) {
-			if ($sourceFile->playlistWithCover->getIsAccessible() && ($sourceFile->playlistWithCover->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 8 && !is_null($sourceFile->playlistWithCoverArt)) {
-			if ($sourceFile->playlistWithCoverArt->getIsAccessible() && ($sourceFile->playlistWithCoverArt->getIsAccessibleToPublic() || $hasPlaylistsPermission)) {
-				$accessAllowed = true;
-			}
-		}
-		else if ($fileTypeId === 8 && !is_null($sourceFile->liveStreamWithCoverArt)) {
-			if ($sourceFile->liveStreamWithCoverArt->getShowAsLiveStream()) {
-				$accessAllowed = true;
-			}
-		}
-		
 		return $accessAllowed ? $requestedFile : null;
 	}
 	
