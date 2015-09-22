@@ -488,7 +488,7 @@ class MediaItem extends MyEloquent {
 			$numPopularItems = intval(Config::get("custom.num_popular_items"));
 
 			// get ids for media items with ones with most views at the top
-			$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(constitutes_view) as view_count, media_item_id")->orderBy("id", "asc")->orderBy("view_count", "desc")->lists("media_item_id");
+			$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(constitutes_view) as view_count, media_item_id")->orderBy("view_count", "desc")->orderBy("id", "asc")->lists("media_item_id");
 
 			if (count($popularMediaItemIds) === 0) {
 				return array();
