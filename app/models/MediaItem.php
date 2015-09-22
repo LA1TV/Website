@@ -539,10 +539,10 @@ class MediaItem extends MyEloquent {
 				$videoItem = $a->videoItem;
 				$count = 0;
 				if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
-					$count += intval($liveStreamItem->view_count);
+					$count += intval($liveStreamItem->getViewCount());
 				}
 				if (!is_null($videoItem) && $videoItem->getIsAccessible()) {
-					$count += intval($videoItem->view_count);
+					$count += intval($videoItem->getViewCount());
 				}
 				if ($count === 0) {
 					continue;
