@@ -266,7 +266,6 @@ class PlayerController extends HomeBaseController {
 		$view->autoContinueMode = $this->getAutoContinueMode();
 		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
 		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
-		$view->updatePlaybackTimeBaseUri = $this->getUpdatePlaybackTimeBaseUri();
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$view->autoPlay = $autoPlay;
@@ -795,10 +794,6 @@ class PlayerController extends HomeBaseController {
 	
 	private function getRegisterLikeUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
-	}
-	
-	private function getUpdatePlaybackTimeBaseUri() {
-		return Config::get("custom.update_playback_time_base_uri");
 	}
 	
 	private function getGetCommentsUri($mediaItemId) {

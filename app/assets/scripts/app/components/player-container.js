@@ -11,8 +11,8 @@ define([
 	"lib/domReady!"
 ], function($, QualitySelectionComponent, ShareModal, AlertModal, PlayerController, PageData, SynchronisedTime) {
 	
-	// registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri may be null to disable these features
-	var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	// registerWatchingUri and registerLikeUri may be null to disable these features
+	var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
 		var self = this;
 	
@@ -104,7 +104,7 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+		var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);
