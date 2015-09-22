@@ -486,20 +486,22 @@ class MediaItem extends MyEloquent {
 	public static function getCachedMostPopularItems() {
 		return Cache::remember('mostPopularMediaItems', Config::get("custom.cache_time"), function() {
 			$numPopularItems = intval(Config::get("custom.num_popular_items"));
-			$cachedPopularIds = self::getCachedMostPopularMediaItemIds();
-			
-			if (count($cachedPopularIds) === 0) {
+
+			// get ids for media items with ones with most views at the top
+			$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(constitutes_view) as view_count, media_item_id")->orderBy("id", "asc")->orderBy("view_count", "desc")->lists("media_item_id");
+
+			if (count($popularMediaItemIds) === 0) {
 				return array();
 			}
 			
 			$tmp = "";
-			foreach($cachedPopularIds as $i=>$a) {
+			foreach($popularMediaItemIds as $i=>$a) {
 				if ($i > 0) {
 					$tmp .= ",";
 				}
 				$tmp .= "'".$a."'";
 			}
-			$mediaItems = self::accessible()->whereIn("id", $cachedPopularIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numPopularItems)->get();
+			$mediaItems = self::accessible()->whereIn("id", $popularMediaItemIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numPopularItems)->get();
 			
 			$items = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
@@ -521,42 +523,6 @@ class MediaItem extends MyEloquent {
 			return $items;
 		});
 	}
-	
-	public static function getCachedMostPopularMediaItemIds() {
-		return Cache::remember('mostPopularMediaItemIds', Config::get("custom.popular_items_cache_time"), function() {
-			$mediaItems = self::with("liveStreamItem", "videoItem")->accessible()->where(function($q) {
-				$q->whereHas("liveStreamItem", function($q2) {
-					$q2->accessible();
-				})
-				->orWhereHas("videoItem", function($q2) {
-					$q2->accessible();
-				});
-			})->orderBy("id", "asc")->get();
-			$ids = array();
-			$counts = array();
-			foreach($mediaItems as $a) {
-				$liveStreamItem = $a->liveStreamItem;
-				$videoItem = $a->videoItem;
-				$count = 0;
-				if (!is_null($liveStreamItem) && $liveStreamItem->getIsAccessible()) {
-					$count += intval($liveStreamItem->getViewCount());
-				}
-				if (!is_null($videoItem) && $videoItem->getIsAccessible()) {
-					$count += intval($videoItem->getViewCount());
-				}
-				if ($count === 0) {
-					continue;
-				}
-				$ids[] = $a['id'];
-				$counts[] = $count;
-			}
-			
-			array_multisort($counts, SORT_NUMERIC, SORT_DESC, $ids);
-			$numPopularItemsToCache = intval(Config::get("custom.num_popular_items_to_cache"));
-			$ids = array_slice($ids, 0, $numPopularItemsToCache);
-			return $ids;
-		});
-	}	
 	
 	// returns true if this media item should be accessible
 	// this does not take into consideration the publish time. A media item should still be accessible even if the publish time hasn't passed.
