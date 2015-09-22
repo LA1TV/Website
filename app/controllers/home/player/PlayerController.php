@@ -362,10 +362,10 @@ class PlayerController extends HomeBaseController {
 		$streamEndTime = $streamState === 3 && !is_null($liveStreamItem->end_time) ? $liveStreamItem->end_time->timestamp : null;
 		$availableOnDemand = $hasLiveStreamItem ? (boolean) $liveStreamItem->being_recorded : null;
 		$externalStreamUrl = $hasLiveStreamItem ? $liveStreamItem->external_stream_url : null;
-		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->view_count) : null;
+		$streamViewCount = $hasLiveStreamItem ? intval($liveStreamItem->getViewCount()) : null;
 		$hasVod = $hasVideoItem;
 		$vodLive = $hasVideoItem ? $videoItem->getIsLive() : null;
-		$vodViewCount = $hasVideoItem ? intval($videoItem->view_count) : null;
+		$vodViewCount = $hasVideoItem ? intval($videoItem->getViewCount()) : null;
 		$vodChapters = null;
 		$vodThumbnails = null;
 		if ($hasVideoItem && ($vodLive || $userHasMediaItemsPermission)) {

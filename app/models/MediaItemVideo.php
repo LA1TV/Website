@@ -155,6 +155,10 @@ class MediaItemVideo extends MyEloquent {
 		$this->increment("view_count");
 		return true;
 	}
+
+	public function getViewCount() {
+		return PlaybackHistory::getVodViewCount(intval($this->media_item_id)) + intval($this->initial_view_count);
+	}
 	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('time_recorded'));
