@@ -27,8 +27,8 @@ define([
 	// autoPlayVod and autoPlayStream mean these should automatically play whenever they become active
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
-	// registerWatchingUri, registerLikeUri and updatePlaybackTimeBaseUri can be null to disable these features
-	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	// registerWatchingUri and registerLikeUri can be null to disable these features
+	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 		
 		var self = this;
 		
@@ -733,7 +733,6 @@ define([
 			}
 			
 			updateRememberedTimeInDb();
-			updateRememberedTimeOnServer();
 		}
 		
 		// get the time that the user was last up to in the vod (via a callback)
@@ -745,7 +744,7 @@ define([
 			}
 			
 			// first see if there is a remembered time in the servers info response
-			if (updatePlaybackTimeBaseUri && nullify(data.rememberedPlaybackTime) !== null) {
+			if (nullify(data.rememberedPlaybackTime) !== null) {
 				callback(data.rememberedPlaybackTime);
 			}
 			else {
@@ -815,30 +814,6 @@ define([
 			catch(e) {
 				console.error("Exception thrown when trying to update \"playback-times\" object store.");
 			}
-		}
-		
-		function updateRememberedTimeOnServer() {
-			if (!updatePlaybackTimeBaseUri) {
-				// disabled
-				return;
-			}
-
-			if (!PageData.get("loggedIn")) {
-				// don't bother making the request if the user is not logged in.
-				return;
-			}
-			
-			// make request to update time on server.
-			jQuery.ajax(updatePlaybackTimeBaseUri+"/"+vodSourceId, {
-				cache: false,
-				dataType: "json",
-				headers: AjaxHelpers.getHeaders(),
-				data: {
-					csrf_token: PageData.get("csrfToken"),
-					time: playerComponent.getPlayerCurrentTime()
-				},
-				type: "POST"
-			});
 		}
 		
 		// get the time the user was up to in the current video last time they watched it.
@@ -1028,7 +1003,8 @@ define([
 				data: {
 					csrf_token: PageData.get("csrfToken"),
 					// paused() can be null if unknown
-					playing: (playerType === "vod" || playerType === "live") && playerComponent && playerComponent.paused() === false ? "1" : "0"
+					playing: (playerType === "vod" || playerType === "live") && playerComponent && playerComponent.paused() === false ? "1" : "0",
+					time: playerType === "vod" && playerComponent ? playerComponent.getPlayerCurrentTime() : "unavailable"
 				},
 				type: "POST"
 			});

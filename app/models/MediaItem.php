@@ -10,6 +10,7 @@ use DB;
 use Cache;
 use URL;
 use Session;
+use Facebook;
 
 class MediaItem extends MyEloquent {
 	
@@ -84,13 +85,8 @@ class MediaItem extends MyEloquent {
 		return $this->morphMany('uk\co\la1tv\website\models\Credit', 'creditable');
 	}
 	
-	public function watchingNows() {
-		return $this->hasMany(self::$p.'WatchingNow', 'media_item_id');
-	}
-	
 	public function getNumWatchingNow() {
-		$cutOffTime = Carbon::now()->subSeconds(30);
-		return $this->watchingNows()->where("updated_at", ">", $cutOffTime)->where("playing", true)->count();
+		return PlaybackHistory::getNumWatchingNow(intval($this->id));
 	}
 	
 	private function getRelatedItemIdsForReorderableList() {
@@ -206,62 +202,77 @@ class MediaItem extends MyEloquent {
 	}
 	
 	// $playing is true if the video is currently playing
-	public function registerWatching($playing) {
-		if (!(
-			$this->getIsAccessible() &&
-			(!is_null($this->liveStreamItem) && ($this->liveStreamItem->hasWatchableContent())) ||
-			(!is_null($this->videoItem) && $this->videoItem->getIsLive())
-		)) {
+	// $time is the time the user is into in the content or null if not available
+	public function registerWatching($playing, $time) {
+		$type = null;
+		if ($this->getIsAccessible()) {
+			if (!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->hasWatchableContent()) {
+				$type = "live";
+			}
+			else if (!is_null($this->videoItem) && $this->videoItem->getIsLive()) {
+				$type = "vod";
+			}
+		}
+		if (is_null($type)) {
 			// there is nothing that can be watched
 			return false;
 		}
-		
-		// delete any entries that have expired.
-		$intervalBetweenViewCounts = Config::get("custom.interval_between_registering_view_counts") * 60;
-		$expireDuration = max(30, $intervalBetweenViewCounts);
-		$cutOffTime = Carbon::now()->subSeconds($expireDuration);
-		WatchingNow::where("updated_at", "<", $cutOffTime)->delete();
 
-		DB::transaction(function() use (&$playing, &$intervalBetweenViewCounts) {
-			$sessionId = Session::getId();
-			$model = WatchingNow::where("session_id", $sessionId)->where("media_item_id", intval($this->id))->first();
-			if (is_null($model)) {
-				$model = new WatchingNow(array(
-					"session_id"	=> $sessionId,
-					"playing"		=> $playing
-				));
-				$model->mediaItem()->associate($this);
-				if ($playing) {
-					$this->registerView();
-				}
+		if ($type !== "vod") {
+			// time not supported for streams yet so ensure it's null
+			$time = null;
+		}
+
+
+		$sessionId = Session::getId();
+		$user = Facebook::getUser();
+		$now = Carbon::now();
+
+		// entries in the db with constitutes_view as true will be counted as a view
+		$constitutesView = false;
+
+		if ($playing) {
+			$intervalBetweenViewCounts = Config::get("custom.interval_between_registering_view_counts") * 60;
+			// register as a view if $intervalBetweenViewCounts has passed since the content was last playing
+			// filter it by the $type. This means if the player switches from stream to vod, the vod will get views at the switch point
+			$latestPlayingPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->where("type", $type)->where("playing", true)->first();
+			if (is_null($latestPlayingPlaybackHistory) || $latestPlayingPlaybackHistory->created_at->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
+				$constitutesView = true;
 			}
-			else {
-				$lastPlayTime = $model->last_play_time;
-				$now = Carbon::now();
-				
-				if ($playing) {
-					// this is the last time the content was reported as playing (by any tab)
-					$model->last_play_time = $now;
-				}
+		}
 
-				if (!$playing && !is_null($lastPlayTime) && $lastPlayTime->timestamp >= $now->timestamp - 30) {
-					// there was a play reported recently.
-					// assume the content is still playing
-					// could be a different browser tab with the content paused which made this request
-					$playing = true;
-				}
-
-				if ($playing && !$model->playing) {
-					// register as a view if $intervalBetweenViewCounts has passed since last play
-					if (is_null($lastPlayTime) || $lastPlayTime->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
-						$this->registerView();
-					}
-				}
-
-				$model->playing = $playing;
+		// if the content is not playing, and the last entry created for the current session was with playing as false,
+		// then update the last record instead of creating a new one.
+		// this is to prevent flooding the database with records for content that is not playing
+		$playbackHistory = null;
+		if (!$playing) {
+			$latestPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->first();
+			if (!is_null($latestPlaybackHistory) && !$latestPlaybackHistory->playing) {
+				// just update this record
+				$playbackHistory = $latestPlaybackHistory;
 			}
-			$model->save();
-		});
+		}
+
+		if (is_null($playbackHistory)) {
+			$playbackHistory = new PlaybackHistory();
+		}
+
+		$playbackHistory->session_id = $sessionId;
+		$playbackHistory->type = $type;
+		$playbackHistory->playing = $playing;
+		$playbackHistory->time = $time;
+		$playbackHistory->constitutes_view = $constitutesView;
+		$playbackHistory->mediaItem()->associate($this);
+
+		if ($type === "vod") {
+			$playbackHistory->vodSourceFile()->associate($this->videoItem->sourceFile);
+		}
+
+		if (!is_null($user)) {
+			$playbackHistory->user()->associate($user);
+		}
+
+		$playbackHistory->save();
 		return true;
 	}
 	
