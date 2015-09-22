@@ -147,9 +147,9 @@ class File extends MyEloquent {
 	public function renderFiles() {
 		return $this->hasMany(self::$p.'File', 'source_file_id');
 	}
-	
-	public function playbackTimes() {
-		return $this->hasMany(self::$p.'PlaybackTime', 'file_id');
+
+	public function playbackHistories() {
+		return $this->hasMany(self::$p.'PlaybackHistory', 'vod_source_file_id');
 	}
 	
 	// gets the File model which represents this source image file at that resolution

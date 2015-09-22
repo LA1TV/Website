@@ -1004,7 +1004,7 @@ define([
 					csrf_token: PageData.get("csrfToken"),
 					// paused() can be null if unknown
 					playing: (playerType === "vod" || playerType === "live") && playerComponent && playerComponent.paused() === false ? "1" : "0",
-					time: playerType === "vod" && playerComponent ? playerComponent.getPlayerCurrentTime() : null
+					time: playerType === "vod" && playerComponent ? playerComponent.getPlayerCurrentTime() : "unavailable"
 				},
 				type: "POST"
 			});

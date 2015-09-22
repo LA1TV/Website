@@ -97,16 +97,6 @@ class MediaItemLiveStream extends MyEloquent {
 		}
 		return $stateDefinition;
 	}
-	
-	public function registerView() {	
-		$stateDefinitionId = intval($this->getResolvedStateDefinition()->id);
-		if (!$this->getIsAccessible() || !$this->hasWatchableContent()) {
-			// shouldn't be accessible or stream not live
-			return false;
-		}
-		$this->increment("view_count");
-		return true;
-	}
 
 	public function getViewCount() {
 		return PlaybackHistory::getStreamViewCount(intval($this->media_item_id)) + intval($this->initial_view_count);

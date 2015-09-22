@@ -146,15 +146,6 @@ class MediaItemVideo extends MyEloquent {
 		array_multisort($times, SORT_NUMERIC, SORT_ASC, $thumbnails);
 		return $thumbnails;
 	}
-	
-	public function registerView() {
-		if (!$this->getIsAccessible() || !$this->getIsLive()) {
-			// shouldn't be accessible or isn't live
-			return false;
-		}
-		$this->increment("view_count");
-		return true;
-	}
 
 	public function getViewCount() {
 		return PlaybackHistory::getVodViewCount(intval($this->media_item_id)) + intval($this->initial_view_count);

@@ -154,6 +154,8 @@ class FacebookManager {
 	// returns the SiteUser model of the user that is logged in or null if no one logged in.
 	public function getUser() {
 		
+		return SiteUser::first(); // TODO remove
+
 		if (!Config::get("facebook.enabled")) {
 			// facebook login disabled. pretend no user logged in
 			return null;

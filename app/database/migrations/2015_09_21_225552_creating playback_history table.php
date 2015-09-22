@@ -22,11 +22,11 @@ class CreatingPlaybackHistoryTable extends Migration {
 			$table->string("original_session_id", 255);
 			$table->integer("vod_source_file_id")->unsigned()->nullable();
 			$table->boolean("playing");
-			$table->timestamp("last_play_time")->nullable();
 			$table->integer("time")->unsigned()->nullable();
-			$table->boolean("constitutes_as_view")->defaults(false);
+			$table->boolean("constitutes_view")->defaults(false);
 			$table->timestamps();
 			
+			$table->index("original_session_id");
 			$table->foreign("session_id")->references('id')->on('sessions')->onUpdate("restrict")->onDelete('set null');
 			$table->foreign("user_id")->references('id')->on('users')->onUpdate("restrict")->onDelete('set null');
 			$table->foreign("media_item_id")->references('id')->on('media_items')->onUpdate("restrict")->onDelete('cascade');

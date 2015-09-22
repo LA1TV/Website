@@ -329,7 +329,7 @@ class PlayerController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$mediaItem->load("watchingNows", "likes", "liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters");
+		$mediaItem->load("likes", "liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.chapters", "videoItem.sourceFile");
 		
 		$id = intval($mediaItem->id);
 		$title = $playlist->generateEpisodeTitle($mediaItem);
@@ -404,9 +404,10 @@ class PlayerController extends HomeBaseController {
 		$user = Facebook::getUser();
 		$rememberedPlaybackTime = null;
 		if ($hasVideoItem && !is_null($user)) {
-			$playbackTime = $videoItem->sourceFile->playbackTimes()->where("user_id", $user->id)->first();
-			if (!is_null($playbackTime)) {
-				$rememberedPlaybackTime = intval($playbackTime->time);
+			// only retrieve entries where playing is true to prevent fighting if the user has the same video paused in several tabs paused at different points
+			$playbackHistory = $videoItem->sourceFile->playbackHistories()->orderBy("updated_at", "desc")->where("user_id", $user->id)->where("playing", true)->first();
+			if (!is_null($playbackHistory) && !is_null($playbackHistory->time)) {
+				$rememberedPlaybackTime = intval($playbackHistory->time);
 			}
 		}
 		$numLikes = $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", true)->count() : null;
@@ -500,9 +501,10 @@ class PlayerController extends HomeBaseController {
 		}
 
 		$success = false;
-		if (isset($_POST['playing'])) {
+		if (isset($_POST['playing']) && isset($_POST["time"])) {
 			$playing = $_POST['playing'] === "1";
-			$success = $mediaItem->registerWatching($playing);
+			$time = $_POST["time"] !== "unavailable" ? intval($_POST['time']) : null;
+			$success = $mediaItem->registerWatching($playing, $time);
 		}
 		return Response::json(array("success"=>$success));
 	}
@@ -545,52 +547,6 @@ class PlayerController extends HomeBaseController {
 					}
 				}
 			}
-		}
-		return Response::json(array("success"=>$success));
-	}
-	
-	public function postRegisterPlaybackTime($sourceFileId) {
-	
-		$user = Facebook::getUser();
-		if (is_null($user)) {
-			App::abort(403); // forbidden
-		}
-	
-		$file = File::find($sourceFileId);
-		if (is_null($file)) {
-			App::abort(404);
-		}
-		
-		$mediaItemVideo = $file->mediaItemVideoWithFile;
-		if (is_null($mediaItemVideo) || !$mediaItemVideo->getIsLive()) {
-			App::abort(404);
-		}
-		
-		$success = false;
-		
-		$time = isset($_POST['time']) ? intval($_POST['time']) : null;
-		if (!is_null($time) && $time >= 0) {
-			// create/update the record in the database.
-			DB::transaction(function() use (&$user, &$file, &$time, &$success) {
-				
-				$playbackTime = PlaybackTime::where("user_id", $user->id)->where("file_id", $file->id)->lockForUpdate()->first();
-				if (!is_null($playbackTime)) {
-					// record already exists. Update it
-					$playbackTime->time = $time;
-					$playbackTime->save();
-				}
-				else {
-					// record doesn't exist. Create it
-					$playbackTime = new PlaybackTime(array(
-						"time"	=> $time
-					));
-					$playbackTime->user()->associate($user);
-					$playbackTime->file()->associate($file);
-					$playbackTime->save();
-				}
-				$success = true;
-			});
-			
 		}
 		return Response::json(array("success"=>$success));
 	}
