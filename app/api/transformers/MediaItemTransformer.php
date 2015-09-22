@@ -32,8 +32,8 @@ class MediaItemTransformer extends Transformer {
 			
 		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		$viewCountTotal = 0;
-		$vodViewCount = !is_null($mediaItemVideo) ? intval($mediaItemVideo->view_count) : null;
-		$streamViewCount = !is_null($mediaItemLiveStream) ? intval($mediaItemLiveStream->view_count) : null;
+		$vodViewCount = !is_null($mediaItemVideo) ? intval($mediaItemVideo->getViewCount()) : null;
+		$streamViewCount = !is_null($mediaItemLiveStream) ? intval($mediaItemLiveStream->getViewCount()) : null;
 		if (!is_null($vodViewCount)) {
 			$viewCountTotal += $vodViewCount;
 		}
