@@ -99,7 +99,7 @@ class MediaItemLiveStream extends MyEloquent {
 	}
 
 	public function getViewCount() {
-		return PlaybackHistory::getStreamViewCount(intval($this->media_item_id)) + intval($this->initial_view_count);
+		return PlaybackHistory::getStreamViewCount(intval($this->media_item_id));
 	}
 	
 	// returns true if this should be shown with the parent media item. If false then it should like the MediaItem does not have a live stream component.
