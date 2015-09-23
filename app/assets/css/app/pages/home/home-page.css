@@ -9,6 +9,10 @@
 	transition: opacity 0.5s ease-in-out;
 }
 
+.page-home .promo-item-container {
+	margin-bottom: 20px;
+}
+
 .page-home .promo-carousel {
 	margin-bottom: 45px;
 }

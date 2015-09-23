@@ -16,7 +16,7 @@ class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
 	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled');
-	protected $appends = array("related_items_for_reorderable_list", "related_items_for_input", "credits_for_reorderable_list", "credits_for_input", "scheduled_publish_time_for_input");
+	protected $appends = array("related_items_for_reorderable_list", "related_items_for_input", "credits_for_reorderable_list", "credits_for_input", "scheduled_publish_time_for_input", "promoted");
 	
 	protected static function boot() {
 		parent::boot();
@@ -88,6 +88,22 @@ class MediaItem extends MyEloquent {
 	public function getNumWatchingNow() {
 		return PlaybackHistory::getNumWatchingNow(intval($this->id));
 	}
+
+	public function getPromotedAttribute() {
+		return !is_null($this->time_promoted);
+	}
+
+	public function setPromotedAttribute($value) {
+		if ($value) {
+			// if it's already promoted don't update the timestamp
+			if (is_null($this->time_promoted)) {
+				$this->time_promoted = Carbon::now();
+			}
+		}
+		else {
+			$this->time_promoted = null;
+		}
+    }
 	
 	private function getRelatedItemIdsForReorderableList() {
 		$ids = array();
@@ -206,11 +222,11 @@ class MediaItem extends MyEloquent {
 	public function registerWatching($playing, $time) {
 		$type = null;
 		if ($this->getIsAccessible()) {
-			if (!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->hasWatchableContent()) {
-				$type = "live";
-			}
-			else if (!is_null($this->videoItem) && $this->videoItem->getIsLive()) {
+			if (!is_null($this->videoItem) && $this->videoItem->getIsLive() && !(!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->isNotLive())) {
 				$type = "vod";
+			}
+			else if (!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->hasWatchableContent()) {
+				$type = "live";
 			}
 		}
 		if (is_null($type)) {
@@ -600,7 +616,7 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function getDates() {
-		return array_merge(parent::getDates(), array('scheduled_publish_time'));
+		return array_merge(parent::getDates(), array('scheduled_publish_time', 'time_promoted'));
 	}
 	
 	public function isDeletable() {

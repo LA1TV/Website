@@ -46,6 +46,6 @@ class PlaybackHistory extends MyEloquent {
 
 	public static function getNumWatchingNow($mediaItemId) {
 		$cutOffTime = Carbon::now()->subSeconds(30);
-		return self::where("media_item_id", $mediaItemId)->where("playing", true)->where("updated_at", ">", $cutOffTime)->distinct("session_id")->count("session_id");
+		return self::where("media_item_id", $mediaItemId)->where("playing", true)->where("created_at", ">", $cutOffTime)->distinct("session_id")->count("session_id");
 	}
 }

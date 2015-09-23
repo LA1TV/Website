@@ -142,6 +142,7 @@ class MediaController extends MediaBaseController {
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(true, $mediaItem, "enabled")?"y":""),
+			array("promoted", ObjectHelpers::getProp(false, $mediaItem, "promoted")?"y":""),
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("email-notifications-enabled", ObjectHelpers::getProp(true, $mediaItem, "email_notifications_enabled")?"y":""),
@@ -296,6 +297,7 @@ class MediaController extends MediaBaseController {
 					$mediaItem->name = $formData['name'];
 					$mediaItem->description = FormHelpers::nullIfEmpty($formData['description']);
 					$mediaItem->enabled = FormHelpers::toBoolean($formData['enabled']);
+					$mediaItem->promoted = FormHelpers::toBoolean($formData['promoted']);
 					// if the scheduled publish time is empty and this item is enabled, set it to the current time.
 					// an enabled media item should always have a published time.
 					$scheduledPublishTime = FormHelpers::nullIfEmpty(strtotime($formData['publish-time']));

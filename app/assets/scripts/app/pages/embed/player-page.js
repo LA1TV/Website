@@ -54,17 +54,17 @@ define([
 			var autoPlayStream = $(this).attr("data-auto-play-stream") === "1";
 			var vodPlayStartTime = $(this).attr("data-vod-play-start-time") === "" ? null : parseInt($(this).attr("data-vod-play-start-time"));
 			var ignoreExternalStreamUrl = $(this).attr("data-ignore-external-stream-url") === "1";
-			var hideBottomBar = $(this).attr("data-hide-bottom-bar") === "1";
+			var bottomBarMode = $(this).attr("data-hide-bottom-bar") === "1" ? "none" : "full";
 			var initialVodQualityId = $(this).attr("data-initial-vod-quality-id") === "" ? null : parseInt($(this).attr("data-initial-vod-quality-id"));
 			var initialStreamQualityId = $(this).attr("data-initial-stream-quality-id") === "" ? null : parseInt($(this).attr("data-initial-stream-quality-id"));
 			var disableFullScreen = $(this).attr("data-disable-full-screen") === "1";
-			var placeQualitySelectionComponentInPlayer = hideBottomBar; // if the bottom bar is not visible put the quality selection inside the player
+			var placeQualitySelectionComponentInPlayer = bottomBarMode === "none"; // if the bottom bar is not visible put the quality selection inside the player
 			var showTitleInPlayer = $(this).attr("data-show-title-in-player") === "1";
 			var disablePlayerControls = $(this).attr("data-disable-player-controls") === "1";
 			var enableSmartAutoPlay = $(this).attr("data-enable-smart-auto-play") === "1";
 			
 			// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-			playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+			playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 			
 			playerContainer.onLoaded(function() {
 				

@@ -33,7 +33,7 @@ define([
 			var ignoreExternalStreamUrl = false;
 			var initialVodQualityId = null;
 			var initialStreamQualityId = null;
-			var hideBottomBar = false;
+			var bottomBarMode = "full";
 			var disableFullScreen = false;
 			var placeQualitySelectionComponentInPlayer = false;
 			var showTitleInPlayer = false;
@@ -41,7 +41,7 @@ define([
 			var disablePlayerControls = false;
 			var enableSmartAutoPlay = true;
 		
-			var playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+			var playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());

@@ -17,6 +17,7 @@ use Facebook;
 use Auth;
 use FormHelpers;
 use URLHelpers;
+use PlayerHelpers;
 use Exception;
 use PlaylistTableHelpers;
 
@@ -261,11 +262,11 @@ class PlayerController extends HomeBaseController {
 		// only autoplay if the user has come from an external site, or specified a start time
 		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
 		
-		$view->playerInfoUri = $this->getInfoUri($playlist->id, $currentMediaItem->id);
+		$view->playerInfoUri = PlayerHelpers::getInfoUri($playlist->id, $currentMediaItem->id);
 		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
 		$view->autoContinueMode = $this->getAutoContinueMode();
-		$view->registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
-		$view->registerLikeUri = $this->getRegisterLikeUri($playlist->id, $currentMediaItem->id);
+		$view->registerWatchingUri = PlayerHelpers::getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
+		$view->registerLikeUri = PlayerHelpers::getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
 		$view->autoPlay = $autoPlay;
@@ -735,21 +736,9 @@ class PlayerController extends HomeBaseController {
 		}
 		return Response::json(array("items"=>$items));
 	}
-	
-	private function getInfoUri($playlistId, $mediaItemId) {
-		return Config::get("custom.player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
-	}
-	
+
 	private function getPlaylistInfoUri($playlistId) {
 		return Config::get("custom.playlist_info_base_uri")."/".$playlistId;
-	}
-	
-	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
-		return Config::get("custom.player_register_watching_base_uri")."/".$playlistId ."/".$mediaItemId;
-	}
-	
-	private function getRegisterLikeUri($playlistId, $mediaItemId) {
-		return Config::get("custom.player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
 	private function getGetCommentsUri($mediaItemId) {

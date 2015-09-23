@@ -3,17 +3,70 @@
 use View;
 use uk\co\la1tv\website\models\MediaItem;
 use Carbon;
+use Auth;
+use PlayerHelpers;
 use Config;
+use Cookie;
 
 class HomeController extends HomeBaseController {
 
 	public function getIndex() {
 	
+		$promoMediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->accessible()->whereNotNull("time_promoted")->orderBy("time_promoted", "desc")->first();
+		if (!is_null($promoMediaItem)) {
+			$liveStreamItem = $promoMediaItem->liveStreamItem;
+			if (!is_null($liveStreamItem) && !$liveStreamItem->getIsAccessible()) {
+				$liveStreamItem = null;
+			}
+			$videoItem = $promoMediaItem->videoItem;
+			if (!is_null($videoItem) && !$videoItem->getIsAccessible()) {
+				$videoItem = null;
+			}
+
+			$shouldShowItem = false;
+			// if there is a live stream which is in the "not live" state the player won't display the vod
+			// even if there is one. It will show the countdown to the start of the live stream.
+			if (is_null($liveStreamItem) || !$liveStreamItem->isNotLive()) {
+				if (!is_null($videoItem) && $videoItem->getIsLive()) {
+					$shouldShowItem = true;
+				}
+				else if (!is_null($liveStreamItem) && $liveStreamItem->hasWatchableContent()) {
+					$shouldShowItem = true;
+				}
+			}
+			if (!$shouldShowItem) {
+				$promoMediaItem = null;
+			}
+		}
+
+		$promoPlaylist = null;
+		if (!is_null($promoMediaItem)) {
+			$promoPlaylist = $promoMediaItem->getDefaultPlaylist();
+		}
+
 		$promotedItems = MediaItem::getCachedPromotedItems();
 		$promotedItemsData = array();
+
+		// if there is an item to promote insert it at the start of the carousel
+		if (!is_null($promoMediaItem)) {
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			$isLiveShow = !is_null($promoMediaItem->liveStreamItem) && !$promoMediaItem->liveStreamItem->isOver();
+			$liveNow = $isLiveShow && $promoMediaItem->liveStreamItem->isLive();
+			$promotedItemsData[] = array(
+				"coverArtUri"	=> $promoPlaylist->getMediaItemCoverArtUri($promoMediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']),
+				"name"			=> $promoMediaItem->name,
+				"seriesName"	=> !is_null($promoPlaylist->show) ? $promoPlaylist->generateName() : null,
+				"availableMsg"	=> $liveNow ? "Live Now!" : $this->buildTimeStr($isLiveShow, $promoMediaItem->scheduled_publish_time),
+				"uri"			=> $promoPlaylist->getMediaItemUri($promoMediaItem)
+			);
+		}
 		
 		foreach($promotedItems as $a) {
 			$mediaItem = $a['mediaItem'];
+			if (!is_null($promoMediaItem) && intval($mediaItem->id) === intval($promoMediaItem->id)) {
+				// prevent duplicate
+				continue;
+			}
 			$isLiveShow = !is_null($mediaItem->liveStreamItem) && !$mediaItem->liveStreamItem->isOver();
 			$liveNow = $isLiveShow && $mediaItem->liveStreamItem->isLive();
 			$promotedItemsData[] = array(
@@ -73,6 +126,34 @@ class HomeController extends HomeBaseController {
 			"tableData"		=> $mostPopularTableData
 		)) : null;
 		$view->twitterWidgetId = Config::get("twitter.timeline_widget_id");
+
+		$hasPromoItem = !is_null($promoMediaItem);
+		$showPromoItem = $hasPromoItem;
+		if ($hasPromoItem) {
+			// determine if the user has already seen the promo
+			$cookieVal = Cookie::get('seenPromo-'.$promoMediaItem->id);
+			if (!is_null($cookieVal) && $cookieVal === $promoMediaItem->time_promoted->timestamp) {
+				// user already seen promo
+				$showPromoItem = false;
+			}
+			// put a cookie in the users browser to inform us in the future that the user has seen this promo video
+			// store the time so that if the item is repromoted in the future, it will be shown again.
+			Cookie::queue('seenPromo-'.$promoMediaItem->id, $promoMediaItem->time_promoted->timestamp, 40320); // store for 4 weeks
+		}
+
+		$view->showPromoItem = $showPromoItem;
+		if ($showPromoItem) {
+			$userHasMediaItemsPermission = false;
+			if (Auth::isLoggedIn()) {
+				$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
+			}
+			$view->promoPlayerInfoUri = PlayerHelpers::getInfoUri($promoPlaylist->id, $promoMediaItem->id);
+			$view->promoRegisterWatchingUri = PlayerHelpers::getRegisterWatchingUri($promoPlaylist->id, $promoMediaItem->id);
+			$view->promoRegisterLikeUri = PlayerHelpers::getRegisterLikeUri($promoPlaylist->id, $promoMediaItem->id);
+			$view->promoAdminOverrideEnabled = $userHasMediaItemsPermission;
+			$view->promoLoginRequiredMsg = "Please log in to use this feature.";
+		}
+
 		$this->setContent($view, "home", "home", array(), null, 200, array());
 	}
 	
