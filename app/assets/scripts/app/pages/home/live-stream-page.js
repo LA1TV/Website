@@ -17,7 +17,6 @@ define([
 			var playerInfoUri = $(this).attr("data-info-uri");
 			var registerWatchingUri = $(this).attr("data-register-watching-uri");
 			var registerLikeUri = null;
-			var updatePlaybackTimeBaseUri = null;
 			var enableAdminOverride = false;
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var autoPlayVod = false; // should never be any
@@ -34,7 +33,7 @@ define([
 			var disablePlayerControls = false;
 			var enableSmartAutoPlay = true;
 		
-			var playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, updatePlaybackTimeBaseUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+			var playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 			playerContainer.onLoaded(function() {
 				$(self).empty();
 				$(self).append(playerContainer.getEl());
