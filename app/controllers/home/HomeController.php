@@ -12,7 +12,7 @@ class HomeController extends HomeBaseController {
 
 	public function getIndex() {
 	
-		$promoMediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->accessible()->whereNotNull("time_promoted")->first();
+		$promoMediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->accessible()->whereNotNull("time_promoted")->orderBy("time_promoted", "desc")->first();
 		if (!is_null($promoMediaItem)) {
 			$liveStreamItem = $promoMediaItem->liveStreamItem;
 			if (!is_null($liveStreamItem) && !$liveStreamItem->getIsAccessible()) {
@@ -131,17 +131,14 @@ class HomeController extends HomeBaseController {
 		$showPromoItem = $hasPromoItem;
 		if ($hasPromoItem) {
 			// determine if the user has already seen the promo
-			$cookieVal = Cookie::get('seenPromo');
-			if (!is_null($cookieVal) && $cookieVal === $promoMediaItem->id."-".$promoMediaItem->time_promoted->timestamp) {
+			$cookieVal = Cookie::get('seenPromo-'.$promoMediaItem->id);
+			if (!is_null($cookieVal) && $cookieVal === $promoMediaItem->time_promoted->timestamp) {
 				// user already seen promo
 				$showPromoItem = false;
 			}
 			// put a cookie in the users browser to inform us in the future that the user has seen this promo video
-			// store the id and the time so that if the item is repromoted in the future, it will be shown again.
-			Cookie::queue("seenPromo", $promoMediaItem->id."-".$promoMediaItem->time_promoted->timestamp, 40320); // store for 4 weeks
-		}
-		else {
-			Cookie::queue(Cookie::forget("seenPromo"));
+			// store the time so that if the item is repromoted in the future, it will be shown again.
+			Cookie::queue('seenPromo-'.$promoMediaItem->id, $promoMediaItem->time_promoted->timestamp, 40320); // store for 4 weeks
 		}
 
 		$view->showPromoItem = $showPromoItem;
