@@ -600,7 +600,7 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function getDates() {
-		return array_merge(parent::getDates(), array('scheduled_publish_time'));
+		return array_merge(parent::getDates(), array('scheduled_publish_time', 'time_promoted'));
 	}
 	
 	public function isDeletable() {

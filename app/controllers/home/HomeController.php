@@ -6,17 +6,14 @@ use Carbon;
 use Auth;
 use PlayerHelpers;
 use Config;
+use Cookie;
 
 class HomeController extends HomeBaseController {
 
 	public function getIndex() {
 	
-		$promoMediaItem = MediaItem::find(15); // TODO get this from somewhere
-		if (!$promoMediaItem->getIsAccessible()) {
-			// shouldn't be accessible
-			$promoMediaItem = null;
-		}
-		else {
+		$promoMediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->accessible()->whereNotNull("time_promoted")->first();
+		if (!is_null($promoMediaItem)) {
 			$liveStreamItem = $promoMediaItem->liveStreamItem;
 			if (!is_null($liveStreamItem) && !$liveStreamItem->getIsAccessible()) {
 				$liveStreamItem = null;
@@ -131,8 +128,24 @@ class HomeController extends HomeBaseController {
 		$view->twitterWidgetId = Config::get("twitter.timeline_widget_id");
 
 		$hasPromoItem = !is_null($promoMediaItem);
-		$view->hasPromoItem = $hasPromoItem;
+		$showPromoItem = $hasPromoItem;
 		if ($hasPromoItem) {
+			// determine if the user has already seen the promo
+			$cookieVal = Cookie::get('seenPromo');
+			if (!is_null($cookieVal) && $cookieVal === $promoMediaItem->id."-".$promoMediaItem->time_promoted->timestamp) {
+				// user already seen promo
+				$showPromoItem = false;
+			}
+			// put a cookie in the users browser to inform us in the future that the user has seen this promo video
+			// store the id and the time so that if the item is repromoted in the future, it will be shown again.
+			Cookie::queue("seenPromo", $promoMediaItem->id."-".$promoMediaItem->time_promoted->timestamp, 40320); // store for 4 weeks
+		}
+		else {
+			Cookie::queue(Cookie::forget("seenPromo"));
+		}
+
+		$view->showPromoItem = $showPromoItem;
+		if ($showPromoItem) {
 			$userHasMediaItemsPermission = false;
 			if (Auth::isLoggedIn()) {
 				$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
