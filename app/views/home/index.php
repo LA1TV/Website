@@ -1,5 +1,10 @@
 <div class="wrapper hidden">
-	<?php if (count($promotedItemsData) > 0): ?>
+	<?php if ($hasPromoItem): ?>
+	<div class="promo-item-container">
+		<div class="player-container-component-container" data-info-uri="<?=e($promoPlayerInfoUri);?>" data-register-watching-uri="<?=e($promoRegisterWatchingUri);?>" data-register-like-uri="<?=e($promoRegisterLikeUri);?>" data-login-required-msg="<?=e($promoLoginRequiredMsg);?>" data-enable-admin-override="<?=$promoAdminOverrideEnabled?"1":"0"?>"></div>
+	</div>
+	<?php endif; ?>
+	<?php if (!$hasPromoItem && count($promotedItemsData) > 0): ?>
 	<div class="promo-carousel flexslider">
 		<ul class="slides">
 			<?php foreach($promotedItemsData as $a): ?>
@@ -23,7 +28,6 @@
 		</ul>
 	</div>
 	<?php endif; ?>
-
 	<div class="row">
 		<?php if (!is_null($twitterWidgetId)): ?>
 		<div class="col-md-6">

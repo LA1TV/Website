@@ -12,7 +12,8 @@ define([
 ], function($, QualitySelectionComponent, ShareModal, AlertModal, PlayerController, PageData, SynchronisedTime) {
 	
 	// registerWatchingUri and registerLikeUri may be null to disable these features
-	var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, hideBottomBar, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+	// bottom bar mode can be "full", "compact" or "none"
+	var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
 		var self = this;
 	
@@ -36,6 +37,10 @@ define([
 		this.getPlayerController = function() {
 			return playerController;
 		};
+
+		if (bottomBarMode !== "full" && bottomBarMode !== "compact" && bottomBarMode !== "none") {
+			throw "Invalid bottom bar mode.";
+		}
 		
 		var $container = $("<div />").addClass("player-container");
 		if (embedded) {
@@ -104,11 +109,11 @@ define([
 		$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 		
 		
-		var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+		var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded);
 		$(playerController).on("playerComponentElAvailable", function() {
 			$playerComponent = playerController.getPlayerComponentEl();
 			$container.append($playerComponent);
-			if (!hideBottomBar) {
+			if (bottomBarMode !== "none") {
 				$container.append($bottomContainer);
 			}
 			renderOverrideMode();
@@ -191,7 +196,7 @@ define([
 				return;
 			}
 			var containerHeight = $container.innerHeight();
-			var bottomContainerHeight = !hideBottomBar ? $bottomContainer.outerHeight(true) : 0;
+			var bottomContainerHeight = bottomBarMode !== "none" ? $bottomContainer.outerHeight(true) : 0;
 			var playerComponentPadding = $playerComponent.outerHeight(true) - $playerComponent.height();
 			$playerComponent.height(Math.max(containerHeight - bottomContainerHeight - playerComponentPadding, 0));
 		}
@@ -222,8 +227,8 @@ define([
 			}
 			
 			var $els = [[$count1ItemContainer, $count1]];
-			if (!embedded) {
-				// if it's not embedded allow 2 rows
+			if (!embedded && bottomBarMode === "full") {
+				// if it's not embedded and bottom bar is in 'full' mode allow 2 rows
 				$els.push([$count2ItemContainer, $count2]);
 			}
 			
@@ -322,8 +327,8 @@ define([
 		}
 		
 		function renderBroadcastTime() {
-			if (embedded) {
-				// try and prevent 2 rows if embedded
+			if (embedded || bottomBarMode !== "full") {
+				// try and prevent 2 rows if embedded, and only show when bottom bar in "full" mode
 				return;
 			}
 			

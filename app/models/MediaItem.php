@@ -206,11 +206,11 @@ class MediaItem extends MyEloquent {
 	public function registerWatching($playing, $time) {
 		$type = null;
 		if ($this->getIsAccessible()) {
-			if (!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->hasWatchableContent()) {
-				$type = "live";
-			}
-			else if (!is_null($this->videoItem) && $this->videoItem->getIsLive()) {
+			if (!is_null($this->videoItem) && $this->videoItem->getIsLive() && !(!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->isNotLive())) {
 				$type = "vod";
+			}
+			else if (!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->hasWatchableContent()) {
+				$type = "live";
 			}
 		}
 		if (is_null($type)) {
