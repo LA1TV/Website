@@ -142,7 +142,7 @@ class MediaController extends MediaBaseController {
 		// populate $formData with default values or received values
 		$formData = FormHelpers::getFormData(array(
 			array("enabled", ObjectHelpers::getProp(true, $mediaItem, "enabled")?"y":""),
-			array("promoted", ObjectHelpers::getProp(true, $mediaItem, "promoted")?"y":""),
+			array("promoted", ObjectHelpers::getProp(false, $mediaItem, "promoted")?"y":""),
 			array("name", ObjectHelpers::getProp("", $mediaItem, "name")),
 			array("description", ObjectHelpers::getProp("", $mediaItem, "description")),
 			array("email-notifications-enabled", ObjectHelpers::getProp(true, $mediaItem, "email_notifications_enabled")?"y":""),
