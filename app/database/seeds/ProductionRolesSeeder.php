@@ -52,6 +52,7 @@ class ProductionRolesSeeder extends Seeder {
 			["Assistant Choreographer", null, [null, null], ["Assistant Series Choreographer", null]],
 			["Art Director", null, [null, null], ["Series Art Director", null]],
 			["Assistant Art Director", null, [null, null], ["Series Assistant Art Director", null]],
+			["Editor", null, ["Programme Editor", null], ["Series Editor", null]],
 			["Director", null, [null, null], ["Series Director", null]],
 			["Assistant Director", null, [null, null], ["Series Assistant Director", null]],
 			["Producer", null, [null, null], ["Series Producer", null]],
