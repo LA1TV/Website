@@ -50,7 +50,6 @@
 						</div>
 						<?php endif; ?>
 						<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
-						</div>
 					</td>
 					<td class="col-title clearfix">
 						<?php if (!is_null($row['playlistName'])): ?>
