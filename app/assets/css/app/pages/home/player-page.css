@@ -17,6 +17,10 @@
 	margin-bottom: 10px;
 }
 
+.page-player .go-to-series-btn-container .btn {
+	white-space: normal;
+}
+
 .page-player .related-items {
 	margin-top: 15px;
 }
