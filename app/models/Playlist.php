@@ -242,13 +242,15 @@ class Playlist extends MyEloquent {
 	
 	// get the uri that should be used as the media items cover art.
 	// if the media item has one it returns that, otherwise it returns the playlist one if it has one
+	// a special case is if this playlist is not a series playlist, and this media item is also in a series playlist
+	// if this is the case the cover art that would be assigned to this in the series playlist will be retrieved
 	// if there isn't one it returns the uri to the default cover
 	public function getMediaItemCoverArtUri($mediaItem, $width, $height) {
 		$mediaItemTmp = $this->mediaItems()->find($mediaItem->id);
 		if (is_null($mediaItemTmp)) {
 			throw(new Exception("The media item is not part of the playlist."));
 		}
-		
+
 		// check on media item
 		$coverArtFile = $mediaItem->coverArtFile;
 		if (!is_null($coverArtFile)) {
@@ -257,8 +259,21 @@ class Playlist extends MyEloquent {
 				return $coverArtImageFile->getUri();
 			}
 		}
+
+		// the playlist to retrieve the cover art from (because there's none assigned to the media item)
+		$playlist = $this;
+		// if this is a standard playlist, ie not a series playlist that belongs to a show
+		// then get the artwork that would be applied to this item in its default series playlist (if there is one)
+		if (is_null($mediaItem->show)) {
+			$seriesPlaylist = $mediaItem->getDefaultPlaylist(true, true);
+			if (!is_null($seriesPlaylist)) {
+				// take cover art from the series playlist instead
+				$playlist = $seriesPlaylist;
+			}
+		}
+
 		// get the one on the playlist (or default)
-		return $this->getCoverArtUri($width, $height);
+		return $playlist->getCoverArtUri($width, $height);
 	}
 	
 	// get the side banner image for the playlist or null if there isn't one
