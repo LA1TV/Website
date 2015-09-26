@@ -46,6 +46,7 @@ class ProductionRolesSeeder extends Seeder {
 			["Guest Booking", null, [null, null], [null, null]],
 			["Guest", null, [null, null], [null, null]],
 			["Location Manager", null, [null, null], [null, null]],
+			["Driver", null, [null, null], [null, null]],
 			["Script Writer", null, [null, null], [null, null]],
 			["Production Manager", null, [null, null], [null, null]],
 			["Choreographer", null, [null, null], ["Series Choreographer", null]],
