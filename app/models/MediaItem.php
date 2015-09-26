@@ -337,7 +337,7 @@ class MediaItem extends MyEloquent {
 	}
 	
 	// Get the first one that has a show if there is one, or just the first one otherwise
-	public function getDefaultPlaylist($accessibleToPublic=true) {
+	public function getDefaultPlaylist($accessibleToPublic=true, $restrictToSeriesPlaylists=false) {
 		$playlist = null;
 		$models = $this->playlists();
 		if ($accessibleToPublic) {
@@ -345,9 +345,10 @@ class MediaItem extends MyEloquent {
 		}
 		$models = $models->orderBy("scheduled_publish_time", "desc")->get();
 		foreach($models as $a) {
-			if (is_null($playlist)) {
+			if (is_null($playlist) && !$restrictToSeriesPlaylists) {
 				$playlist = $a;
 			}
+			
 			if (!is_null($a->show)) {
 				$playlist = $a;
 				break;
