@@ -11,6 +11,7 @@ require.config({
 		"lib/bootstrap": ["jquery"],
 		"lib/jquery.hotkeys": ["jquery"],
 		"lib/jquery.flexslider": ["jquery"],
+		"lib/jquery.visible": ["jquery"],
 		"ga": {
 			exports: "ga"
 		},
