@@ -186,7 +186,7 @@ define([
 						// jump to the time in the player and start playing if not already.
 						playerController.jumpToTime(time, true);
 						// scroll page to player
-						if (!$playerContainerComponentContainer.visible()) {
+						if (!$playerContainerComponentContainer.visible(false, false, true)) {
 							$('body').animate({
 								scrollTop: $playerContainerComponentContainer.offset().top
 							}, 500);
