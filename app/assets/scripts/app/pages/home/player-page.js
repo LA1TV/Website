@@ -10,6 +10,7 @@ define([
 	"../../device-detection",
 	"../../helpers/ajax-helpers",
 	"lib/jquery.cookie",
+	"lib/jquery.visible",
 	"lib/domReady!"
 ], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection, AjaxHelpers) {
 	
@@ -18,8 +19,9 @@ define([
 	$(".page-player").first().each(function() {
 		
 		var $pageContainer = $(this).first();
-		
-		$pageContainer.find(".player-container-component-container").each(function() {
+		var $playerContainerComponentContainer = $pageContainer.find(".player-container-component-container").first();
+
+		$playerContainerComponentContainer.each(function() {
 			var self = this;
 		
 			var playerInfoUri = $(this).attr("data-info-uri");
@@ -183,6 +185,13 @@ define([
 					if (playerController !== null) {
 						// jump to the time in the player and start playing if not already.
 						playerController.jumpToTime(time, true);
+						// scroll page to player
+						if (!$playerContainerComponentContainer.visible()) {
+							$('body').animate({
+								scrollTop: $playerContainerComponentContainer.offset().top
+							}, 500);
+						}
+						$playerContainerComponentContainer
 						if (supportsHistoryApi()) {
 							var uri = window.location.href;
 							var uriWithoutParams = null;
