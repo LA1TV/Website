@@ -48,6 +48,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			});
 			
 			// HOME
+			Route::get('/feeds/latest', array("as"=>"feeds-latest", "uses"=>$p.'home\feeds\FeedsController@getLatest'));
 			Route::controller('/facebook', $p.'home\facebook\FacebookController');
 			// make upload controller also accessible at /file
 			Route::controller('/file', $p.'home\admin\upload\UploadController');
