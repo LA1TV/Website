@@ -89,7 +89,7 @@ define([
 								break;
 							}
 						}
-						if (mediaItem.id === playerController.getMediaItemId()) {
+						if (mediaItem.id === playerController.getContentId()) {
 							foundCurrentItem = true;
 						}
 					}
