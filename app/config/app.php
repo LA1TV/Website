@@ -125,6 +125,7 @@ return array(
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 		'Indatus\Dispatcher\ServiceProvider',
+		'Roumen\Feed\FeedServiceProvider',
 		
 		'uk\co\la1tv\website\serviceProviders\auth\AuthServiceProvider',
 		'uk\co\la1tv\website\serviceProviders\apiAuth\ApiAuthServiceProvider',
@@ -199,6 +200,7 @@ return array(
 		'URL'             => 'Illuminate\Support\Facades\URL',
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
+		'Feed'            => 'Roumen\Feed\Facades\Feed',
 		
 		'Auth'            => 'uk\co\la1tv\website\serviceProviders\auth\AuthFacade',
 		'ApiAuth'         => 'uk\co\la1tv\website\serviceProviders\apiAuth\ApiAuthFacade',
