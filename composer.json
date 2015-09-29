@@ -8,7 +8,8 @@
 		"doctrine/dbal": "*",
 		"facebook/php-sdk-v4" : "4.0.*",
 		"indatus/dispatcher": "1.4.*@dev",
-		"pda/pheanstalk": "2.0.*"
+		"pda/pheanstalk": "2.0.*",
+		"roumen/feed": "2.8.*"
 	},
 	"autoload": {
 		"classmap": [
