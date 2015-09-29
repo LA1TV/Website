@@ -30,7 +30,7 @@ class FeedsController extends BaseController {
 				$mediaItem = $item['mediaItem'];
 				$scheduledPublishTime = new Carbon($mediaItem->scheduled_publish_time);
 				// title, author, url, pubdate, description
-				$feed->add($item['generatedName'], "LA1:TV", $item['uri'], $scheduledPublishTime, $mediaItem->description);
+				$feed->add($item['generatedName']." [".$item['playlistName']."]", "LA1:TV", $item['uri'], $scheduledPublishTime, $mediaItem->description);
 			}
 		}
 		return $feed->render('rss');
