@@ -256,7 +256,7 @@ define([
 							profilePicUri: comment.profilePicUri,
 							postTime: comment.postTime,
 							name: comment.name,
-							msg: comment.msg,
+							escapedMsg: comment.escapedMsg,
 							edited: comment.edited,
 							permissionToDelete: comment.permissionToDelete,
 							deleted: false,
@@ -429,7 +429,7 @@ define([
 			var $deleteButton = $("<button />").addClass("remove-btn btn btn-danger btn-xs").prop("type", "button").html("&times;");
 			var $topRow = $("<div />").addClass("top-row");
 			var $name = $("<span />").addClass("name").text(comment.name);
-			var $comment = $("<div />").addClass("comment").html(nl2br(e(comment.msg)));
+			var $comment = $("<div />").addClass("comment").html(nl2br(comment.escapedMsg));
 			
 			$el.append($profilePicCol);
 			$profilePicCol.append($profilePicContainer);

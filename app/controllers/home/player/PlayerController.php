@@ -612,12 +612,14 @@ class PlayerController extends HomeBaseController {
 			}
 			$siteUser = $a->siteUser;
 			$permissionToDelete = $userHasCommentsPermission || (Facebook::isLoggedIn() && !is_null($siteUser) && intval(Facebook::getUser()->id) === intval($siteUser->id));
+			
+			$escapedMsg = URLHelpers::escapeAndReplaceUrls($a->msg);
 			$comments[] = array(
 				"id"					=> intval($a->id),
 				"profilePicUri"			=> !is_null($siteUser) ? $siteUser->getProfilePicUri(100, 100) : Config::get("comments.station_profile_picture_uri"),
 				"postTime"				=> $a->created_at->timestamp,
 				"name"					=> !is_null($siteUser) ? $siteUser->name : Config::get("comments.station_name"),
-				"msg"					=> $a->msg,
+				"escapedMsg"			=> $escapedMsg,
 				"permissionToDelete"	=> $permissionToDelete,
 				"edited"				=> (boolean) $a->edited
 			);
