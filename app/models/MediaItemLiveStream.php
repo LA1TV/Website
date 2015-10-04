@@ -137,31 +137,34 @@ class MediaItemLiveStream extends MyEloquent {
 	
 	// not live when has state_id of 1 or when has live state id but the live stream is nonexistent or inaccessible
 	public function scopeNotLive($q, $yes=true) {
-		$q = $q->where("state_id", $yes ? "=" : "!=", 1);
-		if ($yes) {
-			$q->orWhere(function($q2) {
-				$q2->whereNull("external_stream_url")
-				->where("state_id", 2)
-				->whereHas("liveStream", function($q3) {
-					$q3->accessible();
-				}, "=", 0);
-			});
-		}
-		
-		return $q;
+		// outer where is needed because otherwise the query that eloquent generates gets messed up when the or is used
+		return $q->where(function($q) use (&$yes) {
+			$q = $q->where("state_id", $yes ? "=" : "!=", 1);
+			if ($yes) {
+				$q->orWhere(function($q2) {
+					$q2->whereNull("external_stream_url")
+					->where("state_id", 2)
+					->whereHas("liveStream", function($q3) {
+						$q3->accessible();
+					}, "=", 0);
+				});
+			}
+		});
 	}
 	
 	public function scopeLive($q, $yes=true) {
-		if ($yes) {
-			$q->where(function($q2) {
-				$q2->whereNotNull("external_stream_url")
-				->orWhereHas("liveStream", function($q3) {
-					$q3->accessible();
+		// outer where is needed because otherwise the query that eloquent generates gets messed up when the or is used
+		return $q->where(function($q) use (&$yes) {
+			if ($yes) {
+				$q->where(function($q2) {
+					$q2->whereNotNull("external_stream_url")
+					->orWhereHas("liveStream", function($q3) {
+						$q3->accessible();
+					});
 				});
-			});
-		}
-		$q = $q->where("state_id", $yes ? "=" : "!=", 2);
-		return $q;
+			}
+			$q = $q->where("state_id", $yes ? "=" : "!=", 2);
+		});
 	}
 	
 	public function scopeShowOver($q, $yes=true) {

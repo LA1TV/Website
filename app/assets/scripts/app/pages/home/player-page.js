@@ -186,12 +186,11 @@ define([
 						// jump to the time in the player and start playing if not already.
 						playerController.jumpToTime(time, true);
 						// scroll page to player
-						if (!$playerContainerComponentContainer.visible(false, false, true)) {
+						if (!$playerContainerComponentContainer.visible(false, false, 'vertical')) {
 							$('body').animate({
 								scrollTop: $playerContainerComponentContainer.offset().top
 							}, 500);
 						}
-						$playerContainerComponentContainer
 						if (supportsHistoryApi()) {
 							var uri = window.location.href;
 							var uriWithoutParams = null;
