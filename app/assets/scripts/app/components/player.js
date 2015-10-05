@@ -250,14 +250,14 @@ define([
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
 						return;
 					}
+					if (startPlaying) {
+						videoJsPlayer.play();
+					}
 					// on ios this doesn't appear to work unless the video is already playing
 					// http://stackoverflow.com/a/13826802/1048589
 					// the work around involves waiting until the user plays which introduces more complexity
 					// because then the extra play event listener would need to be managed.
 					videoJsPlayer.currentTime(time);
-					if (startPlaying) {
-						videoJsPlayer.play();
-					}
 				});
 			}
 		};
@@ -705,13 +705,15 @@ define([
 										startTime = 0;
 									}
 								}
+								if (startPlaying) {
+									videoJsPlayer.play();
+								}
 								if (startTime !== 0) {
 									// if the time is 0 don't seek because seeking appears to replace the poster with the
 									// frame that has been seeked to
+									// in safari v8 seeking won't work unless the video is already playing, or the video 'preload' attribute is not `metadata`
+									// see https://github.com/LA1TV/Website/issues/619
 									videoJsPlayer.currentTime(startTime);
-								}
-								if (startPlaying) {
-									videoJsPlayer.play();
 								}
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
@@ -776,7 +778,6 @@ define([
 				}
 				$player.append($video);
 			}
-			
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
 			if (playerType === "vod") {
