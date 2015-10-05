@@ -605,7 +605,9 @@ define([
 			playerComponent.setStartTime(nullify(data.scheduledPublishTime) !== null && (!nullify(data.hasStream) || data.streamState !== 3) ? new Date(data.scheduledPublishTime*1000) : null, !!data.hasStream);
 			playerComponent.setExternalStreamUrl(externalStreamUrl);
 			playerComponent.disableFullScreen(disableFullScreen);
-			playerComponent.setPlayerPreload(false);
+			// setting this to false may cause some issues in safari
+			// look at https://github.com/LA1TV/Website/issues/619
+			playerComponent.setPlayerPreload(true);
 			playerComponent.disableControls(disablePlayerControls);
 			
 			if (queuedPlayerType === "vod") {
