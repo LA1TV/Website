@@ -499,7 +499,15 @@ class UploadManager {
 			$headers["Content-Type"] = $mimeType;
 		}
 
+		$filename = null;
+		if (is_null($file->filename)) {
+			$filename = sha1("la1tv-".$file->id);
+		}
+		else {
+			$filename = $file->filename;
+		}
+
 		// return response with cache header set for client to cache for a year
-		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, "la1tv-".$file->id, $headers)->setContentDisposition("inline")->setClientTtl(31556926)->setTtl(31556926)->setEtag($file->id);
+		return Response::download(Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $file->id, $filename, $headers)->setContentDisposition("inline", $filename)->setClientTtl(31556926)->setTtl(31556926)->setEtag($file->id);
 	}
 }
