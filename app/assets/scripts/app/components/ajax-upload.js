@@ -147,6 +147,8 @@ define([
 			else if (processState !== 1) {
 				throw "Processing must have succeeeded.";
 			}
+			// everything after the ID is optional and discarded on the server
+			// it's there to try and make sure that when it is downloaded it gets the nice file name
 			return PageData.get("baseUrl")+"/admin/upload/"+encodeURIComponent(id)+"/"+encodeURIComponent(fileName);
 		}
 		
