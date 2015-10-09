@@ -5,7 +5,7 @@ define([
 	"plupload"
 ], function(PageData, FileSizeHelper, AjaxHelpers, plupload) {
 
-	var noUploads = 0;
+	var numActiveUploads = 0;
 
 	var AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, stateParam) {
 		
@@ -61,6 +61,10 @@ define([
 		// the upload button
 		var $uploadBtn = $('<button />').prop("type", "button").addClass("btn btn-xs btn-default");
 		$btnContainer.append($uploadBtn);
+
+		// the download button
+		var $downloadBtn = $('<button />').prop("type", "button").addClass("btn btn-xs btn-info download-btn").text("Download");
+		$btnContainer.append($downloadBtn);
 		
 		// the upload plugin needs it's own button. giving this one and then clicking it programatically
 		var $pluploadButton = $('<button />').prop("type", "button").addClass("hidden");
@@ -125,6 +129,26 @@ define([
 				update();
 			}
 		});
+
+		$downloadBtn.click(function() {
+			if (state !== 2) {
+				throw "Invalid state.";
+			}
+			else if (processState !== 1) {
+				throw "Processing must have succeeeded.";
+			}
+			window.open(getDownloadLink());
+		});
+
+		function getDownloadLink() {
+			if (state !== 2) {
+				throw "Invalid state.";
+			}
+			else if (processState !== 1) {
+				throw "Processing must have succeeeded.";
+			}
+			return PageData.get("baseUrl")+"/admin/upload/"+encodeURIComponent(id)+"/"+encodeURIComponent(fileName);
+		}
 		
 		// state: 0=hidden, 1=visible and active, 2=visible
 		function updateProgressBar(state, progress) {
@@ -197,7 +221,7 @@ define([
 		}
 		
 		// state: 0=upload, 1=cancel, 2=remove
-		function updateBtn(state) {
+		function updateUploadBtn(state) {
 			if (btnState === state) {
 				return;
 			}
@@ -215,6 +239,16 @@ define([
 			else if (state === 2) {
 				$uploadBtn.text("Remove");
 				$uploadBtn.addClass("btn-default");
+			}
+		}
+
+		// state: 0=hide download button, 1=show download button
+		function updateDownloadButton(state) {
+			if (state === 0) {
+				$downloadBtn.addClass("hidden").prop("disabled", true);
+			}
+			else if (state === 1) {
+				$downloadBtn.removeClass("hidden").prop("disabled", false);
 			}
 		}
 		
@@ -288,12 +322,14 @@ define([
 				else if (state === 3 || state === 4) {
 					updateTxt(2, errorMsg);
 				}
-				updateBtn(0);
+				updateUploadBtn(0);
+				updateDownloadButton(0);
 				updateProgressBar(0);
 			}
 			else if (state === 1) { // uploading
 				updateTxt(0, 'Uploading '+fileStr+': '+progress+"%");
-				updateBtn(1);
+				updateUploadBtn(1);
+				updateDownloadButton(0);
 				updateProgressBar(1, progress);
 			}
 			else if (state === 2) { // uploaded and processed
@@ -317,7 +353,8 @@ define([
 					return;
 				}
 				updateTxt(processState === 1 ? 1 : 2, str);
-				updateBtn(2);
+				updateUploadBtn(2);
+				updateDownloadButton(processState === 1 ? 1 : 0);
 				updateProgressBar(2, progress);
 			}
 			else if (state === 4) { // uploaded and processing
@@ -335,13 +372,14 @@ define([
 					str =  fileStr+' processing...';
 				}
 				updateTxt(3, str);
-				updateBtn(2);
+				updateUploadBtn(2);
+				updateDownloadButton(0);
 				updateProgressBar(1, progress);
 			}
 		}
 		
 		function errorOccurred() {
-			noUploads--;
+			numActiveUploads--;
 			if (state === 1) { // this could be an asynchronous callback
 				state = 3;
 				errorMsg = cancelling ? "Upload cancelled." : "An error occurred. Please try again.";
@@ -415,7 +453,7 @@ define([
 					
 					// start upload automatically
 					uploader.start();
-					noUploads++;				
+					numActiveUploads++;				
 				},
 
 				UploadProgress: function(up, file) {
@@ -432,11 +470,11 @@ define([
 						var result = $.parseJSON(responseData.response);
 						// response returned is object with 'success' and 'id' which is the id of the newly created file
 						if (!result.success) {
-							errorOccurred(); // this decrements noUploads
+							errorOccurred(); // this decrements numActiveUploads
 							return;
 						}
 						
-						noUploads--;
+						numActiveUploads--;
 						id = result.id;
 						fileName = result.fileName;
 						fileSize = result.fileSize;
@@ -505,7 +543,7 @@ define([
 	};
 	
 	AjaxUpload.getNoActiveUploads = function() {
-		return noUploads;
+		return numActiveUploads;
 	};
 	
 	return AjaxUpload;
