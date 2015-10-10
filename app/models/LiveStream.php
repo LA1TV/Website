@@ -309,7 +309,9 @@ class LiveStream extends MyEloquent {
 	public function getPreviouslyLiveMediaItem() {
 		return MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
 			$q->accessible()->showOver()->whereHas("livestream", function($q2) {
-				$q2->accessible()->where("id", intval($this->id));
+				// the live stream doesn't actually have to be accessible right now
+				// the assumption is that it was when the item was live
+				$q2->where("id", intval($this->id));
 			});
 		})->where("scheduled_publish_time", "<=", Carbon::now())->orderBy("scheduled_publish_time", "desc")->first();
 	}
@@ -318,7 +320,9 @@ class LiveStream extends MyEloquent {
 	public function getComingUpMediaItem() {
 		return MediaItem::accessible()->whereHas("liveStreamItem", function($q) {
 			$q->accessible()->notLive()->whereHas("livestream", function($q2) {
-				$q2->accessible()->where("id", intval($this->id));
+				// the live stream doesn't actually have to be accessible right now
+				// the assumption is that it will be at the time this is due to go live
+				$q2->where("id", intval($this->id));
 			});
 		})->orderBy("scheduled_publish_time", "desc")->first();
 	}
