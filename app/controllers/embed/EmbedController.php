@@ -54,7 +54,7 @@ class EmbedController extends EmbedBaseController {
 		$adminOverrideEnabled = false;
 		$hyperlink = URL::route('liveStream', array($liveStream->id));
 
-		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerViewCountUri, $registerLikeUri, $adminOverrideEnabled, $hyperlink);
+		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $adminOverrideEnabled, $hyperlink);
 	}
 	
 	private function prepareResponse($playlist, $mediaItem) {
