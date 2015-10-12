@@ -12,11 +12,7 @@ class AddingPlayingToWatchingNow extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('watching_now', function(Blueprint $table)
-		{
-			$table->boolean("playing")->default(true);
-			$table->timestamp("last_play_time")->nullable();
-		});
+		// something went wrong somewhere because the fields this used to add are already added in CreateWatchingNowTable
 	}
 
 	/**
@@ -26,11 +22,7 @@ class AddingPlayingToWatchingNow extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('watching_now', function(Blueprint $table)
-		{
-			$table->dropColumn("playing");
-			$table->dropColumn("last_play_time");
-		});
+		// something went wrong somewhere because the fields this used to add are already added in CreateWatchingNowTable
 	}
 
 }
