@@ -7,7 +7,7 @@ use URL;
 class Show extends MyEloquent {
 
 	protected $table = 'shows';
-	protected $fillable = array('name', 'enabled', 'description');
+	protected $fillable = array('name', 'enabled', 'description', 'pending_search_index_version', 'current_search_index_version');
 	
 	public function playlists() {
 		return $this->hasMany(self::$p.'Playlist', 'show_id');

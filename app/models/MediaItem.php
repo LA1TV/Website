@@ -15,7 +15,7 @@ use Facebook;
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled', 'pending_search_index_version', 'current_search_index_version');
 	protected $appends = array("related_items_for_reorderable_list", "related_items_for_input", "credits_for_reorderable_list", "credits_for_input", "scheduled_publish_time_for_input", "promoted");
 	
 	protected static function boot() {
