@@ -4,8 +4,9 @@ define([
 	"../../page-data",
 	"../../helpers/ajax-helpers",
 	"../../helpers/pad",
+	"../../synchronised-time",
 	"lib/domReady!"
-], function($, PlayerContainer, PageData, AjaxHelpers, pad) {
+], function($, PlayerContainer, PageData, AjaxHelpers, pad, SynchronisedTime) {
 	
 	$(".page-live-stream").first().each(function() {
 		
@@ -94,7 +95,7 @@ define([
 					type: "POST"
 				}).always(function(data, textStatus, jqXHR) {
 					if (jqXHR.status === 200) {
-						var now = Date.now();
+						var now = SynchronisedTime.getDate().getTime();
 						
 						for(var i=0; i<boxesInfo.length; i++) {
 							var boxInfo = boxesInfo[i];
