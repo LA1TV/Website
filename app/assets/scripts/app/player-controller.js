@@ -50,7 +50,10 @@ define([
 				clearTimeout(timerId);
 			}
 			if (analyticsReportTimerId !== null) {
-				clearTimeout(analyticsReportTimerId);
+				clearInterval(analyticsReportTimerId);
+			}
+			if (registerWatchingTimerId !== null) {
+				clearTimeout(registerWatchingTimerId);
 			}
 			playerComponent.destroy();
 		};
@@ -266,6 +269,8 @@ define([
 		var embedData = null;
 		var rememberedTimeTimerId = null;
 		var analyticsReportTimerId = null;
+		var registerWatchingTimerId = null;
+		var registerWatchingInterval = 10000;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			// this can be fired as a result of the quality being changed in updatePlayer()
@@ -282,15 +287,27 @@ define([
 		update();
 		
 		// report to analytics the current play position every 10 seconds
-		// also report whether or not the content is playing for view count etc
 		analyticsReportTimerId = setInterval(function() {
 			// paused() can be null if unknown
 			if ((playerType === "live" || playerType === "vod") && playerComponent !== null && playerComponent.paused() === false) {
 				reportToAnalytics("playing");
 			}
-			registerWatching();
 		}, 10000);
 		
+		// report whether or not the content is playing for view count etc
+		registerWatchingTimerId = setTimeout(registerWatchingAndSchedule, registerWatchingInterval);
+
+		function registerWatchingAndSchedule() {
+			if (registerWatchingTimerId === null) {
+				// timer has been cancelled.
+				return;
+			}
+			clearTimeout(registerWatchingTimerId);
+			registerWatching();
+			// reschedule
+			registerWatchingTimerId = setTimeout(registerWatchingAndSchedule, registerWatchingInterval);
+		}
+
 		function update() {
 		
 			var onComplete = function() {
@@ -382,6 +399,8 @@ define([
 					resolvedAutoPlayStream = autoPlayStream;
 					$(self).triggerHandler("play");
 					reportToAnalytics("play");
+					// immediately inform server that content is now playing
+					registerWatchingAndSchedule();
 				});
 				$(playerComponent).on("loadedMetadata", function() {
 					// called at the point when the browser starts receiving the stream/video
@@ -402,6 +421,8 @@ define([
 					}
 					$(self).triggerHandler("pause");
 					reportToAnalytics("pause");
+					// immediately inform server that content is now paused
+					registerWatchingAndSchedule();
 				});
 			}
 			
