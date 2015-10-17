@@ -14282,10 +14282,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _playbacksHtml5_video2 = _interopRequireDefault(_playbacksHtml5_video);
 
-	var _hlsJs = __webpack_require__(109);
-
-	var _hlsJs2 = _interopRequireDefault(_hlsJs);
-
 	var _baseEvents = __webpack_require__(5);
 
 	var _baseEvents2 = _interopRequireDefault(_baseEvents);
@@ -14293,6 +14289,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _componentsBrowser = __webpack_require__(3);
 
 	var _componentsBrowser2 = _interopRequireDefault(_componentsBrowser);
+
+	var HLSJS = __webpack_require__(109);
 
 	var HLS = (function (_HTML5VideoPlayback) {
 	  _inherits(HLS, _HTML5VideoPlayback);
@@ -14323,14 +14321,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function setupHls() {
 	      var _this = this;
 
-	      this.hls = new _hlsJs2['default'](this.options.hlsjsConfig || {});
-	      this.hls.on(_hlsJs2['default'].Events.MSE_ATTACHED, function () {
+	      this.hls = new HLSJS(this.options.hlsjsConfig || {});
+	      this.hls.on(HLSJS.Events.MSE_ATTACHED, function () {
 	        return _this.hls.loadSource(_this.options.src);
 	      });
-	      this.hls.on(_hlsJs2['default'].Events.MANIFEST_PARSED, function () {
+	      this.hls.on(HLSJS.Events.MANIFEST_PARSED, function () {
 	        _this.options.autoPlay && _this.play();
 	      });
-	      this.hls.on(_hlsJs2['default'].Events.LEVEL_LOADED, function (evt, data) {
+	      this.hls.on(HLSJS.Events.LEVEL_LOADED, function (evt, data) {
 	        return _this.updatePlaybackType(evt, data);
 	      });
 	      this.hls.attachVideo(this.el);
@@ -14429,7 +14427,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var isHls = resourceParts.length > 1 && resourceParts[1] === "m3u8" || mimeType === 'application/x-mpegURL' || mimeType === 'application/vnd.apple.mpegurl';
 	  var ignoredBrowser = _componentsBrowser2['default'].isSafari || _componentsBrowser2['default'].isFirefox;
 
-	  return !!(_hlsJs2['default'].isSupported() && isHls && !ignoredBrowser);
+	  return !!(HLSJS.isSupported() && isHls && !ignoredBrowser);
 	};
 	module.exports = exports['default'];
 
@@ -14437,7 +14435,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var require;var require;"use strict";(function(f){if(true){module.exports = f();}else if(typeof define === "function" && define.amd){define([],f);}else {var g;if(typeof window !== "undefined"){g = window;}else if(typeof global !== "undefined"){g = global;}else if(typeof self !== "undefined"){g = self;}else {g = this;}g.Hls = f();}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require == "function" && require;if(!u && a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '" + o + "'");throw (f.code = "MODULE_NOT_FOUND",f);}var l=n[o] = {exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e);},l,l.exports,e,t,n,r);}return n[o].exports;}var i=typeof require == "function" && require;for(var o=0;o < r.length;o++) s(r[o]);return s;})({1:[function(require,module,exports){ // Copyright Joyent, Inc. and other Node contributors.
+	var require;var require;/*** IMPORTS FROM imports-loader ***/
+	var define = false;
+
+	"use strict";(function(f){if(true){module.exports = f();}else if(typeof define === "function" && define.amd){define([],f);}else {var g;if(typeof window !== "undefined"){g = window;}else if(typeof global !== "undefined"){g = global;}else if(typeof self !== "undefined"){g = self;}else {g = this;}g.Hls = f();}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require == "function" && require;if(!u && a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '" + o + "'");throw (f.code = "MODULE_NOT_FOUND",f);}var l=n[o] = {exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e);},l,l.exports,e,t,n,r);}return n[o].exports;}var i=typeof require == "function" && require;for(var o=0;o < r.length;o++) s(r[o]);return s;})({1:[function(require,module,exports){ // Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
 	// copy of this software and associated documentation files (the
