@@ -19,7 +19,6 @@
 @stop
 
 @section('side-banners')
-<?php if (!is_null($sideBannersImageUrl) || !is_null($sideBannersFillImageUrl)): ?>
 <div class="side-banners-container-container">
 	<div class="container side-banners-container">
 		<div class="side-banner-container side-banner-container-left" data-bg-url="<?=!is_null($sideBannersFillImageUrl) ? e($sideBannersFillImageUrl) : ""?>">
@@ -35,7 +34,6 @@
 	</div>
 	<div class="container side-banners-container side-banners-container-shadow"></div>
 </div>
-<?php endif; ?>
 @stop
 
 @section('promo')
