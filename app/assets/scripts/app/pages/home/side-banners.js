@@ -20,22 +20,14 @@ define([
 		var trianglifyPng = null;
 		var getTrianglifyPng = function() {
 			if (!trianglifyPng) {
-				var xColours = ["#fff5f0","#fee0d2","#fcbba1","#fc9272","#fb6a4a","#ef3b2c","#cb181d","#a50f15","#67000d"];
-				var yColours = ["#f7fbff","#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"];
-				if (Math.random() < 0.5) {
-					xColours = xColours.reverse();
-				}
-				if (Math.random() < 0.5) {
-					yColours = yColours.reverse();
-				}
+				var xColours = ["#ff0000", "#67000d", "#cb181d", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#cb181d", "#67000d", "#ff0000"];
 				var pattern = Trianglify({
 					width: 1000, // should be more than enough
 					height: 1400, // matches height of user uploaded side banners,
 					cell_size: 75,
-					variance: 0.8,
+					variance: 0.75,
 					seed: Math.floor(Date.now() / 60000), // new pattern every minute
 					x_colors: xColours,
-					y_colors: yColours
 				});
 				// returns a data URI with the PNG data in base64 encoding
 				trianglifyPng = pattern.png();
