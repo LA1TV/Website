@@ -97,9 +97,6 @@ class CreateSearchIndexCommand extends Command {
 			'description' => [
 				'type' => 'string'
 			],
-			'name' => [
-				'type' => 'string'
-			],
 			'scheduledPublishTime' => [
 				'type' => 'date'
 			],
