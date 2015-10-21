@@ -5,6 +5,7 @@ use uk\co\la1tv\website\commands\MediaItemEmailsSendVodAvailableCommand;
 use uk\co\la1tv\website\commands\DvrBridgeServiceSendPingsCommand;
 use uk\co\la1tv\website\commands\DvrBridgeServiceRemoveDvrForVodCommand;
 use uk\co\la1tv\website\commands\CreateSearchIndexCommand;
+use uk\co\la1tv\website\commands\UpdateSearchIndexCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,3 +23,4 @@ Artisan::add(new MediaItemEmailsSendVodAvailableCommand());
 Artisan::add(new DvrBridgeServiceSendPingsCommand());
 Artisan::add(new DvrBridgeServiceRemoveDvrForVodCommand());
 Artisan::add(new CreateSearchIndexCommand());
+Artisan::add(new UpdateSearchIndexCommand());

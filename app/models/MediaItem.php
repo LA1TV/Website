@@ -615,6 +615,10 @@ class MediaItem extends MyEloquent {
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
+
+	public function scopeNeedsReindexing($q) {
+		return $q->whereRaw("`media_items`.`pending_search_index_version` != `media_items`.`current_search_index_version`");
+	}
 	
 	public function getDates() {
 		return array_merge(parent::getDates(), array('scheduled_publish_time', 'time_promoted'));
