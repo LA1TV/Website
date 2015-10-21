@@ -54,6 +54,10 @@ class CreateSearchIndexCommand extends Command {
 			],
 			'description' => [
 				'type' => 'string'
+			],
+			'url' => [
+				'type' => 'string',
+				'index' => 'no'
 			]
 		];
 
@@ -73,11 +77,15 @@ class CreateSearchIndexCommand extends Command {
 			],
 			'coverArtUri' => [
 				'type' => 'string',
-				'index' => 'no',
+				'index' => 'no'
 			],
 			'seriesNo' => [
 				'type' => 'integer',
 				'index' => 'no'
+			],
+			'url' => [
+				'type' => 'string',
+				'index' => 'no',
 			],
 			'show' => [
 				'type' => 'nested',
@@ -106,7 +114,23 @@ class CreateSearchIndexCommand extends Command {
 			],
 			'playlists' => [
 				'type' => 'nested',
-				'properties' => $playlistProperties
+				'properties' => [
+					'generatedName' => [
+						'type' => 'string'
+					],
+					'generatedCoverArtUri' => [
+						'type' => 'string',
+						'index' => 'no'
+					],
+					'url' => [
+						'type' => 'string',
+						'index' => 'no'
+					],
+					'playlist' => [
+						'type' => 'nested',
+						'propeties' => $playlistProperties
+					]
+				]
 			]
 		];
 
