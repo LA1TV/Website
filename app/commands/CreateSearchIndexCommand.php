@@ -108,17 +108,13 @@ class CreateSearchIndexCommand extends Command {
 			'scheduledPublishTime' => [
 				'type' => 'date'
 			],
-			'coverArtUri' => [
-				'type' => 'string',
-				'index' => 'no'
-			],
 			'playlists' => [
 				'type' => 'nested',
 				'properties' => [
 					'generatedName' => [
 						'type' => 'string'
 					],
-					'generatedCoverArtUri' => [
+					'coverArtUri' => [
 						'type' => 'string',
 						'index' => 'no'
 					],
