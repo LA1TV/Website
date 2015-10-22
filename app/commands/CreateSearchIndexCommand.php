@@ -124,7 +124,7 @@ class CreateSearchIndexCommand extends Command {
 					],
 					'playlist' => [
 						'type' => 'nested',
-						'propeties' => $playlistProperties
+						'properties' => $playlistProperties
 					]
 				]
 			]
