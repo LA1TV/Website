@@ -7,6 +7,7 @@ use Elasticsearch;
 use Config;
 use Exception;
 use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\Playlist;
 
 class UpdateSearchIndexCommand extends Command {
 
@@ -25,6 +26,8 @@ class UpdateSearchIndexCommand extends Command {
 	protected $description = 'Updates the search index.';
 
 	private $esClient = null;
+	private $coverArtWidth = null;
+	private $coverArtHeight = null;
 
 	/**
 	 * Create a new command instance.
@@ -51,30 +54,50 @@ class UpdateSearchIndexCommand extends Command {
 
 		// the width and height of images to retrieve for the cover art
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		$coverArtWidth = $coverArtResolutions['thumbnail']['w'];
-		$coverArtHeight = $coverArtResolutions['thumbnail']['h'];
+		$this->coverArtWidth = $coverArtResolutions['thumbnail']['w'];
+		$this->coverArtHeight = $coverArtResolutions['thumbnail']['h'];
 
 		// update/create/remove media items in index
+		$this->updateMediaItemsIndex();
+		// update/create/remove playlists in index
+		$this->updatePlaylistsIndex();
+
+		// TODO sync shows index
+
+
+		$this->info('Done.');
+	}
+
+	private function updateMediaItemsIndex() {
 		$entries = [];
 		$entryIdsToRemove = [];
 		$changedMediaItems = MediaItem::with("playlists", "playlists.show")->needsReindexing()->get();
 		foreach($changedMediaItems as $mediaItem) {
 			if ($mediaItem->getIsAccessible()) {
-				$entries[] = $this->getMediaItemData($mediaItem, $coverArtWidth, $coverArtHeight);
+				$entries[] = $this->getMediaItemData($mediaItem, $this->coverArtWidth, $this->coverArtHeight);
 			}
 			else {
 				// this item is no longer accessible so remove it from the index
 				$entryIdsToRemove[] = intval($mediaItem->id);
 			}
 		}
-
 		$this->syncIndexType("mediaItem", new MediaItem(), $changedMediaItems, $entries, $entryIdsToRemove);
+	}
 
-		// TODO sync playlists index
-		// TODO sync shows index
-
-
-		$this->info('Done.');
+	private function updatePlaylistsIndex() {
+		$entries = [];
+		$entryIdsToRemove = [];
+		$changedPlaylists = Playlist::with("show")->needsReindexing()->get();
+		foreach($changedPlaylists as $playlist) {
+			if ($playlist->getIsAccessibleToPublic()) {
+				$entries[] = $this->getPlaylistData($playlist, $this->coverArtWidth, $this->coverArtHeight);
+			}
+			else {
+				// this item is no longer accessible so remove it from the index
+				$entryIdsToRemove[] = intval($playlist->id);
+			}
+		}
+		$this->syncIndexType("playlist", new Playlist(), $changedPlaylists, $entries, $entryIdsToRemove);
 	}
 
 	private function updateIndexType($type, $entries) {
@@ -104,7 +127,7 @@ class UpdateSearchIndexCommand extends Command {
 		$this->updateIndexType($type, $entries);
 		// get the ids of everything stored in index
 		$ids = $this->getIdsInIndexType($type);
-		// get media items with those ids from the datase
+		// get models with those ids from the datase
 		$removedModelIds = $this->getNonexistantModelIds($model, $ids);
 		$entryIdsToRemove = array_unique(array_merge($entryIdsToRemove, $removedModelIds));
 		$this->removeFromIndexType($type, $entryIdsToRemove);

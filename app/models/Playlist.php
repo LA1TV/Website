@@ -450,4 +450,8 @@ class Playlist extends MyEloquent {
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
 	}
+
+	public function scopeNeedsReindexing($q) {
+		return $q->whereRaw("`playlists`.`pending_search_index_version` != `playlists`.`current_search_index_version`");
+	}
 }
