@@ -24,6 +24,8 @@ class UpdateSearchIndexCommand extends Command {
 	 */
 	protected $description = 'Updates the search index.';
 
+	private $esClient = null;
+
 	/**
 	 * Create a new command instance.
 	 *
@@ -43,33 +45,34 @@ class UpdateSearchIndexCommand extends Command {
 	{
 		$this->info('Updating search index.');
 
-		$esClient = Elasticsearch\ClientBuilder::create()
+		$this->esClient = Elasticsearch\ClientBuilder::create()
 			->setHosts(array("127.0.0.1:9200"))
 			->build();
-
-		// TODO update/create/remove media items in index
 
 		// the width and height of images to retrieve for the cover art
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		$coverArtWidth = $coverArtResolutions['thumbnail']['w'];
 		$coverArtHeight = $coverArtResolutions['thumbnail']['h'];
 
+		// update/create/remove media items in index
 		$entries = [];
-		$changedMediaItems = MediaItem::with("playlists", "playlists.show")->accessible()->needsReindexing()->get();
+		$entryIdsToRemove = [];
+		$changedMediaItems = MediaItem::with("playlists", "playlists.show")->needsReindexing()->get();
 		foreach($changedMediaItems as $mediaItem) {
-			$entries[] = $this->getMediaItemData($mediaItem, $coverArtWidth, $coverArtHeight);
+			if ($mediaItem->getIsAccessible()) {
+				$entries[] = $this->getMediaItemData($mediaItem, $coverArtWidth, $coverArtHeight);
+			}
+			else {
+				// this item is no longer accessible so remove it from the index
+				$entryIdsToRemove[] = intval($mediaItem->id);
+			}
 		}
 
-		$this->updateIndexType("mediaItem", $entries);
-		$this->updateModelVersionNumbers($changedMediaItems);
+		$this->syncIndexType("mediaItem", new MediaItem(), $changedMediaItems, $entries, $entryIdsToRemove);
 
-		// TODO get ids of everything stored in index
+		// TODO sync playlists index
+		// TODO sync shows index
 
-		// TODO get media items with those ids from the datase
-		// remove anything from the index which is not in that list
-
-		// TODO playlists index
-		// TODO shows index
 
 		$this->info('Done.');
 	}
@@ -87,13 +90,77 @@ class UpdateSearchIndexCommand extends Command {
 					]
 				];
 				$params["body"][] = $a;
+				$this->info('Indexing "'.$type.'" with id '.$a["id"].'.');
 			}
-			$response = $esClient->bulk($params);
+			$response = $this->esClient->bulk($params);
 
 			if (count($response["items"]) !== count($entries) || $response["errors"]) {
-				throw(new Exception("Something went wrong indexing media items."));
+				throw(new Exception("Something went wrong indexing items."));
 			}
 		}
+	}
+
+	private function syncIndexType($type, $model, $changedModels, $entries, $entryIdsToRemove) {
+		$this->updateIndexType($type, $entries);
+		// get the ids of everything stored in index
+		$ids = $this->getIdsInIndexType($type);
+		// get media items with those ids from the datase
+		$removedModelIds = $this->getNonexistantModelIds($model, $ids);
+		$entryIdsToRemove = array_unique(array_merge($entryIdsToRemove, $removedModelIds));
+		$this->removeFromIndexType($type, $entryIdsToRemove);
+		// this must be the last thing to happen to make sure version numbers are only updated if there are no errors
+		$this->updateModelVersionNumbers($changedModels);
+	}
+
+	private function removeFromIndexType($type, $ids) {
+		if (count($ids) > 0) {
+			$params = ["body"	=> []];
+			foreach($ids as $id) {
+				$params["body"][] = [
+					'delete'	=> [
+						'_index' => 'website',
+						'_type' => $type,
+						'_id' => $id
+					]
+				];
+				$this->info('Removing "'.$type.'" with id '.$id.' from index.');
+			}
+			$response = $this->esClient->bulk($params);
+			if (count($response["items"]) !== count($ids) || $response["errors"]) {
+				throw(new Exception("Something went wrong deleting items from index type."));
+			}
+		}
+	}
+
+	private function getIdsInIndexType($type) {
+		$params = [
+			'index' => 'website',
+			'type' => $type,
+			'body' => [
+				'query' => [
+					'match_all' => new \stdClass()
+				],
+				'fields' => []
+			]
+		];
+
+		$results = $this->esClient->search($params);
+		if ($results["timed_out"]) {
+			throw(new Exception("Search request to get ids timed out."));
+		}
+
+		$ids = [];
+		if ($results["hits"]["total"] > 0) {
+			foreach($results["hits"]["hits"] as $a) {
+				$ids[] = intval($a["_id"]);
+			}
+		}
+		return $ids;
+	}
+
+	private function getNonexistantModelIds($model, $ids) {
+		$foundModelIds = array_pluck($model::whereIn("id", $ids)->select("id")->get(), "id");
+		return array_diff($ids, $foundModelIds);
 	}
 
 	private function updateModelVersionNumbers($models) {
