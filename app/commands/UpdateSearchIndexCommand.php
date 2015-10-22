@@ -60,6 +60,21 @@ class UpdateSearchIndexCommand extends Command {
 			$entries[] = $this->getMediaItemData($mediaItem, $coverArtWidth, $coverArtHeight);
 		}
 
+		$this->updateIndexType("mediaItem", $entries);
+		$this->updateModelVersionNumbers($changedMediaItems);
+
+		// TODO get ids of everything stored in index
+
+		// TODO get media items with those ids from the datase
+		// remove anything from the index which is not in that list
+
+		// TODO playlists index
+		// TODO shows index
+
+		$this->info('Done.');
+	}
+
+	private function updateIndexType($type, $entries) {
 		if (count($entries) > 0) {
 			// https://www.elastic.co/guide/en/elasticsearch/client/php-api/2.0/_indexing_documents.html
 			$params = ["body"	=> []];
@@ -67,7 +82,7 @@ class UpdateSearchIndexCommand extends Command {
 				$params["body"][] = [
 					'index'	=> [
 						'_index' => 'website',
-						'_type' => 'mediaItem',
+						'_type' => $type,
 						'_id' => $a["id"]
 					]
 				];
@@ -79,24 +94,15 @@ class UpdateSearchIndexCommand extends Command {
 				throw(new Exception("Something went wrong indexing media items."));
 			}
 		}
+	}
 
-		// update search index version numbers in database
-		foreach($changedMediaItems as $item) {
+	private function updateModelVersionNumbers($models) {
+		foreach($models as $item) {
 			$item->current_search_index_version = intval($item->pending_search_index_version);
 			if (!$item->save()) {
-				throw(new Exception("Error updating model."));
+				throw(new Exception("Error updating model version numbers."));
 			}
 		}
-
-		// TODO get ids of everything stored in index
-
-		// TODO get media items with those ids from the datase
-		// remove anything from the index which is not in that list
-
-		// TODO playlists index
-		// TODO shows index
-
-		$this->info('Done.');
 	}
 
 	private function getShowData($show) {
