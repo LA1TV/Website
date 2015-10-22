@@ -5,6 +5,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Elasticsearch;
 use Config;
+use Exception;
 use uk\co\la1tv\website\models\MediaItem;
 
 class UpdateSearchIndexCommand extends Command {
@@ -53,6 +54,8 @@ class UpdateSearchIndexCommand extends Command {
 		$coverArtWidth = $coverArtResolutions['thumbnail']['w'];
 		$coverArtHeight = $coverArtResolutions['thumbnail']['h'];
 
+		$entries = [];
+
 		$changedMediaItems = MediaItem::with("playlists", "playlists.show")->accessible()->needsReindexing()->get();
 		
 		foreach($changedMediaItems as $item) {
@@ -100,14 +103,44 @@ class UpdateSearchIndexCommand extends Command {
 				"scheduledPublishTime"	=> $item->scheduled_publish_time->timestamp * 1000,
 				"playlists"		=> $playlistsData
 			];
+			$entries[] = $data;
+		}
 
-			dd($data);
+		if (count($entries) > 0) {
+			// https://www.elastic.co/guide/en/elasticsearch/client/php-api/2.0/_indexing_documents.html
+			$params = ["body"	=> []];
+			foreach($entries as $a) {
+				$params["body"][] = [
+					'index'	=> [
+						'_index' => 'website',
+						'_type' => 'mediaItem',
+						'_id' => $a["id"]
+					]
+				];
+				$params["body"][] = $a;
+			}
+			$response = $esClient->bulk($params);
+
+			if (count($response["items"]) !== count($entries) || $response["errors"]) {
+				throw(new Exception("Something went wrong indexing media items."));
+			}
+		}
+
+		// update search index version numbers in database
+		foreach($changedMediaItems as $item) {
+			$item->current_search_index_version = intval($item->pending_search_index_version);
+			if (!$item->save()) {
+				throw(new Exception("Error updating model."));
+			}
 		}
 
 		// TODO get ids of everything stored in index
 
 		// TODO get media items with those ids from the datase
 		// remove anything from the index which is not in that list
+
+		// TODO playlists index
+		// TODO shows index
 
 		$this->info('Done.');
 	}
