@@ -8,6 +8,7 @@ use Config;
 use Exception;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\Playlist;
+use uk\co\la1tv\website\models\Show;
 
 class UpdateSearchIndexCommand extends Command {
 
@@ -61,10 +62,8 @@ class UpdateSearchIndexCommand extends Command {
 		$this->updateMediaItemsIndex();
 		// update/create/remove playlists in index
 		$this->updatePlaylistsIndex();
-
-		// TODO sync shows index
-
-
+		// update/create/remove shows in index
+		$this->updateShowsIndex();
 		$this->info('Done.');
 	}
 
@@ -98,6 +97,22 @@ class UpdateSearchIndexCommand extends Command {
 			}
 		}
 		$this->syncIndexType("playlist", new Playlist(), $changedPlaylists, $entries, $entryIdsToRemove);
+	}
+
+	private function updateShowsIndex() {
+		$entries = [];
+		$entryIdsToRemove = [];
+		$changedShows = Show::needsReindexing()->get();
+		foreach($changedShows as $show) {
+			if ($show->getIsAccessible()) {
+				$entries[] = $this->getShowData($show);
+			}
+			else {
+				// this item is no longer accessible so remove it from the index
+				$entryIdsToRemove[] = intval($show->id);
+			}
+		}
+		$this->syncIndexType("show", new Show(), $changedShows, $entries, $entryIdsToRemove);
 	}
 
 	private function updateIndexType($type, $entries) {
