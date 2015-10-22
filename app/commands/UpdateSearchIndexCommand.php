@@ -55,55 +55,9 @@ class UpdateSearchIndexCommand extends Command {
 		$coverArtHeight = $coverArtResolutions['thumbnail']['h'];
 
 		$entries = [];
-
 		$changedMediaItems = MediaItem::with("playlists", "playlists.show")->accessible()->needsReindexing()->get();
-		
-		foreach($changedMediaItems as $item) {
-			$playlists = $item->playlists;
-			$playlistsData = [];
-
-			foreach($playlists as $playlist) {
-				if (!$playlist->getIsAccessible()) {
-					continue;
-				}
-
-				$showData = null;
-				$show = $playlist->show;
-				if (!is_null($show)) {
-					$showData = [
-						"id"			=> intval($show->id),
-						"name"			=> $show->name,
-						"description"	=> $show->description,
-						"url"			=> $show->getUri()
-					];
-				}
-
-				$playlistsData[] = [
-					"generatedName"	=> $playlist->generateEpisodeTitle($item),
-					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($item, $coverArtWidth, $coverArtHeight),
-					"url"			=> $playlist->getMediaItemUri($item),
-					"playlist"		=> [
-						"id"			=> intval($playlist->id),
-						"name"			=> $playlist->generateName(),
-						"description"	=> $playlist->description,
-						"coverArtUri"	=> $playlist->getCoverArtUri($coverArtWidth, $coverArtHeight),
-						// elastic search expects milliseconds
-						"scheduledPublishTime"	=> $playlist->scheduled_publish_time->timestamp * 1000,
-						"seriesNo"		=> !is_null($playlist->series_no) ? intval($playlist->series_no) : null,
-						"url"			=> $playlist->getUri(),
-						"show"			=> $showData
-					]
-				];
-			}
-
-			$data = [
-				"id"			=> intval($item->id),
-				"name"			=> $item->name,
-				"description"	=> $item->description,
-				"scheduledPublishTime"	=> $item->scheduled_publish_time->timestamp * 1000,
-				"playlists"		=> $playlistsData
-			];
-			$entries[] = $data;
+		foreach($changedMediaItems as $mediaItem) {
+			$entries[] = $this->getMediaItemData($mediaItem, $coverArtWidth, $coverArtHeight);
 		}
 
 		if (count($entries) > 0) {
@@ -143,6 +97,59 @@ class UpdateSearchIndexCommand extends Command {
 		// TODO shows index
 
 		$this->info('Done.');
+	}
+
+	private function getShowData($show) {
+		return [
+			"id"			=> intval($show->id),
+			"name"			=> $show->name,
+			"description"	=> $show->description,
+			"url"			=> $show->getUri()
+		];
+	}
+
+	private function getPlaylistData($playlist, $coverArtWidth, $coverArtHeight) {
+		$showData = null;
+		$show = $playlist->show;
+		if (!is_null($show)) {
+			$showData = $this->getShowData($show);
+		}
+
+		return [
+			"id"			=> intval($playlist->id),
+			"name"			=> $playlist->generateName(),
+			"description"	=> $playlist->description,
+			"coverArtUri"	=> $playlist->getCoverArtUri($coverArtWidth, $coverArtHeight),
+			// elastic search expects milliseconds
+			"scheduledPublishTime"	=> $playlist->scheduled_publish_time->timestamp * 1000,
+			"seriesNo"		=> !is_null($playlist->series_no) ? intval($playlist->series_no) : null,
+			"url"			=> $playlist->getUri(),
+			"show"			=> $showData
+		];
+	}
+
+	private function getMediaItemData($mediaItem, $coverArtWidth, $coverArtHeight) {
+		$playlists = $mediaItem->playlists;
+		$playlistsData = [];
+		foreach($playlists as $playlist) {
+			if (!$playlist->getIsAccessible()) {
+				continue;
+			}
+			$playlistsData[] = [
+				"generatedName"	=> $playlist->generateEpisodeTitle($mediaItem),
+				"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtWidth, $coverArtHeight),
+				"url"			=> $playlist->getMediaItemUri($mediaItem),
+				"playlist"		=> $this->getPlaylistData($playlist, $coverArtWidth, $coverArtHeight)
+			];
+		}
+
+		return [
+			"id"			=> intval($mediaItem->id),
+			"name"			=> $mediaItem->name,
+			"description"	=> $mediaItem->description,
+			"scheduledPublishTime"	=> $mediaItem->scheduled_publish_time->timestamp * 1000,
+			"playlists"		=> $playlistsData
+		];
 	}
 
 	/**
