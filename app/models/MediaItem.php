@@ -25,7 +25,27 @@ class MediaItem extends MyEloquent {
 			if ($model->enabled && is_null($model->scheduled_publish_time)) {
 				throw(new Exception("A MediaItem which is enabled must have a scheduled publish time."));
 			}
+
+			// transaction ended in "saved" event
+			// needed to make sure if search index version number is incremented it
+			// takes effect at the same time that the rest of the media item is updated
+			DB::beginTransaction();
+
+			// assume that something has changed and force ths item to be reindexed
+			$a = MediaItem::find(intval($model->id));
+			// $a may be null if this item is currently being created
+			// when the item is being created pending_search_index_version defaults to 1
+			// meaning the item will be indexed
+			if (!is_null($a)) {
+				// make sure get latest version number. The version in $model might have changed before the transaction started
+				$currentPendingIndexVersion = intval($a->pending_search_index_version);
+				$model->pending_search_index_version = $currentPendingIndexVersion+1;
+			}
 			return true;
+		});
+
+		self::saved(function($model) {
+			DB::commit();
 		});
 	}
 	

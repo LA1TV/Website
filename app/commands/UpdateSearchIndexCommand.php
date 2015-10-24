@@ -6,6 +6,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Elasticsearch;
 use Config;
 use Exception;
+use DB;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\Show;
@@ -58,19 +59,29 @@ class UpdateSearchIndexCommand extends Command {
 		$this->coverArtWidth = $coverArtResolutions['thumbnail']['w'];
 		$this->coverArtHeight = $coverArtResolutions['thumbnail']['h'];
 
-		// update/create/remove media items in index
-		$this->updateMediaItemsIndex();
-		// update/create/remove playlists in index
-		$this->updatePlaylistsIndex();
+		// the indexes must be updated in this order to prevent future reindexes being triggered
+		// e.g updating a show index may result in some playlists being queued for reindex,
+		// and updating a playlst index may result in some media items being queued for reindex.
 		// update/create/remove shows in index
 		$this->updateShowsIndex();
+		// update/create/remove playlists in index
+		$this->updatePlaylistsIndex();
+		// update/create/remove media items in index
+		$this->updateMediaItemsIndex();
 		$this->info('Done.');
 	}
 
 	private function updateMediaItemsIndex() {
 		$entries = [];
 		$entryIdsToRemove = [];
-		$changedMediaItems = MediaItem::with("playlists", "playlists.show")->needsReindexing()->get();
+		// in a transaction to make sure that version number that is returned is not one that
+		// has been increased during a transaction which is stil in progress
+		// mysql transaction isolation level should be REPEATABLE READ which will ensure that
+		// the version number that is returned is the old one if it's currently being updated somewhere else,
+		// until the update that is happening somewhere else is complete.
+		$changedMediaItems = DB::transaction(function() {
+			return MediaItem::with("playlists", "playlists.show")->needsReindexing()->get();
+		});
 		foreach($changedMediaItems as $mediaItem) {
 			if ($mediaItem->getIsAccessible()) {
 				$entries[] = $this->getMediaItemData($mediaItem, $this->coverArtWidth, $this->coverArtHeight);
@@ -86,7 +97,9 @@ class UpdateSearchIndexCommand extends Command {
 	private function updatePlaylistsIndex() {
 		$entries = [];
 		$entryIdsToRemove = [];
-		$changedPlaylists = Playlist::with("show")->needsReindexing()->get();
+		$changedPlaylists = DB::transaction(function() {
+			return Playlist::with("show")->needsReindexing()->get();
+		});
 		foreach($changedPlaylists as $playlist) {
 			if ($playlist->getIsAccessibleToPublic()) {
 				$entries[] = $this->getPlaylistData($playlist, $this->coverArtWidth, $this->coverArtHeight);
@@ -102,7 +115,9 @@ class UpdateSearchIndexCommand extends Command {
 	private function updateShowsIndex() {
 		$entries = [];
 		$entryIdsToRemove = [];
-		$changedShows = Show::needsReindexing()->get();
+		$changedShows = DB::transaction(function() {
+			return Show::needsReindexing()->get();
+		});
 		foreach($changedShows as $show) {
 			if ($show->getIsAccessible()) {
 				$entries[] = $this->getShowData($show);
@@ -203,7 +218,9 @@ class UpdateSearchIndexCommand extends Command {
 
 	private function updateModelVersionNumbers($models) {
 		foreach($models as $item) {
-			$item->current_search_index_version = intval($item->pending_search_index_version);
+			// the act of saving will increment the pending_search_index_version number
+			// therefore set the number to 1 more than the current pending value so that after the save it's correct
+			$item->current_search_index_version = intval($item->pending_search_index_version)+1;
 			if (!$item->save()) {
 				throw(new Exception("Error updating model version numbers."));
 			}
