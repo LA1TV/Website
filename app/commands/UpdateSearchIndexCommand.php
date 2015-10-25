@@ -1,17 +1,20 @@
 <?php namespace uk\co\la1tv\website\commands;
 
-use Illuminate\Console\Command;
+use Indatus\Dispatcher\Scheduling\ScheduledCommand;
+use Indatus\Dispatcher\Scheduling\Schedulable;
+use Indatus\Dispatcher\Drivers\Cron\Scheduler;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Elasticsearch;
 use Config;
 use Exception;
 use DB;
+use DebugHelpers;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\Show;
 
-class UpdateSearchIndexCommand extends Command {
+class UpdateSearchIndexCommand extends ScheduledCommand {
 
 	/**
 	 * The console command name.
@@ -42,12 +45,30 @@ class UpdateSearchIndexCommand extends Command {
 	}
 
 	/**
+     * When a command should run
+     *
+     * @param Scheduler $scheduler
+     * @return \Indatus\Dispatcher\Scheduling\Schedulable
+     */
+	public function schedule(Schedulable $scheduler)
+	{
+		// run every 5 minutes
+		return $scheduler->everyMinutes(5);
+	}
+
+	/**
 	 * Execute the console command.
 	 *
 	 * @return mixed
 	 */
 	public function fire()
 	{
+
+		if (!DebugHelpers::shouldSiteBeLive()) {
+			$this->info('Not running because site should not be live at the moment.');
+			return;
+		}
+
 		$this->info('Updating search index.');
 
 		$this->esClient = Elasticsearch\ClientBuilder::create()
