@@ -622,9 +622,9 @@ class MediaItem extends MyEloquent {
 	
 	public function scopeNotAccessible($q) {
 		return $q->where(function($q) {
-			$q->where("enabled", false)->orWhereHas("playlists", function($q2) {
-				$q2->notAccessibleToPublic();
-			})->orWhere(function($q2) {
+			$q->where("enabled", false)->whereHas("playlists", function($q2) {
+				$q2->accessibleToPublic();
+			}, "=", 0)->orWhere(function($q2) {
 				$q2->has("sideBannerFile", ">", 0)
 				->whereHas("sideBannerFile", function($q3) {
 					$q3->finishedProcessing(false);
@@ -668,6 +668,10 @@ class MediaItem extends MyEloquent {
 
 	public function scopeNeedsReindexing($q) {
 		return $q->whereRaw("`media_items`.`pending_search_index_version` != `media_items`.`current_search_index_version`");
+	}
+
+	public function scopeUpToDateInIndex($q) {
+		return $q->whereRaw("`media_items`.`pending_search_index_version` = `media_items`.`current_search_index_version`");
 	}
 	
 	public function getDates() {

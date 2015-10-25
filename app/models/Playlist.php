@@ -512,4 +512,8 @@ class Playlist extends MyEloquent {
 	public function scopeNeedsReindexing($q) {
 		return $q->whereRaw("`playlists`.`pending_search_index_version` != `playlists`.`current_search_index_version`");
 	}
+
+	public function scopeUpToDateInIndex($q) {
+		return $q->whereRaw("`playlists`.`pending_search_index_version` = `playlists`.`current_search_index_version`");
+	}
 }

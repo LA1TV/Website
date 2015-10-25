@@ -112,6 +112,10 @@ class Show extends MyEloquent {
 	public function scopeNeedsReindexing($q) {
 		return $q->whereRaw("`shows`.`pending_search_index_version` != `shows`.`current_search_index_version`");
 	}
+
+	public function scopeUpToDateInIndex($q) {
+		return $q->whereRaw("`shows`.`pending_search_index_version` = `shows`.`current_search_index_version`");
+	}
 	
 	// scopes to contain shows that are considered as active.
 	// A show is active when: 
