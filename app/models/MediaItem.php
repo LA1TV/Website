@@ -593,31 +593,61 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
-			$q2->accessibleToPublic();
-		})->where(function($q2) {
-			$q2->has("sideBannerFile", "=", 0)
-			->orWhereHas("sideBannerFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("sideBannerFillFile", "=", 0)
-			->orWhereHas("sideBannerFillFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("coverFile", "=", 0)
-			->orWhereHas("coverFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("coverArtFile", "=", 0)
-			->orWhereHas("coverArtFile", function($q3) {
-				$q3->finishedProcessing();
+		return $q->where(function($q) {
+			$q->where("enabled", true)->whereHas("playlists", function($q2) {
+				$q2->accessibleToPublic();
+			})->where(function($q2) {
+				$q2->has("sideBannerFile", "=", 0)
+				->orWhereHas("sideBannerFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("sideBannerFillFile", "=", 0)
+				->orWhereHas("sideBannerFillFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("coverFile", "=", 0)
+				->orWhereHas("coverFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("coverArtFile", "=", 0)
+				->orWhereHas("coverArtFile", function($q3) {
+					$q3->finishedProcessing();
+				});
 			});
 		});
 	}
 	
+	public function scopeNotAccessible($q) {
+		return $q->where(function($q) {
+			$q->where("enabled", false)->orWhereHas("playlists", function($q2) {
+				$q2->notAccessibleToPublic();
+			})->orWhere(function($q2) {
+				$q2->has("sideBannerFile", ">", 0)
+				->whereHas("sideBannerFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("sideBannerFillFile", ">", 0)
+				->whereHas("sideBannerFillFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("coverFile", ">", 0)
+				->whereHas("coverFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("coverArtFile", ">", 0)
+				->whereHas("coverArtFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			});
+		});
+	}
+
 	// A media item is active when:
 	//						it's scheduled publish time is not too old (configured in config)
 	//						the scheduled publish time is before some time in the future (configured in config)

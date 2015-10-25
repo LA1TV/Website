@@ -425,38 +425,69 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function scopeAccessible($q) {
+		return $q->where(function($q) {
+			$q->where("enabled", true)->where(function($q2) {
+				$q2->has("show", "=", 0)
+				->orWhereHas("show", function($q3) {
+					$q3->accessible();
+				});
+			})->where(function($q2) {
+				$q2->has("sideBannerFile", "=", 0)
+				->orWhereHas("sideBannerFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("sideBannerFillFile", "=", 0)
+				->orWhereHas("sideBannerFillFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("coverFile", "=", 0)
+				->orWhereHas("coverFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("coverArtFile", "=", 0)
+				->orWhereHas("coverArtFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			});
+		});
+	}
 
-		return $q->where("enabled", true)->where(function($q2) {
-			$q2->has("show", "=", 0)
-			->orWhereHas("show", function($q3) {
-				$q3->accessible();
-			});
-		})->where(function($q2) {
-			$q2->has("sideBannerFile", "=", 0)
-			->orWhereHas("sideBannerFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("sideBannerFillFile", "=", 0)
-			->orWhereHas("sideBannerFillFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("coverFile", "=", 0)
-			->orWhereHas("coverFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("coverArtFile", "=", 0)
-			->orWhereHas("coverArtFile", function($q3) {
-				$q3->finishedProcessing();
+	public function scopeNotAccessible($q) {
+		return $q->where(function($q) {
+			$q->where("enabled", false)->orWhere(function($q2) {
+				$q2->has("show", ">", 0)
+				->whereHas("show", function($q3) {
+					$q3->notAccessible();
+				});
+			})->orWhere(function($q2) {
+				$q2->has("sideBannerFile", ">", 0)
+				->whereHas("sideBannerFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("sideBannerFillFile", ">", 0)
+				->whereHas("sideBannerFillFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("coverFile", ">", 0)
+				->whereHas("coverFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("coverArtFile", ">", 0)
+				->whereHas("coverArtFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
 			});
 		});
 	}
 	
 	// returns true if this playlist should be accessible to the public.
 	public function getIsAccessibleToPublic() {
-	
 		if (!$this->getIsAccessible()) {
 			return false;
 		}
@@ -465,7 +496,13 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function scopeAccessibleToPublic($q) {
-		return $q->accessible()->where("scheduled_publish_time", "<", Carbon::now());
+		return $q->accessible()->where("scheduled_publish_time", "<=", Carbon::now());
+	}
+
+	public function scopeNotAccessibleToPublic($q) {
+		return $q->where(function($q) {
+			$q->notAccessible()->orWhere("scheduled_publish_time", ">", Carbon::now());
+		});
 	}
 	
 	public function scopeSearch($q, $value) {

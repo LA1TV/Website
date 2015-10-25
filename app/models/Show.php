@@ -131,6 +131,10 @@ class Show extends MyEloquent {
 	public function scopeAccessible($q) {
 		return $q->where("enabled", true);
 	}
+
+	public function scopeNotAccessible($q) {
+		return $q->where("enabled", false);
+	}
 	
 	public function isDeletable() {
 		return $this->playlists()->count() === 0;
