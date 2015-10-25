@@ -196,8 +196,8 @@ class File extends MyEloquent {
 		return $this->in_use && $this->getFinishedProcessing();
 	}
 	
-	public function scopeFinishedProcessing($q) {
-		return $q->where("process_state", 1);
+	public function scopeFinishedProcessing($q, $finished=true) {
+		return $q->where("process_state", $finished ? "=" : "!=", 1);
 	}
 	
 	// returns a uri to the file if the file has finished processing and is in_use

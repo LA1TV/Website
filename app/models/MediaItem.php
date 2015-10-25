@@ -15,7 +15,7 @@ use Facebook;
 class MediaItem extends MyEloquent {
 	
 	protected $table = 'media_items';
-	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled');
+	protected $fillable = array('name', 'description', 'enabled', 'scheduled_publish_time', 'email_notifications_enabled', 'likes_enabled', 'comments_enabled', 'pending_search_index_version', 'current_search_index_version', 'in_index');
 	protected $appends = array("related_items_for_reorderable_list", "related_items_for_input", "credits_for_reorderable_list", "credits_for_input", "scheduled_publish_time_for_input", "promoted");
 	
 	protected static function boot() {
@@ -25,7 +25,27 @@ class MediaItem extends MyEloquent {
 			if ($model->enabled && is_null($model->scheduled_publish_time)) {
 				throw(new Exception("A MediaItem which is enabled must have a scheduled publish time."));
 			}
+
+			// transaction ended in "saved" event
+			// needed to make sure if search index version number is incremented it
+			// takes effect at the same time that the rest of the media item is updated
+			DB::beginTransaction();
+
+			// assume that something has changed and force ths item to be reindexed
+			$a = MediaItem::find(intval($model->id));
+			// $a may be null if this item is currently being created
+			// when the item is being created pending_search_index_version defaults to 1
+			// meaning the item will be indexed
+			if (!is_null($a)) {
+				// make sure get latest version number. The version in $model might have changed before the transaction started
+				$currentPendingIndexVersion = intval($a->pending_search_index_version);
+				$model->pending_search_index_version = $currentPendingIndexVersion+1;
+			}
 			return true;
+		});
+
+		self::saved(function($model) {
+			DB::commit();
 		});
 	}
 	
@@ -573,31 +593,61 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function scopeAccessible($q) {
-		return $q->where("enabled", true)->whereHas("playlists", function($q2) {
-			$q2->accessibleToPublic();
-		})->where(function($q2) {
-			$q2->has("sideBannerFile", "=", 0)
-			->orWhereHas("sideBannerFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("sideBannerFillFile", "=", 0)
-			->orWhereHas("sideBannerFillFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("coverFile", "=", 0)
-			->orWhereHas("coverFile", function($q3) {
-				$q3->finishedProcessing();
-			});
-		})->where(function($q2) {
-			$q2->has("coverArtFile", "=", 0)
-			->orWhereHas("coverArtFile", function($q3) {
-				$q3->finishedProcessing();
+		return $q->where(function($q) {
+			$q->where("enabled", true)->whereHas("playlists", function($q2) {
+				$q2->accessibleToPublic();
+			})->where(function($q2) {
+				$q2->has("sideBannerFile", "=", 0)
+				->orWhereHas("sideBannerFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("sideBannerFillFile", "=", 0)
+				->orWhereHas("sideBannerFillFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("coverFile", "=", 0)
+				->orWhereHas("coverFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})->where(function($q2) {
+				$q2->has("coverArtFile", "=", 0)
+				->orWhereHas("coverArtFile", function($q3) {
+					$q3->finishedProcessing();
+				});
 			});
 		});
 	}
 	
+	public function scopeNotAccessible($q) {
+		return $q->where(function($q) {
+			$q->where("enabled", false)->whereHas("playlists", function($q2) {
+				$q2->accessibleToPublic();
+			}, "=", 0)->orWhere(function($q2) {
+				$q2->has("sideBannerFile", ">", 0)
+				->whereHas("sideBannerFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("sideBannerFillFile", ">", 0)
+				->whereHas("sideBannerFillFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("coverFile", ">", 0)
+				->whereHas("coverFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			})->orWhere(function($q2) {
+				$q2->has("coverArtFile", ">", 0)
+				->whereHas("coverArtFile", function($q3) {
+					$q3->finishedProcessing(false);
+				});
+			});
+		});
+	}
+
 	// A media item is active when:
 	//						it's scheduled publish time is not too old (configured in config)
 	//						the scheduled publish time is before some time in the future (configured in config)
@@ -614,6 +664,14 @@ class MediaItem extends MyEloquent {
 	
 	public function scopeSearch($q, $value) {
 		return $value === "" ? $q : $q->whereContains(array("name", "description"), $value);
+	}
+
+	public function scopeNeedsReindexing($q) {
+		return $q->whereRaw("`media_items`.`pending_search_index_version` != `media_items`.`current_search_index_version`");
+	}
+
+	public function scopeUpToDateInIndex($q) {
+		return $q->whereRaw("`media_items`.`pending_search_index_version` = `media_items`.`current_search_index_version`");
 	}
 	
 	public function getDates() {

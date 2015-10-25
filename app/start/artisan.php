@@ -4,6 +4,9 @@ use uk\co\la1tv\website\commands\MediaItemEmailsSendLiveShortlyCommand;
 use uk\co\la1tv\website\commands\MediaItemEmailsSendVodAvailableCommand;
 use uk\co\la1tv\website\commands\DvrBridgeServiceSendPingsCommand;
 use uk\co\la1tv\website\commands\DvrBridgeServiceRemoveDvrForVodCommand;
+use uk\co\la1tv\website\commands\CreateSearchIndexCommand;
+use uk\co\la1tv\website\commands\SearchIndexCheckForItemsCommand;
+use uk\co\la1tv\website\commands\UpdateSearchIndexCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +23,7 @@ Artisan::add(new MediaItemEmailsSendLiveShortlyCommand());
 Artisan::add(new MediaItemEmailsSendVodAvailableCommand());
 Artisan::add(new DvrBridgeServiceSendPingsCommand());
 Artisan::add(new DvrBridgeServiceRemoveDvrForVodCommand());
+Artisan::add(new CreateSearchIndexCommand());
+// this should appear before UpdateSearchIndexCommand so that it will always run before it when scheduled to run at the same time
+Artisan::add(new SearchIndexCheckForItemsCommand());
+Artisan::add(new UpdateSearchIndexCommand());
