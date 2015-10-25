@@ -8,7 +8,7 @@ use DB;
 class Show extends MyEloquent {
 
 	protected $table = 'shows';
-	protected $fillable = array('name', 'enabled', 'description', 'pending_search_index_version', 'current_search_index_version');
+	protected $fillable = array('name', 'enabled', 'description', 'pending_search_index_version', 'current_search_index_version', 'in_index');
 	
 	protected static function boot() {
 		parent::boot();

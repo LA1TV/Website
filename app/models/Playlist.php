@@ -12,7 +12,7 @@ use DB;
 class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
-	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no', 'pending_search_index_version', 'current_search_index_version');
+	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no', 'pending_search_index_version', 'current_search_index_version', 'in_index');
 	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_list", "playlist_content_for_input", "custom_uri_name");
 	
 	protected static function boot() {

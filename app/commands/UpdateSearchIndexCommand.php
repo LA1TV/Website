@@ -93,8 +93,7 @@ class UpdateSearchIndexCommand extends ScheduledCommand {
 	}
 
 	private function updateMediaItemsIndex() {
-		$entries = [];
-		$entryIdsToRemove = [];
+		$entries = ["toAdd"=>[], "toRemove"=>[]];
 		// in a transaction to make sure that version number that is returned is not one that
 		// has been increased during a transaction which is stil in progress
 		// mysql transaction isolation level should be REPEATABLE READ which will ensure that
@@ -105,85 +104,91 @@ class UpdateSearchIndexCommand extends ScheduledCommand {
 		});
 		foreach($changedMediaItems as $mediaItem) {
 			if ($mediaItem->getIsAccessible()) {
-				$entries[] = $this->getMediaItemData($mediaItem, $this->coverArtWidth, $this->coverArtHeight);
+				$entries["toAdd"][] = ["model"=>$mediaItem, "data"=>$this->getMediaItemData($mediaItem, $this->coverArtWidth, $this->coverArtHeight)];
 			}
 			else {
 				// this item is no longer accessible so remove it from the index
-				$entryIdsToRemove[] = intval($mediaItem->id);
+				$entries["toRemove"][] = ["model"=>$mediaItem];
 			}
 		}
-		$this->syncIndexType("mediaItem", new MediaItem(), $changedMediaItems, $entries, $entryIdsToRemove);
+		$this->syncIndexType("mediaItem", new MediaItem(), $entries);
 	}
 
 	private function updatePlaylistsIndex() {
-		$entries = [];
-		$entryIdsToRemove = [];
+		$entries = ["toAdd"=>[], "toRemove"=>[]];
 		$changedPlaylists = DB::transaction(function() {
 			return Playlist::with("show")->needsReindexing()->get();
 		});
 		foreach($changedPlaylists as $playlist) {
 			if ($playlist->getIsAccessibleToPublic()) {
-				$entries[] = $this->getPlaylistData($playlist, $this->coverArtWidth, $this->coverArtHeight);
+				$entries["toAdd"][] = ["model"=>$playlist, "data"=>$this->getPlaylistData($playlist, $this->coverArtWidth, $this->coverArtHeight)];
 			}
 			else {
 				// this item is no longer accessible so remove it from the index
-				$entryIdsToRemove[] = intval($playlist->id);
+				$entries["toRemove"][] = ["model"=>$playlist];
 			}
 		}
-		$this->syncIndexType("playlist", new Playlist(), $changedPlaylists, $entries, $entryIdsToRemove);
+		$this->syncIndexType("playlist", new Playlist(), $entries);
 	}
 
 	private function updateShowsIndex() {
-		$entries = [];
-		$entryIdsToRemove = [];
+		$entries = ["toAdd"=>[], "toRemove"=>[]];
 		$changedShows = DB::transaction(function() {
 			return Show::needsReindexing()->get();
 		});
 		foreach($changedShows as $show) {
 			if ($show->getIsAccessible()) {
-				$entries[] = $this->getShowData($show);
+				$entries["toAdd"][] = ["model"=>$show, "data"=>$this->getShowData($show)];
 			}
 			else {
 				// this item is no longer accessible so remove it from the index
-				$entryIdsToRemove[] = intval($show->id);
+				$entries["toRemove"][] = ["model"=>$show];
 			}
 		}
-		$this->syncIndexType("show", new Show(), $changedShows, $entries, $entryIdsToRemove);
+		$this->syncIndexType("show", new Show(), $entries);
 	}
 
 	private function updateIndexType($type, $entries) {
-		if (count($entries) > 0) {
+		if (count($entries["toAdd"]) > 0) {
 			// https://www.elastic.co/guide/en/elasticsearch/client/php-api/2.0/_indexing_documents.html
 			$params = ["body"	=> []];
-			foreach($entries as $a) {
+			foreach($entries["toAdd"] as $a) {
+				$data = $a['data'];
 				$params["body"][] = [
 					'index'	=> [
 						'_index' => 'website',
 						'_type' => $type,
-						'_id' => $a["id"]
+						'_id' => $data["id"]
 					]
 				];
-				$params["body"][] = $a;
-				$this->info('Indexing "'.$type.'" with id '.$a["id"].'.');
+				$params["body"][] = $data;
+				$this->info('Indexing "'.$type.'" with id '.$data["id"].'.');
 			}
 			$response = $this->esClient->bulk($params);
 
-			if (count($response["items"]) !== count($entries) || $response["errors"]) {
+			if (count($response["items"]) !== count($entries["toAdd"]) || $response["errors"]) {
 				throw(new Exception("Something went wrong indexing items."));
 			}
 		}
 	}
 
-	private function syncIndexType($type, $model, $changedModels, $entries, $entryIdsToRemove) {
+	private function syncIndexType($type, $model, $entries) {
 		$this->updateIndexType($type, $entries);
 		// get the ids of everything stored in index
 		$ids = $this->getIdsInIndexType($type);
 		// get models with those ids from the datase
 		$removedModelIds = $this->getNonexistantModelIds($model, $ids);
-		$entryIdsToRemove = array_unique(array_merge($entryIdsToRemove, $removedModelIds));
+		$entryIdsToRemove = $removedModelIds;
+		foreach($entries["toRemove"] as $a) {
+			$model = $a["model"];
+			$id = intval($model->id);
+			if (!in_array($id, $entryIdsToRemove)) {
+				$entryIdsToRemove[] = $id;
+			}
+		}
 		$this->removeFromIndexType($type, $entryIdsToRemove);
 		// this must be the last thing to happen to make sure version numbers are only updated if there are no errors
-		$this->updateModelVersionNumbers($changedModels);
+		$this->updateModelVersionNumbers($entries);
 	}
 
 	private function removeFromIndexType($type, $ids) {
@@ -237,7 +242,18 @@ class UpdateSearchIndexCommand extends ScheduledCommand {
 		return array_diff($ids, $foundModelIds);
 	}
 
-	private function updateModelVersionNumbers($models) {
+	private function updateModelVersionNumbers($entries) {
+		$models = [];
+		foreach($entries["toAdd"] as $a) {
+			$model = $a["model"];
+			$model->in_index = true;
+			$models[] = $model;
+		}
+		foreach($entries["toRemove"] as $a) {
+			$model = $a["model"];
+			$model->in_index = false;
+			$models[] = $model;
+		}
 		foreach($models as $item) {
 			// the act of saving will increment the pending_search_index_version number
 			// therefore set the number to 1 more than the current pending value so that after the save it's correct
