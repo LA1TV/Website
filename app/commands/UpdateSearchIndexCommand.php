@@ -181,6 +181,10 @@ class UpdateSearchIndexCommand extends ScheduledCommand {
 		$entryIdsToRemove = $removedModelIds;
 		foreach($entries["toRemove"] as $a) {
 			$model = $a["model"];
+			if (!$model->in_index) {
+				// we know the item is already not in the index
+				continue;
+			}
 			$id = intval($model->id);
 			if (!in_array($id, $entryIdsToRemove)) {
 				$entryIdsToRemove[] = $id;

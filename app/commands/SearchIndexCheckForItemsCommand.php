@@ -60,11 +60,45 @@ class SearchIndexCheckForItemsCommand extends ScheduledCommand {
 		}
 
 		$this->info('Checking for items that should be reindexed.');
+		$this->checkPlaylistsForReindex();
+		$this->checkMediaItemsForReindex();
 
-	
 		$this->info('Done.');
 	}
 
+	private function checkPlaylistsForReindex() {
+		// check for media items which which should be reindexed because their accessibiliy has changed
+		$playlistsToReindex = Playlist::upToDateInIndex()->where(function($q) {
+			$q->where(function($q) {
+				$q->accessibleToPublic()->where("in_index", false);
+			})->orWhere(function($q) {
+				$q->notAccessibleToPublic()->where("in_index", true);
+			});
+		})->get();
+
+		foreach($playlistsToReindex as $a) {
+			// touching will increment the version number
+			$a->touch();
+			$this->info("Playlist with id ".$a->id." queued for reindex.");
+		}
+	}
+
+	private function checkMediaItemsForReindex() {
+		// check for media items which which should be reindexed because their accessibiliy has changed
+		$mediaItemsToReindex = MediaItem::upToDateInIndex()->where(function($q) {
+			$q->where(function($q) {
+				$q->accessible()->where("in_index", false);
+			})->orWhere(function($q) {
+				$q->notAccessible()->where("in_index", true);
+			});
+		})->get();
+
+		foreach($mediaItemsToReindex as $a) {
+			// touching will increment the version number
+			$a->touch();
+			$this->info("Media item with id ".$a->id." queued for reindex.");
+		}
+	}
 	
 	/**
 	 * Get the console command arguments.

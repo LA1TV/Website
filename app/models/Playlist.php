@@ -49,6 +49,10 @@ class Playlist extends MyEloquent {
 				// make sure get latest version number. The version in $model might have changed before the transaction started
 				$currentPendingIndexVersion = intval($a->pending_search_index_version);
 				$model->pending_search_index_version = $currentPendingIndexVersion+1;
+				// also force reindex of all items that are currently in the playlist
+				foreach($a->mediaItems as $mediaItem) {
+					$mediaItem->touch();
+				}
 			}
 			return true;
 		});
