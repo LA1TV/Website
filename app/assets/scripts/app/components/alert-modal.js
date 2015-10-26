@@ -34,7 +34,15 @@ define(["jquery", "lib/bootstrap"], function($) {
 		var $modalFooter = $("<div />").addClass("modal-footer");
 		var $footerDoneBtn = $("<button />").addClass("btn btn-primary").prop("type", "button").text("OK");
 		
-		var $msg = $("<div />").text(msg);
+		var $msg = $("<div />");
+		var lines = msg.split("\n");
+		for(var i=0; i<lines.length; i++) {
+			var line = lines[i];
+			if (line === "") {
+				continue;
+			}
+			$msg.append($("<p />").text(line));
+		}
 		$modalBody.append($msg);
 		
 		
