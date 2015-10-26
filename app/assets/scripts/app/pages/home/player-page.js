@@ -9,10 +9,11 @@ define([
 	"./auto-continue-manager",
 	"../../device-detection",
 	"../../helpers/ajax-helpers",
+	"../../components/alert-modal",
 	"lib/jquery.cookie",
 	"lib/jquery.visible",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection, AjaxHelpers) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection, AjaxHelpers, AlertModal) {
 	
 	var playerController = null;
 		
@@ -55,11 +56,13 @@ define([
 		$pageContainer.find(".admin-panel").each(function() {
 			
 			var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
-			
+			var recordingForVod = $(this).attr("data-beingrecordedforvod") === "1";
+
 			$(this).find(".stream-state-row .state-buttons").each(function() {
 				var self = this;
 				
 				var buttonsData = jQuery.parseJSON($(this).attr("data-buttonsdata"));
+				var recordReminderModal = null;
 				var chosenId = parseInt($(this).attr("data-chosenid"));
 				var currentId = chosenId;
 				var buttonGroup = new ButtonGroup(buttonsData, true, {
@@ -90,11 +93,23 @@ define([
 					}).always(function(data, textStatus, jqXHR) {
 						if (jqXHR.status === 200) {
 							currentId = data.streamState;
+							if (currentId === 2 && recordingForVod) {
+								// just gone live and meant to be recording for VOD
+								// show message to remind user that they should be recording
+								showRecordReminder();
+							}
 						}
 						else {
 							buttonGroup.setState({id: currentId});
 						}
 					});
+				}
+
+				function showRecordReminder() {
+					if (!recordReminderModal) {
+						recordReminderModal = new AlertModal("Press Record!", "This media item is marked as being recorded for VOD.\nMAKE SURE YOU'VE PRESSED RECORD!");
+					}
+					recordReminderModal.show(true);
 				}
 			});
 			

@@ -229,10 +229,6 @@ class PlayerController extends HomeBaseController {
 			"tableData"		=> $relatedItemsTableData
 		)) : null;
 		
-		$scheduledPublishTime = $currentMediaItem->scheduled_publish_time;
-		$hasAccessibleLiveStream = !is_null($liveStreamItem) && $liveStreamItem->getIsAccessible();
-		$hasLiveLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 2;
-		$hasFinishedLiveStream = $hasAccessibleLiveStream && intval($liveStreamItem->getResolvedStateDefinition()->id) === 3;
 		$currentMediaItem->load("videoItem", "videoItem.chapters");
 		$videoItem = $currentMediaItem->videoItem;
 		$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
@@ -269,6 +265,7 @@ class PlayerController extends HomeBaseController {
 		$view->registerLikeUri = PlayerHelpers::getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
+		$view->beingRecordedForVod = !is_null($liveStreamItem) ? (boolean) $liveStreamItem->being_recorded : null;
 		$view->autoPlay = $autoPlay;
 		$view->vodPlayStartTime = is_null($vodPlayStartTime) ? "" : $vodPlayStartTime;
 		$view->vodChapters = $vodChapters;

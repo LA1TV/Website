@@ -7,7 +7,7 @@
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
 		<?php if (!is_null($streamControlData)): ?>
-		<div class="admin-panel panel-group custom-accordian" data-grouptogether="0" data-mediaitemid="<?=e($mediaItemId);?>">
+		<div class="admin-panel panel-group custom-accordian" data-grouptogether="0" data-mediaitemid="<?=e($mediaItemId);?>" data-beingrecordedforvod="<?=$beingRecordedForVod?"1":"0"?>">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">Admin Stream Control</h4>
