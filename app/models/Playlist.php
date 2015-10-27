@@ -13,7 +13,7 @@ class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
 	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no', 'pending_search_index_version', 'current_search_index_version', 'in_index');
-	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_orderable_list", "playlist_content_for_input", "custom_uri_name");
+	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_reorderable_list", "playlist_content_for_input", "related_items_for_reorderable_list", "related_items_for_input", "custom_uri_name");
 	
 	protected static function boot() {
 		parent::boot();
@@ -87,7 +87,7 @@ class Playlist extends MyEloquent {
 	}
 	
 	public function relatedItems() {
-		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_playlist', 'media_item_id', 'related_media_item_id')->withPivot('position');
+		return $this->belongsToMany(self::$p.'MediaItem', 'related_item_to_playlist', 'playlist_id', 'related_media_item_id')->withPivot('position');
 	}
 	
 	public function itemsRelatedTo() {
@@ -173,7 +173,7 @@ class Playlist extends MyEloquent {
 		return MediaItem::generateInputValueForAjaxSelectReorderableList($this->getPlaylistContentIdsForOrderableList());
 	}
 	
-	public function getPlaylistContentForOrderableListAttribute() {
+	public function getPlaylistContentForReorderableListAttribute() {
 		return MediaItem::generateInitialDataForAjaxSelectReorderableList($this->getPlaylistContentIdsForOrderableList());
 	}
 	
@@ -190,8 +190,8 @@ class Playlist extends MyEloquent {
 		return MediaItem::generateInputValueForAjaxSelectReorderableList($this->getRelatedItemsIdsForOrderableList());
 	}
 	
-	public function getRelatedItemsForOrderableListAttribute() {
-		return MediaItem::generateInputValueForAjaxSelectReorderableList($this->getRelatedItemsIdsForOrderableList());
+	public function getRelatedItemsForReorderableListAttribute() {
+		return MediaItem::generateInitialDataForAjaxSelectReorderableList($this->getRelatedItemsIdsForOrderableList());
 	}
 	
 	public function getUri() {
