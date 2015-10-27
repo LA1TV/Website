@@ -131,9 +131,9 @@ class PlaylistsController extends PlaylistsBaseController {
 		
 		if (!$formSubmitted) {
 			$additionalFormData['playlistContentInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_input");
-			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_orderable_list");
+			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_reorderable_list");
 			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_input");
-			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_orderable_list");
+			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_reorderable_list");
 		}
 		else {
 			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));

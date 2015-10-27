@@ -94,7 +94,7 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public function playlistsRelatedTo() {
-		return $this->belongsToMany(self::$p.'Playlist', 'related_item_to_playlist', 'related_media_item_id', 'media_item_id')->withPivot('position');
+		return $this->belongsToMany(self::$p.'Playlist', 'related_item_to_playlist', 'related_media_item_id', 'playlist_id')->withPivot('position');
 	}
 	
 	public function emailTasksMediaItem() {
