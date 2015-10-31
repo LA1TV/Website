@@ -857,7 +857,8 @@ define([
 					loop: false,
 					chromeless: disableControls,
 					autoPlay: queuedPlayerTimeStartPlaying,
-					mediacontrol: {seekbar: "#ff0000"}
+					mediacontrol: {seekbar: "#ff0000"},
+					disableVideoTagContextMenu: true
 				};
 				
 				if (chosenUri.uriWithDvrSupport) {
