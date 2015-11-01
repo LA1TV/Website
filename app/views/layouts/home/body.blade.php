@@ -21,7 +21,7 @@
 					@yield('navbarList', '')
 				</ul>
 				<div class="navbar-right">
-					<button class="navbar-btn btn btn-link" type="button"><span class="glyphicon glyphicon-search"></span></button>
+					<button class="navbar-btn btn btn-link search-btn" type="button"><span class="glyphicon glyphicon-search"></span></button>
 					<a class="btn <?=!$loggedIn ? "btn-primary" : "btn-default"?> navbar-btn" href="<?=e($loggedIn ? $accountUri : $loginUri);?>"><?=$loggedIn ? '<span class="glyphicon glyphicon-cog"></span>' : '<img width="14" height="14" src="'.asset("assets/img/fb-icon.png").'"/> Login'?></a>
 				</div>
 			</div>

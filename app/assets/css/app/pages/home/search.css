@@ -1,3 +1,21 @@
-.search {
-	
+.search-dialog {
+	display: block;
+	width: 400px;
+	background-color: #ffffff;
+	border-color: #ff0000;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.search-dialog .search-input-container {
+	padding: 10px;
+}
+
+.search-dialog .results-container {
+	max-height: 300px;
+	overflow: auto;
+}
+
+.search-dialog .results-container .search-result {
+	margin: 5px 10px;
 }
