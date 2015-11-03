@@ -18,8 +18,11 @@ define([
 
 		var searchQueryUri = $self.attr("data-search-query-uri");
 		var pendingQueryTimeoutId = null;
-		var pendingQueryDelay = 300;
+		var pendingQueryDelay = 250;
 		var currentTerm = "";
+		var currentSearchInputVal = "";
+		var termBeingQueried = null;
+
 		var queryXhr = null;
 		var visible = false;
 		var $results = [];
@@ -68,6 +71,7 @@ define([
 			cancelPendingQuery();
 			cancelQuery();
 			$searchInput.val("");
+			currentSearchInputVal = "";
 			$results = [];
 			currentTerm = "";
 			renderResults();
@@ -84,18 +88,36 @@ define([
 				$resultsContainer = $("<div />").addClass("results-container");
 				$searchDialog.append($resultsContainer);
 
-				$searchInput.keyup(function(e) {
-					if (e.keyCode === 13) {
-						// enter key
-						submitQuery($searchInput.val());
+				(function() {
+
+					$searchInput.keyup(function(e) {
+						if (e.keyCode === 13) {
+							// enter key
+							runIfChanged(function(txt) {
+								submitQuery(txt);
+							});
+						}
+						else {
+							runIfChanged(function(txt) {
+								prepareQuery(txt);
+							});
+						}
+					});
+					$searchInput.change(function() {
+						runIfChanged(function(txt) {
+							submitQuery(txt);
+						});
+					});
+
+					// calls the callback with the text if it's changed
+					function runIfChanged(callback) {
+						var val = $searchInput.val();
+						if (val !== currentSearchInputVal) {
+							currentSearchInputVal = val;
+							callback(val);
+						}
 					}
-					else {
-						prepareQuery($searchInput.val());
-					}
-				});
-				$searchInput.change(function() {
-					submitQuery($searchInput.val());
-				});
+				})()
 
 				$searchDialog.keydown(function(e) {
 					if (e.keyCode === 38) {
@@ -206,25 +228,47 @@ define([
 				pendingQueryTimeoutId = null;
 				submitQuery(term);
 			}, pendingQueryDelay);
+			renderResults();
 		}
 
 		function cancelPendingQuery() {
 			if (pendingQueryTimeoutId !== null) {
 				clearTimeout(pendingQueryTimeoutId);
 				pendingQueryTimeoutId = null;
+				renderResults();
 			}
 		}
 
 		function submitQuery(term) {
+
+			if (termBeingQueried !== null) {
+				// there is already a query in progress
+				if (termBeingQueried === term) {
+					// let the current query continue
+					return;
+				}
+			}
+			else {
+				if (currentTerm === term) {
+					// the current results are already for this term
+					renderResults();
+					return;
+				}
+			}
+
 			// abort a previous query if there is one
 			cancelQuery();
 			cancelPendingQuery();
+
+			termBeingQueried = term;
 
 			if (term === "") {
 				// pretend there are now results if not entered term
 				onResults([]);
 				return;
 			}
+
+			renderResults();
 
 			queryXhr = jQuery.ajax(searchQueryUri, {
 				cache: false,
@@ -246,6 +290,7 @@ define([
 
 			function onResults(results) {
 				$results = [];
+				termBeingQueried = null;
 				currentTerm = term;
 				for(var i=0; i<results.length; i++) {
 					var result = results[i];
@@ -270,6 +315,7 @@ define([
 			if (queryXhr) {
 				// abort a previous query if there is one
 				queryXhr.abort();
+				termBeingQueried = null;
 			}
 		}
 
@@ -279,22 +325,26 @@ define([
 			resultIndexUnderCursor = null;
 			resultIndexWithArrowKeys = null;
 
-			if (currentTerm === "") {
-				// don't need to show anything
-				$searchDialog.attr("data-results-visible", "0");
+			var resultsAreaVisible = true;
+			if (termBeingQueried !== null || pendingQueryTimeoutId !== null) {
+				// there is a query in progress, or about to happen
+				var $msg = $("<div />").addClass("no-results-msg").text("Loading...");
+				$resultsContainer.append($msg);
+			}
+			else if (currentTerm === "") {
+				resultsAreaVisible = false;
 			}
 			else if ($results.length > 0) {
-				$searchDialog.attr("data-results-visible", "1");
 				for (var i=0; i<$results.length; i++) {
 					var $result = $results[i]; 
 					$resultsContainer.append($result);
 				}
 			}
 			else {
-				$searchDialog.attr("data-results-visible", "1");
 				var $msg = $("<div />").addClass("no-results-msg").text("No results found.")
 				$resultsContainer.append($msg);
 			}
+			$searchDialog.attr("data-results-visible", resultsAreaVisible ? "1":"0");
 		}
 	});
 });

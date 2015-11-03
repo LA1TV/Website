@@ -5,6 +5,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Elasticsearch;
 use Config;
+use DB;
 
 class CreateSearchIndexCommand extends Command {
 
@@ -40,6 +41,12 @@ class CreateSearchIndexCommand extends Command {
 	public function fire()
 	{
 		$this->info('Creating search index.');
+
+		// (re)set all version numbers in the database to make sure everything gets indexed
+		$data = ["pending_search_index_version" => 1, "current_search_index_version" => 0];
+		DB::table("media_items")->update($data);
+		DB::table("playlists")->update($data);
+		DB::table("shows")->update($data);
 
 		$esClient = Elasticsearch\ClientBuilder::create()
 			->setHosts(Config::get("search.hosts"))

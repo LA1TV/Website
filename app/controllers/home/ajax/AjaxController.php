@@ -60,14 +60,94 @@ class AjaxController extends BaseController {
 			'type' => 'mediaItem',
 			'body' => [
 				'query' => [
-					'bool' => [
-						'should' => [[
-							'multi_match' => [
-								'query' => $term,
-								'fields' => ['name^2', 'description'],
-								'type' => 'phrase_prefix'
+					'dis_max' => [
+						'tie_breaker' => 0.3,
+						'queries' => [
+							[
+								'dis_max' => [
+									'tie_breaker' => 0.3,
+									'queries' => [
+										[
+											'nested' => [
+												'path' => 'playlists',
+												'query' => [
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.generatedName^10', 'playlists.generatedName.std'],
+														'boost' => 13
+													]
+												]
+											]
+										],
+										[
+											'multi_match' => [
+												'query' => $term,
+												'type' => 'most_fields',
+												'fields' => ['description^10', 'description.std'],
+												'boost' => 11
+											]
+										]
+									]
+								]
+							],
+							[
+								'nested' => [
+									'path' => 'playlists.playlist',
+									'query' => [
+										'dis_max' => [
+											'tie_breaker' => 0.3,
+											'queries' => [
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.name^10', 'playlists.playlist.name.std'],
+														'boost' => 8
+													]
+												],
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.description^10', 'playlists.playlist.description.std'],
+														'boost' => 6
+													]
+												]
+											]
+										]
+									]
+								]
+							],
+							[
+								'nested' => [
+									'path' => 'playlists.playlist.show',
+									'query' => [
+										'dis_max' => [
+											'tie_breaker' => 0.3,
+											'queries' => [
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.show.name^10', 'playlists.playlist.show.name.std'],
+														'boost' => 3
+													]
+												],
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.show.description^10', 'playlists.playlist.show.description.std'],
+														'boost' => 1
+													]
+												]
+											]
+										]
+									]
+								]
 							]
-						]]
+						]
 					]
 				]
 			]
