@@ -42,7 +42,7 @@ class CreateSearchIndexCommand extends Command {
 		$this->info('Creating search index.');
 
 		$esClient = Elasticsearch\ClientBuilder::create()
-			->setHosts(Config::get("search.hosts")))
+			->setHosts(Config::get("search.hosts"))
 			->build();
 
 		$showProperties = [
@@ -51,10 +51,24 @@ class CreateSearchIndexCommand extends Command {
 				'index' => 'no'
 			],
 			'name' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'description' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'url' => [
 				'type' => 'string',
@@ -68,10 +82,24 @@ class CreateSearchIndexCommand extends Command {
 				'index' => 'no'
 			],
 			'name' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'description' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'scheduledPublishTime' => [
 				'type' => 'date'
@@ -101,10 +129,24 @@ class CreateSearchIndexCommand extends Command {
 				'index' => 'no'
 			],
 			'name' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'description' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'scheduledPublishTime' => [
 				'type' => 'date'
@@ -113,7 +155,14 @@ class CreateSearchIndexCommand extends Command {
 				'type' => 'nested',
 				'properties' => [
 					'generatedName' => [
-						'type' => 'string'
+						'type' => 'string',
+						'analyzer' => 'english',
+						'fields' => [
+							'std' => [
+								'type' => 'string',
+								'analyzer' => 'standard',
+							]
+						]
 					],
 					'coverArtUri' => [
 						'type' => 'string',
