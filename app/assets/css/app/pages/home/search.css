@@ -8,6 +8,13 @@
 	box-shadow: 0 6px 12px rgba(0,0,0,.175);
 }
 
+@media (max-width: 767px) {
+	/* the dialog should never be visible on a window of this size */
+	.search-dialog {
+		display: none;
+	}
+}
+
 .search-dialog .search-input-container {
 	padding: 4px 10px;
 	background-color: #ffffff;
