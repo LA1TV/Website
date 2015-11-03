@@ -72,7 +72,7 @@ class UpdateSearchIndexCommand extends ScheduledCommand {
 		$this->info('Updating search index.');
 
 		$this->esClient = Elasticsearch\ClientBuilder::create()
-			->setHosts(array("127.0.0.1:9200"))
+			->setHosts(Config::get("search.hosts"))
 			->build();
 
 		// the width and height of images to retrieve for the cover art

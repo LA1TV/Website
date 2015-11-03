@@ -35,6 +35,7 @@ return array(
 	"player_register_watching_base_uri"	=> URL::to("/") . "/player/register-watching",
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"player_base_uri"	=> URL::to("/") . "/player",
+	"search_query_uri"	=> URL::to("/") . "/ajax/search",
 	"embed_default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"embed_player_info_base_uri"	=> URL::to("/") . "/mediaitem/player-info",
 	"embed_player_register_watching_base_uri"	=> URL::to("/") . "/mediaitem/register-watching",
