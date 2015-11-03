@@ -39,6 +39,20 @@ class AjaxController extends BaseController {
 		
 		return Response::json(array("success"=>true));
 	}
+
+	public function postSearch() {
+		$term = isset($_POST["term"]) ? $_POST["term"] : "";
+
+		$result = array(
+			"title"			=> "Some title",
+			"description"	=> "Some description",
+			"thumbnailUri"	=> "some url"
+		);
+		
+		return Response::json(array(
+			"results"	=> array()
+		));
+	}
 	
 	private function formatLogDate($a, $milliseconds=false) {
 		$a = intval($a);

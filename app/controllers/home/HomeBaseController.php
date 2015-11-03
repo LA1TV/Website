@@ -86,6 +86,7 @@ class HomeBaseController extends BaseController {
 		$view->openGraphProperties = $finalOpenGraphProperties;
 		$view->twitterProperties = $finalTwitterProperties;
 		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
+		$view->searchQueryAjaxUri = Config::get("custom.search_query_uri");
 		
 		$view->loginUri = URLHelpers::generateLoginUrl();
 		$view->homeUri = Config::get("custom.base_url");

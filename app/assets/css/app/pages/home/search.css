@@ -8,7 +8,20 @@
 }
 
 .search-dialog .search-input-container {
-	padding: 10px;
+	padding: 4px 10px;
+}
+
+.search-dialog[data-results-visible="1"] .search-input-container {
+	border-bottom-color: #cccccc;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+.search-dialog .search-input-container .search-input {
+	border-style: none;
+	outline: none;
+	width: 100%;
+	height: 34px;
 }
 
 .search-dialog .results-container {
@@ -31,6 +44,12 @@
 	display: inline-block;
 	height: 100%;
 	vertical-align: top;
+}
+
+.search-dialog .results-container .no-results-msg {
+	text-align: center;
+	font-style: italic;
+	margin: 10px;
 }
 
 .search-dialog .results-container .theThumbnail {
