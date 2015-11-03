@@ -49,6 +49,7 @@ require.config({
 			"app/synchronised-time",
 			"app/jslink",
 			"app/confirmation-msg",
+			"app/pages/home/search",
 			"app/pages/home/player-page",
 			"app/pages/home/live-stream-page",
 			"app/pages/home/account-page",

@@ -4,6 +4,8 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Elasticsearch;
+use Config;
+use DB;
 
 class CreateSearchIndexCommand extends Command {
 
@@ -40,8 +42,14 @@ class CreateSearchIndexCommand extends Command {
 	{
 		$this->info('Creating search index.');
 
+		// (re)set all version numbers in the database to make sure everything gets indexed
+		$data = ["pending_search_index_version" => 1, "current_search_index_version" => 0];
+		DB::table("media_items")->update($data);
+		DB::table("playlists")->update($data);
+		DB::table("shows")->update($data);
+
 		$esClient = Elasticsearch\ClientBuilder::create()
-			->setHosts(array("127.0.0.1:9200"))
+			->setHosts(Config::get("search.hosts"))
 			->build();
 
 		$showProperties = [
@@ -50,10 +58,24 @@ class CreateSearchIndexCommand extends Command {
 				'index' => 'no'
 			],
 			'name' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'description' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'url' => [
 				'type' => 'string',
@@ -67,10 +89,24 @@ class CreateSearchIndexCommand extends Command {
 				'index' => 'no'
 			],
 			'name' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'description' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'scheduledPublishTime' => [
 				'type' => 'date'
@@ -100,10 +136,24 @@ class CreateSearchIndexCommand extends Command {
 				'index' => 'no'
 			],
 			'name' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'description' => [
-				'type' => 'string'
+				'type' => 'string',
+				'analyzer' => 'english',
+				'fields' => [
+					'std' => [
+						'type' => 'string',
+						'analyzer' => 'standard',
+					]
+				]
 			],
 			'scheduledPublishTime' => [
 				'type' => 'date'
@@ -112,7 +162,14 @@ class CreateSearchIndexCommand extends Command {
 				'type' => 'nested',
 				'properties' => [
 					'generatedName' => [
-						'type' => 'string'
+						'type' => 'string',
+						'analyzer' => 'english',
+						'fields' => [
+							'std' => [
+								'type' => 'string',
+								'analyzer' => 'standard',
+							]
+						]
 					],
 					'coverArtUri' => [
 						'type' => 'string',
