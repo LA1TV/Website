@@ -6,6 +6,8 @@ use Response;
 use FormHelpers;
 use Config;
 use Session;
+use Elasticsearch;
+use App;
 
 class AjaxController extends BaseController {
 
@@ -41,16 +43,56 @@ class AjaxController extends BaseController {
 	}
 
 	public function postSearch() {
+		$enabled = Config::get("search.enabled");
+
+		if (!$enabled) {
+			return App::abort(404);
+		}
+
 		$term = isset($_POST["term"]) ? $_POST["term"] : "";
 
-		$result = array(
-			"title"			=> "Some title",
-			"description"	=> "Some description",
-			"thumbnailUri"	=> "some url"
-		);
+		$client = Elasticsearch\ClientBuilder::create()
+		->setHosts(Config::get("search.hosts"))
+		->build();
+
+		$params = [
+			'index' => 'website',
+			'type' => 'mediaItem',
+			'body' => [
+				'query' => [
+					'bool' => [
+						'should' => [[
+							'multi_match' => [
+								'query' => $term,
+								'fields' => ['name^2', 'description'],
+								'type' => 'phrase_prefix'
+							]
+						]]
+					]
+				]
+			]
+		];
+		
+		$result = $client->search($params);
+		if ($result["timed_out"]) {
+			App::abort(500); // server error
+		}
+
+		$results = array();
+		if ($result["hits"]["total"] > 0) {
+			foreach($result["hits"]["hits"] as $hit) {
+				$source = $hit["_source"];
+				$result = array(
+					"title"			=> $source["playlists"][0]["generatedName"],
+					"description"	=> $source["description"],
+					"thumbnailUri"	=> $source["playlists"][0]["coverArtUri"]
+				);
+				$results[] = $result;
+			}
+		}
 		
 		return Response::json(array(
-			"results"	=> array()
+			"results"	=> $results
 		));
 	}
 	

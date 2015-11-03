@@ -84,8 +84,14 @@ define([
 				$resultsContainer = $("<div />").addClass("results-container");
 				$searchDialog.append($resultsContainer);
 
-				$searchInput.keyup(function() {
-					prepareQuery($searchInput.val());
+				$searchInput.keyup(function(e) {
+					if (e.keyCode === 13) {
+						// enter key
+						submitQuery($searchInput.val());
+					}
+					else {
+						prepareQuery($searchInput.val());
+					}
 				});
 				$searchInput.change(function() {
 					submitQuery($searchInput.val());
@@ -142,10 +148,15 @@ define([
 			var $thumb = $("<div />").addClass("theThumbnail").css("background-image", 'url("'+result.thumbnailUri+'")');
 			var $info = $("<div />").addClass("info");
 			var $title = $("<div />").addClass("title").text(result.title);
-			var $description = $("<div />").addClass("description").text(result.description);
+			var $description = null;
+			if (result.description) {
+				$description = $("<div />").addClass("description").text(result.description);
+			}
 			$result.append($thumb);
 			$info.append($title);
-			$info.append($description);
+			if ($description) {
+				$info.append($description);
+			}
 			$result.append($info);
 			return $result;
 		}
@@ -209,6 +220,12 @@ define([
 			cancelQuery();
 			cancelPendingQuery();
 
+			if (term === "") {
+				// pretend there are now results if not entered term
+				onResults([]);
+				return;
+			}
+
 			queryXhr = jQuery.ajax(searchQueryUri, {
 				cache: false,
 				dataType: "json",
@@ -233,6 +250,16 @@ define([
 				for(var i=0; i<results.length; i++) {
 					var result = results[i];
 					var $result = buildResult(result);
+					(function(resultIndex) {
+						$result.hover(function() {
+							resultIndexUnderCursor = resultIndex;
+							resultIndexWithArrowKeys = null;
+							updateChosenResult();
+						}, function() {
+							resultIndexUnderCursor = null;
+							updateChosenResult();
+						});
+					})(i);
 					$results.push($result);
 				}
 				renderResults();
@@ -249,12 +276,15 @@ define([
 		function renderResults() {
 			$resultsContainer.empty();
 
+			resultIndexUnderCursor = null;
+			resultIndexWithArrowKeys = null;
+
 			if (currentTerm === "") {
 				// don't need to show anything
 				$searchDialog.attr("data-results-visible", "0");
 			}
 			else if ($results.length > 0) {
-				$self.attr("data-results-visible", "1");
+				$searchDialog.attr("data-results-visible", "1");
 				for (var i=0; i<$results.length; i++) {
 					var $result = $results[i]; 
 					$resultsContainer.append($result);

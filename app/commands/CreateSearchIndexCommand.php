@@ -4,6 +4,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Elasticsearch;
+use Config;
 
 class CreateSearchIndexCommand extends Command {
 
@@ -41,7 +42,7 @@ class CreateSearchIndexCommand extends Command {
 		$this->info('Creating search index.');
 
 		$esClient = Elasticsearch\ClientBuilder::create()
-			->setHosts(array("127.0.0.1:9200"))
+			->setHosts(Config::get("search.hosts")))
 			->build();
 
 		$showProperties = [
