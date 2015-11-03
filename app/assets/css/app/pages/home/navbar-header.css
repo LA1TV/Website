@@ -16,6 +16,18 @@
 	height: 30px;
 }
 
+/*
+ * tempory until full search page implemented
+ * when full search page implemented the search button should
+ * link to this page when the screen is this small
+ * For now search is not supported on small screens
+ */
+@media (max-width: 767px) {
+	.navbar .search-btn {
+		display: none;
+	}
+}
+
 @media (min-width: 768px) {
 	.navbar-collapse {
 		padding-left: 0;
@@ -27,7 +39,7 @@
 	}
 
 	.navbar .navbar-nav > li > a {
-		padding-left: 7px;
-		padding-right: 7px;
+		padding-left: 6px;
+		padding-right: 6px;
 	}
 }

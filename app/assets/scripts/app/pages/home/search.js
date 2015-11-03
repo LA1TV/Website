@@ -159,7 +159,13 @@ define([
 					element: $searchDialog,
 					target: $self,
 					attachment: 'top right',
-					targetAttachment: 'bottom right'
+					targetAttachment: 'bottom right',
+					constraints: [
+						{
+							to: $(document)[0],
+							attachment: 'element'
+						}
+					]
 				});
 			}
 			return $searchDialog;
@@ -180,6 +186,9 @@ define([
 				$info.append($description);
 			}
 			$result.append($info);
+			$result.click(function() {
+				window.location = result.url;
+			});
 			return $result;
 		}
 
@@ -328,7 +337,9 @@ define([
 			var resultsAreaVisible = true;
 			if (termBeingQueried !== null || pendingQueryTimeoutId !== null) {
 				// there is a query in progress, or about to happen
-				var $msg = $("<div />").addClass("no-results-msg").text("Loading...");
+				var $msg = $("<div />").addClass("msg loading-msg");
+				$msg.append($("<img />").attr("src", PageData.get("assetsBaseUrl")+'assets/admin/img/loading.gif'));
+				$msg.append($("<span />").text(" Loading..."));
 				$resultsContainer.append($msg);
 			}
 			else if (currentTerm === "") {
@@ -341,7 +352,7 @@ define([
 				}
 			}
 			else {
-				var $msg = $("<div />").addClass("no-results-msg").text("No results found.")
+				var $msg = $("<div />").addClass("msg no-results-msg").text("No results found.")
 				$resultsContainer.append($msg);
 			}
 			$searchDialog.attr("data-results-visible", resultsAreaVisible ? "1":"0");

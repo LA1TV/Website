@@ -41,7 +41,7 @@
 }
 
 .search-dialog .results-container .search-result.chosen {
-	background-color: #ffaeae;
+	background-color: #ffdada;
 }
 
 .search-dialog .results-container .theThumbnail, .search-dialog .results-container .info {
@@ -50,7 +50,7 @@
 	vertical-align: top;
 }
 
-.search-dialog .results-container .no-results-msg {
+.search-dialog .results-container .msg {
 	text-align: center;
 	font-style: italic;
 	margin: 10px;

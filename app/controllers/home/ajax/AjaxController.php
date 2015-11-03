@@ -68,16 +68,11 @@ class AjaxController extends BaseController {
 									'tie_breaker' => 0.3,
 									'queries' => [
 										[
-											'nested' => [
-												'path' => 'playlists',
-												'query' => [
-													'multi_match' => [
-														'query' => $term,
-														'type' => 'most_fields',
-														'fields' => ['playlists.generatedName^10', 'playlists.generatedName.std'],
-														'boost' => 13
-													]
-												]
+											'multi_match' => [
+												'query' => $term,
+												'type' => 'most_fields',
+												'fields' => ['name^10', 'name.std'],
+												'boost' => 13
 											]
 										],
 										[
@@ -163,9 +158,10 @@ class AjaxController extends BaseController {
 			foreach($result["hits"]["hits"] as $hit) {
 				$source = $hit["_source"];
 				$result = array(
-					"title"			=> $source["playlists"][0]["generatedName"],
+					"title"			=> $source["name"],
 					"description"	=> $source["description"],
-					"thumbnailUri"	=> $source["playlists"][0]["coverArtUri"]
+					"thumbnailUri"	=> $source["playlists"][0]["coverArtUri"],
+					"url"			=> $source["playlists"][0]["url"]
 				);
 				$results[] = $result;
 			}
