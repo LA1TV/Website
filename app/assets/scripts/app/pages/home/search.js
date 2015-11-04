@@ -54,8 +54,6 @@ define([
 			toggle();
 		});
 
-
-
 		function toggle() {
 			visible ? hide() : show();
 		}
@@ -101,10 +99,7 @@ define([
 					$searchInput.keyup(function(e) {
 						if (e.keyCode === 13) {
 							// enter key
-							runIfChanged(function(txt) {
-								e.preventDefault();
-								submitQuery(txt);
-							});
+							submitQuery(txt);
 						}
 						else {
 							runIfChanged(function(txt) {
