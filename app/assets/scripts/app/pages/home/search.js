@@ -3,6 +3,7 @@ define([
 	"lib/tether",
 	"../../helpers/ajax-helpers",
 	"../../page-data",
+	"lib/jquery.hotkeys",
 	"lib/domReady!"
 ], function($, Tether, AjaxHelpers, PageData) {
 
@@ -44,9 +45,16 @@ define([
 			}
 		});
 
+		$(document).bind('keydown', 'ctrl+s', function(e) {
+			e.preventDefault();
+			show();	
+		});
+
 		$(this).click(function() {
 			toggle();
 		});
+
+
 
 		function toggle() {
 			visible ? hide() : show();
