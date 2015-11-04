@@ -94,6 +94,7 @@ define([
 						if (e.keyCode === 13) {
 							// enter key
 							runIfChanged(function(txt) {
+								e.preventDefault();
 								submitQuery(txt);
 							});
 						}
@@ -117,7 +118,7 @@ define([
 							callback(val);
 						}
 					}
-				})()
+				})();
 
 				$searchDialog.keydown(function(e) {
 					if (e.keyCode === 38) {
@@ -151,6 +152,13 @@ define([
 						}
 						updateChosenResult();
 						scrollResultIntoView($results[resultIndexWithArrowKeys]);
+					}
+					else if (e.keyCode === 13) {
+						// enter key
+						// if a result is chosen then simulate a click on it
+						if (chosenResultIndex !== null) {
+							$results[chosenResultIndex].click();
+						}
 					}
 				});
 
