@@ -193,22 +193,10 @@ class UploadManager {
 		return $returnVal;
 	}
 	
-	// attempts to move the file, but if this fails then attempts to copy
-	// followed by a delete of the source file
+	// rename() is unreliable when the file may be being moved accross volumes
+	// this does a copy operation and then a delete instead
 	// if the source file fails to be be deleted TRUE will still be returned
 	private static function moveFile($src, $dest) {
-		$success = false;
-		try {
-			$success = rename($src, $dest);
-		}
-		catch(Exception $e) {
-			// intentional
-		}
-		if ($success) {
-			// the move operation completed succesfully
-			return true;
-		}
-		// try copying then deleting instead
 		if (copy($src, $dest)) {
 			// now delete the source
 			unlink($src);
