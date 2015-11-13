@@ -82,21 +82,18 @@ class LiveStreamsController extends LiveStreamsBaseController {
 	
 		$streamAccessible = $liveStream->getIsAccessible();
 		$streamUris = null;
-		if ($streamAccessible) {
-			$streamUris = array();
-			foreach($liveStream->getQualitiesWithUris(array("live", "nativeDvr")) as $qualityWithUris) {
-				$streamUris[] = array(
-					"quality"	=> array(
-						"id"	=> intval($qualityWithUris['qualityDefinition']->id),
-						"name"	=> $qualityWithUris['qualityDefinition']->name
-					),
-					"uris"		=> $qualityWithUris['uris']
-				);
-			}
-			
-			$streamUris = json_encode($streamUris);
+		$streamUris = array();
+		foreach($liveStream->getQualitiesWithUris(array("live", "nativeDvr")) as $qualityWithUris) {
+			$streamUris[] = array(
+				"quality"	=> array(
+					"id"	=> intval($qualityWithUris['qualityDefinition']->id),
+					"name"	=> $qualityWithUris['qualityDefinition']->name
+				),
+				"uris"		=> $qualityWithUris['uris']
+			);
 		}
-	
+		
+		$streamUris = json_encode($streamUris);
 	
 		$view = View::make('home.admin.livestreams.player');
 		$view->streamName = $streamName;
