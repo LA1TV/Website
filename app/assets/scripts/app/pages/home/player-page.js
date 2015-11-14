@@ -80,6 +80,15 @@ define([
 						return;
 					}
 					
+					if (id === 1) {
+						// going to "Not Live"
+						if (!confirmedNotLive()) {
+							// reselect current button
+							buttonGroup.setState({id: currentId});
+							return;
+						}
+					}
+
 					jQuery.ajax(PageData.get("baseUrl")+"/admin/media/admin-stream-control-stream-state/"+mediaItemId, {
 						cache: false,
 						dataType: "json",
@@ -110,6 +119,10 @@ define([
 						recordReminderModal = new AlertModal("Press Record!", "This media item is marked as being recorded for VOD.\nMAKE SURE YOU'VE PRESSED RECORD!");
 					}
 					recordReminderModal.show(true);
+				}
+
+				function confirmedNotLive() {
+					return confirm("Are you sure you want to do this?\n\nIf the show has finished you want the \"Show Over\" button.\n\nTHIS WILL DELETE ANY DVR RECORDING IF THERE IS ONE.");
 				}
 			});
 			
