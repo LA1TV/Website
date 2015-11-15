@@ -20,11 +20,11 @@ define([
 		var trianglifyPng = null;
 		var getTrianglifyPng = function() {
 			if (!trianglifyPng) {
-				var xColours = ["#ff0000", "#67000d", "#cb181d", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#cb181d", "#67000d", "#ff0000"];
+				var xColours = ["#ff0000", "#600000", "#300000", "#600000", "#ff0000"];
 				var pattern = Trianglify({
 					width: 1000, // should be more than enough
 					height: 1400, // matches height of user uploaded side banners,
-					cell_size: 75,
+					cell_size: 60,
 					variance: 0.75,
 					seed: Math.floor(Date.now() / 60000), // new pattern every minute
 					x_colors: xColours,
