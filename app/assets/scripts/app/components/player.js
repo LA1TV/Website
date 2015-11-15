@@ -306,6 +306,7 @@ define([
 		var queuedThumbnails = [];
 		var queuedPlayerRoundStartTimeToSafeRegion = null;
 		var playerUris = null;
+		var shortlistedPlayerUris = null;
 		var queuedPlayerUris = [];
 		// id of timer that repeatedly calls updateAd() in order for countdown to work
 		var updateAdTimerId = null;
@@ -625,6 +626,8 @@ define([
 			// true if the external stream slide should be shown instead of the player
 			var showExternalStreamSlide = queuedPlayerType === "live" && queuedExternalLiveStreamUrl !== null;
 			
+			updateShortlistedPlayerUris();
+
 			// determine if the player has to be reloaded or the settings can be applied in place.
 			var reloadRequired = playerType !== queuedPlayerType || showPlayer !== queuedShowPlayer || (!showExternalStreamSlide && (playerPreload !== queuedPlayerPreload || havePlayerUrisChanged() || disableControls !== queuedDisableControls)) || externalStreamSlideShown !== showExternalStreamSlide;
 			
@@ -754,7 +757,7 @@ define([
 			}
 			
 			// set the sources
-			playerUris = queuedPlayerUris;
+			playerUris = shortlistedPlayerUris;
 			
 			if (playerType === "vod") {
 				// add sources that support dvr first so taken as preferred choice in browser
@@ -1075,17 +1078,41 @@ define([
 			}
 		}
 		
+		// updates the short list which has any uris that should
+		// not be considered for the current player type stripped out
+		// if new urls are provided to this Player component, but the urls in
+		// the short list don't change, then the player will not be reloaded
+		function updateShortlistedPlayerUris() {
+			if (queuedPlayerType === "live") {
+				// clappr supports dvr, so remove any urls that aren't dvr from the list
+				// providing there is at least one dvr url
+				var dvrUris = [];
+				for (var i=0; i<queuedPlayerUris.length; i++) {
+					var uri = queuedPlayerUris[i];
+					if (uri.uriWithDvrSupport) {
+						dvrUris.push(uri);
+					}
+				}
+				shortlistedPlayerUris = dvrUris.length > 0 ? dvrUris : queuedPlayerUris;
+			}
+			else {
+				shortlistedPlayerUris = queuedPlayerUris;
+			}
+		}
+
+		// this performs a check against the short listed uris, as these are the only
+		// ones which will be considered
 		function havePlayerUrisChanged() {
-			if ((queuedPlayerUris === null && playerUris !== null) || (queuedPlayerUris !== null && playerUris === null)) {
+			if ((shortlistedPlayerUris === null && playerUris !== null) || (shortlistedPlayerUris !== null && playerUris === null)) {
 				return true;
 			}
 			
-			if (playerUris.length !== queuedPlayerUris.length) {
+			if (playerUris.length !== shortlistedPlayerUris.length) {
 				return true;
 			}
 			
-			for (var i=0; i<queuedPlayerUris.length; i++) {
-				var queuedUri = queuedPlayerUris[i];
+			for (var i=0; i<shortlistedPlayerUris.length; i++) {
+				var queuedUri = shortlistedPlayerUris[i];
 				var uri = playerUris[i];
 				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type || uri.uriWithDvrSupport !== queuedUri.uriWithDvrSupport) {
 					return true;
