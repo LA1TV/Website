@@ -1,5 +1,6 @@
 .side-banners-container-container {
 	opacity: 0; /* changed in js (fades in) */
+	position: relative;
 }
 
 .side-banners-container-container .side-banners-container {
@@ -34,7 +35,7 @@
 }
 
 .side-banners-container-container .side-banners-container .side-banner-container {
-	background-color: #ffffff;
+	background-color: #000000;
 	background-repeat: repeat-x;
 	background-attachment: scroll;
 	/* background-image set in js */
