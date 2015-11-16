@@ -233,7 +233,7 @@ class LiveStream extends MyEloquent {
 		// and if there is one register the user as watching that as well
 		$liveMediaItem = $this->getLiveMediaItem();
 		if (!is_null($liveMediaItem)) {
-			$liveMediaItem->registerWatching($playing);
+			$liveMediaItem->registerWatching($playing, null);
 		}
 		return true;
 	}
