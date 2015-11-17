@@ -1083,6 +1083,7 @@ define([
 		// if new urls are provided to this Player component, but the urls in
 		// the short list don't change, then the player will not be reloaded
 		function updateShortlistedPlayerUris() {
+			shortlistedPlayerUris = queuedPlayerUris;
 			if (queuedPlayerType === "live") {
 				// clappr supports dvr, so remove any urls that aren't dvr from the list
 				// providing there is at least one dvr url
@@ -1095,8 +1096,24 @@ define([
 				}
 				shortlistedPlayerUris = dvrUris.length > 0 ? dvrUris : queuedPlayerUris;
 			}
-			else {
-				shortlistedPlayerUris = queuedPlayerUris;
+			else if (queuedPlayerType === "vod") {
+				var isAndroid = /(android)/i.test(navigator.userAgent);
+				if (isAndroid) {
+					// some android devices seem to have issues
+					// with hls so remove hls streams (unless no other option)
+					// TODO remove this when figured out why hls isn't working
+					// when move to Clappr this might not be an issue anymore
+					var newUris = [];
+					for (var i=0; i<queuedPlayerUris.length; i++) {
+						var uri = queuedPlayerUris[i];
+						if (uri.type !== "application/x-mpegURL") {
+							newUris.push(uri);
+						}
+					}
+					if (newUris.length > 0) {
+						shortlistedPlayerUris = newUris;
+					}
+				}
 			}
 		}
 
