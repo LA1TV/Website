@@ -68,7 +68,7 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 			
 			$mediaItemsWantingEmail = array();
 			
-			$mediaItems = MediaItem::with("emailTasksMediaItem")->accessible()->whereHas("videoItem", function($q) {
+			$mediaItems = MediaItem::with("emailTasksMediaItem", "liveStreamItem")->accessible()->whereHas("videoItem", function($q) {
 				$q->live();
 			})->where("email_notifications_enabled", true)->where("sent_vod_available_email", false)->lockForUpdate()->get();
 			
@@ -97,7 +97,19 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 		
 		foreach($mediaItems as $a) {
 			$this->info("Building and sending email for media item with id ".$a->id." and name \"".$a->name."\" which has VOD which has now gone live.");
-			EmailHelpers::sendMediaItemEmail($a, '"{title}" Available Now From LA1:TV', "New content available!", "We now have new content available to watch on demand at our website.");
+			$title = null;
+			$message = null;
+			$liveStreamItem = $a->liveStreamItem;
+			$hasBeenLive = !is_null($liveStreamItem) && $liveStreamItem->isOver();
+			if ($hasBeenLive) {
+				$title = "Did you miss our live show?";
+				$message = "Watch it now on our website.";
+			}
+			else {
+				$title = "New content available!";
+				$message = "We now have new content available to watch on demand at our website.";
+			}
+			EmailHelpers::sendMediaItemEmail($a, '"{title}" Available Now From LA1:TV', $title, $message);
 			$this->info("Sent email to users.");
 		}
 		$this->info("Finished.");
