@@ -6,6 +6,8 @@ use Response;
 use FormHelpers;
 use Config;
 use Session;
+use Elasticsearch;
+use App;
 
 class AjaxController extends BaseController {
 
@@ -38,6 +40,136 @@ class AjaxController extends BaseController {
 		file_put_contents(Config::get("custom.js_log_file_path"), $logStr . "\r\n", FILE_APPEND | LOCK_EX);
 		
 		return Response::json(array("success"=>true));
+	}
+
+	public function postSearch() {
+		$enabled = Config::get("search.enabled");
+
+		if (!$enabled) {
+			return App::abort(404);
+		}
+
+		$term = isset($_POST["term"]) ? $_POST["term"] : "";
+
+		$client = Elasticsearch\ClientBuilder::create()
+		->setHosts(Config::get("search.hosts"))
+		->build();
+
+		$params = [
+			'index' => 'website',
+			'type' => 'mediaItem',
+			'body' => [
+				'query' => [
+					'dis_max' => [
+						'tie_breaker' => 0.3,
+						'queries' => [
+							[
+								'dis_max' => [
+									'tie_breaker' => 0.3,
+									'queries' => [
+										[
+											'multi_match' => [
+												'query' => $term,
+												'type' => 'most_fields',
+												'fields' => ['name^10', 'name.std'],
+												'boost' => 13
+											]
+										],
+										[
+											'multi_match' => [
+												'query' => $term,
+												'type' => 'most_fields',
+												'fields' => ['description^10', 'description.std'],
+												'boost' => 11
+											]
+										]
+									]
+								]
+							],
+							[
+								'nested' => [
+									'path' => 'playlists.playlist',
+									'query' => [
+										'dis_max' => [
+											'tie_breaker' => 0.3,
+											'queries' => [
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.name^10', 'playlists.playlist.name.std'],
+														'boost' => 8
+													]
+												],
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.description^10', 'playlists.playlist.description.std'],
+														'boost' => 6
+													]
+												]
+											]
+										]
+									]
+								]
+							],
+							[
+								'nested' => [
+									'path' => 'playlists.playlist.show',
+									'query' => [
+										'dis_max' => [
+											'tie_breaker' => 0.3,
+											'queries' => [
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.show.name^10', 'playlists.playlist.show.name.std'],
+														'boost' => 3
+													]
+												],
+												[
+													'multi_match' => [
+														'query' => $term,
+														'type' => 'most_fields',
+														'fields' => ['playlists.playlist.show.description^10', 'playlists.playlist.show.description.std'],
+														'boost' => 1
+													]
+												]
+											]
+										]
+									]
+								]
+							]
+						]
+					]
+				]
+			]
+		];
+		
+		$result = $client->search($params);
+		if ($result["timed_out"]) {
+			App::abort(500); // server error
+		}
+
+		$results = array();
+		if ($result["hits"]["total"] > 0) {
+			foreach($result["hits"]["hits"] as $hit) {
+				$source = $hit["_source"];
+				$result = array(
+					"title"			=> $source["name"],
+					"description"	=> $source["description"],
+					"thumbnailUri"	=> $source["playlists"][0]["coverArtUri"],
+					"url"			=> $source["playlists"][0]["url"]
+				);
+				$results[] = $result;
+			}
+		}
+		
+		return Response::json(array(
+			"results"	=> $results
+		));
 	}
 	
 	private function formatLogDate($a, $milliseconds=false) {

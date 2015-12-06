@@ -20,7 +20,12 @@
 				<ul class="nav navbar-nav">
 					@yield('navbarList', '')
 				</ul>
-				<a class="btn <?=!$loggedIn ? "btn-primary" : "btn-default"?> navbar-btn navbar-right" href="<?=e($loggedIn ? $accountUri : $loginUri);?>"><?=$loggedIn ? '<span class="glyphicon glyphicon-cog"></span>' : '<img width="14" height="14" src="'.asset("assets/img/fb-icon.png").'"/> Login'?></a>
+				<div class="navbar-right">
+					<?php if($searchEnabled): ?>
+					<button class="navbar-btn btn btn-link search-btn" type="button" data-search-query-uri="<?=e($searchQueryAjaxUri);?>"><span class="glyphicon glyphicon-search"></span></button>
+					<?php endif; ?>
+					<a class="btn <?=!$loggedIn ? "btn-primary" : "btn-default"?> navbar-btn" href="<?=e($loggedIn ? $accountUri : $loginUri);?>"><?=$loggedIn ? '<span class="glyphicon glyphicon-cog"></span>' : '<img width="14" height="14" src="'.asset("assets/img/fb-icon.png").'"/> Login'?></a>
+				</div>
 			</div>
 		</div>
 	</nav>

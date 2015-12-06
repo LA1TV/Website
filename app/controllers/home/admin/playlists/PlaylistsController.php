@@ -131,9 +131,9 @@ class PlaylistsController extends PlaylistsBaseController {
 		
 		if (!$formSubmitted) {
 			$additionalFormData['playlistContentInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_input");
-			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_orderable_list");
+			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_reorderable_list");
 			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_input");
-			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_orderable_list");
+			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_reorderable_list");
 		}
 		else {
 			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
@@ -229,7 +229,6 @@ class PlaylistsController extends PlaylistsBaseController {
 						
 					if (!$validator->fails()) {
 					
-					
 						// everything is good. save/create model
 						if (is_null($playlist)) {
 							$playlist = new Playlist();
@@ -288,11 +287,18 @@ class PlaylistsController extends PlaylistsBaseController {
 							}
 						}
 						
+						// touch so that their search index numbers will be incremented
+						// each media item in the search index has the playlists it's in stored with it
+						// so will therefore need reindexing
+						foreach($playlist->mediaItems as $a) {
+							$a->touch();
+						}
 						$playlist->mediaItems()->detach(); // detaches all
 						$ids = json_decode($formData['playlist-content'], true);
 						if (count($ids) > 0) {
 							$mediaItems = MediaItem::whereIn("id", $ids)->get();
 							foreach($mediaItems as $a) {
+								$a->touch(); // for same reason as touch above
 								$playlist->mediaItems()->attach($a, array("position"=>array_search(intval($a->id), $ids, true)));
 							}
 						}

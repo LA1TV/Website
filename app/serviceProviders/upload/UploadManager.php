@@ -101,7 +101,7 @@ class UploadManager {
 								}
 								// move the file providing the file record created successfully.
 								// it is important there's always a file record for each file.
-								if (rename($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
+								if (self::moveFile($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
 									// set ready_for_processing to true so that processing can start.
 									$fileDb->ready_for_processing = true;
 									$fileDb->save();
@@ -193,6 +193,18 @@ class UploadManager {
 		return $returnVal;
 	}
 	
+	// rename() is unreliable when the file may be being moved accross volumes
+	// this does a copy operation and then a delete instead
+	// if the source file fails to be be deleted TRUE will still be returned
+	private static function moveFile($src, $dest) {
+		if (copy($src, $dest)) {
+			// now delete the source
+			unlink($src);
+			return true;
+		}
+		return false;
+	}
+
 	// removes any files that no longer belong to a session
 	private function clearTempChunks() {
 		$sessionModels = SessionModel::get();

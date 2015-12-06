@@ -9,7 +9,8 @@
 		"facebook/php-sdk-v4" : "4.0.*",
 		"indatus/dispatcher": "1.4.*@dev",
 		"pda/pheanstalk": "2.0.*",
-		"roumen/feed": "2.8.*"
+		"roumen/feed": "2.8.*",
+		"elasticsearch/elasticsearch": "^2.0"
 	},
 	"autoload": {
 		"classmap": [

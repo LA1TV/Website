@@ -21,6 +21,16 @@ define([
 				}
 			}
 			
+			function canGoFullScreen() {
+				// === false to make sure fails safe if none of the properties exist
+				return !(
+					document.fullscreenEnabled === false ||
+					document.webkitFullscreenEnabled === false ||
+					document.mozFullScreenEnabled === false ||
+					document.msFullscreenEnabled === false
+				);
+			}
+
 			var self = this;
 			
 			var siteUri = $(this).attr("data-site-uri");
@@ -57,7 +67,7 @@ define([
 			var bottomBarMode = $(this).attr("data-hide-bottom-bar") === "1" ? "none" : "full";
 			var initialVodQualityId = $(this).attr("data-initial-vod-quality-id") === "" ? null : parseInt($(this).attr("data-initial-vod-quality-id"));
 			var initialStreamQualityId = $(this).attr("data-initial-stream-quality-id") === "" ? null : parseInt($(this).attr("data-initial-stream-quality-id"));
-			var disableFullScreen = $(this).attr("data-disable-full-screen") === "1";
+			var disableFullScreen = $(this).attr("data-disable-full-screen") === "1" || !canGoFullScreen();
 			var placeQualitySelectionComponentInPlayer = bottomBarMode === "none"; // if the bottom bar is not visible put the quality selection inside the player
 			var showTitleInPlayer = $(this).attr("data-show-title-in-player") === "1";
 			var disablePlayerControls = $(this).attr("data-disable-player-controls") === "1";

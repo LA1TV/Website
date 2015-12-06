@@ -3,8 +3,8 @@
 return array(
 	"site_description"	=> "Lancaster University's Student Union TV station.",
 	"home_redirect_url"	=> isset($_ENV['HOME_REDIRECT_URL']) ? $_ENV['HOME_REDIRECT_URL'] : null,
-	"files_location"	=> storage_path() . DIRECTORY_SEPARATOR ."files",
-	"file_chunks_location"	=> storage_path() . DIRECTORY_SEPARATOR ."file_chunks",
+	"files_location"	=> isset($_ENV['FILES_LOCATION']) ? $_ENV['FILES_LOCATION'] : storage_path() . DIRECTORY_SEPARATOR ."files",
+	"file_chunks_location"	=> isset($_ENV['FILE_CHUNKS_LOCATION']) ? $_ENV['FILE_CHUNKS_LOCATION'] : storage_path() . DIRECTORY_SEPARATOR ."file_chunks",
 	"items_per_page"	=> 12,
 	"base_url"			=> URL::to("/"),
 	"admin_base_url"	=> URL::to("/") . "/admin",
@@ -35,6 +35,7 @@ return array(
 	"player_register_watching_base_uri"	=> URL::to("/") . "/player/register-watching",
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"player_base_uri"	=> URL::to("/") . "/player",
+	"search_query_uri"	=> URL::to("/") . "/ajax/search",
 	"embed_default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"embed_player_info_base_uri"	=> URL::to("/") . "/mediaitem/player-info",
 	"embed_player_register_watching_base_uri"	=> URL::to("/") . "/mediaitem/register-watching",

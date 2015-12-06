@@ -1,0 +1,97 @@
+.search-dialog {
+	display: block;
+	width: 400px;
+	background-color: #ffffff;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+	box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+
+@media (max-width: 767px) {
+	/* the dialog should never be visible on a window of this size */
+	.search-dialog {
+		display: none;
+	}
+}
+
+.search-dialog .search-input-container {
+	padding: 4px 10px;
+	background-color: #ffffff;
+}
+
+.search-dialog[data-results-visible="1"] .search-input-container {
+	border-bottom-color: #ccc;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	background-color: #f3f3f3;
+}
+
+.search-dialog .search-input-container .search-input {
+	border-style: none;
+	outline: none;
+	width: 100%;
+	height: 34px;
+	background-color: transparent;
+}
+
+.search-dialog .results-container {
+	max-height: 300px;
+	overflow: auto;
+}
+
+.search-dialog .results-container .search-result {
+	padding: 0 10px;
+	margin-bottom: 3px;
+	height: 69px;
+	cursor: pointer;
+}
+
+.search-dialog .results-container .search-result.chosen {
+	background-color: #ffdada;
+}
+
+.search-dialog .results-container .theThumbnail, .search-dialog .results-container .info {
+	display: inline-block;
+	height: 100%;
+	vertical-align: top;
+}
+
+.search-dialog .results-container .msg {
+	text-align: center;
+	font-style: italic;
+	margin: 10px;
+}
+
+.search-dialog .results-container .theThumbnail {
+	width: 30%;
+	background-color: #000000 !important;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-position: center;
+	background-size: cover;
+}
+
+.search-dialog .results-container .info {
+	width: 70%;
+	padding-left: 7px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	overflow: hidden;
+}
+
+.search-dialog .results-container .info .title, .search-dialog .results-container .info .description {
+	display: -webkit-box;
+	text-overflow: ellipsis;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.search-dialog .results-container .info .title {
+	font-weight: bold;
+	-webkit-line-clamp: 1;
+}
+
+.search-dialog .results-container .info .description {
+	-webkit-line-clamp: 2;
+}
