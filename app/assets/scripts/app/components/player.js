@@ -2,14 +2,13 @@ define([
 	"jquery",
 	"../page-data",
 	"../fit-text-handler",
-	"../video-js",
 	"lib/clappr",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, PageData, FitTextHandler, videojs, Clappr, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, Clappr, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -146,18 +145,18 @@ define([
 		};
 		
 		this.getPlayerCurrentTime = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.currentTime();
+			if (playerType === "vod" || playerType === "live") {
+				if (clapprPlayer !== null) {
+					return clapprPlayer.getCurrentTime();
 				}
 			}
 			return null;
 		};
 		
 		this.getPlayerDuration = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.duration();
+			if (playerType === "vod" || playerType === "live") {
+				if (clapprPlayer !== null) {
+					return clapprPlayer.getDuration();
 				}
 			}
 			return null;
@@ -165,11 +164,7 @@ define([
 		
 		// returns the error if an error has occurred with playback or null otherwise.
 		this.getPlayerError = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.error();
-				}
-			}
+			// TODO implement for clappr
 			return null;
 		};
 		
@@ -180,12 +175,7 @@ define([
 		
 		// note when clappr is playing a live stream with dvr play appears to reset the play position to the live point
 		this.play = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					videoJsPlayer.play();
-				}
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				if (clapprPlayer !== null) {
 					clapprPlayer.play();
 				}
@@ -196,12 +186,7 @@ define([
 		// called instead of pause(). pause() will do nothing. Methods need adding to clappr to be able to check
 		// if it has enabled dvr or not first.
 		this.pause = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					videoJsPlayer.pause();
-				}
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				if (clapprPlayer !== null) {
 					clapprPlayer.pause();
 				}
@@ -209,12 +194,7 @@ define([
 		};
 		
 		this.paused = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.paused();
-				}
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				if (clapprPlayer !== null) {
 					// not the clappr isPlaying represents the intended state, not what the current state may be
 					// eg if the user clicks to seek to another part in the video the pause event will be fired,
@@ -226,38 +206,31 @@ define([
 			return null;
 		};
 		
-		this.hasEnded = function() {
-			if (playerType !== "vod" || videoJsPlayer === null) {
-				throw "Invalid operation.";
-			}
-			return videoJsPlayer.ended();
-		};
-		
 		// jump to a specific time (seconds) in the video if it's vod
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
-			if (videoJsPlayer !== null && playerType === "vod") {
+			if (clapprPlayer !== null && playerType === "vod") {
 				if (startPlaying) {
 					// some mobile devices (iphones) will not allow javascript to start playback unless
 					// it is triggered as a result of a user event. the play() call below  in the callback can become disconnected
 					// from this execution path because it has to wait for the loaded metadata event. If this code
 					// is executed as a result of a user event, then because this call is in the same execution path it
 					// makes ios happy.
-					videoJsPlayer.play();
+					clapprPlayer.play();
 				}
 				onPlayerLoadedMetadata(function() {
-					if (time > videoJsPlayer.duration()) {
+					if (time > clapprPlayer.getDuration()) {
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
 						return;
 					}
 					if (startPlaying) {
-						videoJsPlayer.play();
+						clapprPlayer.play();
 					}
 					// on ios this doesn't appear to work unless the video is already playing
 					// http://stackoverflow.com/a/13826802/1048589
 					// the work around involves waiting until the user plays which introduces more complexity
 					// because then the extra play event listener would need to be managed.
-					videoJsPlayer.currentTime(time);
+					clapprPlayer.seek(time);
 				});
 			}
 		};
@@ -312,7 +285,6 @@ define([
 		var updateAdTimerId = null;
 		var wasFullScreen = null;
 		var previousVolume = null;
-		var wasMuted = null;
 		
 		var $container = $("<div />").addClass("player-component embed-responsive");
 		if (responsive) {
@@ -341,8 +313,6 @@ define([
 		var $clickToWatchBtnContainer = null;
 		var $clickToWatchBtn = null;
 		
-		// contains reference to videojs player which is used for vod
-		var videoJsPlayer = null;
 		// contains reference to the clappr player which is used for streams
 		var clapprPlayer = null;
 		// reference to the dom element which contains the video tag
@@ -684,13 +654,13 @@ define([
 					title = queuedTitle;
 					titleLinkUriCallback = queuedTitleLinkUriCallback;
 					titleOpenInNewWindow = queuedTitleOpenInNewWindow;
-					updatePlayerTitle();
+					// TODO set title in title plugin
 				}
 				
 				// update the chapters
 				if (haveChaptersChanged()) {
 					chapters = queuedChapters;
-					updateVideoJsMarkers();
+					updateMarkers();
 				}
 				
 				// set the new time
@@ -698,25 +668,25 @@ define([
 					(function(startTime, startPlaying, roundToSafeRegion) {
 						if (playerType === "vod") {
 							onPlayerLoadedMetadata(function() {
-								if (startTime > videoJsPlayer.duration()) {
+								if (startTime > clapprPlayer.getDuration()) {
 									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
 									return;
 								}
 								else if (roundToSafeRegion) {
-									if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
+									if (startTime < 5 || startTime > clapprPlayer.getDuration() - 10) {
 										// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
 										startTime = 0;
 									}
 								}
 								if (startPlaying) {
-									videoJsPlayer.play();
+									clapprPlayer.play();
 								}
 								if (startTime !== 0) {
 									// if the time is 0 don't seek because seeking appears to replace the poster with the
 									// frame that has been seeked to
 									// in safari v8 seeking won't work unless the video is already playing, or the video 'preload' attribute is not `metadata`
 									// see https://github.com/LA1TV/Website/issues/619
-									videoJsPlayer.currentTime(startTime);
+									clapprPlayer.seek(startTime);
 								}
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
@@ -747,18 +717,11 @@ define([
 		// if the player already exists it destroys the current one first.
 		function createPlayer(playerExisted) {
 			$player = $("<div />").addClass("player embed-responsive-item");
-			var $video = null;
-			if (playerType === "vod") {
-				$video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
-				// disable browser context menu on video
-				$video.on('contextmenu', function(e) {
-					e.preventDefault();
-				});
-			}
-			
+
 			// set the sources
 			playerUris = shortlistedPlayerUris;
 			
+			/*
 			if (playerType === "vod") {
 				// add sources that support dvr first so taken as preferred choice in browser
 				for (var i=0; i<playerUris.length; i++) {
@@ -781,9 +744,12 @@ define([
 				}
 				$player.append($video);
 			}
+			*/
+			
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
-			if (playerType === "vod") {
+			if (playerType === "vod" || playerType === "live") {
+				/*
 				videoJsPlayer = videojs($video[0], {
 					width: "100%",
 					height: "100%",
@@ -838,6 +804,7 @@ define([
 				});
 			}
 			else if (playerType === "live") {
+				*/
 				// clappr can only take one uri with mime type so pick the first one with dvr,
 				// or first one otherwise
 				var chosenUri = playerUris[0];
@@ -878,43 +845,21 @@ define([
 				clapprPlayer.load(chosenUri.uri, chosenUri.type);
 				
 				// TODO append qualitySelectionComponent somewhere if provided
+				// TODO set heading
+
+				if (playerType === "vod") {
+					// TODO add thumbnails
+					// TODO add markers
+					// updateMarkers();
+				}
+
+				// TODO restore fullscreen, and volume
+
 			}
 			
 			updateFullScreenState();
-			
-			if (playerType === "vod") {
-				// initialise markers plugin
-				videoJsPlayer.markers({
-					markerTip: {
-						display: true,
-						text: function(marker) {
-							return marker.text;
-						}
-					},
-					breakOverlay:{
-						display: false
-					},
-					markerStyle: {
-						width: '7px',
-						'background-color': '#cccccc'
-					},
-					markers: []
-				});
-				updateVideoJsMarkers();
-			}
-			
 			registerPlayerEventHandlers();
 			
-			var $topBar = $("<div />").addClass("player-top-bar");
-			createPlayerHeading();
-			$topBar.append($playerTopBarHeading);
-			
-			if (playerType === "vod") {
-				$player.find(".video-js").append($topBar);
-			}
-			else if (playerType === "live") {
-				// no top bar for live player (yet)
-			}
 			$container.append($player);
 		}
 		
@@ -925,23 +870,12 @@ define([
 				// player doesn't exist.
 				return false;
 			}
-			if (playerType === "vod") {
-				wasFullScreen = videoJsPlayer.isFullscreen();
-				wasMuted = videoJsPlayer.muted();
-				previousVolume = videoJsPlayer.volume();
-				videoJsPlayer.exitFullscreen();
-			}
-			else if (playerType === "live") {
-				wasFullScreen = null; // no api call to get this
-				wasMuted = null; // no api call to get this
-				previousVolume =  null; // no api call to get this
+			if (playerType === "vod" || playerType === "live") {
+				wasFullScreen = null; // no api call to get this (yet!)
+				previousVolume =  clapprPlayer.getVolume();
 			}
 			$(self).triggerHandler("playerDestroying");
-			if (playerType === "vod") {
-				videoJsPlayer.dispose();
-				videoJsPlayer = null;
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				clapprPlayer.destroy();
 				clapprPlayer = null;
 			}
@@ -973,21 +907,11 @@ define([
 				$(self).triggerHandler("timeUpdate");
 			};
 			var onEnded = function() {
-				if (playerType === "vod") {
-					videoJsPlayer.exitFullscreen();
-				}
 				$(self).triggerHandler("ended");
 			};
 			
-			if (playerType === "vod") {
-				videoJsPlayer.on("loadedmetadata", onLoadedMetadata);
-				videoJsPlayer.on("play", onPlay);
-				videoJsPlayer.on("pause", onPause);
-				videoJsPlayer.on("timeupdate", onTimeUpdate);
-				videoJsPlayer.on("ended", onEnded);
-			}
-			else if (playerType === "live") {
-				// live player never fires loadedmetadata event
+			if (playerType === "vod" || playerType == "live") {
+				clapprPlayer.core.getCurrentContainer().on(Clappr.Events.CONTAINER_LOADEDMETADATA, onLoadedMetadata);
 				clapprPlayer.on(Clappr.Events.PLAYER_PLAY, onPlay);
 				clapprPlayer.on(Clappr.Events.PLAYER_PAUSE, onPause);
 				clapprPlayer.on(Clappr.Events.PLAYER_TIMEUPDATE, onTimeUpdate);
@@ -998,23 +922,15 @@ define([
 		// executes callback when metadata has been loaded.
 		// different to listening to event because will callback will always be executed even if event happened
 		function onPlayerLoadedMetadata(callback) {
-			if (playerType === "live") {
-				throw "Live player does not have a loaded metadata event.";
-			}
-			
 			if (playerLoadedMetadata) {
 				callback();
 			}
 			else {
-				if (playerType === "vod") {
-					videoJsPlayer.one("loadedmetadata", function() {
-						callback();
-					});
-				}
-				else if (playerType === "live") {
-					clapprPlayer.one(Clappr.Events.PLAYBACK_LOADEDMETADATA, function() {
-						callback();
-					});
+				if (playerType === "vod" || playerType === "live") {
+					var fn = function() {
+						clapprPlayer.core.getCurrentContainer().off(fn);
+					};
+					clapprPlayer.core.getCurrentContainer().on(Clappr.Events.CONTAINER_LOADEDMETADATA, fn);
 				}
 			}
 		}
@@ -1041,10 +957,7 @@ define([
 		function updateFullScreenState() {
 			if (queuedDisableFullScreen) {
 				$player.attr("data-full-screen-enabled", "0");
-				if (playerType === "vod") {
-					videoJsPlayer.exitFullscreen();
-				}
-				else if (playerType === "live") {
+				if (playerType === "vod" || playerType === "live") {
 					// hopefully clappr will not start in full screen
 				}
 			}
@@ -1054,7 +967,7 @@ define([
 			disableFullScreen = queuedDisableFullScreen;
 		}
 		
-		function updateVideoJsMarkers() {
+		function updateMarkers() {
 			var markers = [];
 			for (var i=0; i<chapters.length; i++) {
 				var chapter = chapters[i];
@@ -1063,9 +976,7 @@ define([
 					text: chapter.title
 				});
 			}
-			onPlayerLoadedMetadata(function() {
-				videoJsPlayer.markers.reset(markers);
-			});
+			// TODO
 		}
 		
 		function updatePlayerTitle() {
@@ -1084,19 +995,22 @@ define([
 		// the short list don't change, then the player will not be reloaded
 		function updateShortlistedPlayerUris() {
 			shortlistedPlayerUris = queuedPlayerUris;
+
+			// TODO remove this when clappr can support multiple sources/containers
 			if (queuedPlayerType === "live") {
 				// clappr supports dvr, so remove any urls that aren't dvr from the list
 				// providing there is at least one dvr url
 				var dvrUris = [];
-				for (var i=0; i<queuedPlayerUris.length; i++) {
-					var uri = queuedPlayerUris[i];
+				for (var i=0; i<shortlistedPlayerUris.length; i++) {
+					var uri = shortlistedPlayerUris[i];
 					if (uri.uriWithDvrSupport) {
 						dvrUris.push(uri);
 					}
 				}
-				shortlistedPlayerUris = dvrUris.length > 0 ? dvrUris : queuedPlayerUris;
+				shortlistedPlayerUris = dvrUris.length > 0 ? dvrUris : shortlistedPlayerUris;
 			}
-			else if (queuedPlayerType === "vod") {
+			
+			if (queuedPlayerType === "vod" || queuedPlayerType === "live") {
 				var isAndroid = /(android)/i.test(navigator.userAgent);
 				if (isAndroid) {
 					// some android devices seem to have issues
@@ -1104,8 +1018,8 @@ define([
 					// TODO remove this when figured out why hls isn't working
 					// when move to Clappr this might not be an issue anymore
 					var newUris = [];
-					for (var i=0; i<queuedPlayerUris.length; i++) {
-						var uri = queuedPlayerUris[i];
+					for (var i=0; i<shortlistedPlayerUris.length; i++) {
+						var uri = shortlistedPlayerUris[i];
 						if (uri.type !== "application/x-mpegURL") {
 							newUris.push(uri);
 						}
