@@ -1,9 +1,5 @@
 @import url("../lib/bootstrap.css");
 @import url("../lib/jquery-ui.css");
-@import url("../lib/video-js.css");
-@import url("../lib/videojs-dash.css");
-@import url("../lib/videojs.markers.css");
-@import url("../lib/videojs.thumbnails.css");
 @import url("../lib/flexslider.css");
 
 @import url("../app/bootstrap-dropdown.css");
@@ -13,7 +9,6 @@
 @import url("../app/textarea-resize.css");
 @import url("../app/fit-text.css");
 @import url("../app/player-container-component-container.css");
-@import url("../app/videojs.css");
 @import url("../app/delay-show.css");
 
 @import url("../app/components/player-container.css");
