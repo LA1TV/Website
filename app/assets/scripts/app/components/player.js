@@ -5,12 +5,13 @@ define([
 	"Clappr",
 	"lib/clappr-thumbnails-plugin",
 	"lib/clappr-heading-plugin",
+	"lib/clappr-markers-plugin",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, ClapprHeadingPlugin, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, ClapprHeadingPlugin, ClapprMarkersPlugin, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -105,6 +106,8 @@ define([
 		
 		// array of {time, title} (time is in seconds)
 		// only applies to VOD
+		// these will be applied when the player is created and not updated automatically
+		// because of how the plugin works
 		this.setChapters = function(chapters) {
 			queuedChapters = chapters;
 			return this;
@@ -275,7 +278,6 @@ define([
 		var queuedDisableFullScreen = false;
 		var disableControls = null;
 		var queuedDisableControls = false;
-		var chapters = [];
 		var queuedChapters = [];
 		// there is no 'thumbnails' because the plugin only allows the thumbnails to be applied on plugin initialisation
 		var queuedThumbnails = [];
@@ -662,12 +664,6 @@ define([
 					headingPlugin.setOpenInNewWindow(titleOpenInNewWindow);
 				}
 				
-				// update the chapters
-				if (haveChaptersChanged()) {
-					chapters = queuedChapters;
-					updateMarkers();
-				}
-				
 				// set the new time
 				if (queuedPlayerTime !== null) { 
 					(function(startTime, startPlaying, roundToSafeRegion) {
@@ -866,9 +862,18 @@ define([
 		  				};
 					}
 
-					// TODO add markers
-					// updateMarkers();
-				}
+					// add chapters
+					var markers = [];
+					for (var i=0; i<queuedChapters.length; i++) {
+						var chapter = queuedChapters[i];
+						console.log(chapter);
+						markers.push(new ClapprMarkersPlugin.StandardMarker(chapter.time, chapter.title))
+					}
+					clapprOptions.plugins.core.push(ClapprMarkersPlugin.default);
+					clapprOptions.markersPlugin = {
+						markers: markers
+	  				};
+	  			}
 
 				clapprPlayer = new Clappr.Player(clapprOptions);
 				clapprPlayer.attachTo($player[0]);
@@ -990,18 +995,7 @@ define([
 			}
 			disableFullScreen = queuedDisableFullScreen;
 		}
-		
-		function updateMarkers() {
-			var markers = [];
-			for (var i=0; i<chapters.length; i++) {
-				var chapter = chapters[i];
-				markers.push({
-					time: chapter.time,
-					text: chapter.title
-				});
-			}
-			// TODO
-		}
+
 		
 		function updatePlayerTitle() {
 			$playerTopBarHeading.text(title !== null ? title : "");
@@ -1070,21 +1064,6 @@ define([
 				var queuedUri = shortlistedPlayerUris[i];
 				var uri = playerUris[i];
 				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type || uri.uriWithDvrSupport !== queuedUri.uriWithDvrSupport) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		function haveChaptersChanged() {
-			if (queuedChapters.length !== chapters.length) {
-				return true;
-			}
-			
-			for (var i=0; i<queuedChapters.length; i++) {
-				var queuedChapter = queuedChapters[i];
-				var chapter = chapters[i];
-				if (queuedChapter.time !== chapter.time || queuedChapter.title !== chapter.title) {
 					return true;
 				}
 			}
