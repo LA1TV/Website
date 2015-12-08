@@ -4,12 +4,13 @@ define([
 	"../fit-text-handler",
 	"Clappr",
 	"lib/clappr-thumbnails-plugin",
+	"lib/clappr-heading-plugin",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, ClapprHeadingPlugin, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -655,7 +656,10 @@ define([
 					title = queuedTitle;
 					titleLinkUriCallback = queuedTitleLinkUriCallback;
 					titleOpenInNewWindow = queuedTitleOpenInNewWindow;
-					// TODO set title in title plugin
+					var headingPlugin = clapprPlayer.getPlugin("heading-plugin");
+					headingPlugin.setEnabled(title);
+					headingPlugin.setText(title, titleLinkUriCallback);
+					headingPlugin.setOpenInNewWindow(titleOpenInNewWindow);
 				}
 				
 				// update the chapters
@@ -826,7 +830,10 @@ define([
 					disableVideoTagContextMenu: true,
 					autoSeekFromUrl: false,
 					plugins: {
-						core: []
+						core: [ClapprHeadingPlugin]
+					},
+					headingPlugin: {
+						enabled: false
 					}
 				};
 				
@@ -863,14 +870,11 @@ define([
 					// updateMarkers();
 				}
 
-				console.log(clapprOptions);
-
 				clapprPlayer = new Clappr.Player(clapprOptions);
 				clapprPlayer.attachTo($player[0]);
 				clapprPlayer.load(chosenUri.uri, chosenUri.type);
-				
+
 				// TODO append qualitySelectionComponent somewhere if provided
-				// TODO set heading
 
 				// TODO restore fullscreen, and volume
 
