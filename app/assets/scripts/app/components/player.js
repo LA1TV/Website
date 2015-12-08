@@ -866,7 +866,6 @@ define([
 					var markers = [];
 					for (var i=0; i<queuedChapters.length; i++) {
 						var chapter = queuedChapters[i];
-						console.log(chapter);
 						markers.push(new ClapprMarkersPlugin.StandardMarker(chapter.time, chapter.title))
 					}
 					clapprOptions.plugins.core.push(ClapprMarkersPlugin.default);
@@ -881,7 +880,14 @@ define([
 
 				// TODO append qualitySelectionComponent somewhere if provided
 
-				// TODO restore fullscreen, and volume
+				// restore fullscreen, and volume
+				if (previousVolume !== null) {
+					clapprPlayer.setVolume(previousVolume);
+				}
+
+				if (wasFullScreen) {
+					// TODO make full screen again when clappr supports this
+				}
 
 			}
 			

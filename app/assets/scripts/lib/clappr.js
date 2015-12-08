@@ -178,7 +178,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
-	var version = ("0.2.23");
+	var version = ("0.2.24");
 
 	exports['default'] = {
 	    Player: _componentsPlayer2['default'],
@@ -351,6 +351,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * put `watermark: 'http://url/img.png'` on your embed parameters to automatically add watermark on your video. You can customize corner position by defining position parameter. Positions can be `bottom-left`, `bottom-right`, `top-left` and `top-right`.
 	   * @param {Boolean} [options.disableVideoTagContextMenu]
 	   * disables the context menu (right click) on the video element if a HTML5Video playback is used.
+	   * @param {Boolean} [options.autoSeekFromUrl]
+	   * Automatically seek to the seconds provided in the url (e.g example.com?t=100) **default**: `true`
 	   * @param {String} [options.poster]
 	   * define a poster by adding its address `poster: 'http://url/img.png'`. It will appear after video embed, disappear on play and go back when user stops the video.
 	   * @param {String} [options.playbackNotSupportedMessage]
@@ -618,6 +620,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'isPlaying',
 	    value: function isPlaying() {
 	      return this.core.mediaControl.container.isPlaying();
+	    }
+
+	    /**
+	     * enables to configure a player after its creation
+	     * @method configure
+	     * @param {Object} options all the options to change in form of a javascript object
+	     */
+	  }, {
+	    key: 'configure',
+	    value: function configure(options) {
+	      this.core.configure(options);
 	    }
 
 	    /**
@@ -981,6 +994,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Browser.isLegacyIE = !!window.ActiveXObject;
 	Browser.isIE = Browser.isLegacyIE || /trident.*rv:1\d/i.test(navigator.userAgent);
 	Browser.isIE11 = /trident.*rv:11/i.test(navigator.userAgent);
+	Browser.isChromecast = Browser.isChrome && /CrKey/i.test(navigator.userAgent);
 	Browser.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone|IEMobile|Opera Mini/i.test(navigator.userAgent);
 	Browser.isiOS = /iPad|iPhone|iPod/i.test(navigator.userAgent);
 	Browser.isAndroid = /Android/i.test(navigator.userAgent);
@@ -2371,6 +2385,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	Events.PLAYBACK_FRAGMENT_LOADED = 'playback:fragment:loaded';
 	Events.PLAYBACK_LEVEL_SWITCH = 'playback:level:switch';
 
+	/**
+	 * Fired when the options were changed for the core
+	 *
+	 * @event CORE_OPTIONS_CHANGE
+	 */
+	Events.CORE_OPTIONS_CHANGE = 'core:options:change';
+
 	// Container Events
 	/**
 	 * Fired when the container internal state changes
@@ -2507,6 +2528,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	Events.CONTAINER_MEDIACONTROL_DISABLE = 'container:mediacontrol:disable';
 	Events.CONTAINER_MEDIACONTROL_ENABLE = 'container:mediacontrol:enable';
 	Events.CONTAINER_STATS_ADD = 'container:stats:add';
+	/**
+	 * Fired when the options were changed for the container
+	 *
+	 * @event CONTAINER_OPTIONS_CHANGE
+	 */
+	Events.CONTAINER_OPTIONS_CHANGE = 'container:options:change';
 
 	// MediaControl Events
 	Events.MEDIACONTROL_RENDERED = 'mediacontrol:rendered';
@@ -3575,6 +3602,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.getCurrentContainer().trigger(showing ? _baseEvents2['default'].CONTAINER_MEDIACONTROL_SHOW : _baseEvents2['default'].CONTAINER_MEDIACONTROL_HIDE);
 
 	      if (showing) this.$el.removeClass('nocursor');else if (_baseUtils.Fullscreen.isFullscreen()) this.$el.addClass('nocursor');
+	    }
+
+	    /**
+	     * enables to configure the container after its creation
+	     * @method configure
+	     * @param {Object} options all the options to change in form of a javascript object
+	     */
+	  }, {
+	    key: 'configure',
+	    value: function configure(options) {
+	      var _this6 = this;
+
+	      this.options = _clapprZepto2['default'].extend(this.options, options);
+	      var sources = this.options.source || this.options.sources;
+
+	      if (sources) {
+	        this.load(sources);
+	      } else {
+	        this.trigger(_baseEvents2['default'].CORE_OPTIONS_CHANGE);
+
+	        this.containers.forEach(function (container) {
+	          container.configure(_this6.options);
+	        });
+	      }
 	    }
 	  }, {
 	    key: 'render',
@@ -4720,12 +4771,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'createContainer',
-	    value: function createContainer(source, options) {
+	    value: function createContainer(source) {
 	      if (!!source.match(/^\/\//)) source = window.location.protocol + source;
-	      options = _clapprZepto2['default'].extend({}, this.options, { src: source }, options);
+	      var options = _clapprZepto2['default'].extend({}, this.options, { src: source });
 	      var playbackPlugin = this.findPlaybackPlugin(source);
 	      var playback = new playbackPlugin(options);
-	      var container = new _componentsContainer2['default']({ playback: playback });
+
+	      options = _clapprZepto2['default'].extend(options, { playback: playback });
+
+	      var container = new _componentsContainer2['default'](options);
 	      var defer = _clapprZepto2['default'].Deferred();
 	      defer.promise(container);
 	      this.addContainerPlugins(container, source);
@@ -4737,11 +4791,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'addContainerPlugins',
 	    value: function addContainerPlugins(container, source) {
-	      var _this3 = this;
-
 	      this.loader.containerPlugins.forEach(function (Plugin) {
-	        var options = _clapprZepto2['default'].extend(_this3.options, { container: container, src: source });
-	        container.addPlugin(new Plugin(options));
+	        container.addPlugin(new Plugin(container));
 	      });
 	    }
 	  }]);
@@ -4867,6 +4918,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _get(Object.getPrototypeOf(Container.prototype), 'constructor', this).call(this, options);
 	    this.currentTime = 0;
 	    this.volume = 100;
+	    this.options = options;
 	    this.playback = options.playback;
 	    this.settings = _clapprZepto2['default'].extend({}, this.playback.settings);
 	    this.isReady = false;
@@ -5219,6 +5271,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function enableMediaControl() {
 	      this.mediaControlDisabled = false;
 	      this.trigger(_baseEvents2['default'].CONTAINER_MEDIACONTROL_ENABLE);
+	    }
+
+	    /**
+	     * enables to configure the container after its creation
+	     * @method configure
+	     * @param {Object} options all the options to change in form of a javascript object
+	     */
+	  }, {
+	    key: 'configure',
+	    value: function configure(options) {
+	      this.options = _clapprZepto2['default'].extend(this.options, options);
+	      this.trigger(_baseEvents2['default'].CONTAINER_OPTIONS_CHANGE);
 	    }
 	  }, {
 	    key: 'render',
@@ -7600,10 +7664,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'onVolumeChanged',
-	    value: function onVolumeChanged(event) {
+	    value: function onVolumeChanged(level) {
 	      this.mute = this.currentVolume === 0;
-	      this.setVolumeLevel(event);
-	      this.persistConfig && _baseUtils.Config.persist("volume", event);
+	      this.setVolumeLevel(level);
+	      this.persistConfig && _baseUtils.Config.persist("volume", level);
 	    }
 	  }, {
 	    key: 'changeTogglePlay',
@@ -8137,7 +8201,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          _this7.$seekBarContainer.addClass('seek-disabled');
 	        }
 
-	        _this7.setVolume(_this7.currentVolume);
+	        _this7.onVolumeChanged(_this7.container.volume);
 	        _this7.bindKeyEvents();
 	        _this7.playerResize({ width: _this7.options.width, height: _this7.options.height });
 	        _this7.hideVolumeBar(0);
@@ -11863,7 +11927,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'loadedMetadata',
 	    value: function loadedMetadata(e) {
 	      this.durationChange();
-	      if (this.getPlaybackType() !== _basePlayback2['default'].LIVE) {
+	      var autoSeekFromUrl = typeof this.options.autoSeekFromUrl === "undefined" || this.options.autoSeekFromUrl;
+	      if (this.getPlaybackType() !== _basePlayback2['default'].LIVE && autoSeekFromUrl) {
 	        this.checkInitialSeek();
 	      }
 	      this.trigger(_baseEvents2['default'].PLAYBACK_LOADEDMETADATA, { duration: e.target.duration, data: e });
@@ -13703,7 +13768,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__.p + "8a0e4b17a5e97cfc84752044c2e0cfe9.swf";
+	module.exports = __webpack_require__.p + "ce11521a0b89a2674007ac434b3b92c8.swf";
 
 /***/ },
 /* 97 */
@@ -20082,10 +20147,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  function SpinnerThreeBouncePlugin(options) {
+	  function SpinnerThreeBouncePlugin(container) {
 	    _classCallCheck(this, SpinnerThreeBouncePlugin);
 
-	    _get(Object.getPrototypeOf(SpinnerThreeBouncePlugin.prototype), 'constructor', this).call(this, options);
+	    _get(Object.getPrototypeOf(SpinnerThreeBouncePlugin.prototype), 'constructor', this).call(this, container);
 	    this.template = (0, _baseTemplate2['default'])(_publicSpinnerHtml2['default']);
 	    this.showTimeout = null;
 	    this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERING, this.onBuffering);
@@ -20179,18 +20244,32 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_object2 = _interopRequireDefault(_ui_object);
 
+	/**
+	 * The base class for an ui container plugin
+	 * @class UIContainerPlugin
+	 * @constructor
+	 * @extends UIObject
+	 * @module base
+	 */
+
 	var UIContainerPlugin = (function (_UIObject) {
 	  _inherits(UIContainerPlugin, _UIObject);
 
-	  function UIContainerPlugin(options) {
+	  function UIContainerPlugin(container) {
 	    _classCallCheck(this, UIContainerPlugin);
 
-	    _get(Object.getPrototypeOf(UIContainerPlugin.prototype), 'constructor', this).call(this, options);
-	    this.container = options.container;
-	    this.options = options;
+	    _get(Object.getPrototypeOf(UIContainerPlugin.prototype), 'constructor', this).call(this, container.options);
+	    this.container = container;
 	    this.enabled = true;
 	    this.bindEvents();
 	  }
+
+	  /**
+	   * provides the read-only options to the ui container plugin
+	   * @property options
+	   * @type Object
+	   * @default "`{}`"
+	   */
 
 	  _createClass(UIContainerPlugin, [{
 	    key: 'enable',
@@ -20215,6 +20294,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'destroy',
 	    value: function destroy() {
 	      this.remove();
+	    }
+	  }, {
+	    key: 'options',
+	    get: function get() {
+	      return this.container && this.container.options || {};
 	    }
 	  }]);
 
@@ -20304,12 +20388,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  function StatsPlugin(options) {
+	  function StatsPlugin(container) {
 	    _classCallCheck(this, StatsPlugin);
 
-	    _get(Object.getPrototypeOf(StatsPlugin.prototype), 'constructor', this).call(this, options);
+	    _get(Object.getPrototypeOf(StatsPlugin.prototype), 'constructor', this).call(this, container);
 	    this.setInitialAttrs();
-	    this.reportInterval = options.reportInterval || 5000;
+	    this.reportInterval = this.options.reportInterval || 5000;
 	    this.state = "IDLE";
 	  }
 
@@ -20447,18 +20531,32 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils = __webpack_require__(2);
 
+	/**
+	 * The base class for a container plugin
+	 * @class ContainerPlugin
+	 * @constructor
+	 * @extends UIObject
+	 * @module base
+	 */
+
 	var ContainerPlugin = (function (_BaseObject) {
 	  _inherits(ContainerPlugin, _BaseObject);
 
-	  function ContainerPlugin(options) {
+	  function ContainerPlugin(container) {
 	    _classCallCheck(this, ContainerPlugin);
 
-	    _get(Object.getPrototypeOf(ContainerPlugin.prototype), 'constructor', this).call(this, options);
-	    this.container = options.container;
-	    this.options = options;
+	    _get(Object.getPrototypeOf(ContainerPlugin.prototype), 'constructor', this).call(this, container.options);
+	    this.container = container;
 	    this.enabled = true;
 	    this.bindEvents();
 	  }
+
+	  /**
+	   * provides the read-only options to the container plugin
+	   * @property options
+	   * @type Object
+	   * @default "`{}`"
+	   */
 
 	  _createClass(ContainerPlugin, [{
 	    key: 'enable',
@@ -20483,6 +20581,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'destroy',
 	    value: function destroy() {
 	      this.stopListening();
+	    }
+	  }, {
+	    key: 'options',
+	    get: function get() {
+	      return this.container && this.container.options || {};
 	    }
 	  }]);
 
@@ -20569,17 +20672,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  function WaterMarkPlugin(options) {
+	  function WaterMarkPlugin(container) {
 	    _classCallCheck(this, WaterMarkPlugin);
 
-	    _get(Object.getPrototypeOf(WaterMarkPlugin.prototype), 'constructor', this).call(this, options);
-	    this.position = options.position || "bottom-right";
-	    if (options.watermark) {
-	      this.imageUrl = options.watermark;
-	      this.render();
-	    } else {
-	      this.$el.remove();
-	    }
+	    _get(Object.getPrototypeOf(WaterMarkPlugin.prototype), 'constructor', this).call(this, container);
+	    this.configure();
 	  }
 
 	  _createClass(WaterMarkPlugin, [{
@@ -20587,6 +20684,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function bindEvents() {
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_PLAY, this.onPlay);
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STOP, this.onStop);
+	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_OPTIONS_CHANGE, this.configure);
+	    }
+	  }, {
+	    key: 'configure',
+	    value: function configure() {
+	      this.position = this.options.position || "bottom-right";
+	      if (this.options.watermark) {
+	        this.imageUrl = this.options.watermark;
+	        this.render();
+	      } else {
+	        this.$el.remove();
+	      }
 	    }
 	  }, {
 	    key: 'onPlay',
@@ -20731,23 +20840,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  function PosterPlugin(options) {
+	  function PosterPlugin(container) {
 	    _classCallCheck(this, PosterPlugin);
 
-	    _get(Object.getPrototypeOf(PosterPlugin.prototype), 'constructor', this).call(this, options);
-	    this.options = options;
+	    _get(Object.getPrototypeOf(PosterPlugin.prototype), 'constructor', this).call(this, container);
 	    this.container.disableMediaControl();
 	    this.render();
 	    this.bufferFull = false;
 	  }
 
 	  _createClass(PosterPlugin, [{
-	    key: 'load',
-	    value: function load(source) {
-	      this.options.poster = source;
-	      this.render();
-	    }
-	  }, {
 	    key: 'bindEvents',
 	    value: function bindEvents() {
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERING, this.onBuffering);
@@ -20755,6 +20857,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STOP, this.onStop);
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_PLAY, this.onPlay);
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_ENDED, this.onStop);
+	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_OPTIONS_CHANGE, this.render);
 	      _componentsMediator2['default'].on(this.options.playerId + ':' + _baseEvents2['default'].PLAYER_RESIZE, this.updateSize, this);
 	    }
 	  }, {
@@ -20928,14 +21031,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  function GoogleAnalytics(options) {
+	  function GoogleAnalytics(container) {
 	    _classCallCheck(this, GoogleAnalytics);
 
-	    _get(Object.getPrototypeOf(GoogleAnalytics.prototype), 'constructor', this).call(this, options);
-	    if (options.gaAccount) {
-	      this.account = options.gaAccount;
-	      this.trackerName = options.gaTrackerName ? options.gaTrackerName + "." : 'Clappr.';
-	      this.domainName = options.gaDomainName;
+	    _get(Object.getPrototypeOf(GoogleAnalytics.prototype), 'constructor', this).call(this, container);
+	    if (this.container.options.gaAccount) {
+	      this.account = this.container.options.gaAccount;
+	      this.trackerName = this.container.options.gaTrackerName ? this.container.options.gaTrackerName + "." : 'Clappr.';
+	      this.domainName = this.container.options.gaDomainName;
 	      this.currentHDState = undefined;
 	      this.embedScript();
 	    }
@@ -21137,10 +21240,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }]);
 
-	  function ClickToPausePlugin(options) {
+	  function ClickToPausePlugin(container) {
 	    _classCallCheck(this, ClickToPausePlugin);
 
-	    _get(Object.getPrototypeOf(ClickToPausePlugin.prototype), 'constructor', this).call(this, options);
+	    _get(Object.getPrototypeOf(ClickToPausePlugin.prototype), 'constructor', this).call(this, container);
 	  }
 
 	  _createClass(ClickToPausePlugin, [{
@@ -21282,6 +21385,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.listenToOnce(this.core.mediaControl.container, _baseEvents2['default'].CONTAINER_TIMEUPDATE, this.render);
 	      this.listenTo(this.core.mediaControl, _baseEvents2['default'].MEDIACONTROL_RENDERED, this.settingsUpdate);
 	      this.listenTo(this.core.mediaControl.container, _baseEvents2['default'].CONTAINER_PLAYBACKDVRSTATECHANGED, this.dvrChanged);
+	      this.listenTo(this.core, _baseEvents2['default'].CORE_OPTIONS_CHANGE, this.render);
 	    }
 	  }, {
 	    key: 'dvrChanged',
@@ -21522,14 +21626,24 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _get(Object.getPrototypeOf(Favicon.prototype), 'constructor', this).call(this, core);
 	    this.oldIcon = (0, _clapprZepto2['default'])('link[rel="shortcut icon"]');
-	    if (!this.core.options.changeFavicon) {
-	      this.disable();
-	    }
+	    this.configure();
 	  }
 
 	  _createClass(Favicon, [{
+	    key: 'configure',
+	    value: function configure() {
+	      if (!this.core.options.changeFavicon) {
+	        this.disable();
+	        this.listenTo(this.core, _baseEvents2['default'].CORE_OPTIONS_CHANGE, this.configure);
+	      } else {
+	        this.stopListening(this.core, _baseEvents2['default'].CORE_OPTIONS_CHANGE);
+	        this.enable();
+	      }
+	    }
+	  }, {
 	    key: 'bindEvents',
 	    value: function bindEvents() {
+	      this.listenTo(this.core, _baseEvents2['default'].CORE_OPTIONS_CHANGE, this.configure);
 	      this.listenTo(this.core.mediaControl, _baseEvents2['default'].MEDIACONTROL_CONTAINERCHANGED, this.containerChanged);
 	      if (this.core.mediaControl.container) {
 	        this.containerChanged();
