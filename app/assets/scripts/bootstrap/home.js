@@ -1,6 +1,7 @@
 require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
+		Clappr: "lib/clappr",
 		optional: "app/requirejs-plugins/optional",
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",

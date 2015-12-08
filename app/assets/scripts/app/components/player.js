@@ -2,13 +2,14 @@ define([
 	"jquery",
 	"../page-data",
 	"../fit-text-handler",
-	"lib/clappr",
+	"Clappr",
+	"lib/clappr-thumbnails-plugin",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, PageData, FitTextHandler, Clappr, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -109,7 +110,7 @@ define([
 		};
 		
 		// array of {time, uri} (time is in seconds)
-		// these will be applied when the video js player is created and not update automatically
+		// these will be applied when the player is created and not update automatically
 		// because of how the plugin works.
 		// this only applies to vod
 		this.setScrubThumbnails = function(thumbnails) {
@@ -823,7 +824,10 @@ define([
 					autoPlay: queuedPlayerTimeStartPlaying,
 					mediacontrol: {seekbar: "#ff0000"},
 					disableVideoTagContextMenu: true,
-					autoSeekFromUrl: false
+					autoSeekFromUrl: false,
+					plugins: {
+						core: []
+					}
 				};
 				
 				if (chosenUri.uriWithDvrSupport) {
@@ -835,18 +839,38 @@ define([
 					clapprOptions.hlsMinimumDvrSize = 180;
 				}
 				
+				if (playerType === "vod") {
+					// add thumbnails
+					if (queuedThumbnails.length > 0) {
+						var thumbsData = [];
+						for(var i=0; i<queuedThumbnails.length; i++) {
+							var a = queuedThumbnails[i];
+							thumbsData.push({
+								time: a.time,
+								url: a.uri
+							});
+						}
+
+						clapprOptions.plugins.core.push(ClapprThumbnailsPlugin);
+						clapprOptions.scrubThumbnails = {
+							backdropHeight: 64,
+							spotlightHeight: 84,
+							thumbs: thumbsData
+		  				};
+					}
+
+					// TODO add markers
+					// updateMarkers();
+				}
+
+				console.log(clapprOptions);
+
 				clapprPlayer = new Clappr.Player(clapprOptions);
 				clapprPlayer.attachTo($player[0]);
 				clapprPlayer.load(chosenUri.uri, chosenUri.type);
 				
 				// TODO append qualitySelectionComponent somewhere if provided
 				// TODO set heading
-
-				if (playerType === "vod") {
-					// TODO add thumbnails
-					// TODO add markers
-					// updateMarkers();
-				}
 
 				// TODO restore fullscreen, and volume
 
