@@ -664,7 +664,7 @@ define([
 				}
 				
 				// set the new time
-				if (queuedPlayerTime !== null) {
+				if (queuedPlayerTime !== null) { 
 					(function(startTime, startPlaying, roundToSafeRegion) {
 						if (playerType === "vod") {
 							onPlayerLoadedMetadata(function() {
@@ -681,13 +681,7 @@ define([
 								if (startPlaying) {
 									clapprPlayer.play();
 								}
-								if (startTime !== 0) {
-									// if the time is 0 don't seek because seeking appears to replace the poster with the
-									// frame that has been seeked to
-									// in safari v8 seeking won't work unless the video is already playing, or the video 'preload' attribute is not `metadata`
-									// see https://github.com/LA1TV/Website/issues/619
-									clapprPlayer.seek(startTime);
-								}
+								clapprPlayer.seek(startTime);
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
 							});
@@ -745,7 +739,7 @@ define([
 				$player.append($video);
 			}
 			*/
-			
+
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
 			if (playerType === "vod" || playerType === "live") {
@@ -828,7 +822,8 @@ define([
 					chromeless: disableControls,
 					autoPlay: queuedPlayerTimeStartPlaying,
 					mediacontrol: {seekbar: "#ff0000"},
-					disableVideoTagContextMenu: true
+					disableVideoTagContextMenu: true,
+					autoSeekFromUrl: false
 				};
 				
 				if (chosenUri.uriWithDvrSupport) {
@@ -928,7 +923,8 @@ define([
 			else {
 				if (playerType === "vod" || playerType === "live") {
 					var fn = function() {
-						clapprPlayer.core.getCurrentContainer().off(fn);
+						clapprPlayer.core.getCurrentContainer().off(Clappr.Events.CONTAINER_LOADEDMETADATA, fn);
+						callback();
 					};
 					clapprPlayer.core.getCurrentContainer().on(Clappr.Events.CONTAINER_LOADEDMETADATA, fn);
 				}
