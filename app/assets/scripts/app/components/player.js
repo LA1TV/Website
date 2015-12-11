@@ -319,6 +319,7 @@ define([
 		
 		// contains reference to the clappr player which is used for streams
 		var clapprPlayer = null;
+		var clapprHeadingPlugin = null;
 		// reference to the dom element which contains the video tag
 		var $player = null;
 		var $playerTopBarHeading = null;
@@ -658,10 +659,7 @@ define([
 					title = queuedTitle;
 					titleLinkUriCallback = queuedTitleLinkUriCallback;
 					titleOpenInNewWindow = queuedTitleOpenInNewWindow;
-					var headingPlugin = clapprPlayer.getPlugin("heading-plugin");
-					headingPlugin.setEnabled(title);
-					headingPlugin.setText(title, titleLinkUriCallback);
-					headingPlugin.setOpenInNewWindow(titleOpenInNewWindow);
+					updateClapprHeadingPlugin();
 				}
 				
 				// set the new time
@@ -744,62 +742,6 @@ define([
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
 			if (playerType === "vod" || playerType === "live") {
-				/*
-				videoJsPlayer = videojs($video[0], {
-					width: "100%",
-					height: "100%",
-					controls: !disableControls,
-					nativeControlsForTouch: true,
-					preload: playerPreload ? "auto" : "metadata",
-					techOrder: ["html5", "flash"],
-					autoPlay: false, // implementing auto play manually using callback
-					poster: coverUri,
-					loop: false
-				}, function() {
-					// called when player loaded.
-					if (qualitySelectionComponent !== null) {
-						$player.find(".vjs-control-bar").each(function() {
-							var $item = $("<div />").addClass("quality-selection-control").attr("tabindex", "0").attr("aria-live", "polite");
-							$item.append(qualitySelectionComponent.getEl());
-							$(this).append($item);
-						});
-					}
-					
-					setTimeout(function() {
-						// in timeout as needs videoJsPlayer needs to have been set
-						if (queuedThumbnails.length > 0) {
-							var thumbnailsData = {};
-							for(var i=0; i<queuedThumbnails.length; i++) {
-								var a = queuedThumbnails[i];
-								thumbnailsData[a.time] = {
-									src: a.uri
-								};
-							}
-							videoJsPlayer.thumbnails(thumbnailsData);
-						}
-						
-						if (playerExisted) {
-							// the player has just been destroyed before being recreated
-							if (wasFullScreen) {
-								// was previously full screen
-								// make it full screen again
-								// this may fail if the browser decides that this must be from a user interaction
-								videoJsPlayer.requestFullscreen();
-							}
-							// set the volume and mute state back to what it was
-							if (wasMuted !== null) {
-								videoJsPlayer.muted(wasMuted);
-							}
-							if (previousVolume !== null) {
-								videoJsPlayer.volume(previousVolume);
-							}
-							$(self).triggerHandler("playerLoaded");
-						}
-					}, 0);
-				});
-			}
-			else if (playerType === "live") {
-				*/
 				// clappr can only take one uri with mime type so pick the first one with dvr,
 				// or first one otherwise
 				var chosenUri = playerUris[0];
@@ -812,12 +754,17 @@ define([
 					break;
 				}
 				
+				// TODO remove this when clappr fallback plugin properly finished
+				// this is a hack to prevent clappr noop message flashing up
+				$player.css({visibility: "hidden"});
 				var clapprOptions = {
 					baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
 					width: "100%",
 					height: "100%",
 					poster: coverUri,
 					preload: playerPreload ? "auto" : "metadata",
+					parent: $player[0],
+					sources: [{source: chosenUri.uri, mimeType: chosenUri.type}],
 					persistConfig: false,
 					loop: false,
 					chromeless: disableControls,
@@ -873,10 +820,15 @@ define([
 						markers: markers
 	  				};
 	  			}
-
+			//	Clappr.Log.setLevel(0); // TODO remove
 				clapprPlayer = new Clappr.Player(clapprOptions);
-				clapprPlayer.attachTo($player[0]);
-				clapprPlayer.load(chosenUri.uri, chosenUri.type);
+				clapprPlayer.on(Clappr.Events.PLAYER_READY, function() {
+					// TODO remove this when clappr fallback plugin properly finished
+					$player.css({visibility: "visible"});
+					clapprHeadingPlugin = clapprPlayer.getPlugin("heading-plugin");
+					updateClapprHeadingPlugin();
+				});
+
 
 				// TODO append qualitySelectionComponent somewhere if provided
 
@@ -893,7 +845,6 @@ define([
 			
 			updateFullScreenState();
 			registerPlayerEventHandlers();
-			
 			$container.append($player);
 		}
 		
@@ -912,6 +863,7 @@ define([
 			if (playerType === "vod" || playerType === "live") {
 				clapprPlayer.destroy();
 				clapprPlayer = null;
+				clapprHeadingPlugin = null;
 			}
 			$player.remove();
 			$player = null;
@@ -989,6 +941,15 @@ define([
 			updatePlayerTitle();
 		}
 		
+		function updateClapprHeadingPlugin() {
+			// if it doesn't exist yet this will be called as soon as it does
+			if (clapprHeadingPlugin) {
+				clapprHeadingPlugin.setEnabled(title);
+				clapprHeadingPlugin.setText(title, titleLinkUriCallback);
+				clapprHeadingPlugin.setOpenInNewWindow(titleOpenInNewWindow);
+			}
+		}
+
 		function updateFullScreenState() {
 			if (queuedDisableFullScreen) {
 				$player.attr("data-full-screen-enabled", "0");

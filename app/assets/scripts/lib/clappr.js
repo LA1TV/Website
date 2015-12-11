@@ -178,7 +178,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
-	var version = ("0.2.24");
+	var version = ("0.2.25");
 
 	exports['default'] = {
 	    Player: _componentsPlayer2['default'],
@@ -317,6 +317,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * the id of the element on the page that the player should be inserted into
 	   * @param {Object} [options.parent]
 	   * a reference to a dom element that the player should be inserted into
+	   * @param {String} [options.source]
+	   * The media source URL, or {source: <<source URL>>, mimeType: <<source mime type>>}
+	   * @param {Object} [options.sources]
+	   * An array of media source URL's, or an array of {source: <<source URL>>, mimeType: <<source mime type>>}
 	   * @param {Boolean} [options.autoPlay]
 	   * automatically play after page load **default**: `false`
 	   * @param {Boolean} [options.loop]
@@ -404,10 +408,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.options.parentElement = element;
 	      this.core = this.coreFactory.create();
 	      this.addEventListeners();
+	      this.onReady();
 	    }
 	  }, {
 	    key: 'addEventListeners',
 	    value: function addEventListeners() {
+	      this.listenTo(this.core, _baseEvents2['default'].CORE_READY, this.onReady);
 	      this.listenTo(this.core.mediaControl, _baseEvents2['default'].MEDIACONTROL_CONTAINERCHANGED, this.containerChanged);
 	      var container = this.core.mediaControl.container;
 	      if (!!container) {
@@ -426,6 +432,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function containerChanged() {
 	      this.stopListening();
 	      this.addEventListeners();
+	    }
+	  }, {
+	    key: 'onReady',
+	    value: function onReady() {
+	      var _this = this;
+
+	      setTimeout(function () {
+	        _this.trigger(_baseEvents2['default'].PLAYER_READY);
+	      }, 0);
 	    }
 	  }, {
 	    key: 'onVolumeUpdate',
@@ -475,8 +490,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'normalizeSources',
 	    value: function normalizeSources(options) {
-	      var sources = options.sources || (options.source !== undefined ? [options.source.toString()] : []);
-	      return sources.length === 0 ? ['no.op'] : sources;
+	      var sources = options.sources || (options.source !== undefined ? [options.source] : []);
+	      return sources.length === 0 ? [{ source: "", mimeType: "" }] : sources;
 	    }
 
 	    /**
@@ -498,6 +513,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * loads a new source.
 	     * @method load
 	     * @param {Object} sources source or sources of video.
+	     * sources can be a string or {source: <<source URL>>, mimeType: <<source mime type>>}
 	     * @param {Object} mimeType a mime type, example: `'application/vnd.apple.mpegurl'`
 	     *
 	     */
@@ -2189,6 +2205,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// PLAYER EVENTS
 	/**
+	 * Fired when the player is ready on startup
+	 *
+	 * @event PLAYER_READY
+	 */
+	Events.PLAYER_READY = 'ready';
+	/**
 	 * Fired when player resizes
 	 *
 	 * @event PLAYER_RESIZE
@@ -2391,6 +2413,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @event CORE_OPTIONS_CHANGE
 	 */
 	Events.CORE_OPTIONS_CHANGE = 'core:options:change';
+	/**
+	 * Fired after creating containers, when the core is ready
+	 *
+	 * @event CORE_READY
+	 */
+	Events.CORE_READY = 'core:ready';
 
 	// Container Events
 	/**
@@ -3426,7 +3454,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _this4 = this;
 
 	      _clapprZepto2['default'].when.apply(_clapprZepto2['default'], containers).done(function () {
-	        return _this4.defer.resolve(_this4);
+	        _this4.defer.resolve(_this4);
+	        _this4.trigger(_baseEvents2['default'].CORE_READY);
 	      });
 	    }
 	  }, {
@@ -3615,7 +3644,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _this6 = this;
 
 	      this.options = _clapprZepto2['default'].extend(this.options, options);
-	      var sources = this.options.source || this.options.sources;
+	      var sources = options.source || options.sources;
 
 	      if (sources) {
 	        this.load(sources);
@@ -4762,19 +4791,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'findPlaybackPlugin',
-	    value: function findPlaybackPlugin(source) {
-	      var _this2 = this;
-
+	    value: function findPlaybackPlugin(source, mimeType) {
 	      return (0, _lodashFind2['default'])(this.loader.playbackPlugins, function (p) {
-	        return p.canPlay(source.toString(), _this2.options.mimeType);
+	        return p.canPlay(source, mimeType);
 	      });
 	    }
 	  }, {
 	    key: 'createContainer',
 	    value: function createContainer(source) {
-	      if (!!source.match(/^\/\//)) source = window.location.protocol + source;
-	      var options = _clapprZepto2['default'].extend({}, this.options, { src: source });
-	      var playbackPlugin = this.findPlaybackPlugin(source);
+	      console.log("here", source);
+	      var resolvedSource = null;
+	      var mimeType = this.options.mimeType;
+	      if (typeof source === "string" || source instanceof String) {
+	        resolvedSource = source.toString();
+	      } else {
+	        resolvedSource = source.source.toString();
+	        if (source.mimeType) {
+	          mimeType = source.mimeType;
+	        }
+	      }
+	      console.log(resolvedSource, mimeType);
+
+	      if (!!resolvedSource.match(/^\/\//)) resolvedSource = window.location.protocol + resolvedSource;
+
+	      var options = _clapprZepto2['default'].extend({}, this.options, {
+	        src: resolvedSource,
+	        mimeType: mimeType
+	      });
+	      var playbackPlugin = this.findPlaybackPlugin(resolvedSource, mimeType);
 	      var playback = new playbackPlugin(options);
 
 	      options = _clapprZepto2['default'].extend(options, { playback: playback });
@@ -4782,7 +4826,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var container = new _componentsContainer2['default'](options);
 	      var defer = _clapprZepto2['default'].Deferred();
 	      defer.promise(container);
-	      this.addContainerPlugins(container, source);
+	      this.addContainerPlugins(container, resolvedSource);
 	      this.listenToOnce(container, _baseEvents2['default'].CONTAINER_READY, function () {
 	        return defer.resolve(container);
 	      });
@@ -12136,6 +12180,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'ready',
 	    value: function ready() {
 	      this.trigger(_baseEvents2['default'].PLAYBACK_READY, this.name);
+	      if (this.firstBuffer) {
+	        this.trigger(_baseEvents2['default'].PLAYBACK_BUFFERFULL, this.name);
+	        this.firstBuffer = this.buffering = false;
+	      }
 	    }
 	  }, {
 	    key: 'render',
