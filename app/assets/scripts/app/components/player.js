@@ -6,12 +6,13 @@ define([
 	"lib/clappr-thumbnails-plugin",
 	"lib/clappr-heading-plugin",
 	"lib/clappr-markers-plugin",
+	"lib/clappr-quality-selection-plugin",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, ClapprHeadingPlugin, ClapprMarkersPlugin, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, ClapprHeadingPlugin, ClapprMarkersPlugin, ClapprQualitySelectionPlugin, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -320,6 +321,7 @@ define([
 		// contains reference to the clappr player which is used for streams
 		var clapprPlayer = null;
 		var clapprHeadingPlugin = null;
+		var clapprQualitySelectionPlugin = null;
 		// reference to the dom element which contains the video tag
 		var $player = null;
 		var $playerTopBarHeading = null;
@@ -742,21 +744,19 @@ define([
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
 			if (playerType === "vod" || playerType === "live") {
-				// clappr can only take one uri with mime type so pick the first one with dvr,
-				// or first one otherwise
-				var chosenUri = playerUris[0];
+				var clapprSources = [];
+				var thereIsAUriWithDvrSupport = false; // TODO temp remove when figured out how to change clappr config based on chosen source
 				for (var i=0; i<playerUris.length; i++) {
 					var uri = playerUris[i];
-					if (!uri.uriWithDvrSupport) {
-						continue;
+					if (uri.uriWithDvrSupport) {
+						thereIsAUriWithDvrSupport = true; // TODO temp
 					}
-					chosenUri = uri;
-					break;
+					clapprSources.push({
+						source: uri.uri,
+						mimeType: uri.type
+					});
 				}
-				
-				// TODO remove this when clappr fallback plugin properly finished
-				// this is a hack to prevent clappr noop message flashing up
-				$player.css({visibility: "hidden"});
+
 				var clapprOptions = {
 					baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
 					width: "100%",
@@ -764,7 +764,7 @@ define([
 					poster: coverUri,
 					preload: playerPreload ? "auto" : "metadata",
 					parent: $player[0],
-					sources: [{source: chosenUri.uri, mimeType: chosenUri.type}],
+					sources: clapprSources,
 					persistConfig: false,
 					loop: false,
 					chromeless: disableControls,
@@ -777,10 +777,14 @@ define([
 					},
 					headingPlugin: {
 						enabled: false
+					},
+					events: {
+						onReady: onClapprReady
 					}
 				};
 				
-				if (chosenUri.uriWithDvrSupport) {
+				// TODO this will need tweaking when figured out how to change clappr config based on chosen source
+				if (thereIsAUriWithDvrSupport) {
 					// enable scrubbing when there is more than 20 seconds of content
 					clapprOptions.hlsMinimumDvrSize = 20;
 				}
@@ -789,6 +793,10 @@ define([
 					clapprOptions.hlsMinimumDvrSize = 180;
 				}
 				
+				if (qualitySelectionComponent) {
+					clapprOptions.plugins.core.push(ClapprQualitySelectionPlugin);
+				}
+
 				if (playerType === "vod") {
 					// add thumbnails
 					if (queuedThumbnails.length > 0) {
@@ -820,17 +828,8 @@ define([
 						markers: markers
 	  				};
 	  			}
-			//	Clappr.Log.setLevel(0); // TODO remove
-				clapprPlayer = new Clappr.Player(clapprOptions);
-				clapprPlayer.on(Clappr.Events.PLAYER_READY, function() {
-					// TODO remove this when clappr fallback plugin properly finished
-					$player.css({visibility: "visible"});
-					clapprHeadingPlugin = clapprPlayer.getPlugin("heading-plugin");
-					updateClapprHeadingPlugin();
-				});
+				clapprPlayer = new Clappr.Player(clapprOptions)
 
-
-				// TODO append qualitySelectionComponent somewhere if provided
 
 				// restore fullscreen, and volume
 				if (previousVolume !== null) {
@@ -846,6 +845,19 @@ define([
 			updateFullScreenState();
 			registerPlayerEventHandlers();
 			$container.append($player);
+		}
+
+		function onClapprReady() {
+			clapprHeadingPlugin = clapprPlayer.getPlugin("heading-plugin");
+			updateClapprHeadingPlugin();
+			if (qualitySelectionComponent) {
+				clapprQualitySelectionPlugin = clapprPlayer.getPlugin("quality-selection-plugin");
+				clapprQualitySelectionPlugin.setQualities(qualitySelectionComponent.getAvailableQualities());
+				clapprQualitySelectionPlugin.setChosenQuality(qualitySelectionComponent.getChosenQuality());
+				clapprQualitySelectionPlugin.setQualityChosenCallback(function(quality) {
+					qualitySelectionComponent.setQuality(quality.id, true);
+				});
+			}
 		}
 		
 		// removes the player
