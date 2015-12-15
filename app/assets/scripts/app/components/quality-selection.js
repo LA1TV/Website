@@ -18,6 +18,10 @@ define([
 			}
 			return chosenQuality.id;
 		};
+
+		this.getChosenQuality = function() {
+			return chosenQuality;
+		};
 		
 		this.hasQualities = function() {
 			return availableQualities.length > 0;
@@ -81,8 +85,12 @@ define([
 					chosenQuality = availableQualities[0];
 				}
 			}
-			render()
+			render();
 			$(self).triggerHandler("qualitiesChanged");
+		};
+
+		this.getAvailableQualities = function() {
+			return availableQualities;
 		};
 		
 		this.hasQuality = function(qualityId) {

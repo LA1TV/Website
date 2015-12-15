@@ -58,34 +58,8 @@
 	padding: 10px;
 }
 
-.player-component .player .vjs-default-skin .vjs-big-play-button {
-	bottom: .5em;
-	top: inherit;
-}
-
-.player-component .player .vjs-default-skin .vjs-play-progress, .vjs-default-skin .vjs-volume-level {
-	background-color: #9C0000;
-}
-
-/* videojs */
-.player-component .player[data-full-screen-enabled="0"] .vjs-fullscreen-control {
-	display: none;
-}
-
-.player-component .player[data-full-screen-enabled="0"] .vjs-volume-control {
-	margin-right: 15px;
-}
-
 /* clappr */
 .player-component .player[data-full-screen-enabled="0"] .media-control[data-media-control] .media-control-layer[data-controls] .media-control-button[data-fullscreen] {
-	display: none;
-}
-
-
-.player-component .player .vjs-fullscreen .quality-selection-control {
-	/* if the player has to be reloaded whilst full screen there seems to be a bug where the browser
-	   still thinks it's full screen when it isn't, meaning things get rendered wrong.
-	   So disable changing quality whilst in full screen. */
 	display: none;
 }
 
@@ -120,14 +94,4 @@
 .player-component .player-top-bar .heading:hover {
 	text-decoration: underline;
 	cursor: pointer;
-}
-
-.player-component .player .vjs-has-started.vjs-user-inactive.vjs-playing  .player-top-bar {
-	display: block;
-	visibility: hidden;
-	opacity: 0;
-	-webkit-transition: visibility 1s, opacity 1s;
-	-moz-transition: visibility 1s, opacity 1s;
-	-o-transition: visibility 1s, opacity 1s;
-	transition: visibility 1s, opacity 1s;
 }

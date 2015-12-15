@@ -180,13 +180,6 @@ define([
 			}
 		};
 		
-		this.hasVodEnded = function() {
-			if (self.getPlayerType() !== "vod") {
-				throw "Only valid when player type is VOD.";
-			}
-			return playerComponent.hasEnded();
-		};
-		
 		// 1=not live, 2=live, 3=show over, null=no live stream
 		this.getStreamState = function() {
 			return streamState;

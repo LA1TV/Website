@@ -1,10 +1,10 @@
 require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
+		Clappr: "lib/clappr",
 		optional: "app/requirejs-plugins/optional",
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",
-		videojs: "lib/video",
 		"jquery.ui.widget": "lib/jquery.ui.widget",
 		moxie: "lib/moxie",
 		plupload: "lib/plupload"
@@ -20,13 +20,7 @@ require.config({
 		"plupload": {
 			exports: "plupload",
 			deps: ['moxie']
-		},
-		"lib/dash": {
-			exports: "Dash"
-		},
-		"lib/videojs-dash": ["lib/dash", "videojs"],
-		"lib/videojs-markers": ["jquery", "videojs"],
-		"lib/videojs-thumbnails": ["videojs"]
+		}
 	}
 });
 

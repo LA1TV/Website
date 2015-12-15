@@ -2,14 +2,17 @@ define([
 	"jquery",
 	"../page-data",
 	"../fit-text-handler",
-	"../video-js",
-	"lib/clappr",
+	"Clappr",
+	"lib/clappr-thumbnails-plugin",
+	"lib/clappr-heading-plugin",
+	"lib/clappr-markers-plugin",
+	"lib/clappr-quality-selection-plugin",
 	"../synchronised-time",
 	"../helpers/nl2br",
 	"../helpers/html-encode",
 	"../helpers/pad",
 	"lib/jquery.dateFormat"
-], function($, PageData, FitTextHandler, videojs, Clappr, SynchronisedTime, nl2br, e, pad) {
+], function($, PageData, FitTextHandler, Clappr, ClapprThumbnailsPlugin, ClapprHeadingPlugin, ClapprMarkersPlugin, ClapprQualitySelectionPlugin, SynchronisedTime, nl2br, e, pad) {
 	
 	var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 	
@@ -104,13 +107,15 @@ define([
 		
 		// array of {time, title} (time is in seconds)
 		// only applies to VOD
+		// these will be applied when the player is created and not updated automatically
+		// because of how the plugin works
 		this.setChapters = function(chapters) {
 			queuedChapters = chapters;
 			return this;
 		};
 		
 		// array of {time, uri} (time is in seconds)
-		// these will be applied when the video js player is created and not update automatically
+		// these will be applied when the player is created and not update automatically
 		// because of how the plugin works.
 		// this only applies to vod
 		this.setScrubThumbnails = function(thumbnails) {
@@ -146,18 +151,18 @@ define([
 		};
 		
 		this.getPlayerCurrentTime = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.currentTime();
+			if (playerType === "vod" || playerType === "live") {
+				if (clapprPlayer !== null) {
+					return clapprPlayer.getCurrentTime();
 				}
 			}
 			return null;
 		};
 		
 		this.getPlayerDuration = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.duration();
+			if (playerType === "vod" || playerType === "live") {
+				if (clapprPlayer !== null) {
+					return clapprPlayer.getDuration();
 				}
 			}
 			return null;
@@ -165,11 +170,7 @@ define([
 		
 		// returns the error if an error has occurred with playback or null otherwise.
 		this.getPlayerError = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.error();
-				}
-			}
+			// TODO implement for clappr
 			return null;
 		};
 		
@@ -180,12 +181,7 @@ define([
 		
 		// note when clappr is playing a live stream with dvr play appears to reset the play position to the live point
 		this.play = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					videoJsPlayer.play();
-				}
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				if (clapprPlayer !== null) {
 					clapprPlayer.play();
 				}
@@ -196,12 +192,7 @@ define([
 		// called instead of pause(). pause() will do nothing. Methods need adding to clappr to be able to check
 		// if it has enabled dvr or not first.
 		this.pause = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					videoJsPlayer.pause();
-				}
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				if (clapprPlayer !== null) {
 					clapprPlayer.pause();
 				}
@@ -209,12 +200,7 @@ define([
 		};
 		
 		this.paused = function() {
-			if (playerType === "vod") {
-				if (videoJsPlayer !== null) {
-					return videoJsPlayer.paused();
-				}
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				if (clapprPlayer !== null) {
 					// not the clappr isPlaying represents the intended state, not what the current state may be
 					// eg if the user clicks to seek to another part in the video the pause event will be fired,
@@ -226,38 +212,31 @@ define([
 			return null;
 		};
 		
-		this.hasEnded = function() {
-			if (playerType !== "vod" || videoJsPlayer === null) {
-				throw "Invalid operation.";
-			}
-			return videoJsPlayer.ended();
-		};
-		
 		// jump to a specific time (seconds) in the video if it's vod
 		// if startPlaying is true then it will start playing if it isn't currently
 		this.jumpToTime = function(time, startPlaying) {
-			if (videoJsPlayer !== null && playerType === "vod") {
+			if (clapprPlayer !== null && playerType === "vod") {
 				if (startPlaying) {
 					// some mobile devices (iphones) will not allow javascript to start playback unless
 					// it is triggered as a result of a user event. the play() call below  in the callback can become disconnected
 					// from this execution path because it has to wait for the loaded metadata event. If this code
 					// is executed as a result of a user event, then because this call is in the same execution path it
 					// makes ios happy.
-					videoJsPlayer.play();
+					clapprPlayer.play();
 				}
 				onPlayerLoadedMetadata(function() {
-					if (time > videoJsPlayer.duration()) {
+					if (time > clapprPlayer.getDuration()) {
 						console.error("The time to jump to was set to a value which is longer than the length of the video.");
 						return;
 					}
 					if (startPlaying) {
-						videoJsPlayer.play();
+						clapprPlayer.play();
 					}
 					// on ios this doesn't appear to work unless the video is already playing
 					// http://stackoverflow.com/a/13826802/1048589
 					// the work around involves waiting until the user plays which introduces more complexity
 					// because then the extra play event listener would need to be managed.
-					videoJsPlayer.currentTime(time);
+					clapprPlayer.seek(time);
 				});
 			}
 		};
@@ -300,7 +279,6 @@ define([
 		var queuedDisableFullScreen = false;
 		var disableControls = null;
 		var queuedDisableControls = false;
-		var chapters = [];
 		var queuedChapters = [];
 		// there is no 'thumbnails' because the plugin only allows the thumbnails to be applied on plugin initialisation
 		var queuedThumbnails = [];
@@ -312,7 +290,6 @@ define([
 		var updateAdTimerId = null;
 		var wasFullScreen = null;
 		var previousVolume = null;
-		var wasMuted = null;
 		
 		var $container = $("<div />").addClass("player-component embed-responsive");
 		if (responsive) {
@@ -341,10 +318,10 @@ define([
 		var $clickToWatchBtnContainer = null;
 		var $clickToWatchBtn = null;
 		
-		// contains reference to videojs player which is used for vod
-		var videoJsPlayer = null;
 		// contains reference to the clappr player which is used for streams
 		var clapprPlayer = null;
+		var clapprHeadingPlugin = null;
+		var clapprQualitySelectionPlugin = null;
 		// reference to the dom element which contains the video tag
 		var $player = null;
 		var $playerTopBarHeading = null;
@@ -684,40 +661,28 @@ define([
 					title = queuedTitle;
 					titleLinkUriCallback = queuedTitleLinkUriCallback;
 					titleOpenInNewWindow = queuedTitleOpenInNewWindow;
-					updatePlayerTitle();
-				}
-				
-				// update the chapters
-				if (haveChaptersChanged()) {
-					chapters = queuedChapters;
-					updateVideoJsMarkers();
+					updateClapprHeadingPlugin();
 				}
 				
 				// set the new time
-				if (queuedPlayerTime !== null) {
+				if (queuedPlayerTime !== null) { 
 					(function(startTime, startPlaying, roundToSafeRegion) {
 						if (playerType === "vod") {
 							onPlayerLoadedMetadata(function() {
-								if (startTime > videoJsPlayer.duration()) {
+								if (startTime > clapprPlayer.getDuration()) {
 									console.error("The start time was set to a value which is longer than the length of the video. Not changing time.");
 									return;
 								}
 								else if (roundToSafeRegion) {
-									if (startTime < 5 || startTime > videoJsPlayer.duration() - 10) {
+									if (startTime < 5 || startTime > clapprPlayer.getDuration() - 10) {
 										// set start time to 0 if it is not in the range from 5 seconds in to 10 seconds before the end.
 										startTime = 0;
 									}
 								}
 								if (startPlaying) {
-									videoJsPlayer.play();
+									clapprPlayer.play();
 								}
-								if (startTime !== 0) {
-									// if the time is 0 don't seek because seeking appears to replace the poster with the
-									// frame that has been seeked to
-									// in safari v8 seeking won't work unless the video is already playing, or the video 'preload' attribute is not `metadata`
-									// see https://github.com/LA1TV/Website/issues/619
-									videoJsPlayer.currentTime(startTime);
-								}
+								clapprPlayer.seek(startTime);
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
 							});
@@ -747,18 +712,11 @@ define([
 		// if the player already exists it destroys the current one first.
 		function createPlayer(playerExisted) {
 			$player = $("<div />").addClass("player embed-responsive-item");
-			var $video = null;
-			if (playerType === "vod") {
-				$video = $("<video />").addClass("video-js vjs-default-skin").attr("poster", coverUri).attr("x-webkit-airplay", "allow");
-				// disable browser context menu on video
-				$video.on('contextmenu', function(e) {
-					e.preventDefault();
-				});
-			}
-			
+
 			// set the sources
 			playerUris = shortlistedPlayerUris;
 			
+			/*
 			if (playerType === "vod") {
 				// add sources that support dvr first so taken as preferred choice in browser
 				for (var i=0; i<playerUris.length; i++) {
@@ -781,90 +739,52 @@ define([
 				}
 				$player.append($video);
 			}
+			*/
+
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
-			if (playerType === "vod") {
-				videoJsPlayer = videojs($video[0], {
-					width: "100%",
-					height: "100%",
-					controls: !disableControls,
-					nativeControlsForTouch: true,
-					preload: playerPreload ? "auto" : "metadata",
-					techOrder: ["html5", "flash"],
-					autoPlay: false, // implementing auto play manually using callback
-					poster: coverUri,
-					loop: false
-				}, function() {
-					// called when player loaded.
-					if (qualitySelectionComponent !== null) {
-						$player.find(".vjs-control-bar").each(function() {
-							var $item = $("<div />").addClass("quality-selection-control").attr("tabindex", "0").attr("aria-live", "polite");
-							$item.append(qualitySelectionComponent.getEl());
-							$(this).append($item);
-						});
-					}
-					
-					setTimeout(function() {
-						// in timeout as needs videoJsPlayer needs to have been set
-						if (queuedThumbnails.length > 0) {
-							var thumbnailsData = {};
-							for(var i=0; i<queuedThumbnails.length; i++) {
-								var a = queuedThumbnails[i];
-								thumbnailsData[a.time] = {
-									src: a.uri
-								};
-							}
-							videoJsPlayer.thumbnails(thumbnailsData);
-						}
-						
-						if (playerExisted) {
-							// the player has just been destroyed before being recreated
-							if (wasFullScreen) {
-								// was previously full screen
-								// make it full screen again
-								// this may fail if the browser decides that this must be from a user interaction
-								videoJsPlayer.requestFullscreen();
-							}
-							// set the volume and mute state back to what it was
-							if (wasMuted !== null) {
-								videoJsPlayer.muted(wasMuted);
-							}
-							if (previousVolume !== null) {
-								videoJsPlayer.volume(previousVolume);
-							}
-							$(self).triggerHandler("playerLoaded");
-						}
-					}, 0);
-				});
-			}
-			else if (playerType === "live") {
-				// clappr can only take one uri with mime type so pick the first one with dvr,
-				// or first one otherwise
-				var chosenUri = playerUris[0];
+			if (playerType === "vod" || playerType === "live") {
+				var clapprSources = [];
+				var thereIsAUriWithDvrSupport = false; // TODO temp remove when figured out how to change clappr config based on chosen source
 				for (var i=0; i<playerUris.length; i++) {
 					var uri = playerUris[i];
-					if (!uri.uriWithDvrSupport) {
-						continue;
+					if (uri.uriWithDvrSupport) {
+						thereIsAUriWithDvrSupport = true; // TODO temp
 					}
-					chosenUri = uri;
-					break;
+					clapprSources.push({
+						source: uri.uri,
+						mimeType: uri.type
+					});
 				}
-				
+
 				var clapprOptions = {
 					baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
 					width: "100%",
 					height: "100%",
 					poster: coverUri,
 					preload: playerPreload ? "auto" : "metadata",
+					parent: $player[0],
+					sources: clapprSources,
 					persistConfig: false,
 					loop: false,
 					chromeless: disableControls,
 					autoPlay: queuedPlayerTimeStartPlaying,
 					mediacontrol: {seekbar: "#ff0000"},
-					disableVideoTagContextMenu: true
+					disableVideoTagContextMenu: true,
+					autoSeekFromUrl: false,
+					plugins: {
+						core: [ClapprHeadingPlugin]
+					},
+					headingPlugin: {
+						enabled: false
+					},
+					events: {
+						onReady: onClapprReady
+					}
 				};
 				
-				if (chosenUri.uriWithDvrSupport) {
+				// TODO this will need tweaking when figured out how to change clappr config based on chosen source
+				if (thereIsAUriWithDvrSupport) {
 					// enable scrubbing when there is more than 20 seconds of content
 					clapprOptions.hlsMinimumDvrSize = 20;
 				}
@@ -873,49 +793,71 @@ define([
 					clapprOptions.hlsMinimumDvrSize = 180;
 				}
 				
-				clapprPlayer = new Clappr.Player(clapprOptions);
-				clapprPlayer.attachTo($player[0]);
-				clapprPlayer.load(chosenUri.uri, chosenUri.type);
-				
-				// TODO append qualitySelectionComponent somewhere if provided
+				if (qualitySelectionComponent) {
+					clapprOptions.plugins.core.push(ClapprQualitySelectionPlugin);
+				}
+
+				if (playerType === "vod") {
+					// add thumbnails
+					if (queuedThumbnails.length > 0) {
+						var thumbsData = [];
+						for(var i=0; i<queuedThumbnails.length; i++) {
+							var a = queuedThumbnails[i];
+							thumbsData.push({
+								time: a.time,
+								url: a.uri
+							});
+						}
+
+						clapprOptions.plugins.core.push(ClapprThumbnailsPlugin);
+						clapprOptions.scrubThumbnails = {
+							backdropHeight: 64,
+							spotlightHeight: 84,
+							thumbs: thumbsData
+		  				};
+					}
+
+					// add chapters
+					var markers = [];
+					for (var i=0; i<queuedChapters.length; i++) {
+						var chapter = queuedChapters[i];
+						markers.push(new ClapprMarkersPlugin.StandardMarker(chapter.time, chapter.title))
+					}
+					clapprOptions.plugins.core.push(ClapprMarkersPlugin.default);
+					clapprOptions.markersPlugin = {
+						markers: markers
+	  				};
+	  			}
+				clapprPlayer = new Clappr.Player(clapprOptions)
+
+
+				// restore fullscreen, and volume
+				if (previousVolume !== null) {
+					clapprPlayer.setVolume(previousVolume);
+				}
+
+				if (wasFullScreen) {
+					// TODO make full screen again when clappr supports this
+				}
+
 			}
 			
 			updateFullScreenState();
-			
-			if (playerType === "vod") {
-				// initialise markers plugin
-				videoJsPlayer.markers({
-					markerTip: {
-						display: true,
-						text: function(marker) {
-							return marker.text;
-						}
-					},
-					breakOverlay:{
-						display: false
-					},
-					markerStyle: {
-						width: '7px',
-						'background-color': '#cccccc'
-					},
-					markers: []
-				});
-				updateVideoJsMarkers();
-			}
-			
 			registerPlayerEventHandlers();
-			
-			var $topBar = $("<div />").addClass("player-top-bar");
-			createPlayerHeading();
-			$topBar.append($playerTopBarHeading);
-			
-			if (playerType === "vod") {
-				$player.find(".video-js").append($topBar);
-			}
-			else if (playerType === "live") {
-				// no top bar for live player (yet)
-			}
 			$container.append($player);
+		}
+
+		function onClapprReady() {
+			clapprHeadingPlugin = clapprPlayer.getPlugin("heading-plugin");
+			updateClapprHeadingPlugin();
+			if (qualitySelectionComponent) {
+				clapprQualitySelectionPlugin = clapprPlayer.getPlugin("quality-selection-plugin");
+				clapprQualitySelectionPlugin.setQualities(qualitySelectionComponent.getAvailableQualities());
+				clapprQualitySelectionPlugin.setChosenQuality(qualitySelectionComponent.getChosenQuality());
+				clapprQualitySelectionPlugin.setQualityChosenCallback(function(quality) {
+					qualitySelectionComponent.setQuality(quality.id, true);
+				});
+			}
 		}
 		
 		// removes the player
@@ -925,25 +867,15 @@ define([
 				// player doesn't exist.
 				return false;
 			}
-			if (playerType === "vod") {
-				wasFullScreen = videoJsPlayer.isFullscreen();
-				wasMuted = videoJsPlayer.muted();
-				previousVolume = videoJsPlayer.volume();
-				videoJsPlayer.exitFullscreen();
-			}
-			else if (playerType === "live") {
-				wasFullScreen = null; // no api call to get this
-				wasMuted = null; // no api call to get this
-				previousVolume =  null; // no api call to get this
+			if (playerType === "vod" || playerType === "live") {
+				wasFullScreen = null; // no api call to get this (yet!)
+				previousVolume =  clapprPlayer.getVolume();
 			}
 			$(self).triggerHandler("playerDestroying");
-			if (playerType === "vod") {
-				videoJsPlayer.dispose();
-				videoJsPlayer = null;
-			}
-			else if (playerType === "live") {
+			if (playerType === "vod" || playerType === "live") {
 				clapprPlayer.destroy();
 				clapprPlayer = null;
+				clapprHeadingPlugin = null;
 			}
 			$player.remove();
 			$player = null;
@@ -973,21 +905,11 @@ define([
 				$(self).triggerHandler("timeUpdate");
 			};
 			var onEnded = function() {
-				if (playerType === "vod") {
-					videoJsPlayer.exitFullscreen();
-				}
 				$(self).triggerHandler("ended");
 			};
 			
-			if (playerType === "vod") {
-				videoJsPlayer.on("loadedmetadata", onLoadedMetadata);
-				videoJsPlayer.on("play", onPlay);
-				videoJsPlayer.on("pause", onPause);
-				videoJsPlayer.on("timeupdate", onTimeUpdate);
-				videoJsPlayer.on("ended", onEnded);
-			}
-			else if (playerType === "live") {
-				// live player never fires loadedmetadata event
+			if (playerType === "vod" || playerType == "live") {
+				clapprPlayer.core.getCurrentContainer().on(Clappr.Events.CONTAINER_LOADEDMETADATA, onLoadedMetadata);
 				clapprPlayer.on(Clappr.Events.PLAYER_PLAY, onPlay);
 				clapprPlayer.on(Clappr.Events.PLAYER_PAUSE, onPause);
 				clapprPlayer.on(Clappr.Events.PLAYER_TIMEUPDATE, onTimeUpdate);
@@ -998,23 +920,16 @@ define([
 		// executes callback when metadata has been loaded.
 		// different to listening to event because will callback will always be executed even if event happened
 		function onPlayerLoadedMetadata(callback) {
-			if (playerType === "live") {
-				throw "Live player does not have a loaded metadata event.";
-			}
-			
 			if (playerLoadedMetadata) {
 				callback();
 			}
 			else {
-				if (playerType === "vod") {
-					videoJsPlayer.one("loadedmetadata", function() {
+				if (playerType === "vod" || playerType === "live") {
+					var fn = function() {
+						clapprPlayer.core.getCurrentContainer().off(Clappr.Events.CONTAINER_LOADEDMETADATA, fn);
 						callback();
-					});
-				}
-				else if (playerType === "live") {
-					clapprPlayer.one(Clappr.Events.PLAYBACK_LOADEDMETADATA, function() {
-						callback();
-					});
+					};
+					clapprPlayer.core.getCurrentContainer().on(Clappr.Events.CONTAINER_LOADEDMETADATA, fn);
 				}
 			}
 		}
@@ -1038,13 +953,19 @@ define([
 			updatePlayerTitle();
 		}
 		
+		function updateClapprHeadingPlugin() {
+			// if it doesn't exist yet this will be called as soon as it does
+			if (clapprHeadingPlugin) {
+				clapprHeadingPlugin.setEnabled(title);
+				clapprHeadingPlugin.setText(title, titleLinkUriCallback);
+				clapprHeadingPlugin.setOpenInNewWindow(titleOpenInNewWindow);
+			}
+		}
+
 		function updateFullScreenState() {
 			if (queuedDisableFullScreen) {
 				$player.attr("data-full-screen-enabled", "0");
-				if (playerType === "vod") {
-					videoJsPlayer.exitFullscreen();
-				}
-				else if (playerType === "live") {
+				if (playerType === "vod" || playerType === "live") {
 					// hopefully clappr will not start in full screen
 				}
 			}
@@ -1053,20 +974,7 @@ define([
 			}
 			disableFullScreen = queuedDisableFullScreen;
 		}
-		
-		function updateVideoJsMarkers() {
-			var markers = [];
-			for (var i=0; i<chapters.length; i++) {
-				var chapter = chapters[i];
-				markers.push({
-					time: chapter.time,
-					text: chapter.title
-				});
-			}
-			onPlayerLoadedMetadata(function() {
-				videoJsPlayer.markers.reset(markers);
-			});
-		}
+
 		
 		function updatePlayerTitle() {
 			$playerTopBarHeading.text(title !== null ? title : "");
@@ -1084,19 +992,22 @@ define([
 		// the short list don't change, then the player will not be reloaded
 		function updateShortlistedPlayerUris() {
 			shortlistedPlayerUris = queuedPlayerUris;
+
+			// TODO remove this when clappr can support multiple sources/containers
 			if (queuedPlayerType === "live") {
 				// clappr supports dvr, so remove any urls that aren't dvr from the list
 				// providing there is at least one dvr url
 				var dvrUris = [];
-				for (var i=0; i<queuedPlayerUris.length; i++) {
-					var uri = queuedPlayerUris[i];
+				for (var i=0; i<shortlistedPlayerUris.length; i++) {
+					var uri = shortlistedPlayerUris[i];
 					if (uri.uriWithDvrSupport) {
 						dvrUris.push(uri);
 					}
 				}
-				shortlistedPlayerUris = dvrUris.length > 0 ? dvrUris : queuedPlayerUris;
+				shortlistedPlayerUris = dvrUris.length > 0 ? dvrUris : shortlistedPlayerUris;
 			}
-			else if (queuedPlayerType === "vod") {
+			
+			if (queuedPlayerType === "vod" || queuedPlayerType === "live") {
 				var isAndroid = /(android)/i.test(navigator.userAgent);
 				if (isAndroid) {
 					// some android devices seem to have issues
@@ -1104,8 +1015,8 @@ define([
 					// TODO remove this when figured out why hls isn't working
 					// when move to Clappr this might not be an issue anymore
 					var newUris = [];
-					for (var i=0; i<queuedPlayerUris.length; i++) {
-						var uri = queuedPlayerUris[i];
+					for (var i=0; i<shortlistedPlayerUris.length; i++) {
+						var uri = shortlistedPlayerUris[i];
 						if (uri.type !== "application/x-mpegURL") {
 							newUris.push(uri);
 						}
@@ -1132,21 +1043,6 @@ define([
 				var queuedUri = shortlistedPlayerUris[i];
 				var uri = playerUris[i];
 				if (uri.uri !== queuedUri.uri || uri.type !== queuedUri.type || uri.uriWithDvrSupport !== queuedUri.uriWithDvrSupport) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		function haveChaptersChanged() {
-			if (queuedChapters.length !== chapters.length) {
-				return true;
-			}
-			
-			for (var i=0; i<queuedChapters.length; i++) {
-				var queuedChapter = queuedChapters[i];
-				var chapter = chapters[i];
-				if (queuedChapter.time !== chapter.time || queuedChapter.title !== chapter.title) {
 					return true;
 				}
 			}
