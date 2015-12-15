@@ -1,23 +1,17 @@
 require.config({
 	baseUrl: "/assets/scripts",
 	paths: {
+		Clappr: "lib/clappr",
 		optional: "app/requirejs-plugins/optional",
 		jquery: "lib/jquery",
-		ga: "https://www.google-analytics.com/analytics",
-		videojs: "lib/video"
+		ga: "https://www.google-analytics.com/analytics"
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"],
 		"lib/jquery.hotkeys": ["jquery"],
 		"ga": {
 			exports: "ga"
-		},
-		"lib/dash": {
-			exports: "Dash"
-		},
-		"lib/videojs-dash": ["lib/dash", "videojs"],
-		"lib/videojs-markers": ["jquery", "videojs"],
-		"lib/videojs-thumbnails": ["videojs"]
+		}
 	}
 });
 
