@@ -28,7 +28,7 @@ class CreatingPlaybackHistoryTable extends Migration {
 			
 			$table->index("original_session_id");
 			$table->foreign("session_id")->references('id')->on('sessions')->onUpdate("restrict")->onDelete('set null');
-			$table->foreign("user_id")->references('id')->on('users')->onUpdate("restrict")->onDelete('set null');
+			$table->foreign("user_id")->references('id')->on('site_users')->onUpdate("restrict")->onDelete('set null');
 			$table->foreign("media_item_id")->references('id')->on('media_items')->onUpdate("restrict")->onDelete('cascade');
 			$table->foreign("vod_source_file_id")->references('id')->on('files')->onUpdate("restrict")->onDelete('set null');
 		});
