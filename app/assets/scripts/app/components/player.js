@@ -682,7 +682,10 @@ define([
 								if (startPlaying) {
 									clapprPlayer.play();
 								}
-								clapprPlayer.seek(startTime);
+								// TODO: remove when 'hack' no longer necessary (https://github.com/LA1TV/Website/issues/685)
+								setTimeout(function() {
+									clapprPlayer.seek(startTime);
+								}, 0);
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
 							});
@@ -715,32 +718,6 @@ define([
 
 			// set the sources
 			playerUris = shortlistedPlayerUris;
-			
-			/*
-			if (playerType === "vod") {
-				// add sources that support dvr first so taken as preferred choice in browser
-				for (var i=0; i<playerUris.length; i++) {
-					var uri = playerUris[i];
-					if (!uri.uriWithDvrSupport) {
-						continue;
-					}
-					var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
-					$video.append($source);
-				}
-				
-				// add sources that do not support dvr
-				for (var i=0; i<playerUris.length; i++) {
-					if (uri.uriWithDvrSupport) {
-						continue;
-					}
-					var uri = playerUris[i];
-					var $source = $("<source />").attr("type", uri.type).attr("src", uri.uri);
-					$video.append($source);
-				}
-				$player.append($video);
-			}
-			*/
-
 			playerPreload = queuedPlayerPreload;
 			disableControls = queuedDisableControls;
 			if (playerType === "vod" || playerType === "live") {
