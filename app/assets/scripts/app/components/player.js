@@ -772,6 +772,8 @@ define([
 					mediacontrol: {seekbar: "#ff0000"},
 					disableVideoTagContextMenu: true,
 					autoSeekFromUrl: false,
+					actualLiveTime: true,
+					actualLiveServerTime: SynchronisedTime.getDate(),
 					plugins: {
 						core: [ClapprHeadingPlugin]
 					},
