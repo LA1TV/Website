@@ -30,12 +30,26 @@ class MediaItemLiveStream extends MyEloquent {
 				// record the time that the stream is being marked as over
 				$model->end_time = Carbon::now();
 			}
+
+			if ($model->hasJustBecomeStreamOver() && ($model->hasJustLeftLive() || $model->hasJustLeftNotLive())) {
+				// run these once the response has been sent to the user just before the script ends
+				// this makes sure if this is currently in a transaction the transaction will have ended
+				Event::listen('app.finish', function() use (&$model) {
+					Event::fire('mediaItemLiveStream.showOver', array($model));
+				});
+			}
 			
 			if ($model->hasJustBecomeNotLive() && ($model->hasJustLeftLive() || $model->hasJustLeftStreamOver())) {
 				// send command to DVR Bridge Service servers to stop recording stream
 				// and inform it that the recording can be deleted.
 				// entry will be removed from dvr_stream_uris table
 				$model->removeDvrs();
+
+				// run these once the response has been sent to the user just before the script ends
+				// this makes sure if this is currently in a transaction the transaction will have ended
+				Event::listen('app.finish', function() use (&$model) {
+					Event::fire('mediaItemLiveStream.notLive', array($model));
+				});
 			}
 			
 			if ($model->liveStreamHasChanged()) {
@@ -61,9 +75,10 @@ class MediaItemLiveStream extends MyEloquent {
 			DB::commit();
 			
 			if ($model->hasJustBecomeLive()) {
-				// queue the email job once the response has been sent to the user just before the script ends
-				// this makes sure if this is currently in a transaction the transaction will have ended when the job is queued
+				// run these once the response has been sent to the user just before the script ends
+				// this makes sure if this is currently in a transaction the transaction will have ended
 				Event::listen('app.finish', function() use (&$model) {
+					Event::fire('mediaItemLiveStream.live', array($model));
 					Queue::push("uk\co\la1tv\website\jobs\MediaItemLiveEmailsJob", array("mediaItemId"=>intval($model->mediaItem->id)));
 				});
 			}

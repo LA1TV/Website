@@ -27,6 +27,38 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 	// www.la1tv.co.uk
 	Route::group(array('domain' => Config::get("subdomains.www"), 'before' => array('homeRedirect'), 'after' => array('setXFrameOptionsHeader')), function() use(&$p) {
 		
+		// API
+		Route::group(array('prefix' => "/api/v1", "before" => array("apiEnabledCheck")), function() use(&$p) {
+			Route::get('service', array("uses"=>$p.'api\v1\ApiController@getService'));
+			Route::get('permissions', array("uses"=>$p.'api\v1\ApiController@getPermissions'));
+			Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
+			Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
+			Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
+			Route::get('playlists/{id}/mediaItems/{id2}', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItem'));
+			Route::get('playlists/{id}/mediaItems', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItems'));
+			Route::get('playlists/{id}', array("uses"=>$p.'api\v1\ApiController@getPlaylist'));
+			Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
+			Route::get('mediaItems/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getMediaItemPlaylists'));
+			Route::get('mediaItems/{id}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
+			Route::get('mediaItems', array("uses"=>$p.'api\v1\ApiController@getMediaItems'));
+			
+			Route::post('webhook/configure', array("uses"=>$p.'api\v1\ApiWebhookController@postConfigure'));
+			Route::post('webhook/test', array("uses"=>$p.'api\v1\ApiWebhookController@postTest'));
+			
+
+			// show a json 404
+			Route::get('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
+			// handle requests with OPTIONS method
+			Route::options('{catchAll}', function() {
+				$response = Response::make("", 204); // 204 = No Content
+				$response->header("Access-Control-Allow-Origin", "*");
+				$response->header("Access-Control-Allow-Methods", "OPTIONS, GET");
+				$response->header("Access-Control-Max-Age", 300); // cache preflight request for 5 mins
+				$response->header("Access-Control-Allow-Headers", "X-Api-Key");
+				return $response;
+			});
+		});
+
 		Route::group(array('before' => 'csrf'), function() use(&$p) {
 			
 			// ADMIN
@@ -73,35 +105,6 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/account', $p.'home\account\AccountController');
 			// here for named route
 			Route::get('/account', array("as"=>"account", "uses"=>$p.'home\account\AccountController@getIndex'));
-			
-			// API
-			Route::group(array('prefix' => "/api/v1", "before" => array("apiEnabledCheck")), function() use(&$p) {
-				Route::get('service', array("uses"=>$p.'api\v1\ApiController@getService'));
-				Route::get('permissions', array("uses"=>$p.'api\v1\ApiController@getPermissions'));
-				Route::get('shows/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getShowPlaylists'));
-				Route::get('shows/{id}', array("uses"=>$p.'api\v1\ApiController@getShow'));
-				Route::get('shows', array("uses"=>$p.'api\v1\ApiController@getShows'));
-				Route::get('playlists/{id}/mediaItems/{id2}', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItem'));
-				Route::get('playlists/{id}/mediaItems', array("uses"=>$p.'api\v1\ApiController@getPlaylistMediaItems'));
-				Route::get('playlists/{id}', array("uses"=>$p.'api\v1\ApiController@getPlaylist'));
-				Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
-				Route::get('mediaItems/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getMediaItemPlaylists'));
-				Route::get('mediaItems/{id}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
-				Route::get('mediaItems', array("uses"=>$p.'api\v1\ApiController@getMediaItems'));
-				
-				// show a json 404
-				Route::get('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
-				// handle requests with OPTIONS method
-				Route::options('{catchAll}', function() {
-					$response = Response::make("", 204); // 204 = No Content
-					$response->header("Access-Control-Allow-Origin", "*");
-					$response->header("Access-Control-Allow-Methods", "OPTIONS, GET");
-					$response->header("Access-Control-Max-Age", 300); // cache preflight request for 5 mins
-					$response->header("Access-Control-Allow-Headers", "X-Api-Key");
-					return $response;
-				});
-			});
-			
 			
 			// this must not go higher up as it is important that everything above takes priority
 			Route::controller("/{slug}", $p.'home\SlugController');
