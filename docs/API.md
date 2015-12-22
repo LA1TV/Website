@@ -24,5 +24,35 @@
 | /mediaItems/{id} | Information about a specific media item and the playlists it is in.
 | /mediaItems/{id}/playlists | Information about the playlists that a specific media item is contained in.
 
+
+## Real Time Events With A Webhook
+You can also receive real time events using our webhook support.
+Our server will make a HTTP POST request to a URL provided by you.
+
+The request with have content type `application/json` and will contain JSON in the body in the following form:
+```json
+{
+	"eventId":"<<EVENT ID>>",
+	"payload":"<<EVENT PAYLOAD>>"
+}
+```
+
+The following table shows the different events and the structure of their payloads.
+
+|  Event ID        |  Payload Structure       |  Info    |
+|------------------|--------------------------|----------|
+| mediaItem.live   | `{id:<<Media Item Id>>}`   | This event occurs when a media item goes to the "Live" state.
+| mediaItem.showOver | `{id:<<Media Item Id>>}` | This event occurs when a media item goes to the "Show Over" state.
+| mediaItem.notLive | `{id:<<Media Item Id>>}`  | This event occurs when a media item goes to the "Not Live" state, which may occur if a show has to restart for some reason.
+| test              | `{info:"Hello!"} `        | This is a test event which you can trigger yourself (see below).
+
+### Registering Your URL
+To register the URL which you would like to use to receive the events at, make a POST request to "https://www.la1tv.co.uk/api/v1/webhook/configure" with the URL set to a param "url". If succesful you will receive a response with status code 200 and your URL will be shown back to you.
+
+You need to provide your api key in an "X-Api-Key" header with this request.
+
+### Testing
+You can simulate the "test" event by making a POST request to "https://www.la1tv.co.uk/api/v1/webhook/test" along with your api key in an "X-Api-Key" header.
+
 ## Contact Us
 If you have any questions about the api please contact us at the "Technical Support" address listed on the [contact page](https://www.la1tv.co.uk/contact).
