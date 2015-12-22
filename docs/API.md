@@ -48,12 +48,16 @@ The following table shows the different events and the structure of their payloa
 | test              | `{info:"Hello!"} `        | This is a test event which you can trigger yourself (see below).
 
 ### Registering Your URL
-To register the URL which you would like to use to receive the events at, make a POST request to "https://www.la1tv.co.uk/api/v1/webhook/configure" with the URL set to a param "url". If succesful you will receive a response with status code 200 and your URL will be shown back to you.
+To register the URL which you would like to use to receive the events at, make a POST request to "https://www.la1tv.co.uk/api/v1/webhook/configure" with the URL set to a key "url". If succesful you will receive a response with status code 200 and your URL will be shown back to you.
 
 You need to provide your api key in an "X-Api-Key" header with this request.
 
+To remove your URL perform the above but leave the URL as an empty string.
+
 ### Testing
 You can simulate the "test" event by making a POST request to "https://www.la1tv.co.uk/api/v1/webhook/test" along with your api key in an "X-Api-Key" header.
+
+If the event was dispatched a response with status code 200 will be returned, and the "success" property in the response will be `true`.
 
 ## Contact Us
 If you have any questions about the api please contact us at the "Technical Support" address listed on the [contact page](https://www.la1tv.co.uk/contact).
