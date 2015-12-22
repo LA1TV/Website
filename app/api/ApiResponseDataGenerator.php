@@ -31,10 +31,11 @@ class ApiResponseDataGenerator {
 		return new ApiResponseData($data);
 	}
 	
-	public function generatePermissionsResponseData($hasVodUrisPermission, $hasStreamUrisPermission) {
+	public function generatePermissionsResponseData($hasVodUrisPermission, $hasStreamUrisPermission, $hasWebhooksPermission) {
 		$data = [
 			"vodUris"		=> $hasVodUrisPermission,
-			"streamUris"	=> $hasStreamUrisPermission
+			"streamUris"	=> $hasStreamUrisPermission,
+			"webhooks"		=> $hasWebhooksPermission
 		];
 		return new ApiResponseData($data);
 	}
