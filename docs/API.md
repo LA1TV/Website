@@ -30,10 +30,11 @@ You can also receive real time events using our webhook support.
 Our server will make a HTTP POST request to a URL provided by you.
 
 The request with have content type `application/json` and will contain JSON in the body in the following form:
-```json
+```
 {
-	"eventId":"<<EVENT ID>>",
-	"payload":"<<EVENT PAYLOAD>>"
+	"eventId":<<EVENT ID>>,
+	"payload":<<EVENT PAYLOAD>>,
+	"time":<<unix time in milliseconds when the event was sent>>
 }
 ```
 
