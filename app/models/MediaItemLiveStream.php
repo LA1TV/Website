@@ -29,7 +29,9 @@ class MediaItemLiveStream extends MyEloquent {
 				
 				// record the time that the stream is being marked as over
 				$model->end_time = Carbon::now();
+			}
 
+			if ($model->hasJustBecomeStreamOver() && ($model->hasJustLeftLive() || $model->hasJustLeftNotLive())) {
 				// run these once the response has been sent to the user just before the script ends
 				// this makes sure if this is currently in a transaction the transaction will have ended
 				Event::listen('app.finish', function() use (&$model) {

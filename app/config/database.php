@@ -115,8 +115,9 @@ return array(
 
 		'default' => array(
 			'host'     => '127.0.0.1',
-			'port'     => 6379,
+			'port'     => isset($_ENV['REDIS_PORT']) ? $_ENV['REDIS_PORT'] : 6379,
 			'database' => 0,
+			'password' => isset($_ENV['REDIS_PASSWORD']) ? $_ENV['REDIS_PASSWORD'] : "",
 		),
 
 	),

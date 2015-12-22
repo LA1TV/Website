@@ -1,8 +1,10 @@
 <?php namespace uk\co\la1tv\website\api\eventHandlers;
 
 use Log;
+use Redis;
 
 class MediaItemLiveHandler {
+
 	public function onLive($mediaItemLiveStream) {
 		Log::info("In API media item live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
 		if (!$mediaItemLiveStream->isLive()) {
@@ -31,6 +33,30 @@ class MediaItemLiveHandler {
 	}
 
 	private function queueWebhooks($mediaItemLiveStream) {
-		// TODO push to redis
+		$mediaItem = $mediaItemLiveStream->mediaItem;
+
+		$stateDefinition = intval($mediaItemLiveStream->getResolvedStateDefinition()->id);
+		$state = null;
+		if ($stateDefinition === 1) {
+			$state = "NOT_LIVE";
+		}
+		else if ($stateDefinition === 2) {
+			$state = "LIVE";
+		}
+		else if ($stateDefinition === 3) {
+			$state = "SHOW_OVER";
+		}
+		else {
+			throw(new Exception("Unknown stream state."));
+		}
+
+		$data = array(
+			"id"	=> intval($mediaItem->id),
+			"state" => $state
+		);
+
+		$redis = Redis::connection();
+		$redis->publish("mediaItemLiveChannel", json_encode($data));
+		Log::info("Sent live event to redis for MediaItemLiveStream with ID ".$mediaItemLiveStream->id." (media item with id ".$mediaItem->id.").");
 	}
 }
