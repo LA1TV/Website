@@ -36,23 +36,25 @@ class MediaItemLiveHandler {
 		$mediaItem = $mediaItemLiveStream->mediaItem;
 
 		$stateDefinition = intval($mediaItemLiveStream->getResolvedStateDefinition()->id);
-		$state = null;
+		$eventId = null;
 		if ($stateDefinition === 1) {
-			$state = "NOT_LIVE";
+			$eventId = "mediaItem.notLive";
 		}
 		else if ($stateDefinition === 2) {
-			$state = "LIVE";
+			$eventId = "mediaItem.live";
 		}
 		else if ($stateDefinition === 3) {
-			$state = "SHOW_OVER";
+			$eventId = "mediaItem.showOver";
 		}
 		else {
 			throw(new Exception("Unknown stream state."));
 		}
 
 		$data = array(
-			"id"	=> intval($mediaItem->id),
-			"state" => $state
+			"eventId"	=> $eventId,
+			"payload"	=> array(
+				"id"	=> intval($mediaItem->id)
+			)
 		);
 
 		$redis = Redis::connection();
