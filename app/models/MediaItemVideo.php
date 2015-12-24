@@ -9,7 +9,7 @@ use uk\co\la1tv\website\helpers\reorderableList\ChaptersReorderableList;
 class MediaItemVideo extends MyEloquent {
 
 	protected $table = 'media_items_video';
-	protected $fillable = array('time_recorded', 'enabled');
+	protected $fillable = array('time_recorded', 'enabled', 'available_event_triggered');
 	protected $appends = array("time_recorded_for_input", "chapters_for_reorderable_list", "chapters_for_input");
 	
 	

@@ -45,6 +45,7 @@ The following table shows the different events and the structure of their payloa
 | mediaItem.live   | `{id:<<Media Item Id>>}`   | This event occurs when a media item goes to the "Live" state.
 | mediaItem.showOver | `{id:<<Media Item Id>>}` | This event occurs when a media item goes to the "Show Over" state.
 | mediaItem.notLive | `{id:<<Media Item Id>>}`  | This event occurs when a media item goes to the "Not Live" state, which may occur if a show has to restart for some reason.
+| mediaItem.vodAvailable | `{id:<<Media Item Id>>}`  | This event occurs when VOD for a media item becomes available to watch.
 | test              | `{info:"Hello!"} `        | This is a test event which you can trigger yourself (see below).
 
 ### Registering Your URL
