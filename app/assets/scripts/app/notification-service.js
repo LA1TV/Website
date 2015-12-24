@@ -4,17 +4,22 @@ define([
 	"lib/socket.io"
 ], function($, PageData, io) {
 	var url = PageData.get("notificationServiceUrl");
-	if (!url) {
-		// disabled
-		return;
+	var socket = null;
+	if (url) {
+		// enabled
+		socket = io.connect(url);
 	}
-	var socket = io.connect(url);
+
 	return {
 		on: function(eventName, handler) {
-			socket.on(eventName, handler);
+			if (socket) {
+				socket.on(eventName, handler);
+			}
 		},
 		off: function(eventName, handler) {
-			socket.removeListener(eventName, handler);
+			if (socket) {
+				socket.removeListener(eventName, handler);
+			}
 		}
 	};
 });
