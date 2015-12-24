@@ -1,4 +1,4 @@
-<?php namespace uk\co\la1tv\website\api\eventHandlers;
+<?php namespace uk\co\la1tv\website\notifications;
 
 use Log;
 use Redis;
@@ -6,7 +6,7 @@ use Redis;
 class MediaItemLiveHandler {
 
 	public function onLive($mediaItemLiveStream) {
-		Log::info("In API media item live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
+		Log::info("In notifications media item live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
 		if (!$mediaItemLiveStream->isLive()) {
 			// no longer live
 			return;
@@ -15,7 +15,7 @@ class MediaItemLiveHandler {
 	}
 	
 	public function onShowOver($mediaItemLiveStream) {
-		Log::info("In API media item show over event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
+		Log::info("In notifications media item show over event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
 		if (!$mediaItemLiveStream->isOver()) {
 			// no longer show over
 			return;
@@ -24,7 +24,7 @@ class MediaItemLiveHandler {
 	}
 
 	public function onNotLive($mediaItemLiveStream) {
-		Log::info("In API media item not live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
+		Log::info("In notifications media item not live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
 		if (!$mediaItemLiveStream->isNotLive()) {
 			// no longer not live
 			return;
@@ -33,7 +33,7 @@ class MediaItemLiveHandler {
 	}
 
 	public function onVodAvailable($mediaItemVideo) {
-		Log::info("In API media item vod available event handler for MediaItemVideo with ID ".$mediaItemVideo->id.".");
+		Log::info("In notifications media item vod available event handler for MediaItemVideo with ID ".$mediaItemVideo->id.".");
 		if (!$mediaItemVideo->getIsLive()) {
 			// no longer available
 			return;
@@ -77,6 +77,6 @@ class MediaItemLiveHandler {
 			"payload"	=> $payload
 		);
 		$redis = Redis::connection();
-		$redis->publish("mediaItemLiveChannel", json_encode($data));
+		$redis->publish("siteNotificationsChannel", json_encode($data));
 	}
 }

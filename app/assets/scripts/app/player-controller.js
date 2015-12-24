@@ -10,11 +10,12 @@ define([
 	"./page-data",
 	"./synchronised-time",
 	"./device-detection",
+	"./notification-service",
 	"./helpers/build-get-uri",
 	"./helpers/ajax-helpers",
 	"./google-analytics",
 	"lib/domReady!"
-], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, buildGetUri, AjaxHelpers, GoogleAnalytics) {
+], function($, PlayerComponent, PageData, SynchronisedTime, DeviceDetection, notificationService, buildGetUri, AjaxHelpers, GoogleAnalytics) {
 	var PlayerController = null;
 
 	// qualities handler needs to be an object with the following methods:
@@ -55,6 +56,7 @@ define([
 			if (registerWatchingTimerId !== null) {
 				clearTimeout(registerWatchingTimerId);
 			}
+			unregisterStateChangeNotifications();
 			playerComponent.destroy();
 		};
 		
@@ -239,6 +241,7 @@ define([
 		var loaded = false;
 		var destroyed = false;
 		var timerId = null;
+		var updateXHR = null;
 		var playerComponent = null;
 		var getContentId = null;
 		var playerType = null;
@@ -290,6 +293,27 @@ define([
 		// report whether or not the content is playing for view count etc
 		registerWatchingTimerId = setTimeout(registerWatchingAndSchedule, registerWatchingInterval);
 
+		registerStateChangeNotifications();
+
+		function registerStateChangeNotifications() {
+			notificationService.on("mediaItem.live", onStateChangeNotification);
+			notificationService.on("mediaItem.showOver", onStateChangeNotification);
+			notificationService.on("mediaItem.notLive", onStateChangeNotification);
+			notificationService.on("mediaItem.vodAvailable", onStateChangeNotification);
+		}
+
+		function unregisterStateChangeNotifications() {
+			notificationService.off("mediaItem.live", onStateChangeNotification);
+			notificationService.off("mediaItem.showOver", onStateChangeNotification);
+			notificationService.off("mediaItem.notLive", onStateChangeNotification);
+			notificationService.off("mediaItem.vodAvailable", onStateChangeNotification);
+		}
+
+		function onStateChangeNotification() {
+			// something has changed so request an update immediately
+			update();
+		}
+
 		function registerWatchingAndSchedule() {
 			if (registerWatchingTimerId === null) {
 				// timer has been cancelled.
@@ -302,7 +326,15 @@ define([
 		}
 
 		function update() {
-		
+			if (destroyed) {
+				return;
+			}
+
+			if (timerId !== null) {
+				clearTimeout(timerId);
+				timerId = null;
+			}
+
 			var onComplete = function() {
 				if (!destroyed) {
 					// schedule update again in 15 seconds
@@ -310,7 +342,13 @@ define([
 				}
 			};
 
-			jQuery.ajax(playerInfoUri, {
+			if (updateXHR) {
+				// cancel the current request
+				updateXHR.abort();
+				updateXHR = null;
+			}
+
+			updateXHR = jQuery.ajax(playerInfoUri, {
 				cache: false,
 				dataType: "json",
 				headers: AjaxHelpers.getHeaders(),
@@ -319,8 +357,8 @@ define([
 				},
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
+				updateXHR = null;
 				if (jqXHR.status === 200) {
-					
 					var localVodSourceId = nullify(data.vodSourceId);
 					var callback = function(time) {
 						cachedData = data;

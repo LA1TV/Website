@@ -40,6 +40,7 @@ class EmbedBaseController extends BaseController {
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
+			"notificationServiceUrl"	=> Config::get("notificationService.url"),
 			"env"			=> App::environment(),
 			"version"		=> DebugHelpers::getVersion()
 		);
