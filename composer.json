@@ -18,6 +18,7 @@
 			"app/controllers",
 			"app/models",
 			"app/api",
+			"app/notifications",
 			"app/serviceProviders",
 			"app/jobs",
 			"app/database/migrations",
