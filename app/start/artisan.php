@@ -8,6 +8,7 @@ use uk\co\la1tv\website\commands\CreateSearchIndexCommand;
 use uk\co\la1tv\website\commands\DeleteSearchIndexCommand;
 use uk\co\la1tv\website\commands\SearchIndexCheckForItemsCommand;
 use uk\co\la1tv\website\commands\UpdateSearchIndexCommand;
+use uk\co\la1tv\website\commands\TriggerVODAvailableEventCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +30,4 @@ Artisan::add(new DeleteSearchIndexCommand());
 // this should appear before UpdateSearchIndexCommand so that it will always run before it when scheduled to run at the same time
 Artisan::add(new SearchIndexCheckForItemsCommand());
 Artisan::add(new UpdateSearchIndexCommand());
+Artisan::add(new TriggerVODAvailableEventCommand());

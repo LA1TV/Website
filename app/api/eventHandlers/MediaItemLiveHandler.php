@@ -32,6 +32,21 @@ class MediaItemLiveHandler {
 		$this->queueWebhooks($mediaItemLiveStream);
 	}
 
+	public function onVodAvailable($mediaItemVideo) {
+		Log::info("In API media item vod available event handler for MediaItemVideo with ID ".$mediaItemVideo->id.".");
+		if (!$mediaItemVideo->getIsLive()) {
+			// no longer available
+			return;
+		}
+		$mediaItem = $mediaItemVideo->mediaItem;
+		$eventId = "mediaItem.vodAvailable";
+		$payload = array(
+			"id"	=> intval($mediaItem->id)
+		);
+		$this->sendToRedis($eventId, $payload);
+		Log::info("Sent live event to redis for MediaItemVideo with ID ".$mediaItemVideo->id." (media item with id ".$mediaItem->id.").");
+	}
+
 	private function queueWebhooks($mediaItemLiveStream) {
 		$mediaItem = $mediaItemLiveStream->mediaItem;
 
@@ -49,16 +64,19 @@ class MediaItemLiveHandler {
 		else {
 			throw(new Exception("Unknown stream state."));
 		}
+		$payload = array(
+			"id"	=> intval($mediaItem->id)
+		);
+		$this->sendToRedis($eventId, $payload);
+		Log::info("Sent live event to redis for MediaItemLiveStream with ID ".$mediaItemLiveStream->id." (media item with id ".$mediaItem->id.").");
+	}
 
+	private function sendToRedis($eventId, $payload) {
 		$data = array(
 			"eventId"	=> $eventId,
-			"payload"	=> array(
-				"id"	=> intval($mediaItem->id)
-			)
+			"payload"	=> $payload
 		);
-
 		$redis = Redis::connection();
 		$redis->publish("mediaItemLiveChannel", json_encode($data));
-		Log::info("Sent live event to redis for MediaItemLiveStream with ID ".$mediaItemLiveStream->id." (media item with id ".$mediaItem->id.").");
 	}
 }
