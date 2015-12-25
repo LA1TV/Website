@@ -2,9 +2,9 @@ define([
 	"jquery",
 	"./page-data",
 	"./cookie-config",
-	"./helpers/ajax-helpers",
+	"./notification-service",
 	"lib/jquery.cookie"
-], function($, PageData, cookieConfig, AjaxHelpers) {
+], function($, PageData, cookieConfig, notificationService) {
 
 	var SynchronisedTime = null;
 	// manage synchronised time
@@ -20,39 +20,17 @@ define([
 			return offsetTime;
 		}
 	};
-	
-	function updateTimeOffset() {
-		var requestStartTime = new Date().getTime();
-		$.ajax({
-			url: PageData.get("baseUrl")+"/ajax/time",
-			timeout: 3000,
-			dataType: "json",
-			headers: AjaxHelpers.getHeaders(),
-			data: {
-				csrf_token: PageData.get("csrfToken")
-			},
-			cache: false,
-			type: "POST"
-		}).done(function(data, textStatus, jqXHR) {
-			if (jqXHR.status === 200) {
-				var currentTime = new Date().getTime();
-				var roundTripTime = currentTime - requestStartTime;
-				offsetTime = new Date(data.time*1000).getTime() - currentTime - (roundTripTime/2);
-				updateCookieOffsetTime();
-			}
-		}).always(function() {
-			var delay;
-			if (updateCount <= 5) {
-				delay = 3000;
-				updateCount++;
-			}
-			else {
-				delay = 55000;
-			}
-			setTimeout(updateTimeOffset, delay);
-		});
+
+	notificationService.on("synchronisedClock.time", function(time) {
+		updateTimeOffset(time);
+	});
+
+	function updateTimeOffset(serverTime) {
+		var currentTime = new Date().getTime();
+		offsetTime = serverTime - currentTime;
+		updateCookieOffsetTime();
 	}
-	
+
 	function getOffsetTimeFromCookie() {
 		if ($.cookie("synchronisedTimeOffset") !== null) {
 			return parseInt($.cookie("synchronisedTimeOffset"));
@@ -63,9 +41,6 @@ define([
 	function updateCookieOffsetTime() {
 		$.cookie("synchronisedTimeOffset", ""+offsetTime, cookieConfig)
 	}
-	
-	// make the first request after a delay
-	setTimeout(updateTimeOffset, 8000);
-	
+
 	return SynchronisedTime;
 });

@@ -10,12 +10,6 @@ use Elasticsearch;
 use App;
 
 class AjaxController extends BaseController {
-
-	public function postTime() {
-		return Response::json(array(
-			"time"	=> microtime(true)
-		));
-	}
 	
 	// used as an endpoint to ping to keep a users session alive
 	public function postHello() {
