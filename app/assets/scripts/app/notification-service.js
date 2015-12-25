@@ -8,6 +8,12 @@ define([
 	if (url) {
 		// enabled
 		socket = io.connect(url);
+		socket.on('connect', function() {
+			// authenticate with session id
+			socket.emit('authentication', {
+				sessionId: PageData.get("sessionId")
+			});
+		});
 	}
 
 	return {
