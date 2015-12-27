@@ -277,6 +277,11 @@ class PlayerController extends HomeBaseController {
 			$view->canCommentAsFacebookUser = Facebook::isLoggedIn() && Facebook::getUserState() === 0;
 			$view->canCommentAsStation = $userHasCommentsPermission;
 		}
+		$view->vodControlData = array(
+			"uploadPointId"	=> Config::get("uploadPoints.vodVideo"),
+			"fileId"		=> null,
+			"info"			=> FormHelpers::getFileInfo(null)
+		);
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;

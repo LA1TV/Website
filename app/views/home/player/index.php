@@ -6,11 +6,27 @@
 <div class="row">
 	<div class="col-md-7">
 		<h1 class="no-top-margin"><?=e($episodeTitle);?></h1>
-		<?php if (!is_null($streamControlData)): ?>
-		<div class="admin-panel panel-group custom-accordian" data-grouptogether="0" data-mediaitemid="<?=e($mediaItemId);?>" data-beingrecordedforvod="<?=$beingRecordedForVod?"1":"0"?>">
-			<div class="panel panel-default">
+		<?php if (!is_null($streamControlData) || !is_null($vodControlData)): ?>
+		<div class="admin-panel panel-group custom-accordian" data-grouptogether="1" data-mediaitemid="<?=e($mediaItemId);?>">
+			<?php if (!is_null($vodControlData)): ?>
+			<div class="panel panel-default vod-control">
 				<div class="panel-heading">
-					<h4 class="panel-title">Admin Stream Control</h4>
+					<h4 class="panel-title">Admin: Video On Demand Control</h4>
+				</div>
+				<div class="panel-collapse collapse">
+					<div class="panel-body">
+						<div class="my-row vod-upload-row">
+							<div>Video:</div>
+							<?=FormHelpers::getFileUploadRawElement("vod-upload-component", $vodControlData['uploadPointId'], $vodControlData['info']['name'], $vodControlData['info']['size'], $vodControlData['fileId'], $vodControlData['info']['processState'], $vodControlData['info']['processPercentage'], $vodControlData['info']['processMsg']);?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+			<?php if (!is_null($streamControlData)): ?>
+			<div class="panel panel-default stream-control" data-beingrecordedforvod="<?=$beingRecordedForVod?"1":"0"?>">
+				<div class="panel-heading">
+					<h4 class="panel-title">Admin: Live Stream Control</h4>
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
@@ -32,7 +48,6 @@
 						<div class="my-row stream-state-row">
 							<div>Stream state: <em>(Updates Instantly)</em></div>
 							<div class="state-buttons" data-buttonsdata="<?=e(json_encode($streamControlData['streamStateButtonsData']));?>" data-chosenid="<?=e($streamControlData['streamStateChosenId']);?>"></div>
-							
 						</div>
 						<div class="information-msg-section my-row clearfix">
 							<div>Information message: (Shown When Not Live)</div>
@@ -44,6 +59,7 @@
 					</div>
 				</div>
 			</div>
+			<?php endif; ?>
 		</div>
 		<?php endif; ?>
 		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-watching-uri="<?=e($registerWatchingUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-auto-play-vod="<?=$autoPlay?"1":"0"?>" data-vod-play-start-time="<?=$vodPlayStartTime?>">

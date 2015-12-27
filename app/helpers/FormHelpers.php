@@ -153,16 +153,20 @@ class FormHelpers {
 		return '<span class="help-block">'.e($msg).'</span>';
 	}
 	
-	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $remoteRemove, $processState, $processPercentage, $processMsg) {
-		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($formId, $name, $uploadPointId, $fileName, $fileSize, $val, $remoteRemove, $processState, $processPercentage, $processMsg).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
+	public static function getFormUploadInput($formId, $uploadPointId, $txt, $name, $val, $formErrors, $fileName, $fileSize, $processState, $processPercentage, $processMsg) {
+		return self::getFormGroupStart($name, $formErrors).'<label class="control-label">'.e($txt).'</label>'.self::getFileUploadElement($formId, $name, $uploadPointId, $fileName, $fileSize, $val, $processState, $processPercentage, $processMsg).FormHelpers::getErrMsgHTML($formErrors, $name).'</div>';
 	}
 	
-	public static function getFileUploadElement($formId, $formInputName, $uploadPointId, $currentFileName, $currentFileSize, $value, $remoteRemove, $processState, $processPercentage, $processMsg) {
+	public static function getFileUploadElement($formId, $formInputName, $uploadPointId, $currentFileName, $currentFileSize, $fileID, $processState, $processPercentage, $processMsg) {
 		$extensions = FormHelpers::getUploadPointExtensions($uploadPointId);
-		$remoteRemoveVal = $remoteRemove?"1":"0";
-		return '<div class="form-control default-ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-ajaxuploaduploadpointid="'.e($uploadPointId).'" data-ajaxuploadremoteremove="'.e($remoteRemoveVal).'" data-ajaxuploadprocessstate="'.e($processState).'" data-ajaxuploadprocesspercentage="'.e($processPercentage).'" data-ajaxuploadprocessmsg="'.e($processMsg).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $value);
+		return '<div class="form-control default-ajax-upload" data-ajaxuploadresultname="'.e($formInputName).'" data-ajaxuploadfileid="'.e(!is_null($fileID) ? $fileID : "").'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-ajaxuploaduploadpointid="'.e($uploadPointId).'" data-ajaxuploadprocessstate="'.e($processState).'" data-ajaxuploadprocesspercentage="'.e($processPercentage).'" data-ajaxuploadprocessmsg="'.e($processMsg).'"></div>'.self::getFormHiddenInput($formId, $formInputName, $fileID);
 	}
 	
+	public static function getFileUploadRawElement($cssClass, $uploadPointId, $currentFileName, $currentFileSize, $fileID, $processState, $processPercentage, $processMsg) {
+		$extensions = FormHelpers::getUploadPointExtensions($uploadPointId);
+		return '<div class="form-control '.$cssClass.'" data-ajaxuploadfileid="'.e(!is_null($fileID) ? $fileID : "").'" data-ajaxuploadextensions="'.e(implode(",", $extensions)).'" data-ajaxuploadcurrentfilename="'.e($currentFileName).'" data-ajaxuploadcurrentfilesize="'.e($currentFileSize).'" data-ajaxuploaduploadpointid="'.e($uploadPointId).'" data-ajaxuploadprocessstate="'.e($processState).'" data-ajaxuploadprocesspercentage="'.e($processPercentage).'" data-ajaxuploadprocessmsg="'.e($processMsg).'"></div>';
+	}
+
 	public static function getFormGroupStart($name, $formErrors) {
 		return '<div class="form-group '.FormHelpers::getErrCSS($formErrors, $name).'">';
 	}

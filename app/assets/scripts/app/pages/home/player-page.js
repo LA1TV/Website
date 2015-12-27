@@ -10,10 +10,11 @@ define([
 	"../../device-detection",
 	"../../helpers/ajax-helpers",
 	"../../components/alert-modal",
+	"../../components/ajax-upload",
 	"lib/jquery.cookie",
 	"lib/jquery.visible",
 	"lib/domReady!"
-], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection, AjaxHelpers, AlertModal) {
+], function($, ButtonGroup, CommentsComponent, PlayerContainer, AutoContinueButton, PageData, buildGetUri, AutoContinueManager, DeviceDetection, AjaxHelpers, AlertModal, AjaxUpload) {
 	
 	var playerController = null;
 		
@@ -54,76 +55,116 @@ define([
 		});
 		
 		$pageContainer.find(".admin-panel").each(function() {
-			
 			var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
-			var recordingForVod = $(this).attr("data-beingrecordedforvod") === "1";
+			$(this).find(".vod-control").each(function() {
+				var uploadedModal = null;
+				var $upload = $(this).find(".vod-upload-component");
+				var o = AjaxUpload.getOptionsFromDom($upload);
+				var ajaxUpload = new AjaxUpload(o.allowedExtensions, o.uploadPointId, {
+					id: o.id,
+					fileName: o.fileName,
+					fileSize: o.fileSize,
+					processState: o.processState,
+					processPercentage: o.processPercentage,
+					processMsg: o.processMsg
+				}, false);
+				$(ajaxUpload).on("stateChanged", function() {
+					var state = ajaxUpload.getState();
+					if (state.processState === 0) {
+						// processing
+						// save id to media item
+						var id = state.id;
 
-			$(this).find(".stream-state-row .state-buttons").each(function() {
-				var self = this;
-				
-				var buttonsData = jQuery.parseJSON($(this).attr("data-buttonsdata"));
-				var recordReminderModal = null;
-				var chosenId = parseInt($(this).attr("data-chosenid"));
-				var currentId = chosenId;
-				var buttonGroup = new ButtonGroup(buttonsData, true, {
-					id: chosenId
-				});
-				$(buttonGroup).on("stateChanged", function() {
-					makeAjaxRequest(buttonGroup.getId());
-				});
-				
-				$(this).append(buttonGroup.getEl());
-				
-				function makeAjaxRequest(id) {
-					if (id === currentId) {
-						// only make request if id has changed.
-						return;
-					}
-					
-					if (id === 1) {
-						// going to "Not Live"
-						if (!confirmedNotLive()) {
-							// reselect current button
-							buttonGroup.setState({id: currentId});
-							return;
-						}
-					}
-
-					jQuery.ajax(PageData.get("baseUrl")+"/admin/media/admin-stream-control-stream-state/"+mediaItemId, {
-						cache: false,
-						dataType: "json",
-						headers: AjaxHelpers.getHeaders(),
-						data: {
-							csrf_token: PageData.get("csrfToken"),
-							action: "stream-state",
-							stream_state: id
-						},
-						type: "POST"
-					}).always(function(data, textStatus, jqXHR) {
-						if (jqXHR.status === 200) {
-							currentId = data.streamState;
-							if (currentId === 2 && recordingForVod) {
-								// just gone live and meant to be recording for VOD
-								// show message to remind user that they should be recording
-								showRecordReminder();
-							}
+						// on save
+						if (true) {
+							ajaxUpload.setRemoteId(id);
+							showUploadedModal();
 						}
 						else {
-							buttonGroup.setState({id: currentId});
+							ajaxUpload.removeUpload();
 						}
-					});
-				}
-
-				function showRecordReminder() {
-					if (!recordReminderModal) {
-						recordReminderModal = new AlertModal("Press Record!", "This media item is marked as being recorded for VOD.\nMAKE SURE YOU'VE PRESSED RECORD!");
+						
 					}
-					recordReminderModal.show(true);
-				}
+				});
+				$upload.append(ajaxUpload.getEl());
 
-				function confirmedNotLive() {
-					return confirm("Are you sure you want to do this?\n\nIf the show has finished you want the \"Show Over\" button.\n\nTHIS WILL DELETE ANY DVR RECORDING IF THERE IS ONE.");
+				function showUploadedModal() {
+					if (!uploadedModal) {
+						uploadedModal = new AlertModal("VOD Uploaded!", "The video has been uploaded and is now processing!");
+					}
+					uploadedModal.show(true);
 				}
+			});
+
+			$(this).find(".stream-control").each(function() {
+				var recordingForVod = $(this).attr("data-beingrecordedforvod") === "1";
+				$(this).find(".stream-state-row .state-buttons").each(function() {
+					var self = this;
+					
+					var buttonsData = jQuery.parseJSON($(this).attr("data-buttonsdata"));
+					var recordReminderModal = null;
+					var chosenId = parseInt($(this).attr("data-chosenid"));
+					var currentId = chosenId;
+					var buttonGroup = new ButtonGroup(buttonsData, true, {
+						id: chosenId
+					});
+					$(buttonGroup).on("stateChanged", function() {
+						makeAjaxRequest(buttonGroup.getId());
+					});
+					
+					$(this).append(buttonGroup.getEl());
+					
+					function makeAjaxRequest(id) {
+						if (id === currentId) {
+							// only make request if id has changed.
+							return;
+						}
+						
+						if (id === 1) {
+							// going to "Not Live"
+							if (!confirmedNotLive()) {
+								// reselect current button
+								buttonGroup.setState({id: currentId});
+								return;
+							}
+						}
+
+						jQuery.ajax(PageData.get("baseUrl")+"/admin/media/admin-stream-control-stream-state/"+mediaItemId, {
+							cache: false,
+							dataType: "json",
+							headers: AjaxHelpers.getHeaders(),
+							data: {
+								csrf_token: PageData.get("csrfToken"),
+								action: "stream-state",
+								stream_state: id
+							},
+							type: "POST"
+						}).always(function(data, textStatus, jqXHR) {
+							if (jqXHR.status === 200) {
+								currentId = data.streamState;
+								if (currentId === 2 && recordingForVod) {
+									// just gone live and meant to be recording for VOD
+									// show message to remind user that they should be recording
+									showRecordReminder();
+								}
+							}
+							else {
+								buttonGroup.setState({id: currentId});
+							}
+						});
+					}
+
+					function showRecordReminder() {
+						if (!recordReminderModal) {
+							recordReminderModal = new AlertModal("Press Record!", "This media item is marked as being recorded for VOD.\nMAKE SURE YOU'VE PRESSED RECORD!");
+						}
+						recordReminderModal.show(true);
+					}
+
+					function confirmedNotLive() {
+						return confirm("Are you sure you want to do this?\n\nIf the show has finished you want the \"Show Over\" button.\n\nTHIS WILL DELETE ANY DVR RECORDING IF THERE IS ONE.");
+					}
+				});
 			});
 			
 			$(this).find(".information-msg-section").each(function() {

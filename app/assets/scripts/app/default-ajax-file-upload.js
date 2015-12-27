@@ -4,22 +4,21 @@ define(["jquery", "./components/ajax-upload", "lib/domReady!"], function($, Ajax
 
 	$(".default-ajax-upload").each(function() {
 		var $container = $(this).first();
+		var options = AjaxUpload.getOptionsFromDom($container);
+		var id = options.id;
+		var allowedExtensions = options.allowedExtensions;
+		var uploadPointId = options.uploadPointId;
+		var fileName = options.fileName;
+		var fileSize = options.fileSize;
+		var processState = options.processState;
+		var processPercentage = options.processPercentage;
+		var processMsg = options.processMsg;
+		
 		// after file uploaded it's id should be stored in hidden form element with name
 		var destinationName = $container.attr("data-ajaxuploadresultname");
 		// the reference to the hidden form element where the file id should be placed
 		var $destinationEl = $container.parent().find('[name="'+destinationName+'"]').first();
-		var id = $destinationEl.val();
-		id = id === "" ? null : parseInt(id, 10);
-		var allowedExtensions = $container.attr("data-ajaxuploadextensions").split(",");
-		var uploadPointId = $container.attr("data-ajaxuploaduploadpointid");
-		var remoteRemove = $container.attr("data-ajaxuploadremoteremove") === "1";
-		var fileName = $container.attr("data-ajaxuploadcurrentfilename");
-		var fileSize = parseInt($container.attr("data-ajaxuploadcurrentfilesize"), 10);
-		var processState = parseInt($container.attr("data-ajaxuploadprocessstate"), 10);
-		var processPercentage = $container.attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($container.attr("data-ajaxuploadprocesspercentage"), 10) : null;
-		var processMsg = $container.attr("data-ajaxuploadprocessmsg") !== "" ? $container.attr("data-ajaxuploadprocessmsg") : null;
-		
-		var ajaxUpload = new AjaxUpload(allowedExtensions, uploadPointId, remoteRemove, {
+		var ajaxUpload = new AjaxUpload(allowedExtensions, uploadPointId, {
 			id: id,
 			fileName: fileName,
 			fileSize: fileSize,
