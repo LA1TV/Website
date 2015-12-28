@@ -594,6 +594,44 @@ class MediaController extends MediaBaseController {
 		$resp['success'] = true;
 		return Response::json($resp);
 	}
+
+	// ajax from the vod control box on the player page on the main site
+	public function postAdminVodControlUpload($id) {
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 1);
+		
+		$mediaItem = MediaItem::with("videoItem")->find($id);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+		
+		$videoItem = $mediaItem->videoItem;
+		if (!is_null($videoItem)) {
+			// the video can only be uploaded if there isn't one already
+			// forbidden
+			App::abort(403);
+		}
+
+		$id = null;
+		if (isset($_POST['id'])) {
+			$id = intval($_POST['id']);
+		}
+		if (is_null($id)) {
+			App::abort(500);
+		}
+		
+		$videoItem = new MediaItemVideo();
+		$videoItem->enabled = true;
+		$file = Upload::register(Config::get("uploadPoints.vodVideo"), $id);
+		if (is_null($file)) {
+			App::abort(500);
+		}
+		$videoItem->sourceFile()->associate($file);
+		if (!$mediaItem->videoItem()->save($videoItem)) {
+			App::abort(500);
+		}
+		$resp = array("success" => true);
+		return Response::json($resp);
+	}
 	
 	// ajax from the live stream control box on the player page on the main site
 	public function postAdminStreamControlStreamState($id) {
@@ -616,7 +654,7 @@ class MediaController extends MediaBaseController {
 			$requestedState = intval($_POST['stream_state']);
 		}
 		
-		$stateDefinition = LiveStreamStateDefinition::find($requestedState);
+		$stateDefinition = !is_null($requestedState) ? LiveStreamStateDefinition::find($requestedState) : null;
 		if (is_null($stateDefinition)) {
 			throw(new Exception("Invalid stream state."));
 		}

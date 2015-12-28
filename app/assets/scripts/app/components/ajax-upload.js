@@ -7,10 +7,11 @@ define([
 
 	var numActiveUploads = 0;
 
-	var AjaxUpload = function(allowedExtensions, uploadPointId, remoteRemove, stateParam) {
+	var AjaxUpload = function(allowedExtensions, uploadPointId, stateParam, removeEnabled) {
 		
 		var self = this;
-		
+		removeEnabled = typeof(removeEnabled) !== "undefined" ? removeEnabled : true;
+
 		this.getId = function() {
 			return id;
 		};
@@ -42,9 +43,29 @@ define([
 			$(self).triggerHandler("stateChanged");
 			update();
 		};
+
+		// get the id of the file that is currently stored on the server
+		this.getRemoteId = function() {
+			return remoteId;
+		};
+
+		// set the id of the file that is currently stored on the server
+		this.setRemoteId = function(id) {
+			remoteId = id;
+		};
 		
 		this.getEl = function() {
 			return $container;
+		};
+
+		this.removeUpload = function() {
+			removeUpload();
+			update();
+		};
+
+		this.cancelUpload = function() {
+			cancelUpload();
+			update();
 		};
 		
 		this.destroy = function() {
@@ -59,7 +80,7 @@ define([
 		var $btnContainer = $("<div />").addClass("btn-container");
 		
 		// the upload button
-		var $uploadBtn = $('<button />').prop("type", "button").addClass("btn btn-xs btn-default");
+		var $uploadBtn = $('<button />').prop("type", "button").addClass("btn btn-xs btn-default upload-btn");
 		$btnContainer.append($uploadBtn);
 
 		// the download button
@@ -101,8 +122,8 @@ define([
 		var destroyed = false;
 		var state = 0; // 0=choose file, 1=uploading, 2=uploaded and processed (even if process error), 3=error, 4=uploaded and processing
 		var cancelling = false;
-		var defaultId = stateParam.id;
-		if (defaultId !== null) {
+		var remoteId = stateParam.id;
+		if (remoteId !== null) {
 			progress = 100;
 			state = stateParam.processState !== 0 ? 2 : 4;
 		}
@@ -229,7 +250,7 @@ define([
 			}
 			
 			$uploadBtn.blur();
-			$uploadBtn.removeClass("btn-default btn-info btn-danger");
+			$uploadBtn.removeClass("btn-default btn-info btn-danger hidden");
 			if (state === 0) {
 				$uploadBtn.text("Upload");
 				$uploadBtn.addClass("btn-info");
@@ -239,8 +260,13 @@ define([
 				$uploadBtn.addClass("btn-danger");
 			}
 			else if (state === 2) {
-				$uploadBtn.text("Remove");
-				$uploadBtn.addClass("btn-default");
+				if (removeEnabled) {
+					$uploadBtn.text("Remove");
+					$uploadBtn.addClass("btn-default");
+				}
+				else {
+					$uploadBtn.addClass("hidden");
+				}
 			}
 		}
 
@@ -526,10 +552,10 @@ define([
 		}
 		
 		function doRemoteRemove(id) {
-			if (remoteRemove || id !== defaultId) {
+			if (id !== remoteId) {
 				// make ajax request to server to tell it to remove the temporary file immediately
 				// don't really care if it fails because the file will be removed when the session ends anyway
-				// this will not be made if the user is removing the file that is already saved because remoteRemove should be false and the id should match the one that was there when the page was loaded (because the user could cancel the form and it should still be on the server)
+				// this will not be made if the user is removing the file that is already saved because the id should match the one that was there when the page was loaded (because the user could cancel the form and it should still be on the server)
 				jQuery.ajax(PageData.get("baseUrl")+"/admin/upload/remove", {
 					cache: false,
 					dataType: "json",
@@ -547,6 +573,19 @@ define([
 	AjaxUpload.getNoActiveUploads = function() {
 		return numActiveUploads;
 	};
-	
+
+	AjaxUpload.getOptionsFromDom = function($el) {
+		var id = $el.attr("data-ajaxuploadfileid");
+		return {
+			id: id !== "" ? parseInt(id, 10) : null,
+			allowedExtensions: $el.attr("data-ajaxuploadextensions").split(","),
+			uploadPointId: parseInt($el.attr("data-ajaxuploaduploadpointid"), 10),
+			fileName: $el.attr("data-ajaxuploadcurrentfilename"),
+			fileSize: $el.attr("data-ajaxuploadcurrentfilesize") !== "" ? parseInt($el.attr("data-ajaxuploadcurrentfilesize"), 10) : null,
+			processState: parseInt($el.attr("data-ajaxuploadprocessstate"), 10),
+			processPercentage: $el.attr("data-ajaxuploadprocesspercentage") !== "" ? parseInt($el.attr("data-ajaxuploadprocesspercentage"), 10) : null,
+			processMsg: $el.attr("data-ajaxuploadprocessmsg") !== "" ? $el.attr("data-ajaxuploadprocessmsg") : null,
+		};
+	};
 	return AjaxUpload;
 });

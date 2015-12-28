@@ -5,7 +5,9 @@ require.config({
 		optional: "app/requirejs-plugins/optional",
 		jquery: "lib/jquery",
 		ga: "https://www.google-analytics.com/analytics",
-		twitter: "https://platform.twitter.com/widgets"
+		twitter: "https://platform.twitter.com/widgets",
+		moxie: "lib/moxie",
+		plupload: "lib/plupload"
 	},
 	shim: {
 		"lib/bootstrap": ["jquery"],
@@ -14,6 +16,13 @@ require.config({
 		"lib/jquery.visible": ["jquery"],
 		"ga": {
 			exports: "ga"
+		},
+		"moxie": {
+			exports: "mOxie"
+		},
+		"plupload": {
+			exports: "plupload",
+			deps: ['moxie']
 		},
 		"lib/modernizr": {
 			exports: "Modernizr"

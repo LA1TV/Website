@@ -6,6 +6,7 @@
 @import url("../app/margins.css");
 @import url("../app/shadow.css");
 @import url("../app/textarea-resize.css");
+@import url("../app/clear-height-form-control.css");
 
 @import url("../app/components/ajax-select.css");
 @import url("../app/components/ajax-upload.css");
@@ -14,7 +15,6 @@
 @import url("../app/components/player.css");
 @import url("../app/components/quality-selection.css");
 
-@import url("../app/pages/admin/clear-height-form-control.css");
 @import url("../app/pages/admin/general.css");
 @import url("../app/pages/admin/search-box.css");
 @import url("../app/pages/admin/sticky-footer.css");

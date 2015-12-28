@@ -10,6 +10,7 @@
 @import url("../app/fit-text.css");
 @import url("../app/player-container-component-container.css");
 @import url("../app/delay-show.css");
+@import url("../app/clear-height-form-control.css");
 
 @import url("../app/components/player-container.css");
 @import url("../app/components/comments.css");
@@ -18,6 +19,7 @@
 @import url("../app/components/share-modal.css");
 @import url("../app/components/cookie-compliance-modal.css");
 @import url("../app/components/promo.css");
+@import url("../app/components/ajax-upload.css");
 
 @import url("../app/pages/home/container.css");
 @import url("../app/pages/home/general.css");
