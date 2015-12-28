@@ -1,8 +1,8 @@
-.ajax-upload .btn-container {
-	margin-left: -8px;
+.ajax-upload .btn-container > :not(.hidden) {
+	margin-left: 0;
 }
 
-.ajax-upload .btn-container .upload-btn, .ajax-upload .btn-container .download-btn, .ajax-upload .btn-container .info-txt {
+.ajax-upload .btn-container > *, .ajax-upload .btn-container > :not(.hidden) ~ * {
 	margin-left: 8px;
 }
 
