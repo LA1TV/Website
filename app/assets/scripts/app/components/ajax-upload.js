@@ -58,8 +58,15 @@ define([
 			return $container;
 		};
 
-		this.removeUpload = removeUpload;
-		this.cancelUpload = cancelUpload;
+		this.removeUpload = function() {
+			removeUpload();
+			update();
+		};
+
+		this.cancelUpload = function() {
+			cancelUpload();
+			update();
+		};
 		
 		this.destroy = function() {
 			destroyed = true;

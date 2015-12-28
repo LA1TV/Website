@@ -121,7 +121,7 @@ class PlayerController extends HomeBaseController {
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
 			);
 		}
-		
+
 		$streamControlData = null;
 		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
 		$liveStreamItem = $currentMediaItem->liveStreamItem;
@@ -178,7 +178,6 @@ class PlayerController extends HomeBaseController {
 		$twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
 		$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
 		$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
-		
 		
 		if (!is_null($currentMediaItem->description)) {
 			$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
@@ -248,6 +247,20 @@ class PlayerController extends HomeBaseController {
 			}
 		}
 		
+		$vodControlData = null;
+		if ($userHasMediaItemsEditPermission) {
+			$vodFileId = null;
+			if (!is_null($videoItem)) {
+				$vodFile = $videoItem->sourceFile;
+				$vodFileId = !is_null($vodFile) ? intval($vodFile->id) : null;
+			}
+			$vodControlData = array(
+				"uploadPointId"	=> Config::get("uploadPoints.vodVideo"),
+				"fileId"		=> $vodFileId,
+				"info"			=> FormHelpers::getFileInfo($vodFileId)
+			);
+		}
+
 		$coverImageResolutions = Config::get("imageResolutions.coverImage");
 		$coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
@@ -277,11 +290,7 @@ class PlayerController extends HomeBaseController {
 			$view->canCommentAsFacebookUser = Facebook::isLoggedIn() && Facebook::getUserState() === 0;
 			$view->canCommentAsStation = $userHasCommentsPermission;
 		}
-		$view->vodControlData = array(
-			"uploadPointId"	=> Config::get("uploadPoints.vodVideo"),
-			"fileId"		=> null,
-			"info"			=> FormHelpers::getFileInfo(null)
-		);
+		$view->vodControlData = $vodControlData;
 		$view->streamControlData = $streamControlData;
 		$view->mediaItemId = $currentMediaItem->id;
 		$view->seriesAd = $seriesAd;

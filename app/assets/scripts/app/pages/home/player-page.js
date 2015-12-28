@@ -58,6 +58,7 @@ define([
 			var mediaItemId = parseInt($(this).attr("data-mediaitemid"));
 			$(this).find(".vod-control").each(function() {
 				var uploadedModal = null;
+				var uploadFailedModal = null;
 				var $upload = $(this).find(".vod-upload-component");
 				var o = AjaxUpload.getOptionsFromDom($upload);
 				var ajaxUpload = new AjaxUpload(o.allowedExtensions, o.uploadPointId, {
@@ -74,25 +75,48 @@ define([
 						// processing
 						// save id to media item
 						var id = state.id;
+						makeAjaxRequest(id);
+					}
+				});
+				$upload.append(ajaxUpload.getEl());
 
-						// on save
-						if (true) {
+				// make a request to inform the server of the id of the uploaded video
+				function makeAjaxRequest(id) {
+					jQuery.ajax(PageData.get("baseUrl")+"/admin/media/admin-vod-control-upload/"+mediaItemId, {
+						cache: false,
+						dataType: "json",
+						headers: AjaxHelpers.getHeaders(),
+						data: {
+							csrf_token: PageData.get("csrfToken"),
+							id: id
+						},
+						type: "POST"
+					}).always(function(data, textStatus, jqXHR) {
+						if (jqXHR.status === 200) {
+							// video saved to media item
 							ajaxUpload.setRemoteId(id);
 							showUploadedModal();
 						}
 						else {
+							// failed to save. remove upload
 							ajaxUpload.removeUpload();
+							showUploadFailedModal();
 						}
-						
-					}
-				});
-				$upload.append(ajaxUpload.getEl());
+					});
+				}
 
 				function showUploadedModal() {
 					if (!uploadedModal) {
 						uploadedModal = new AlertModal("VOD Uploaded!", "The video has been uploaded and is now processing!");
 					}
 					uploadedModal.show(true);
+				}
+
+				function showUploadFailedModal() {
+					if (!uploadFailedModal) {
+						uploadFailedModal = new AlertModal("VOD Upload Failed", "The upload failed for some reason.");
+					}
+					uploadFailedModal.show(true);
 				}
 			});
 
@@ -135,7 +159,6 @@ define([
 							headers: AjaxHelpers.getHeaders(),
 							data: {
 								csrf_token: PageData.get("csrfToken"),
-								action: "stream-state",
 								stream_state: id
 							},
 							type: "POST"

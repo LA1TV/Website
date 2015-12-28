@@ -11,7 +11,7 @@
 			<?php if (!is_null($vodControlData)): ?>
 			<div class="panel panel-default vod-control">
 				<div class="panel-heading">
-					<h4 class="panel-title">Admin: Video On Demand Control</h4>
+					<h4 class="panel-title">Admin: Video On Demand</h4>
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
@@ -26,7 +26,7 @@
 			<?php if (!is_null($streamControlData)): ?>
 			<div class="panel panel-default stream-control" data-beingrecordedforvod="<?=$beingRecordedForVod?"1":"0"?>">
 				<div class="panel-heading">
-					<h4 class="panel-title">Admin: Live Stream Control</h4>
+					<h4 class="panel-title">Admin: Live Stream</h4>
 				</div>
 				<div class="panel-collapse collapse">
 					<div class="panel-body">
