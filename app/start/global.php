@@ -52,9 +52,7 @@ App::error(function(Exception $exception, $code)
 });
 
 App::error(function(Illuminate\Session\TokenMismatchException $exception) {
-	// intentional
-	// don't care if there's a csrf exception. Just do nothing so the server error
-	// response is returned.
+	return new Reponse("CSRF error.", 500);
 });
 
 /*
