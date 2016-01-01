@@ -16,6 +16,12 @@ use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedE
 App::before(function($request)
 {
 
+	App::error(function(Illuminate\Session\TokenMismatchException $exception) {
+		// intentional
+		// don't care if there's a csrf exception. Just do nothing so the server error
+		// response is returned.
+	});
+
 	App::error(function(ApiException $exception) {
 		return App::make('uk\co\la1tv\website\controllers\api\v1\ApiController')->callAction("respondServerError", array());
 	});
