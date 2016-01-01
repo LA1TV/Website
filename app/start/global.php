@@ -46,15 +46,15 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 |
 */
 
+App::error(function(Exception $exception, $code)
+{
+	Log::error($exception);
+});
+
 App::error(function(Illuminate\Session\TokenMismatchException $exception) {
 	// intentional
 	// don't care if there's a csrf exception. Just do nothing so the server error
 	// response is returned.
-});
-
-App::error(function(Exception $exception, $code)
-{
-	Log::error($exception);
 });
 
 /*
