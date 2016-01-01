@@ -107,6 +107,10 @@ class File extends MyEloquent {
 	public function liveStreamWithCoverArt() {
 		return $this->hasOne(self::$p.'LiveStream', 'cover_art_file_id');
 	}
+
+	public function vodData() {
+		return $this->hasOne(self::$p.'VodData', 'file_id');
+	}
 	
 	public function videoFile() {
 		return $this->hasOne(self::$p.'VideoFile', 'file_id');
