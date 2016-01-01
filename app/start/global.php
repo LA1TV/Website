@@ -52,7 +52,7 @@ App::error(function(Exception $exception, $code)
 });
 
 App::error(function(Illuminate\Session\TokenMismatchException $exception) {
-	return new Response("CSRF error.", 500);
+	return Response:make("CSRF error.", 500);
 });
 
 /*
