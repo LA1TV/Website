@@ -17,4 +17,12 @@ class PlaylistTableHelpers {
 			"dateTxt"	=> $mediaItem->scheduled_publish_time->format("d/m/y H:i")
 		);
 	}
+
+	public static function getDuration($mediaItem) {
+		$videoItem = $mediaItem->videoItem;
+		if (is_null($videoItem) || !$videoItem->getIsLive()) {
+			return null;
+		}
+		return $videoItem->getDurationPretty();
+	}
 }

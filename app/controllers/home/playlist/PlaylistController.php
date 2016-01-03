@@ -48,6 +48,7 @@ class PlaylistController extends HomeBaseController {
 				"episodeNo"				=> is_null($playlist->show) ? $i+1 : null,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
+				"duration"				=> PlaylistTableHelpers::getDuration($item),
 				"active"				=> false
 			);
 		}
@@ -66,7 +67,8 @@ class PlaylistController extends HomeBaseController {
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
+				"duration"				=> null
 			);
 		}
 		

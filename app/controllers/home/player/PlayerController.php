@@ -91,7 +91,8 @@ class PlayerController extends HomeBaseController {
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
+				"duration"				=> PlaylistTableHelpers::getDuration($item)
 			);
 			$newIndex++;
 		}
@@ -118,7 +119,8 @@ class PlayerController extends HomeBaseController {
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item)
+				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
+				"duration"				=> PlaylistTableHelpers::getDuration($item)
 			);
 		}
 

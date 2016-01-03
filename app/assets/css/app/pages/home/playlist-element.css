@@ -101,6 +101,17 @@
 	overflow: auto;
 }
 
+.playlist-element .playlist-table .col-thumbnail .duration {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding: 2px 4px;
+	font-size: 10px;
+	color: #ffffff;
+	background-color: rgba(0, 0, 0, 0.65);
+	text-align: center;
+}
+
 .playlist-element .playlist-table .col-title {
 	width: 100%;
 	position: relative;

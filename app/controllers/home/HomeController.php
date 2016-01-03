@@ -92,7 +92,8 @@ class HomeController extends HomeBaseController {
 				"playlistName"			=> $a['playlistName'],
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $a['coverArtUri'],
-				"thumbnailFooter"		=> null
+				"thumbnailFooter"		=> null,
+				"duration"				=> $a['duration']
 			);
 		}
 		
@@ -108,7 +109,8 @@ class HomeController extends HomeBaseController {
 				"playlistName"			=> $a['playlistName'],
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $a['coverArtUri'],
-				"thumbnailFooter"		=> null
+				"thumbnailFooter"		=> null,
+				"duration"				=> $a['duration']
 			);
 		}
 		
