@@ -145,7 +145,9 @@ class MediaItemTransformer extends Transformer {
 			
 			$vodQualities = null;
 			$vodUrlData = null;
+			$vodDuration = null;
 			if ($mediaItemVideo->getIsLive()) {
+				$vodDuration = $mediaItemVideo->getDuration(); 
 				$vodQualities = [];
 				if ($options['showVodUris']) {
 					$vodUrlData = [];
@@ -177,6 +179,7 @@ class MediaItemTransformer extends Transformer {
 			$vodDetails = [
 				"available"		=> $vodAvailable,
 				"timeRecorded"	=> $vodTimeRecorded,
+				"duration"		=> $vodDuration,
 				"chapters"		=> $vodChapters,
 				"viewCount"		=> $vodViewCount,
 				"qualities"		=> $vodQualities,

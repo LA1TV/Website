@@ -202,7 +202,7 @@ class MediaItemVideo extends MyEloquent {
 			return null;
 		}
 		$vodData = $file->vodData;
-		return intval($vodData->duration);
+		return $vodData->duration;
 	}
 
 	public function getDurationPretty() {
@@ -210,7 +210,7 @@ class MediaItemVideo extends MyEloquent {
 		if (is_null($duration)) {
 			return null;
 		}
-		$duration = ceil($duration);
+		$duration = round($duration);
 		$s = $duration % 60;
 		$m = ($duration / 60) % 60;
 		$h = floor($duration / 3600);
