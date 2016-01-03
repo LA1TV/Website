@@ -76,7 +76,7 @@ class ApiResponseDataGenerator {
 		if (is_null($playlist)) {
 			return $this->generateNotFound();
 		}
-		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
+		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem", "mediaItems.videoItem.sourceFile.vodData");
 		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
 		$data = [
 			"playlist"		=> $this->playlistTransformer->transform($playlist, []),
@@ -90,7 +90,7 @@ class ApiResponseDataGenerator {
 		if (is_null($playlist)) {
 			return $this->generateNotFound();
 		}
-		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem");
+		$playlist->load("mediaItems.liveStreamItem", "mediaItems.liveStreamItem.stateDefinition", "mediaItems.liveStreamItem.liveStream", "mediaItems.videoItem", "mediaItems.videoItem.sourceFile.vodData");
 		$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get()->all();
 		$data = $this->mediaItemTransformer->transformCollection($this->createMediaItemsWithPlaylists($playlist, $mediaItems), $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris));
 		return new ApiResponseData($data);
@@ -106,7 +106,7 @@ class ApiResponseDataGenerator {
 		if (is_null($mediaItem)) {
 			return $this->generateNotFound();
 		}
-		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.sourceFile.vodData");
 		$data = $this->mediaItemTransformer->transform([$playlist, $mediaItem], $this->getMediaItemTransformerOptions($showStreamUris, $showVodUris));
 		return new ApiResponseData($data);
 	}
@@ -174,7 +174,7 @@ class ApiResponseDataGenerator {
 			}
 		}
 		else if ($sortMode === "SCHEDULED_PUBLISH_TIME") {
-			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem")->accessible();
+			$mediaItems = MediaItem::with("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.sourceFile.vodData")->accessible();
 			$mediaItems = $mediaItems->where(function($q) use (&$vodIncludeSetting, &$streamIncludeSetting) {
 				if ($vodIncludeSetting === "VOD_OPTIONAL") {
 					// intentional
@@ -243,7 +243,7 @@ class ApiResponseDataGenerator {
 		if (is_null($mediaItem)) {
 			return $this->generateNotFound();
 		}
-		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem");
+		$mediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition", "liveStreamItem.liveStream", "videoItem", "videoItem.sourceFile.vodData");
 		
 		$playlists = $mediaItem->playlists()->orderBy("id", "asc")->get()->all();
 		

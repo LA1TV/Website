@@ -46,8 +46,6 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::post('webhook/test', array("uses"=>$p.'api\v1\ApiWebhookController@postTest'));
 			
 
-			// show a json 404
-			Route::get('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
 			// handle requests with OPTIONS method
 			Route::options('{catchAll}', function() {
 				$response = Response::make("", 204); // 204 = No Content
@@ -57,6 +55,8 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 				$response->header("Access-Control-Allow-Headers", "X-Api-Key");
 				return $response;
 			});
+			// show a json 404
+			Route::any('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
 		});
 
 		Route::group(array('before' => 'csrf'), function() use(&$p) {
