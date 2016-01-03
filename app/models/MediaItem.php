@@ -11,6 +11,7 @@ use Cache;
 use URL;
 use Session;
 use Facebook;
+use PlaylistTableHelpers;
 
 class MediaItem extends MyEloquent {
 	
@@ -511,6 +512,7 @@ class MediaItem extends MyEloquent {
 					"mediaItem"		=> $a,
 					"generatedName"	=> $generatedName,
 					"playlistName"	=> $playlistName,
+					"duration"		=> PlaylistTableHelpers::getDuration($a),
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
 				);
@@ -553,6 +555,7 @@ class MediaItem extends MyEloquent {
 					"mediaItem"		=> $a,
 					"generatedName"	=> $generatedName,
 					"playlistName"	=> $playlistName,
+					"duration"		=> PlaylistTableHelpers::getDuration($a),
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
 				);

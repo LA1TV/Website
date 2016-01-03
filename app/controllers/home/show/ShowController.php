@@ -29,6 +29,7 @@ class ShowController extends HomeBaseController {
 				"episodeNo"				=> null,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> null,
+				"duration"				=> null,
 				"active"				=> false
 			);
 		}

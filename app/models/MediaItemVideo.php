@@ -195,6 +195,33 @@ class MediaItemVideo extends MyEloquent {
 			});
 		});
 	}
+
+	public function getDuration() {
+		$file = $this->sourceFile;
+		if (is_null($file)) {
+			return null;
+		}
+		$vodData = $file->vodData;
+		return intval($vodData->duration);
+	}
+
+	public function getDurationPretty() {
+		$duration = $this->getDuration();
+		if (is_null($duration)) {
+			return null;
+		}
+		$duration = ceil($duration);
+		$s = $duration % 60;
+		$m = ($duration / 60) % 60;
+		$h = floor($duration / 3600);
+		$result = "";
+		if ($h > 0) {
+			$result .= $h.":";
+		}
+		$result .= str_pad($m, 2, "0", STR_PAD_LEFT).":";
+		$result .= str_pad($s, 2, "0", STR_PAD_LEFT);
+		return $result;
+	}
 	
 	private function getChaptersDataForReorderableList() {
 		$chapterModels = $this->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get();

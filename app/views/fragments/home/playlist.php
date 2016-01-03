@@ -48,6 +48,8 @@
 							<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
 							<div><?=e($row['thumbnailFooter']['dateTxt']);?></div>
 						</div>
+						<?php elseif(!is_null($row['duration'])): ?>
+						<div class="duration"><?=e($row['duration']);?></div>
 						<?php endif; ?>
 						<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
 					</td>
