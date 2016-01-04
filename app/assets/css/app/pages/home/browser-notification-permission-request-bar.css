@@ -1,0 +1,14 @@
+.browser-notification-permission-request-bar {
+	text-align: center;
+	background-color: #ffffff;
+	padding: 5px 0;
+	border-style: none;
+	border-height: 2px;
+	border-color: #ff0000;
+	border-bottom-style: solid;
+	cursor: pointer;
+}
+
+.browser-notification-permission-request-bar .info-txt {
+	font-weight: bold;
+}

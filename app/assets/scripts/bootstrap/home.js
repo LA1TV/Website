@@ -58,6 +58,7 @@ require.config({
 			"app/pages/home/account-page",
 			"app/pages/home/playlist",
 			"app/pages/home/promo-loader",
+			"app/pages/home/browser-notification-manager",
 			"app/pages/home/home-page",
 			"app/pages/home/twitter-timeline",
 			"app/pages/home/cookie-compliance"
