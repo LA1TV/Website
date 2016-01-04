@@ -36,10 +36,6 @@
 </div>
 @stop
 
-@section('promo')
-<div class="promo-container" data-ajaxuri="<?=e($promoAjaxUri);?>"></div>
-@stop
-
 @section('navbarList')
 <?php if (count($showsDropdown) > 0): ?>
 <li class="dropdown">

@@ -57,6 +57,7 @@ class HomeBaseController extends BaseController {
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"notificationServiceUrl"	=> Config::get("notificationService.url"),
+			"promoAjaxUri"	=> Config::get("custom.live_shows_uri"),
 			"env"			=> App::environment(),
 			"version"		=> DebugHelpers::getVersion()
 		);
@@ -86,7 +87,6 @@ class HomeBaseController extends BaseController {
 
 		$view->openGraphProperties = $finalOpenGraphProperties;
 		$view->twitterProperties = $finalTwitterProperties;
-		$view->promoAjaxUri = Config::get("custom.live_shows_uri");
 		$view->searchEnabled = Config::get("search.enabled");
 		$view->searchQueryAjaxUri = Config::get("custom.search_query_uri");
 		

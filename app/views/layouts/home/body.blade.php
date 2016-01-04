@@ -40,6 +40,5 @@
 		</div>
 	</div>
 </div>
-@yield('promo', '')
 </div>
 @stop
