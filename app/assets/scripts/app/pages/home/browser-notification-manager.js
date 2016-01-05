@@ -5,7 +5,7 @@ define([
 	"../../notification-service",
 	"../../page-data",
 ], function($, NotificationBar, NotificationPriorities, NotificationService, PageData) {
-	var N = Notification;
+	var N = ("Notification" in window) ? window.Notification : null;
 	if (!N || !N.requestPermission) {
 		// html5 browser notifications not supported
 		return;
