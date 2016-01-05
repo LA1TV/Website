@@ -40,9 +40,7 @@ class MediaItemLiveHandler {
 		}
 		$mediaItem = $mediaItemVideo->mediaItem;
 		$eventId = "mediaItem.vodAvailable";
-		$payload = array(
-			"id"	=> intval($mediaItem->id)
-		);
+		$payload = $this->generatePayload($mediaItem);
 		$this->sendToRedis($eventId, $payload);
 		Log::info("Sent live event to redis for MediaItemVideo with ID ".$mediaItemVideo->id." (media item with id ".$mediaItem->id.").");
 	}
@@ -64,11 +62,23 @@ class MediaItemLiveHandler {
 		else {
 			throw(new Exception("Unknown stream state."));
 		}
-		$payload = array(
-			"id"	=> intval($mediaItem->id)
-		);
+		$payload = $this->generatePayload($mediaItem);
 		$this->sendToRedis($eventId, $payload);
 		Log::info("Sent live event to redis for MediaItemLiveStream with ID ".$mediaItemLiveStream->id." (media item with id ".$mediaItem->id.").");
+	}
+
+	private function generatePayload($mediaItem) {
+		$playlist = $mediaItem->getDefaultPlaylist();
+		$generatedName = $mediaItem->name;
+		if (!is_null($playlist->show)) {
+			$generatedName = $playlist->generateName() . ": " . $generatedName;
+		}
+		$uri = $playlist->getMediaItemUri($mediaItem);
+		return array(
+			"id"	=> intval($mediaItem->id),
+			"name"	=> $generatedName,
+			"url"	=> $uri
+		);
 	}
 
 	private function sendToRedis($eventId, $payload) {
