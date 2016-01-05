@@ -8,10 +8,6 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 			return $el;
 		};
 		
-		this.getFillerEl = function() {
-			return $filler;
-		}
-		
 		// contains array of {id, name, scheduledPublishTime, uri}
 		var liveItems = [];
 		
@@ -25,7 +21,6 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 		var currentUri = null;
 		
 		var $el = $("<div />").addClass("promo").hide();
-		var $filler = $("<div />");
 		var $container = $("<div />").addClass("container clearfix");
 		var $liveLft = $("<div />").addClass("item item-lft live-txt").text("LIVE NOW");
 		var $liveRgt = $("<div />").addClass("item item-rgt live-txt").text("LIVE NOW");
@@ -43,7 +38,6 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 		$el.append($container);
 		
 		update();
-
 		
 		// update items from server
 		function update() {
@@ -104,10 +98,10 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 			if (queuedItemIndex === null) {
 				if (visible) {
 					$el.hide();
-					$filler.height(0);
 					$liveItem.text("");
 					currentUri = null;
 					currentItemIndex = null;
+					$(self).triggerHandler("hidden");
 					visible = false;
 				}
 			}
@@ -133,6 +127,7 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 					if (!visible) {
 						$el.show();
 						visible = true;
+						$(self).triggerHandler("visible");
 					}
 					else {
 						animationsRunning++;
@@ -143,7 +138,6 @@ define(["jquery", "../page-data", "../helpers/ajax-helpers"], function($, PageDa
 						});
 					}
 					itemVisible = true;
-					$filler.height(Math.max($el.outerHeight(true)-5, 0));
 					currentItemIndex = queuedItemIndex;
 				}
 			}

@@ -1,0 +1,45 @@
+.browser-notification-permission-request-bar {
+	text-align: center;
+	background-color: #ffffff;
+	color: #000000;
+	padding: 5px 0;
+	border-style: none;
+	border-width: 2px;
+	border-color: #ff0000;
+	border-bottom-style: solid;
+	cursor: pointer;
+
+	animation-name: flash;
+	animation-delay: 700ms;
+	animation-duration: 180ms;
+	animation-iteration-count: 3;
+	animation-timing-function: linear;
+
+	-webkit-animation-name: flash;
+	-webkit-animation-delay: 700ms;
+	-webkit-animation-duration: 180ms;
+	-webkit-animation-iteration-count: 3;
+	-webkit-animation-timing-function: linear;
+}
+
+.browser-notification-permission-request-bar:hover {
+	background-color: #ffdddd;
+}
+
+.browser-notification-permission-request-bar .icon {
+	margin-right: 5px;
+}
+
+@keyframes flash {
+	50% {
+		background-color: #ff4040;
+		color: #ffffff;
+	}
+}
+
+@-webkit-keyframes flash {
+	50% {
+		background-color: #ff4040;
+		color: #ffffff;
+	}
+}
