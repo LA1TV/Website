@@ -33,11 +33,11 @@ define([
 					notifications.splice(i+1, 0, notification);
 				}
 			}
-			updateFiller();
 			if (!inserted) {
 				$notificationBar.prepend($container);
 				notifications.unshift(notification);
 			}
+			updateFiller();
 
 			return {
 				remove: function() {
@@ -50,6 +50,10 @@ define([
 					notifications.splice(index, 1);
 				},
 				onHeightChanged: function() {
+					var index = notifications.indexOf(notification);
+					if (index === -1) {
+						throw "Notification removed.";
+					}
 					updateFiller();
 				}
 			};
@@ -57,6 +61,6 @@ define([
 	};
 
 	function updateFiller() {
-		$filler.height(Math.max($notificationBar.outerHeight(true)-5, 0));
+		$filler.height($notificationBar.outerHeight(true));
 	}
 });
