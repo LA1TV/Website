@@ -86,6 +86,8 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/file', $p.'home\admin\upload\UploadController');
 
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
+			// here for named route
+			Route::get('/ajax/register-push-notification-endpoint', array("as"=>"ajax-registerPushNotificationEndpoint", "uses"=>$p.'home\ajax\AjaxController@postRegisterPushNotificationEndpoint'));
 			Route::controller('/contact', $p.'home\contact\ContactController');
 			Route::controller('/livestream', $p.'home\liveStream\LiveStreamController');
 			Route::get('/livestream/{a}', array("as"=>"liveStream", "uses"=>$p.'home\liveStream\LiveStreamController@getIndex'));

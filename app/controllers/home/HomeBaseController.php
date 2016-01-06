@@ -24,7 +24,8 @@ class HomeBaseController extends BaseController {
 	
 	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=null, $sideBannersImageUrl=null, $sideBannersFillImageUrl=null) {
 		$description = Config::get("custom.site_description");
-	
+		$registerPushNotificationEndpointUrl = Config::get("pushNotifications.enabled") ? URL::route("ajax-registerPushNotificationEndpoint") : null;
+
 		$view = View::make("layouts.home.master");
 	
 		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
@@ -58,6 +59,7 @@ class HomeBaseController extends BaseController {
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"notificationServiceUrl"	=> Config::get("notificationService.url"),
+			"registerPushNotificationEndpointUrl"	=> $registerPushNotificationEndpointUrl,
 			"promoAjaxUri"	=> Config::get("custom.live_shows_uri"),
 			"env"			=> App::environment(),
 			"version"		=> DebugHelpers::getVersion()
