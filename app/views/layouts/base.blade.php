@@ -19,6 +19,9 @@
 		<meta name="twitter:<?=e($a['name']);?>" content="<?=e($a['content']);?>">
 		<?php endforeach; ?>
 		<?php endif; ?>
+		<?php if (isset($manifestUri)): ?>
+		<link rel="manifest" href="<?=e($manifestUri);?>">
+		<?php endif; ?>
 		<meta name="twitter:widgets:csp" content="on">
 		<link rel="apple-touch-icon" sizes="57x57" href="<?=asset("assets/favicon/apple-touch-icon-57x57.png");?>?v=2">
 		<link rel="apple-touch-icon" sizes="60x60" href="<?=asset("assets/favicon/apple-touch-icon-60x60.png");?>?v=2">

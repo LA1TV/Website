@@ -7,6 +7,7 @@ use Auth;
 use PlayerHelpers;
 use Config;
 use Cookie;
+use Response;
 
 class HomeController extends HomeBaseController {
 
@@ -159,6 +160,19 @@ class HomeController extends HomeBaseController {
 		$this->setContent($view, "home", "home", array(), null, 200, array());
 	}
 	
+	public function getManifest() {
+		$gcmSenderId = Config::get("pushNotifications.gcmApiKey");
+		
+		$data = array();
+		if (Config::get("pushNotifications.enabled")) {
+			$senderId = Config::get("pushNotifications.gcmProjectNumber");
+			if (!is_null($senderId)) {
+				$data["gcm_sender_id"] = $senderId;
+			}
+		}
+		return Response::json($data);
+	}
+
 	private function buildTimeStr($isLive, $time) {
 		$liveStr = $isLive ? "Live" : "Available";
 		

@@ -105,7 +105,8 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/account', $p.'home\account\AccountController');
 			// here for named route
 			Route::get('/account', array("as"=>"account", "uses"=>$p.'home\account\AccountController@getIndex'));
-			
+			Route::get('/manifest', array("as"=>"manifest", "uses"=>$p.'home\HomeController@getManifest'));
+
 			// this must not go higher up as it is important that everything above takes priority
 			Route::controller("/{slug}", $p.'home\SlugController');
 			

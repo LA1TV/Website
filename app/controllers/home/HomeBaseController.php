@@ -38,6 +38,7 @@ class HomeBaseController extends BaseController {
 		$view->description = $description;
 		$view->content = $content;
 		$view->allowRobots = true;
+		$view->manifestUri = URL::route('manifest');
 		$view->cssBootstrap = asset("assets/css/bootstrap/home.css");
 		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
 		$view->loggedIn = Facebook::isLoggedIn();
