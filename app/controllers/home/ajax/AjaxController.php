@@ -184,7 +184,7 @@ class AjaxController extends BaseController {
 		}
 
 		$sessionId = Session::getId();
-		$success = DB::transaction(function() {
+		$success = DB::transaction(function() use (&$sessionId, &$url) {
 			$model = PushNotificationRegistrationEndpoint::where("session_id", $sessionId)->lockForUpdate()->first();
 			if (is_null($model)) {
 				$model = new PushNotificationRegistrationEndpoint(array(

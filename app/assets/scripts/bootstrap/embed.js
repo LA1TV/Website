@@ -22,8 +22,10 @@ require.config({
 	// Without this "js" class the page is in a div with display:none
 	// this can cause issues with some things if not on the page when they try to render
 	require([
-		"lib/modernizr",
-	], function() {
+		"lib/es6-promise",
+		"lib/modernizr"
+	], function(a) {
+		a.pollyfill();
 		require([
 			"app/logger",
 			"app/google-analytics",

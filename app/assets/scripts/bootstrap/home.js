@@ -37,14 +37,17 @@ require.config({
 	// Without this "js" class the page is in a div with display:none
 	// this can cause issues with some things if not on the page when they try to render
 	require([
-		"lib/modernizr",
-	], function() {
+		"lib/es6-promise",
+		"lib/modernizr"
+	], function(a) {
+		a.polyfill();
 		require(["app/pages/home/side-banners"]); // load quickly
 		require([
 			"app/logger",
 			"app/google-analytics",
 			"app/version-log",
 			"app/error-handler",
+			"app/service-worker",
 			"lib/bootstrap",
 			"app/custom-accordian",
 			"app/default-button-group",

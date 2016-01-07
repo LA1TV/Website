@@ -29,29 +29,34 @@ require.config({
 	var startTime = new Date().getTime();
 	
 	require([
-		"app/logger",
-		"app/google-analytics",
-		"app/version-log",
-		"app/error-handler",
-		"lib/bootstrap",
-		"app/confirmation-msg",
-		"app/custom-accordian",
-		"app/custom-form",
-		"app/default-ajax-file-upload",
-		"app/default-ajax-select",
-		"app/default-button-group",
-		"app/delete-button",
-		"app/page-protect",
-		"app/search",
-		"app/pages/admin/live-streams-edit-page",
-		"app/pages/admin/live-streams-player-page",
-		"app/pages/admin/media-edit-page",
-		"app/pages/admin/playlist-edit-page",
-		"app/pages/admin/users-edit-page"
-	], function(logger, googleAnalytics) {
-		// everything loaded
-		logger.info("Page loaded.");
-		googleAnalytics.registerModulesLoadTime("Admin", new Date().getTime() - startTime);
-	});
-	
+		"lib/es6-promise"
+	], function(a) {
+		a.polyfill();
+		require([
+			"app/logger",
+			"app/google-analytics",
+			"app/version-log",
+			"app/error-handler",
+			"app/service-worker",
+			"lib/bootstrap",
+			"app/confirmation-msg",
+			"app/custom-accordian",
+			"app/custom-form",
+			"app/default-ajax-file-upload",
+			"app/default-ajax-select",
+			"app/default-button-group",
+			"app/delete-button",
+			"app/page-protect",
+			"app/search",
+			"app/pages/admin/live-streams-edit-page",
+			"app/pages/admin/live-streams-player-page",
+			"app/pages/admin/media-edit-page",
+			"app/pages/admin/playlist-edit-page",
+			"app/pages/admin/users-edit-page"
+		], function(logger, googleAnalytics) {
+			// everything loaded
+			logger.info("Page loaded.");
+			googleAnalytics.registerModulesLoadTime("Admin", new Date().getTime() - startTime);
+		});
+	};	
 })();

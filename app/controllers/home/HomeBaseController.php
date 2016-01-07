@@ -52,6 +52,7 @@ class HomeBaseController extends BaseController {
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
+			"serviceWorkerUrl"	=> URL::route("home-service-worker"),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
 			"sessionId"		=> Session::getId(),
