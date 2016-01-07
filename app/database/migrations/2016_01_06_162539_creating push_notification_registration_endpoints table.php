@@ -14,12 +14,13 @@ class CreatingPushNotificationRegistrationEndpointsTable extends Migration {
 	{
 		Schema::create('push_notification_registration_endpoints', function(Blueprint $table)
 		{
+			$table->increments('id');
 			$table->string("session_id", 255);
 			$table->string('url');
 			
 			$table->foreign("session_id")->references('id')->on('sessions')->onUpdate("restrict")->onDelete('cascade');
 			
-			$table->primary(array('session_id'));
+			$table->unique("session_id");
 			$table->timestamps();
 		});
 	}
