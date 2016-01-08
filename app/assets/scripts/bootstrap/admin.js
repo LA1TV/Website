@@ -58,5 +58,5 @@ require.config({
 			logger.info("Page loaded.");
 			googleAnalytics.registerModulesLoadTime("Admin", new Date().getTime() - startTime);
 		});
-	};	
+	});	
 })();

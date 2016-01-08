@@ -19,7 +19,6 @@ define([
 	}
 
 	var $permissionRequestBar = null;
-	var iconUrl = PageData.get("assetsBaseUrl")+"assets/img/notification-icon.png";
 	var soundUrl = PageData.get("assetsBaseUrl")+"assets/audio/notification.mp3";
 	var $soundFX = null;
 
@@ -66,14 +65,12 @@ define([
 
 	function onHaveNotificationsPermission() {
 		configurePushNotifications().then(function() {
-			console.log("using push notifications");
 			// push notifications enabled
 			// the service worker will trigger notifications
 			// and handle incoming events (even when site not open)
 			// so nothing else to do
 		}).catch(function() {
 			// push notifications not in use. use the NotificationService (socketio) events instead
-			console.log("fallback");
 			listenForEvents();
 		});
 	}
@@ -174,11 +171,8 @@ define([
 	}
 
 	function listenForEvents() {
-		NotificationService.on("mediaItem.live", function(data) {
-			createNotification("We are live!", 'We are live now with "'+data.name+'".', data.url);
-		});
-		NotificationService.on("mediaItem.vodAvailable", function(data) {
-			createNotification("New content available!", '"'+data.name+'" is now available to watch on demand.', data.url);
+		NotificationService.on("notification", function(data) {
+			createNotification(data.title, data.body, data.url, data.duration, data.iconUrl);
 		});
 	}
 
@@ -195,7 +189,9 @@ define([
 		});
 	}
 
-	function createNotification(title, message, link) {
+	function createNotification(title, message, link, duration, iconUrl) {
+		duration = duration || 8000;
+		
 		var n = new N(title, {
 			lang: "EN",
 			body: message,
@@ -223,7 +219,7 @@ define([
 			timerId = setTimeout(function() {
 				timerId = null;
 				n.close();
-			}, 8000);
+			}, duration);
 		});
 
 		n.addEventListener("close", function() {
