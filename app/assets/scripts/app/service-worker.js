@@ -25,9 +25,6 @@ define([
 		if (!serviceWorkerSupported()) {
 			return false;
 		}
-		if (!('serviceWorker' in navigator)) {
-			return false;
-		}
 		// Check if push messaging is supported  
 		if (!('PushManager' in window)) {  
   			return false;
