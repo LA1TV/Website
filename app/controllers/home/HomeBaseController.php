@@ -24,7 +24,8 @@ class HomeBaseController extends BaseController {
 	
 	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=null, $sideBannersImageUrl=null, $sideBannersFillImageUrl=null) {
 		$description = Config::get("custom.site_description");
-	
+		$registerPushNotificationEndpointUrl = Config::get("pushNotifications.enabled") ? URL::route("ajax-registerPushNotificationEndpoint") : null;
+
 		$view = View::make("layouts.home.master");
 	
 		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
@@ -38,6 +39,7 @@ class HomeBaseController extends BaseController {
 		$view->description = $description;
 		$view->content = $content;
 		$view->allowRobots = true;
+		$view->manifestUri = URL::route('manifest');
 		$view->cssBootstrap = asset("assets/css/bootstrap/home.css");
 		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
 		$view->loggedIn = Facebook::isLoggedIn();
@@ -50,6 +52,7 @@ class HomeBaseController extends BaseController {
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
+			"serviceWorkerUrl"	=> URL::route("home-service-worker"),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
 			"sessionId"		=> Session::getId(),
@@ -57,6 +60,7 @@ class HomeBaseController extends BaseController {
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"notificationServiceUrl"	=> Config::get("notificationService.url"),
+			"registerPushNotificationEndpointUrl"	=> $registerPushNotificationEndpointUrl,
 			"promoAjaxUri"	=> Config::get("custom.live_shows_uri"),
 			"env"			=> App::environment(),
 			"version"		=> DebugHelpers::getVersion()

@@ -4,7 +4,9 @@ define([
 	"./notification-priorities",
 	"../../notification-service",
 	"../../page-data",
-], function($, NotificationBar, NotificationPriorities, NotificationService, PageData) {
+	"../../service-worker",
+	"../../helpers/ajax-helpers",
+], function($, NotificationBar, NotificationPriorities, NotificationService, PageData, ServiceWorker, AjaxHelpers) {
 	var N = ("Notification" in window) ? window.Notification : null;
 	if (!N || !N.requestPermission) {
 		// html5 browser notifications not supported
@@ -17,8 +19,6 @@ define([
 	}
 
 	var $permissionRequestBar = null;
-	var lastNotificationId = 0;
-	var iconUrl = PageData.get("assetsBaseUrl")+"assets/img/notification-icon.png";
 	var soundUrl = PageData.get("assetsBaseUrl")+"assets/audio/notification.mp3";
 	var $soundFX = null;
 
@@ -27,7 +27,7 @@ define([
 		requestBarHandle = NotificationBar.createNotification(getRequestBarEl(), NotificationPriorities.notificationsPermissionRequest);
 	}
 	else {
-		listenToEvents();
+		onHaveNotificationsPermission();
 	}
 
 	function onPermissionGranted() {
@@ -35,7 +35,7 @@ define([
 		setTimeout(function() {
 			createNotification("Notifications Enabled", "Thanks for letting us send you notifications.");
 		}, 1000);
-		listenToEvents();
+		onHaveNotificationsPermission();
 	}
 
 	function onPermissionDenied() {
@@ -63,20 +63,145 @@ define([
 		});
 	}
 
-	function listenToEvents() {
-		NotificationService.on("mediaItem.live", function(data) {
-			createNotification("We are live!", 'We are live now with "'+data.name+'".', data.url);
-		});
-		NotificationService.on("mediaItem.vodAvailable", function(data) {
-			createNotification("New content available!", '"'+data.name+'" is now available to watch on demand.', data.url);
+	function onHaveNotificationsPermission() {
+		configurePushNotifications().then(function() {
+			// push notifications enabled
+			// the service worker will trigger notifications
+			// and handle incoming events (even when site not open)
+			// so nothing else to do
+		}).catch(function() {
+			// push notifications not in use. use the NotificationService (socketio) events instead
+			listenForEvents();
 		});
 	}
 
-	function createNotification(title, message, link) {
+	// gets the current push subscription,
+	// attempting to make one first if there isn't one
+	function getPushSubscription() {
+		return new Promise(function(resolve, reject) {
+			ServiceWorker.getPushSubscription().then(function(subscription) {
+				resolve(subscription);
+			}).catch(function() {
+				// no subscription.
+				// attempt to get one
+				ServiceWorker.subscribeToPush().then(function(subscription) {
+					// got a subscription now
+					resolve(subscription)
+				}).catch(function() {
+					reject();
+				});
+			});
+		});
+	}
+
+	// resolves if a push subscription is created,
+	// and push notifications are supported.
+	function configurePushNotifications() {
+		return new Promise(function(resolve, reject) {
+			if (!("localStorage" in window)) {
+				reject();
+				return;
+			}
+			localStorage.setItem('notificationsUrl', PageData.get("notificationsUrl"));
+			localStorage.setItem('notificationDefaultIconUrl', PageData.get("assetsBaseUrl")+"assets/img/notification-icon.png");
+			
+			// see if we have a push subscription
+			getPushSubscription().then(function(subscription) {
+				// there is a push subscription
+				// send it to the server so it can use it push events to
+				sendPushSubscriptionToServer(subscription).then(function() {
+					resolve();
+				}).catch(function() {
+					// push notification subscription failed to be updated on the server.
+					// If the server doesn't have this url it can't send notifications.
+					reject();
+				});
+			}).catch(function() {
+				reject();
+			});
+		});
+	}
+
+	function sendPushSubscriptionToServer(subscription) {
+		return new Promise(function(resolve, reject) {
+			var sessionId = PageData.get("sessionId");
+			var endpointUrl = subscription.endpoint;
+
+			// if the url and session id hasn't changed, don't make the request
+			// again as the server will already have the information
+			if ("localStorage" in window) {
+				var updateNeeded = true;
+				try {
+					var oldSessionId = localStorage.getItem('pushSubscriptionSessionId');
+					var oldUrl = localStorage.getItem('pushSubscriptionEndpointUrl');
+					var urlUpdateTime = localStorage.getItem('pushSubscriptionEndpointUrlUpdateTime');
+					if (oldSessionId === sessionId && oldUrl === endpointUrl && urlUpdateTime && urlUpdateTime >= Date.now()-600000) {
+						// the server already has the url and it has been updated in the last 10 minutes
+						// it is important to update occasionally as this request is the only point point to find out if push notifications are disabled
+						// if push notifications are disabled the update request will return a 404
+						updateNeeded = false;
+					}
+				}
+				catch(e) {}
+				if (!updateNeeded) {
+					resolve();
+					return;
+				}
+			}
+
+			$.ajax(PageData.get("registerPushNotificationEndpointUrl"), {
+				cache: false,
+				dataType: "json",
+				headers: AjaxHelpers.getHeaders(),
+				data: {
+					csrf_token: PageData.get("csrfToken"),
+					url: endpointUrl
+				},
+				type: "POST"
+			}).always(function(data, textStatus, jqXHR) {
+				if (jqXHR.status === 200 && data.success) {
+					if ("localStorage" in window) {
+						try {
+							localStorage.setItem('pushSubscriptionSessionId', sessionId);
+							localStorage.setItem('pushSubscriptionEndpointUrl', endpointUrl);
+							localStorage.setItem('pushSubscriptionEndpointUrlUpdateTime', Date.now());
+						}
+						catch(e) {}
+					}
+					resolve();
+				}
+				else {
+					reject();
+				}
+			});
+		});
+	}
+
+	function listenForEvents() {
+		NotificationService.on("notification", function(data) {
+			createNotification(data.title, data.body, data.url, data.duration, data.iconUrl);
+		});
+	}
+
+	// returns true if push notifications are supported and in use
+	// ie there is a web worker running which is listening for push events
+	// the web worker will handle spawning notifications
+	function pushNotificationsInUse() {
+		return new Promise(function(resolve) {
+			ServiceWorker.pushNotificationsEnabled().then(function(enabled) {
+				resolve(enabled);
+			}).catch(function() {
+				resolve(false);
+			});
+		});
+	}
+
+	function createNotification(title, message, link, duration, iconUrl) {
+		duration = duration || 8000;
+		
 		var n = new N(title, {
 			lang: "EN",
 			body: message,
-			tag: ""+(++lastNotificationId),
 			icon: iconUrl
 		});
 
@@ -101,7 +226,7 @@ define([
 			timerId = setTimeout(function() {
 				timerId = null;
 				n.close();
-			}, 8000);
+			}, duration);
 		});
 
 		n.addEventListener("close", function() {

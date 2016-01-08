@@ -25,6 +25,7 @@ class AdminBaseController extends BaseController {
 		$view->content = $content;
 		$view->description = "The custom built content management system for LA1:TV's website.";
 		$view->allowRobots = false;
+		$view->manifestUri = URL::route('manifest');
 		$view->cssBootstrap = asset("assets/css/bootstrap/admin.css");
 		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/admin.js");		
 		
@@ -33,6 +34,7 @@ class AdminBaseController extends BaseController {
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
+			"serviceWorkerUrl"	=> URL::route("home-service-worker"),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
 			"sessionId"		=> Session::getId(),

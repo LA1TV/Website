@@ -810,7 +810,7 @@ define([
 		}
 		
 		function updateRememberedTimeInDb() {
-			if (!window.indexedDB) {
+			if (!("indexedDB" in window) || !window.indexedDB) {
 				// browser does not have indexedDB support so do nothing
 				return;
 			}
@@ -884,7 +884,7 @@ define([
 			};
 			
 			
-			if (!window.indexedDB) {
+			if (!("indexedDB" in window) || !window.indexedDB) {
 				// browser does not have indexedDB support so do nothing
 				callCallback(null);
 				return;
