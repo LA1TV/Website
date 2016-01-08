@@ -239,7 +239,7 @@ class AjaxController extends BaseController {
 					$now = time();
 					// ignore any notifications which have expired
 					foreach($data as $a) {
-						if ($a["time"] >= ($now-30)*1000) {
+						if ($a["time"] >= ($now-600)*1000) {
 							$payloads[] = $a["payload"];
 						}
 					}
