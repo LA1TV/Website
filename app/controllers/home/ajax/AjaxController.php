@@ -226,14 +226,20 @@ class AjaxController extends BaseController {
 		}
 		$payloads = array();
 		$redis = Redis::connection();
-		$data = $redis->get("notificationPayloads.".Session::getId());
-		if (!is_null($data)) {
-			$data = json_decode($data, true);
-			$now = Carbon::now();
-			// ignore any notifications which have expired
-			foreach($data as $a) {
-				if ($a["time"] >= ($now-30)*1000) {
-					$payloads[] = $a["payload"];
+		$key = "notificationPayloads.".Session::getId();
+		$tmpKey = $key.".tmp.".str_random(20);
+		// rename for atomicity
+		if ($redis->rename($key, $tmpKey)) === "OK") {
+			$data = $redis->get($tmpKey);
+			if (!is_null($data)) {
+				$redis->del($key);
+				$data = json_decode($data, true);
+				$now = Carbon::now();
+				// ignore any notifications which have expired
+				foreach($data as $a) {
+					if ($a["time"] >= ($now-30)*1000) {
+						$payloads[] = $a["payload"];
+					}
 				}
 			}
 		}
