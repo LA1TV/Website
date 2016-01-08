@@ -9,6 +9,8 @@ use Session;
 use Elasticsearch;
 use App;
 use DB;
+use Carbon;
+use Redis;
 use uk\co\la1tv\website\models\PushNotificationRegistrationEndpoint;
 
 class AjaxController extends BaseController {
@@ -215,6 +217,27 @@ class AjaxController extends BaseController {
 		return Response::json(array(
 			"success"	=> true
 		));
+	}
+
+	public function postNotifications() {
+		if (!Config::get("pushNotifications.enabled")) {
+			App::abort(404);
+			return;
+		}
+		$payloads = array();
+		$redis = Redis::connection();
+		$data = $redis->get("notificationPayloads.".Session::getId());
+		if (!is_null($data)) {
+			$data = json_decode($data, true);
+			$now = Carbon::now();
+			// ignore any notifications which have expired
+			foreach($data as $a) {
+				if ($a["time"] >= ($now-30)*1000) {
+					$payloads[] = $a["payload"];
+				}
+			}
+		}
+		return Response::json($payloads);
 	}
 	
 	private function formatLogDate($a, $milliseconds=false) {
