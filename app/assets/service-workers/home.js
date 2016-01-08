@@ -36,7 +36,7 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
 	var data = event.notification.data;
-	var url = "url" in data ? data.url : null;
+	var url = data && "url" in data ? data.url : null;
 	if (!url) {
 		return;
 	}
