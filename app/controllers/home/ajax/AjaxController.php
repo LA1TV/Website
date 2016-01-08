@@ -10,6 +10,7 @@ use Elasticsearch;
 use App;
 use DB;
 use Redis;
+use Exception;
 use uk\co\la1tv\website\models\PushNotificationRegistrationEndpoint;
 
 class AjaxController extends BaseController {
@@ -228,21 +229,23 @@ class AjaxController extends BaseController {
 		$redis = Redis::connection();
 		$key = "notificationPayloads.".Session::getId();
 		$tmpKey = $key.".tmp.".str_random(20);
-		// rename for atomicity
-		if ($redis->rename($key, $tmpKey)) {
-			$data = $redis->get($tmpKey);
-			if (!is_null($data)) {
-				$redis->del($key);
-				$data = json_decode($data, true);
-				$now = time();
-				// ignore any notifications which have expired
-				foreach($data as $a) {
-					if ($a["time"] >= ($now-30)*1000) {
-						$payloads[] = $a["payload"];
+		try {
+			// rename for atomicity
+			if ($redis->rename($key, $tmpKey)) {
+				$data = $redis->get($tmpKey);
+				if (!is_null($data)) {
+					$redis->del($key);
+					$data = json_decode($data, true);
+					$now = time();
+					// ignore any notifications which have expired
+					foreach($data as $a) {
+						if ($a["time"] >= ($now-30)*1000) {
+							$payloads[] = $a["payload"];
+						}
 					}
 				}
 			}
-		}
+		} catch(Exception $e) {}
 		return Response::json($payloads);
 	}
 	
