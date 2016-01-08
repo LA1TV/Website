@@ -124,7 +124,28 @@ define([
 
 	function sendPushSubscriptionToServer(subscription) {
 		return new Promise(function(resolve, reject) {
+			var sessionId = PageData.get("sessionId");
 			var endpointUrl = subscription.endpoint;
+
+			// if the url and session id hasn't changed, don't make the request
+			// again as the server will already have the information
+			if ("localStorage" in window) {
+				var updateNeeded = true;
+				try {
+					var oldSessionId = localStorage.getItem('pushSubscriptionSessionId');
+					var oldUrl = localStorage.getItem('pushSubscriptionEndpointUrl');
+					if (oldSessionId === sessionId && oldUrl === endpointUrl) {
+						// the server already has the url
+						updateNeeded = false;
+					}
+				}
+				catch(e) {}
+				if (!updateNeeded) {
+					resolve();
+					return;
+				}
+			}
+
 			$.ajax(PageData.get("registerPushNotificationEndpointUrl"), {
 				cache: false,
 				dataType: "json",
@@ -136,6 +157,13 @@ define([
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200 && data.success) {
+					if ("localStorage" in window) {
+						try {
+							localStorage.setItem('pushSubscriptionSessionId', sessionId);
+							localStorage.setItem('pushSubscriptionEndpointUrl', endpointUrl);
+						}
+						catch(e) {}
+					}
 					resolve();
 				}
 				else {
