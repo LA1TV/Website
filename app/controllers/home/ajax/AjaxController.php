@@ -183,6 +183,20 @@ class AjaxController extends BaseController {
 			return;
 		}
 
+		$endpointWhiteList = Config::get("pushNotifications.endpointWhiteList");
+		$urlAllowed = false;
+		foreach($endpointWhiteList as $urlStart) {
+			if (substr($url, 0, strlen($urlStart)) === $urlStart) {
+				$urlAllowed = true;
+				break;
+			}
+		}
+		if (!$urlAllowed) {
+			// url not allowed
+			App::abort(500); // server error
+			return;
+		}
+
 		$sessionId = Session::getId();
 		$success = DB::transaction(function() use (&$sessionId, &$url) {
 			$model = PushNotificationRegistrationEndpoint::where("session_id", $sessionId)->lockForUpdate()->first();
