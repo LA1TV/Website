@@ -140,7 +140,7 @@ define([
 				// will in turn trigger the onmessage handler on messageChannel.port1.
 				// See https://html.spec.whatwg.org/multipage/workers.html#dom-worker-postmessage
 				navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
-			}).catch(function() {
+			}).catch(function(e) {
 				reject();
 			});
 		});
@@ -148,9 +148,6 @@ define([
 
 	return {
 		postMessage: postMessage,
-		pushNotificationsEnabled: function() {
-			return postMessage({command: "notificationsEnabled"});
-		},
 		getPushSubscription: getPushSubscription,
 		subscribeToPush: subscribeToPush,
 		unsubscribeFromPush: unsubscribeFromPush

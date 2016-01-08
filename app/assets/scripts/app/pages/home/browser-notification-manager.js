@@ -98,16 +98,19 @@ define([
 	// and push notifications are supported.
 	function configurePushNotifications() {
 		return new Promise(function(resolve, reject) {
+			if (!("localStorage" in window)) {
+				reject();
+				return;
+			}
+			localStorage.setItem('notificationsUrl', PageData.get("notificationsUrl"));
+			localStorage.setItem('notificationDefaultIconUrl', PageData.get("assetsBaseUrl")+"assets/img/notification-icon.png");
+			
 			// see if we have a push subscription
 			getPushSubscription().then(function(subscription) {
 				// there is a push subscription
 				// send it to the server so it can use it push events to
 				sendPushSubscriptionToServer(subscription).then(function() {
-					ServiceWorker.pushNotificationsEnabled().then(function(enabled) {
-						enabled ? resolve() : reject();
-					}).catch(function() {
-						reject();
-					});
+					resolve();
 				}).catch(function() {
 					// push notification subscription failed to be updated on the server.
 					// If the server doesn't have this url it can't send notifications.
@@ -131,8 +134,11 @@ define([
 				try {
 					var oldSessionId = localStorage.getItem('pushSubscriptionSessionId');
 					var oldUrl = localStorage.getItem('pushSubscriptionEndpointUrl');
-					if (oldSessionId === sessionId && oldUrl === endpointUrl) {
-						// the server already has the url
+					var urlUpdateTime = localStorage.getItem('pushSubscriptionEndpointUrlUpdateTime');
+					if (oldSessionId === sessionId && oldUrl === endpointUrl && urlUpdateTime && urlUpdateTime >= Date.now()-600000) {
+						// the server already has the url and it has been updated in the last 10 minutes
+						// it is important to update occasionally as this request is the only point point to find out if push notifications are disabled
+						// if push notifications are disabled the update request will return a 404
 						updateNeeded = false;
 					}
 				}
@@ -158,6 +164,7 @@ define([
 						try {
 							localStorage.setItem('pushSubscriptionSessionId', sessionId);
 							localStorage.setItem('pushSubscriptionEndpointUrl', endpointUrl);
+							localStorage.setItem('pushSubscriptionEndpointUrlUpdateTime', Date.now());
 						}
 						catch(e) {}
 					}

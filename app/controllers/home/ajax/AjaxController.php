@@ -9,7 +9,6 @@ use Session;
 use Elasticsearch;
 use App;
 use DB;
-use Carbon;
 use Redis;
 use uk\co\la1tv\website\models\PushNotificationRegistrationEndpoint;
 
@@ -195,8 +194,9 @@ class AjaxController extends BaseController {
 		}
 		if (!$urlAllowed) {
 			// url not allowed
-			App::abort(500); // server error
-			return;
+			return Response::json(array(
+				"success"	=> false
+			));
 		}
 
 		$sessionId = Session::getId();
@@ -219,7 +219,7 @@ class AjaxController extends BaseController {
 		));
 	}
 
-	public function postNotifications() {
+	public function getNotifications() {
 		if (!Config::get("pushNotifications.enabled")) {
 			App::abort(404);
 			return;
@@ -229,12 +229,12 @@ class AjaxController extends BaseController {
 		$key = "notificationPayloads.".Session::getId();
 		$tmpKey = $key.".tmp.".str_random(20);
 		// rename for atomicity
-		if ($redis->rename($key, $tmpKey)) === "OK") {
+		if ($redis->rename($key, $tmpKey)) {
 			$data = $redis->get($tmpKey);
 			if (!is_null($data)) {
 				$redis->del($key);
 				$data = json_decode($data, true);
-				$now = Carbon::now();
+				$now = time();
 				// ignore any notifications which have expired
 				foreach($data as $a) {
 					if ($a["time"] >= ($now-30)*1000) {
