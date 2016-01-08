@@ -198,6 +198,7 @@ define([
 
 	function createNotification(title, message, link, duration, iconUrl) {
 		duration = duration || 8000;
+		iconUrl = iconUrl || PageData.get("assetsBaseUrl")+"assets/img/notification-icon.png";
 		
 		var n = new N(title, {
 			lang: "EN",
