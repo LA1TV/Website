@@ -25,7 +25,7 @@ require.config({
 		"lib/es6-promise",
 		"lib/modernizr"
 	], function(a) {
-		a.pollyfill();
+		a.polyfill();
 		require([
 			"app/logger",
 			"app/google-analytics",
