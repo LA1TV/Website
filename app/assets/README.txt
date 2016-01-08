@@ -1,5 +1,7 @@
 These "scripts" and "css" folders should be dynamically routed so they appear in the "../../public/assets" folder. I.e. accessible at /assets/scripts and /assets/css
 
+The "service-workers" directory is used to store javascript service workers and files in here will be served by laravel.
+
 In the homestead environment (https://github.com/LA1TV/Website-Homestead) this is set up in nginx automatically by the provision script.
 The same can be achieved in apache with mod_rewrite rules.
 

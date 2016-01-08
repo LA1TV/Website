@@ -86,6 +86,8 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/file', $p.'home\admin\upload\UploadController');
 
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
+			// here for named route
+			Route::post('/ajax/register-push-notification-endpoint', array("as"=>"ajax-registerPushNotificationEndpoint", "uses"=>$p.'home\ajax\AjaxController@postRegisterPushNotificationEndpoint'));
 			Route::controller('/contact', $p.'home\contact\ContactController');
 			Route::controller('/livestream', $p.'home\liveStream\LiveStreamController');
 			Route::get('/livestream/{a}', array("as"=>"liveStream", "uses"=>$p.'home\liveStream\LiveStreamController@getIndex'));
@@ -105,7 +107,9 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::controller('/account', $p.'home\account\AccountController');
 			// here for named route
 			Route::get('/account', array("as"=>"account", "uses"=>$p.'home\account\AccountController@getIndex'));
-			
+			Route::get('/manifest', array("as"=>"manifest", "uses"=>$p.'home\HomeController@getManifest'));
+			Route::get('/service-worker', array("as"=>"home-service-worker", "uses"=>$p.'home\HomeController@getServiceWorker'));
+
 			// this must not go higher up as it is important that everything above takes priority
 			Route::controller("/{slug}", $p.'home\SlugController');
 			

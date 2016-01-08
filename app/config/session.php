@@ -29,9 +29,10 @@ return array(
 	|
 	*/
 
-	'lifetime' => 10080, // week
-
-	'expire_on_close' => true,
+	// push notifications are linked with session ids
+	// once a session id has expired, the user will not receive notifications
+	'lifetime' => 40320, // 4 weeks
+	'expire_on_close' => false,
 
 	/*
 	|--------------------------------------------------------------------------

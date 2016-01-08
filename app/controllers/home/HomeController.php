@@ -7,6 +7,8 @@ use Auth;
 use PlayerHelpers;
 use Config;
 use Cookie;
+use Response;
+use File;
 
 class HomeController extends HomeBaseController {
 
@@ -159,6 +161,28 @@ class HomeController extends HomeBaseController {
 		$this->setContent($view, "home", "home", array(), null, 200, array());
 	}
 	
+	public function getManifest() {
+		$gcmSenderId = Config::get("pushNotifications.gcmApiKey");
+		
+		$data = array();
+		if (Config::get("pushNotifications.enabled")) {
+			// ensure it's a string
+			$senderId = (string) Config::get("pushNotifications.gcmProjectNumber");
+			if (!is_null($senderId)) {
+				$data["gcm_sender_id"] = $senderId;
+			}
+		}
+		return Response::json($data);
+	}
+
+	public function getServiceWorker() {
+		// so that the service worker script will run everywhere
+	 	$file = File::get(app_path()."/assets/service-workers/home.js");
+		$response = Response::make($file, 200);
+		$response->header('Content-Type', 'text/javascript');
+		return $response;
+	}
+
 	private function buildTimeStr($isLive, $time) {
 		$liveStr = $isLive ? "Live" : "Available";
 		

@@ -8,6 +8,9 @@ use Config;
 use Session;
 use Elasticsearch;
 use App;
+use DB;
+use Redis;
+use uk\co\la1tv\website\models\PushNotificationRegistrationEndpoint;
 
 class AjaxController extends BaseController {
 	
@@ -40,7 +43,8 @@ class AjaxController extends BaseController {
 		$enabled = Config::get("search.enabled");
 
 		if (!$enabled) {
-			return App::abort(404);
+			App::abort(404);
+			return;
 		}
 
 		$term = isset($_POST["term"]) ? $_POST["term"] : "";
@@ -145,6 +149,7 @@ class AjaxController extends BaseController {
 		$result = $client->search($params);
 		if ($result["timed_out"]) {
 			App::abort(500); // server error
+			return;
 		}
 
 		$results = array();
@@ -164,6 +169,81 @@ class AjaxController extends BaseController {
 		return Response::json(array(
 			"results"	=> $results
 		));
+	}
+
+	public function postRegisterPushNotificationEndpoint() {
+		if (!Config::get("pushNotifications.enabled")) {
+			App::abort(404);
+			return;
+		}
+
+		$url = isset($_POST["url"]) ? $_POST["url"] : null;
+		if (is_null($url) || filter_var($url, FILTER_VALIDATE_URL) === false) {
+			// no url/invalid url
+			App::abort(500); // server error
+			return;
+		}
+
+		$endpointWhiteList = Config::get("pushNotifications.endpointWhiteList");
+		$urlAllowed = false;
+		foreach($endpointWhiteList as $urlStart) {
+			if (substr($url, 0, strlen($urlStart)) === $urlStart) {
+				$urlAllowed = true;
+				break;
+			}
+		}
+		if (!$urlAllowed) {
+			// url not allowed
+			return Response::json(array(
+				"success"	=> false
+			));
+		}
+
+		$sessionId = Session::getId();
+		$success = DB::transaction(function() use (&$sessionId, &$url) {
+			$model = PushNotificationRegistrationEndpoint::where("session_id", $sessionId)->lockForUpdate()->first();
+			if (is_null($model)) {
+				$model = new PushNotificationRegistrationEndpoint(array(
+					"session_id"	=> $sessionId
+				));
+			}
+			$model->url = $url;
+			return $model->save();
+		});
+		if (!$success) {
+			App::abort(500); // server error
+			return;
+		}
+		return Response::json(array(
+			"success"	=> true
+		));
+	}
+
+	public function getNotifications() {
+		if (!Config::get("pushNotifications.enabled")) {
+			App::abort(404);
+			return;
+		}
+		$payloads = array();
+		$redis = Redis::connection();
+		$key = "notificationPayloads.".Session::getId();
+		$tmpKey = $key.".tmp.".str_random(20);
+		// rename for atomicity
+		if ($redis->rename($key, $tmpKey)) {
+			$data = $redis->get($tmpKey);
+			if (!is_null($data)) {
+				$redis->del($key);
+				$data = json_decode($data, true);
+				$now = time();
+				// ignore any notifications which have expired
+				foreach($data as $a) {
+					if ($a["time"] >= ($now-30)*1000) {
+						$payloads[] = $a["payload"];
+					}
+				}
+			}
+		}
+		return Response::json($payloads);
 	}
 	
 	private function formatLogDate($a, $milliseconds=false) {
