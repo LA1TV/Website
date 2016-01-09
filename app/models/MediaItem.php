@@ -259,6 +259,22 @@ class MediaItem extends MyEloquent {
 			// time not supported for streams yet so ensure it's null
 			$time = null;
 		}
+		else {
+			if (is_null($time)) {
+				// time must be provided
+				return false;
+			}
+			// stored as an int in db
+			$time = intval($time);
+			// make sure the time is in the range of the video duration
+			$duration = $this->videoItem->sourceFile->vodData->duration;
+			// check with $duration+1 because $duration is a float
+			// i.e if $duration is 12.8 and $time is 13 (maybe rounded from 12.6) allow it
+			if ($time < 0 || $time > $duration+1) {
+				// outside range of video
+				return false;
+			}
+		}
 
 
 		$sessionId = Session::getId();
