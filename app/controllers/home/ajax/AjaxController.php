@@ -11,6 +11,7 @@ use App;
 use DB;
 use Redis;
 use Exception;
+use Log;
 use uk\co\la1tv\website\models\PushNotificationRegistrationEndpoint;
 
 class AjaxController extends BaseController {
@@ -195,6 +196,7 @@ class AjaxController extends BaseController {
 		}
 		if (!$urlAllowed) {
 			// url not allowed
+			Log::debug("Rejecting push endpoint URL \"" . $url . "\" because not in whitelist.");
 			return Response::json(array(
 				"success"	=> false
 			));

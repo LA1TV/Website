@@ -51,10 +51,10 @@ define([
 
 	var version = PageData.get("version");
 	if (version !== null) {
-		logger.debug('Running version "'+version+'".');
+		logger.info('Running version "'+version+'".');
 	}
 	else {
-		logger.debug("Running unknown version.");
+		logger.info("Running unknown version.");
 	}
 	return logger;
 });
