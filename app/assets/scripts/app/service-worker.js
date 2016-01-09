@@ -1,6 +1,7 @@
 define([
-	"./page-data"
-], function(PageData) {
+	"./page-data",
+	"app/logger"
+], function(PageData, logger) {
 
 	var serviceWorkerInstalledResolve = null;
 	var serviceWorkerInstalledReject = null;
@@ -11,9 +12,11 @@ define([
 
 	install().then(function() {
 		// installed
+		logger.debug("Service worker installed.");
 		serviceWorkerInstalledResolve();
 	}).catch(function() {
 		// failed to install
+		logger.debug("Service worker failed to install.");
 		serviceWorkerInstalledReject();
 	});
 
@@ -23,9 +26,6 @@ define([
 
 	function pushSupported() {
 		if (!serviceWorkerSupported()) {
-			return false;
-		}
-		if (!('serviceWorker' in navigator)) {
 			return false;
 		}
 		// Check if push messaging is supported  
@@ -52,6 +52,7 @@ define([
 	// installs/updates the service worker
 	function install() {
 		if (!serviceWorkerSupported()) {
+			logger.debug("Service workers not supported.");
 			return Promise.reject();
 		}
 		
@@ -80,7 +81,9 @@ define([
 
 	function subscribeToPush() {
 		return new Promise(function(resolve, reject) {
-			if (!pushSupported()) {  
+			logger.debug("Making push subscription.");
+			if (!pushSupported()) {
+				logger.debug("Push not supported.");
 	  			reject();
 			}
  
@@ -88,11 +91,20 @@ define([
 				// userVisibleOnly as true means each push event triggered must trigger a notification in chrome (https://goo.gl/yqv4Q4)
 				// This is required for push to work in chrome, and the only use at the moment is triggering notifications so this is fine
 				serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true}).then(function(subscription) {  
-					subscription ? resolve(subscription) : reject();
+					if (subscription) {
+						logger.debug("Got push subscription.");
+						resolve(subscription);
+					}
+					else {
+						logger.debug("Failed to subscribe to push.");
+						reject();
+					}
 				}).catch(function() {
+					logger.debug("Failed to subscribe to push. Exception was thrown.");
 					reject();
 				});
 			}).catch(function() {
+				logger.debug("Could not subscribe to push because service worker never became ready.");
 				reject();
 			});
 		});
@@ -100,17 +112,28 @@ define([
 
 	function unsubscribeFromPush() {
 		return new Promise(function(resolve, reject) {
-			if (!pushSupported()) {  
+			logger.debug("Unsubscribing push subscription.");
+			if (!pushSupported()) {
+				logger.debug("Push not supported!");
 	  			reject();
 			}
  
 			serviceWorkerReady().then(function(serviceWorkerRegistration) {
 				serviceWorkerRegistration.pushManager.unsubscribe().then(function(success) {  
-					success ? resolve() : reject();
+					if (success) {
+						logger.debug("Unsubscribed push subscription.");
+						resolve();
+					}
+					else {
+						logger.debug("Failed to unsubscribe push subscription.");
+						reject();
+					}
 				}).catch(function() {
+					logger.debug("Failed to unsubscribe push subscription. Exception was thrown.");
 					reject();
 				});
 			}).catch(function() {
+				logger.debug("Could not unsubscribe from push subscription because service worker never became ready.");
 				reject();
 			});
 		});
