@@ -36,8 +36,25 @@ define([
 			ajaxAppender.addHeader(headerName, headers[headerName]);
 		}
 	}
-	
 	logger.addAppender(ajaxAppender);
+	
+	if (debugId !== null || PageData.get("env") !== "production") {
+		// if the user has set a debug id (e.g ?debugId=test),
+		// or not in production environment, log to console
+		logger.addAppender(new log4Javascript.BrowserConsoleAppender());
+	}
+
 	logger.debug("Logger initialised.");
+	if (debugId !== null) {
+		logger.debug('Using debug ID "'+debugId+'".');
+	}
+
+	var version = PageData.get("version");
+	if (version !== null) {
+		logger.debug('Running version "'+version+'".');
+	}
+	else {
+		logger.debug("Running unknown version.");
+	}
 	return logger;
 });

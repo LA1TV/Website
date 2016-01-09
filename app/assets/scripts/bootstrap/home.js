@@ -45,7 +45,6 @@ require.config({
 		require([
 			"app/logger",
 			"app/google-analytics",
-			"app/version-log",
 			"app/error-handler",
 			"app/service-worker",
 			"lib/bootstrap",

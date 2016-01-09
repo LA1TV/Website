@@ -6,7 +6,8 @@ define([
 	"../../page-data",
 	"../../service-worker",
 	"../../helpers/ajax-helpers",
-], function($, NotificationBar, NotificationPriorities, NotificationService, PageData, ServiceWorker, AjaxHelpers) {
+	"app/logger"
+], function($, NotificationBar, NotificationPriorities, NotificationService, PageData, ServiceWorker, AjaxHelpers, logger) {
 	var N = ("Notification" in window) ? window.Notification : null;
 	if (!N || !N.requestPermission) {
 		// html5 browser notifications not supported
@@ -35,10 +36,12 @@ define([
 		setTimeout(function() {
 			createNotification("Notifications Enabled", "Thanks for letting us send you notifications.");
 		}, 1000);
+		logger.debug("User accepted notifications permission.");
 		onHaveNotificationsPermission();
 	}
 
 	function onPermissionDenied() {
+		logger.debug("User denied notifications permission.");
 		requestBarHandle.remove();
 	}
 
@@ -69,7 +72,9 @@ define([
 			// the service worker will trigger notifications
 			// and handle incoming events (even when site not open)
 			// so nothing else to do
+			logger.debug("Using push notifications.");
 		}).catch(function() {
+			logger.debug("Using NotificationService for notifications, push support failed to initialise.");
 			// push notifications not in use. use the NotificationService (socketio) events instead
 			listenForEvents();
 		});
@@ -149,6 +154,7 @@ define([
 				}
 			}
 
+			logger.debug("Sending push subscription endpoint URL to server.");
 			$.ajax(PageData.get("registerPushNotificationEndpointUrl"), {
 				cache: false,
 				dataType: "json",
@@ -168,9 +174,11 @@ define([
 						}
 						catch(e) {}
 					}
+					logger.debug("Push subscription endpoint URL sent to server.");
 					resolve();
 				}
 				else {
+					logger.debug("Sending push subscription endpoint URL to server failed, or it was rejected.");
 					reject();
 				}
 			});
