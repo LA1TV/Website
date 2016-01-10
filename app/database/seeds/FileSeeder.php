@@ -17,7 +17,8 @@ class FileSeeder extends Seeder {
 		
 		if (File::where("in_use", "=", true)->count() === 0) {
 			$file = new File(array(
-				"in_use"=>true
+				"in_use"=>true,
+				"size"=>rand(10, 9999)
 			));
 			$file->fileType()->associate(FileType::first());
 			$file->uploadPoint()->associate(UploadPoint::first());

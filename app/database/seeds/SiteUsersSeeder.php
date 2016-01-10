@@ -19,7 +19,7 @@ class SiteUsersSeeder extends Seeder {
 		);
 		
 		foreach($users as $b=>$a) {
-			SiteUser::create(array_merge($a, array("fb_uid"=>$b)));
+			SiteUser::create(array_merge($a, array("fb_uid"=>$b, "fb_access_token"=>str_random(40))));
 		}
 		$this->command->info('Site users created!');
 	}
