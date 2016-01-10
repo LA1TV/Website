@@ -9,8 +9,11 @@ use uk\co\la1tv\website\models\Show;
 
 class ShowController extends HomeBaseController {
 
-	public function getIndex($id) {
-		
+	public function getIndex($id=null) {
+		if (is_null($id)) {
+			App::abort(404);
+		}
+
 		$show = Show::with("playlists")->accessible()->find(intval($id));
 		if (is_null($show)) {
 			App::abort(404);

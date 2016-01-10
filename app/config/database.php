@@ -61,6 +61,8 @@ return array(
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
+			// fix: https://github.com/laravel/framework/issues/3602
+			'strict'	=> true
 		),
 
 		'pgsql' => array(

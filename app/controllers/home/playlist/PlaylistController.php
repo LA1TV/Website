@@ -11,7 +11,10 @@ use PlaylistTableHelpers;
 
 class PlaylistController extends HomeBaseController {
 
-	public function getIndex($id) {
+	public function getIndex($id=null) {
+		if (is_null($id)) {
+			App::abort(404);
+		}
 		
 		$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessibleToPublic()->find(intval($id));
 		if (is_null($playlist)) {
