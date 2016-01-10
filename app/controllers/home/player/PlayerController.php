@@ -23,7 +23,10 @@ use PlaylistTableHelpers;
 
 class PlayerController extends HomeBaseController {
 
-	public function getIndex($playlistId, $mediaItemId) {
+	public function getIndex($playlistId=null, $mediaItemId=null) {
+		if (is_null($playlistId) || is_null($mediaItemId)) {
+			App::abort(404);
+		}
 		
 		// true if a user is logged into the cms and has permission to view media items.
 		$userHasMediaItemsPermission = false;

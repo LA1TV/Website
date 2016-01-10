@@ -13,8 +13,11 @@ use Carbon;
 
 class LiveStreamController extends HomeBaseController {
 
-	public function getIndex($id) {
-
+	public function getIndex($id=null) {
+		if (is_null($id)) {
+			App::abort(404);
+		}
+		
 		$liveStream = LiveStream::showAsLiveStream()->find($id);
 		if (is_null($liveStream)) {
 			App::abort(404);
