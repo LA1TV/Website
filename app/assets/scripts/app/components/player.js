@@ -691,7 +691,10 @@ define([
 								if (startPlaying) {
 									clapprPlayer.play();
 								}
-								clapprPlayer.seek(startTime);
+								// TODO: remove when 'hack' no longer necessary (https://github.com/LA1TV/Website/issues/685)
+								setTimeout(function() {
+									clapprPlayer.seek(startTime);
+								}, 0);
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
 							});
