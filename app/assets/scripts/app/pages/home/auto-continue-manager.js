@@ -123,7 +123,7 @@ define([
 				// don't allow moving on yet to make sure don't start a dos attack!
 				return false;
 			}
-			return mode !== 0 && !(playerController.getPlayerType() === "live" || (playerController.getPlayerType() === "vod" && !playerController.hasVodEnded()));
+			return mode !== 0 && !(playerController.getPlayerType() === "live" || (playerController.getPlayerType() === "vod" && !playerController.hasEnded()));
 		}
 	};
 	

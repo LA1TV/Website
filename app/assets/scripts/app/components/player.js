@@ -167,6 +167,15 @@ define([
 			}
 			return null;
 		};
+
+		this.hasEnded = function() {
+			if (playerType === "vod" || playerType === "live") {
+				if (clapprPlayer !== null) {
+					return clapprPlayer.ended;
+				}
+			}
+			return null;
+		};
 		
 		// returns the error if an error has occurred with playback or null otherwise.
 		this.getPlayerError = function() {
@@ -682,10 +691,7 @@ define([
 								if (startPlaying) {
 									clapprPlayer.play();
 								}
-								// TODO: remove when 'hack' no longer necessary (https://github.com/LA1TV/Website/issues/685)
-								setTimeout(function() {
-									clapprPlayer.seek(startTime);
-								}, 0);
+								clapprPlayer.seek(startTime);
 								playerInitialized = true;
 								$(self).triggerHandler("playerInitialized");
 							});
