@@ -167,6 +167,15 @@ define([
 			}
 			return null;
 		};
+
+		this.hasEnded = function() {
+			if (playerType === "vod" || playerType === "live") {
+				if (clapprPlayer !== null) {
+					return clapprPlayer.ended;
+				}
+			}
+			return null;
+		};
 		
 		// returns the error if an error has occurred with playback or null otherwise.
 		this.getPlayerError = function() {

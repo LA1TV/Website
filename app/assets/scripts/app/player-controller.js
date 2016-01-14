@@ -233,6 +233,13 @@ define([
 		this.getVodStartTime = function() {
 			return vodPlayStartTime;
 		};
+
+		this.hasEnded = function() {
+			if (playerComponent !== null) {
+				return playerComponent.hasEnded();
+			}
+			return null;
+		};
 		
 		this.setVodStartTime = function(startTime) {
 			vodPlayStartTime = startTime;
