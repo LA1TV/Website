@@ -51,7 +51,10 @@ class GuideController extends HomeBaseController {
 			
 			foreach($day['mediaItems'] as $i=>$item) {
 				$playlist = $item->getDefaultPlaylist();
-				$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+				$thumbnailUri = Config::get("custom.default_cover_uri");
+				if (!Config::get("degradedService.enabled")) {
+					$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+				}
 				$playlistName = null;
 				if (!is_null($playlist->show)) {
 					// the current item in the playlist is part of a show.
