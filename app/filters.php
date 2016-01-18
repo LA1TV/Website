@@ -22,6 +22,11 @@ App::before(function($request)
 		Config::set('degradedService.enabled', true);
 	}
 
+	if (Config::get('degradedService.enabled')) {
+		// if degradedService is enabled disable search (thumbnail urls incorrect)
+		Config::set('search.enabled', false);
+	}
+
 	App::error(function(ApiException $exception) {
 		return App::make('uk\co\la1tv\website\controllers\api\v1\ApiController')->callAction("respondServerError", array());
 	});

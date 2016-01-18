@@ -388,8 +388,11 @@ class PlayerController extends HomeBaseController {
 		if (!is_null($publishTime)) {
 			$publishTime = $publishTime->timestamp;
 		}
-		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']);
+		$coverArtUri = Config::get("custom.default_cover_uri");
+		if (!Config::get("degradedService.enabled")) {
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']);
+		}
 		$hasStream = $hasLiveStreamItem;
 		$streamInfoMsg = $hasLiveStreamItem ? $liveStreamItem->information_msg : null;
 		$streamState = $hasLiveStreamItem ? intval($liveStreamItem->getResolvedStateDefinition()->id): null;
@@ -412,7 +415,6 @@ class PlayerController extends HomeBaseController {
 			}
 			$vodThumbnails = $videoItem->getScrubThumbnails();
 		}
-		
 		
 		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		if (!$userHasMediaItemsPermission) {
