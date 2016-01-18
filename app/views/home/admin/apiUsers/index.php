@@ -11,7 +11,7 @@
 					<th>Owner</th>
 					<th>Can View VOD Uris</th>
 					<th>Can View Stream Uris</th>
-					<th>Cam Use Webhooks</th>
+					<th>Can Use Webhooks</th>
 					<th>Time Created</th>
 					<?php if ($editEnabled): ?>
 					<th class="action-col"><a type="button" class="btn btn-xs btn-primary" href="<?=e($createUri)?>">Create</a></th>
