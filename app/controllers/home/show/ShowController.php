@@ -41,13 +41,11 @@ class ShowController extends HomeBaseController {
 		}
 		
 		$coverUri = null;
-		if (!Config::get("degradedService.enabled")) {
-			$coverImageResolutions = Config::get("imageResolutions.coverImage");
-			$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-		}
 		$sideBannerUri = null;
 		$sideBannerFillUri = null;
 		if (!Config::get("degradedService.enabled")) {
+			$coverImageResolutions = Config::get("imageResolutions.coverImage");
+			$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
 			$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
 			$sideBannerUri = $show->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
 			$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerFillImage");
