@@ -15,12 +15,18 @@ class UploadController extends UploadBaseController {
 
 	public function postIndex() {
 		Auth::loggedInOr403();
+		if (Config::get("degradedService.enabled")) {
+			return App::abort(503); // service unavailable 
+		}
 		Upload::process();
 		return Upload::getResponse();
 	}
 	
 	// serve up a file (or redirect to file)
 	public function getIndex($id) {
+		if (Config::get("degradedService.enabled")) {
+			return App::abort(503); // service unavailable 
+		}
 		return Upload::getFileResponse($id);
 	}
 	
@@ -46,6 +52,10 @@ class UploadController extends UploadBaseController {
 	public function postRemove() {
 		
 		Auth::loggedInOr403();
+
+		if (Config::get("degradedService.enabled")) {
+			return App::abort(503); // service unavailable 
+		}
 	
 		$resp = array("success"=> false);
 		if (FormHelpers::hasPost("id")) {

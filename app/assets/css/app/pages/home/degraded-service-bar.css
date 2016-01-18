@@ -1,0 +1,13 @@
+.degraded-service-bar {
+	text-align: center;
+	padding: 5px 0;
+	background-color: #fcf8e3;
+	border-style: none;
+	border-width: 2px;
+	border-color: #8a6d3;
+	border-bottom-style: solid;
+}
+
+.degraded-service-bar .icon {
+	margin-right: 5px;
+}

@@ -26,7 +26,8 @@ class ApiResponseDataGenerator {
 	
 	public function generateServiceResponseData() {
 		$data = [
-			"applicationVersion"	=> DebugHelpers::getVersion()
+			"applicationVersion"	=> DebugHelpers::getVersion(),
+			"degradedService"		=> Config::get("degradedService.enabled")
 		];
 		return new ApiResponseData($data);
 	}

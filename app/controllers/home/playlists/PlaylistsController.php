@@ -30,7 +30,10 @@ class PlaylistsController extends HomeBaseController {
 		$playlistTableData = array();
 		
 		foreach($playlists as $i=>$item) {
-			$thumbnailUri = $item->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Config::get("custom.default_cover_uri");
+			if (!Config::get("degradedService.enabled")) {
+				$thumbnailUri = $item->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			}
 			
 			$playlistTableData[] = array(
 				"uri"					=> $item->getUri(),

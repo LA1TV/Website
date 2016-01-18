@@ -14,6 +14,13 @@ class HomeController extends HomeBaseController {
 
 	public function getIndex() {
 	
+		if (Config::get("degradedService.enabled")) {
+			$view = View::make("home.degradedIndex");
+			$view->contactEmail = Config::get("contactEmails.development");
+			$this->setContent($view, "home", "home-degraded", array(), null, 200, array());
+			return;
+		}
+
 		$promoMediaItem = MediaItem::with("liveStreamItem", "liveStreamItem.liveStream", "videoItem")->accessible()->whereNotNull("time_promoted")->orderBy("time_promoted", "desc")->first();
 		if (!is_null($promoMediaItem)) {
 			$liveStreamItem = $promoMediaItem->liveStreamItem;
