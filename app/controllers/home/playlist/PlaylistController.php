@@ -32,7 +32,10 @@ class PlaylistController extends HomeBaseController {
 				// this shouldn't be accessible
 				continue;
 			}
-			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Config::get("custom.default_cover_uri");
+			if (!Config::get("degradedService.enabled")) {
+				$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			}
 			$playlistName = null;
 			if (is_null($playlist->show)) {
 				// this is a playlist not a series.
@@ -61,7 +64,10 @@ class PlaylistController extends HomeBaseController {
 		foreach($relatedItems as $i=>$item) {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
-			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Config::get("custom.default_cover_uri");
+			if (!Config::get("degradedService.enabled")) {
+				$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			}
 			$relatedItemsTableData[] = array(
 				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
 				"active"				=> false,
@@ -75,12 +81,17 @@ class PlaylistController extends HomeBaseController {
 			);
 		}
 		
-		$coverImageResolutions = Config::get("imageResolutions.coverImage");
-		$coverUri = $playlist->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
-		$sideBannerUri = $playlist->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
-		$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerFillImage");
-		$sideBannerFillUri = $playlist->getSideBannerFillUri($sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
+		$coverUri = null;
+		$sideBannerUri = null;
+		$sideBannerFillUri = null;
+		if (!Config::get("degradedService.enabled")) {
+			$coverImageResolutions = Config::get("imageResolutions.coverImage");
+			$coverUri = $playlist->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+			$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
+			$sideBannerUri = $playlist->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
+			$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerFillImage");
+			$sideBannerFillUri = $playlist->getSideBannerFillUri($sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
+		}
 		$playlistName = $playlist->generateName();
 		$openGraphCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
 		$twitterCardCoverArtUri = $playlist->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
@@ -145,8 +156,12 @@ class PlaylistController extends HomeBaseController {
 			$vod = null;
 			$stream = null;
 			if (!is_null($a->videoItem)) {
+				$available = false;
+				if (!Config::get("degradedService.enabled")) {
+					$available = $a->videoItem->getIsLive();
+				}
 				$vod = array(
-					"available"	=> $a->videoItem->getIsLive()
+					"available"	=> $available
 				);
 			}
 			if (!is_null($a->liveStreamItem)) {

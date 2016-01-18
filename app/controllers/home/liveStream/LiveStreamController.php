@@ -73,7 +73,10 @@ class LiveStreamController extends HomeBaseController {
 		$streamAccessible = $liveStream->getIsAccessible();
 
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		$coverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']);
+		$coverArtUri = Config::get("custom.default_cover_uri");
+		if (!Config::get("degradedService.enabled")) {
+			$coverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']);
+		}
 
 		$id = intval($liveStream->id);
 		$uri = $liveStream->getUri();
@@ -149,7 +152,10 @@ class LiveStreamController extends HomeBaseController {
 		}
 		$uri = $playlist->getMediaItemUri($mediaItem);
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+		$coverArtUri = Config::get("custom.default_cover_uri");
+		if (!Config::get("degradedService.enabled")) {
+			$coverArtUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+		}
 		$seriesName = !is_null($playlist->show) ? $playlist->generateName() : null;
 		$name = $playlist->generateEpisodeTitle($mediaItem);
 		return array(

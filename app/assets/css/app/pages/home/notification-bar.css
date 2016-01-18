@@ -6,6 +6,7 @@
 	z-index: 999;
 	overflow: auto;
 	max-height: 75%;
+	background-color: #ffffff;
 }
 
 .notification-bar .notification {

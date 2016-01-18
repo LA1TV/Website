@@ -23,7 +23,10 @@ class ShowController extends HomeBaseController {
 		$playlists = $show->playlists()->accessibleToPublic()->orderBy("series_no", "asc")->orderBy("name", "asc")->orderBy("description", "asc")->get();
 		$showTableData = array();
 		foreach($playlists as $i=>$item) {
-			$thumbnailUri = $item->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Config::get("custom.default_cover_uri");
+			if (!Config::get("degradedService.enabled")) {
+				$thumbnailUri = $item->getCoverArtUri($coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			}
 			$showTableData[] = array(
 				"uri"					=> $item->getUri(),
 				"title"					=> $item->generateName(),
@@ -37,12 +40,19 @@ class ShowController extends HomeBaseController {
 			);
 		}
 		
-		$coverImageResolutions = Config::get("imageResolutions.coverImage");
-		$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
-		$sideBannerUri = $show->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
-		$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerFillImage");
-		$sideBannerFillUri = $show->getSideBannerFillUri($sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
+		$coverUri = null;
+		if (!Config::get("degradedService.enabled")) {
+			$coverImageResolutions = Config::get("imageResolutions.coverImage");
+			$coverUri = $show->getCoverUri($coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+		}
+		$sideBannerUri = null;
+		$sideBannerFillUri = null;
+		if (!Config::get("degradedService.enabled")) {
+			$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
+			$sideBannerUri = $show->getSideBannerUri($sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
+			$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerFillImage");
+			$sideBannerFillUri = $show->getSideBannerFillUri($sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
+		}
 		$openGraphCoverArtUri = $show->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
 		$twitterCardCoverArtUri = $show->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
 		

@@ -15,6 +15,12 @@ use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedE
 */
 App::before(function($request)
 {
+	// determine if degraded mode should be enabled
+	if (Redis::get("fileStoreUnavailable")) {
+		// automatically enable if filestore not accessible
+		// this key in redis is set in the CheckFileStoreAvailability command
+		Config::set('degradedService.enabled', true);
+	}
 
 	App::error(function(ApiException $exception) {
 		return App::make('uk\co\la1tv\website\controllers\api\v1\ApiController')->callAction("respondServerError", array());

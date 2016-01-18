@@ -63,7 +63,8 @@ class HomeBaseController extends BaseController {
 			"registerPushNotificationEndpointUrl"	=> $registerPushNotificationEndpointUrl,
 			"promoAjaxUri"	=> Config::get("custom.live_shows_uri"),
 			"env"			=> App::environment(),
-			"version"		=> DebugHelpers::getVersion()
+			"version"		=> DebugHelpers::getVersion(),
+			"degradedService"	=> Config::get("degradedService.enabled")
 		);
 		$facebookAppId = Config::get("facebook.appId");
 		$defaultOpenGraphProperties = array();
