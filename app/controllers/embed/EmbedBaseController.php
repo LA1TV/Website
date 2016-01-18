@@ -42,7 +42,8 @@ class EmbedBaseController extends BaseController {
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"notificationServiceUrl"	=> Config::get("notificationService.url"),
 			"env"			=> App::environment(),
-			"version"		=> DebugHelpers::getVersion()
+			"version"		=> DebugHelpers::getVersion(),
+			"degradedService"	=> Config::get("degradedService.enabled")
 		);
 		
 		$contentSecurityPolicyDomains = MediaItemLiveStream::getCachedLiveStreamDomains();

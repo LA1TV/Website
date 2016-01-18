@@ -71,7 +71,10 @@ class PlayerController extends HomeBaseController {
 				// this shouldn't be accessible
 				continue;
 			}
-			$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Config::get("custom.default_cover_uri");
+			if (!Config::get("degradedService.enabled")) {
+				$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			}
 			$active = intval($item->id) === intval($currentMediaItem->id);
 			if ($active) {
 				$activeItemIndex = $newIndex;
@@ -113,7 +116,10 @@ class PlayerController extends HomeBaseController {
 		foreach($relatedItems as $i=>$item) {
 			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
 			$relatedItemPlaylist = $item->getDefaultPlaylist();
-			$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$thumbnailUri = Config::get("custom.default_cover_uri");
+			if (!Config::get("degradedService.enabled")) {
+				$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			}
 			$relatedItemsTableData[] = array(
 				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
 				"active"				=> false,
@@ -235,7 +241,10 @@ class PlayerController extends HomeBaseController {
 		
 		$currentMediaItem->load("videoItem", "videoItem.chapters");
 		$videoItem = $currentMediaItem->videoItem;
-		$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
+		$hasAccessibleVod = false;
+		if (!Config::get("degradedService.enabled")) {
+			$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
+		}
 		$commentsEnabled = $currentMediaItem->comments_enabled;
 		
 		$vodPlayStartTime = $this->getVodStartTimeFromUrl();
@@ -266,13 +275,18 @@ class PlayerController extends HomeBaseController {
 			);
 		}
 
-		$coverImageResolutions = Config::get("imageResolutions.coverImage");
-		$coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-		$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
-		$sideBannerUri = $playlist->getMediaItemSideBannerUri($currentMediaItem, $sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
-		$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerImage");
-		$sideBannerFillUri = $playlist->getMediaItemSideBannerFillUri($currentMediaItem, $sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
-		
+		$coverImageUri = null;
+		$sideBannerUri = null;
+		$sideBannerFillUri = null;
+		if (!Config::get("degradedService.enabled")) {
+			$coverImageResolutions = Config::get("imageResolutions.coverImage");
+			$coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+			$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
+			$sideBannerUri = $playlist->getMediaItemSideBannerUri($currentMediaItem, $sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
+			$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerImage");
+			$sideBannerFillUri = $playlist->getMediaItemSideBannerFillUri($currentMediaItem, $sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
+		}
+
 		// only autoplay if the user has come from an external site, or specified a start time
 		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
 		
@@ -364,8 +378,12 @@ class PlayerController extends HomeBaseController {
 			// should not be accessible so pretend doesn't exist
 			$videoItem = null;
 		}
-		$hasVideoItem = !is_null($videoItem) && !is_null($videoItem->sourceFile); // pretend doesn't exist if no video/video processing
-		
+
+		$hasVideoItem = false;
+		if (!Config::get("degradedService.enabled")) {
+			$hasVideoItem = !is_null($videoItem) && !is_null($videoItem->sourceFile); // pretend doesn't exist if no video/video processing
+		}
+
 		$publishTime = $mediaItem->scheduled_publish_time;
 		if (!is_null($publishTime)) {
 			$publishTime = $publishTime->timestamp;
@@ -545,7 +563,10 @@ class PlayerController extends HomeBaseController {
 				$mediaItemVideo = $mediaItem->videoItem;
 				$mediaItemLiveStream = $mediaItem->liveStreamItem;
 				
-				$mediaItemVideoAccessible = !is_null($mediaItemVideo) && $mediaItemVideo->getIsLive();
+				$mediaItemVideoAccessible = false;
+				if (!Config::get("degradedService.enabled")) {
+					$mediaItemVideoAccessible = !is_null($mediaItemVideo) && $mediaItemVideo->getIsLive();
+				}
 				$mediaItemLiveStreamValidState = !is_null($mediaItemLiveStream) && $mediaItemLiveStream->getIsAccessible() && intval($mediaItemLiveStream->getResolvedStateDefinition()->id) !== 1;
 				
 				if ($mediaItemVideoAccessible || $mediaItemLiveStreamValidState) {

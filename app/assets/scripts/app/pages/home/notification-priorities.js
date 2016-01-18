@@ -2,6 +2,7 @@
 define(function() {
 	return {
 		promo: 1,
-		notificationsPermissionRequest: 2
+		notificationsPermissionRequest: 2,
+		degradedService: 3
 	};
 });

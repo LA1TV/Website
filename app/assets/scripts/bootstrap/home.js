@@ -63,7 +63,8 @@ require.config({
 			"app/pages/home/browser-notification-manager",
 			"app/pages/home/home-page",
 			"app/pages/home/twitter-timeline",
-			"app/pages/home/cookie-compliance"
+			"app/pages/home/cookie-compliance",
+			"app/pages/home/degraded-service-bar"
 		], function(logger, googleAnalytics) {
 			// everything loaded
 			logger.info("Page loaded.");

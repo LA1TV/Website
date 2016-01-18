@@ -9,6 +9,7 @@ use uk\co\la1tv\website\commands\DeleteSearchIndexCommand;
 use uk\co\la1tv\website\commands\SearchIndexCheckForItemsCommand;
 use uk\co\la1tv\website\commands\UpdateSearchIndexCommand;
 use uk\co\la1tv\website\commands\TriggerVODAvailableEventCommand;
+use uk\co\la1tv\website\commands\CheckFileStoreAvailabilityCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,3 +32,4 @@ Artisan::add(new DeleteSearchIndexCommand());
 Artisan::add(new SearchIndexCheckForItemsCommand());
 Artisan::add(new UpdateSearchIndexCommand());
 Artisan::add(new TriggerVODAvailableEventCommand());
+Artisan::add(new CheckFileStoreAvailabilityCommand());
