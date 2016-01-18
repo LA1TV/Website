@@ -7,5 +7,6 @@ return array(
 	"liveStreams"	=> 4,
 	"siteUsers"		=> 5,
 	"users"			=> 6,
-	"siteComments"	=> 7
+	"siteComments"	=> 7,
+	"apiUsers"		=> 8
 );

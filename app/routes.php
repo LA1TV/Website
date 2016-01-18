@@ -75,6 +75,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 				Route::controller('/admin/productionroles', $p.'home\admin\productionRoles\ProductionRolesController');
 				Route::controller('/admin/siteusers', $p.'home\admin\siteUsers\SiteUsersController');
 				Route::controller('/admin/users', $p.'home\admin\users\UsersController');
+				Route::controller('/admin/apiusers', $p.'home\admin\apiUsers\ApiUsersController');
 				Route::controller('/admin/permissions', $p.'home\admin\permissions\PermissionsController');
 				Route::controller('/admin', $p.'home\admin\AdminController');
 			});

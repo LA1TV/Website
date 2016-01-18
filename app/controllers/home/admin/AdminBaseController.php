@@ -54,6 +54,7 @@ class AdminBaseController extends BaseController {
 					
 			if (Auth::getUser()->hasPermission(Config::get("permissions.siteUsers"), 0)) $view->moreMenuItems[] = "siteusers";
 			if (Auth::getUser()->hasPermission(Config::get("permissions.users"), 0)) $view->moreMenuItems[] = "users";
+			if (Auth::getUser()->hasPermission(Config::get("permissions.apiUsers"), 0)) $view->moreMenuItems[] = "apiusers";
 		}
 		
 		$response = new MyResponse($view);

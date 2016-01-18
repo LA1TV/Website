@@ -13,7 +13,7 @@ class PermissionGroupSeeder extends Seeder {
 	public function run() {
 		$groups = array(
 			array("name"=>"Read Only", "description"=>"Ability to view most of the settings in the cms.", "permissionIdsFlags"=>
-					array(array(1, 0), array(2, 0), array(3, 0), array(4, 0), array(5, 0), array(6, 0))),
+					array(array(1, 0), array(2, 0), array(3, 0), array(4, 0), array(5, 0), array(6, 0), array(8, 0))),
 			array("name"=>"Content Management", "description"=>"Allows managing media items.", "permissionIdsFlags"=>
 					array(array(1, 1))),
 			array("name"=>"Shows Management", "description"=>"Allows managing shows.", "permissionIdsFlags"=>
@@ -27,7 +27,9 @@ class PermissionGroupSeeder extends Seeder {
 			array("name"=>"CMS Users Management", "description"=>"Allows managing the CMS users.", "permissionIdsFlags"=>
 					array(array(6, 1))),
 			array("name"=>"Comments Management", "description"=>"Allows managing site comments and commenting as station.", "permissionIdsFlags"=>
-					array(array(7, 0)))
+					array(array(7, 0))),
+			array("name"=>"API Users Management", "description"=>"Allows managing API users.", "permissionIdsFlags"=>
+					array(array(8, 1)))
 		);
 		
 		foreach($groups as $i=>$a) {

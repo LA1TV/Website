@@ -7,6 +7,7 @@ $nav = array(
 	"livestreams"	=> array("Live Streams", Config::get("custom.admin_base_url")."/livestreams", false),
 	"siteusers"		=> array("Site Users", Config::get("custom.admin_base_url")."/siteusers", false),
 	"users"			=> array("CMS Users", Config::get("custom.admin_base_url")."/users", false),
+	"apiusers"		=> array("API Users", Config::get("custom.admin_base_url")."/apiusers", false),
 	"monitoring"	=> array("Monitoring", Config::get("custom.admin_base_url")."/monitoring", false)
 );
 
