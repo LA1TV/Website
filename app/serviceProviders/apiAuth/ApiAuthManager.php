@@ -3,6 +3,7 @@
 use uk\co\la1tv\website\models\ApiUser;
 use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedException;
 use Request;
+use Carbon;
 
 class ApiAuthManager {
 	
@@ -21,6 +22,10 @@ class ApiAuthManager {
 		if (!is_null($key)) {
 			$user = ApiUser::where("key", $key)->where("enabled", true)->first();
 		}
+		if (!is_null($user)) {
+			$user->last_request_time = Carbon::now();
+			$user->save();
+		}	
 		$this->user = $user;
 		$this->retrievedUser = true;
 		return $user;
