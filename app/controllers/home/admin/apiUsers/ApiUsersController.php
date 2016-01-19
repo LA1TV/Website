@@ -44,6 +44,7 @@ class ApiUsersController extends ApiUsersBaseController {
 			$canViewStreamUrisStr = $canViewStreamUris ? "Yes" : "No";
 			$canUseWebhooks = (boolean) $a->can_use_webhooks;
 			$canUseWebhooksStr = $canUseWebhooks ? "Yes" : "No";
+			$lastRequestTime = !is_null($a->last_request_time) ? $a->last_request_time->toDateTimeString() : "[No Requests Yet]";
 
 			$tableData[] = array(
 				"enabled"				=> $enabledStr,
@@ -55,6 +56,7 @@ class ApiUsersController extends ApiUsersBaseController {
 				"canUseWebhooks"		=> $canUseWebhooksStr,
 				"canUseWebhooksCss"		=> $canUseWebhooks ? "text-success" : "text-danger",
 				"owner"					=> $a->owner,
+				"lastRequestTime"		=> $lastRequestTime,
 				"timeCreated"			=> $a->created_at->toDateTimeString(),
 				"editUri"				=> Config::get("custom.admin_base_url") . "/apiusers/edit/" . $a->id,
 				"id"					=> $a->id

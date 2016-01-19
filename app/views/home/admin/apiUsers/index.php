@@ -12,6 +12,7 @@
 					<th>Can View VOD Uris</th>
 					<th>Can View Stream Uris</th>
 					<th>Can Use Webhooks</th>
+					<th>Last Request Time</th>
 					<th>Time Created</th>
 					<?php if ($editEnabled): ?>
 					<th class="action-col"><a type="button" class="btn btn-xs btn-primary" href="<?=e($createUri)?>">Create</a></th>
@@ -26,6 +27,7 @@
 					<td><span class="<?=e($a['canViewVodUrisCss']);?>"><?=e($a['canViewVodUris']);?></span></td>
 					<td><span class="<?=e($a['canViewStreamUrisCss']);?>"><?=e($a['canViewStreamUris']);?></span></td>
 					<td><span class="<?=e($a['canUseWebhooksCss']);?>"><?=e($a['canUseWebhooks']);?></span></td>
+					<td><?=e($a['lastRequestTime']);?></td>
 					<td><?=e($a['timeCreated']);?></td>
 					<?php if ($editEnabled): ?>
 					<td class="action-col"><a class="btn btn-xs btn-info" href="<?=e($a['editUri'])?>">Edit</a> <button type="button" class="btn btn-xs btn-danger" data-action="delete" data-deleteuri="<?=e($deleteUri)?>" data-deleteid="<?=e($a['id'])?>">&times;</button></td>
@@ -34,6 +36,7 @@
 			<?php endforeach; ?>
 				<?php if ($editEnabled): ?>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
