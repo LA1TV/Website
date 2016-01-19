@@ -7,8 +7,8 @@ class MediaItemLiveHandler {
 
 	public function onLive($mediaItemLiveStream) {
 		Log::info("In notifications media item live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
-		if (!$mediaItemLiveStream->isLive()) {
-			// no longer live
+		if (!$mediaItemLiveStream->getIsAccessible() || !$mediaItemLiveStream->isLive()) {
+			// no longer live or not accessible
 			return;
 		}
 		$this->queueLiveStreamEvent($mediaItemLiveStream);
@@ -16,8 +16,8 @@ class MediaItemLiveHandler {
 	
 	public function onShowOver($mediaItemLiveStream) {
 		Log::info("In notifications media item show over event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
-		if (!$mediaItemLiveStream->isOver()) {
-			// no longer show over
+		if (!$mediaItemLiveStream->getIsAccessible() || !$mediaItemLiveStream->isOver()) {
+			// no longer show over or not accessible
 			return;
 		}
 		$this->queueLiveStreamEvent($mediaItemLiveStream);
@@ -25,8 +25,8 @@ class MediaItemLiveHandler {
 
 	public function onNotLive($mediaItemLiveStream) {
 		Log::info("In notifications media item not live event handler for MediaItemLiveStream with ID ".$mediaItemLiveStream->id.".");
-		if (!$mediaItemLiveStream->isNotLive()) {
-			// no longer not live
+		if (!$mediaItemLiveStream->getIsAccessible() || !$mediaItemLiveStream->isNotLive()) {
+			// no longer not live or not accessible
 			return;
 		}
 		$this->queueLiveStreamEvent($mediaItemLiveStream);
