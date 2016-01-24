@@ -8,9 +8,10 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
     // generate entry points
     // these are names as the path from the src/entry folder, with "/" replaced with "_"
     var entryConfig = generateEntryPoints(entryPointsbaseDirDir);
+
     return {
         plugins: [
-            new Clean(buildDir),
+            new Clean(buildDir, {root: baseDir}),
             new CommonsChunkPlugin("commons.chunk.js")
         ],
         entry: entryConfig,
