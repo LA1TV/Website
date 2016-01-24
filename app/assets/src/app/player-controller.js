@@ -987,7 +987,6 @@ define([
 		}
 		
 		function updateViewCounts() {
-			var changed = false;
 			var vodCountChanged = false;
 			var streamCountChanged = false;
 			vodCountChanged = vodViewCount !== nullify(cachedData.vodViewCount);

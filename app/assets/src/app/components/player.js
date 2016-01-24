@@ -307,13 +307,10 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 	// === AD ===
 	// reference to dom element which holds the ad
 	var $ad = null;
-	var $adTitle = null;
 	var $adStreamOver = null;
 	var $adVodAvailableShortly = null;
 	var $adCustomMsg = null;
 	var $adLiveAt = null;
-	var $adLiveIn = null;
-	var $adTime = null;
 	var $adCountdown = null;
 	
 	// === External Stream Slide ===

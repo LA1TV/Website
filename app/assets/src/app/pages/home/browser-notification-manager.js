@@ -11,7 +11,6 @@ require("./browser-notification-permission-request-bar.css");
 
 (function() {
 	var N = ("Notification" in window) ? window.Notification : null;
-	var notificationsAllowed = true;
 	if (!N || !N.requestPermission) {
 		// html5 browser notifications not supported
 		return;

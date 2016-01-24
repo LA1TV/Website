@@ -5,7 +5,6 @@ require("./side-banners.css");
 
 $(document).ready(function() {
 	$(".side-banners-container-container").each(function() {
-		var self = this;
 		
 		if (DeviceDetection.isMobile()) {
 			// side banners not shown on mobiles.
@@ -14,8 +13,6 @@ $(document).ready(function() {
 		}
 		
 		var $sideBannerContainers = $(".side-banner-container");
-		var numBanners = $sideBannerContainers.length;
-		var numBannersLoaded = 0;
 		var trianglifyPng = null;
 		var getTrianglifyPng = function() {
 			if (!trianglifyPng) {

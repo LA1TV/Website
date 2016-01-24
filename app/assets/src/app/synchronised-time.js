@@ -10,8 +10,7 @@ define([
 	// manage synchronised time
 	
 	var offsetTime = getOffsetTimeFromCookie() || 0 // no of milliseconds out compared with local time
-	var updateCount = 0;
-	
+
 	SynchronisedTime = {
 		getDate: function() {
 			return new Date(new Date().getTime() + offsetTime);
