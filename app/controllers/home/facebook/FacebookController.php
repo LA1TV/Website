@@ -78,7 +78,7 @@ class FacebookController extends HomeBaseController {
 		if ($loggedIn) {
 			$view->permissionsTableContent = $permissionsTableContent;
 		}
-		$this->setContent($view, "fbpermissions", "fbpermissions", array(), "Facebook Permissions");
+		$this->setContent($view, "fb-permissions", "fb-permissions", array(), "Facebook Permissions");
 	}
 	
 	private function recordReturnUri() {

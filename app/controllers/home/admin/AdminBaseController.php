@@ -26,9 +26,11 @@ class AdminBaseController extends BaseController {
 		$view->description = "The custom built content management system for LA1:TV's website.";
 		$view->allowRobots = false;
 		$view->manifestUri = URL::route('manifest');
-		$view->cssBootstrap = asset("assets/css/bootstrap/admin.css");
-		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/admin.js");		
-		
+		$view->jsFiles = [
+			asset("assets/built/admin/commons.chunk.js"),
+			asset("assets/built/admin/admin.js")
+		];
+
 		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
 			"cookieDomain"	=> Config::get("cookies.domain"),
