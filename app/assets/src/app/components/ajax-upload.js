@@ -1,3 +1,4 @@
+var $ = require("jquery");
 var PageData = require("app/page-data");
 var FileSizeHelper = require("app/helpers/file-size-helper");
 var AjaxHelpers = require("app/helpers/ajax-helpers");

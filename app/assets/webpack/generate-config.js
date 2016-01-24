@@ -10,7 +10,8 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
     var entryConfig = generateEntryPoints(entryPointsbaseDirDir);
     return {
         plugins: [
-            new Clean(buildDir)
+            new Clean(buildDir),
+            new CommonsChunkPlugin("commons.chunk.js")
         ],
         entry: entryConfig,
         resolve: {
@@ -38,9 +39,6 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
                 
             ]
         },
-        plugins: [
-            new CommonsChunkPlugin("commons.chunk.js")
-        ],
         /*
         postcss: [
             autoprefixer({browsers: ['last 2 versions']})

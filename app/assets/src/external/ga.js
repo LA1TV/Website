@@ -1,5 +1,5 @@
 var ScriptLoader = require("./script-loader");
-// TODO import promises polyfill
+var Promise = require("lib/es6-promise").Promise;
 
 // a promise that will resolve with the twitter object if the script
 // loads succesfully
