@@ -4,6 +4,7 @@ var PageData = require("../page-data");
 var nl2br = require("../helpers/nl2br");
 var e = require("../helpers/html-encode");
 var AjaxHelpers = require("../helpers/ajax-helpers");
+require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./comments.css");
 
 var CommentsComponent = function(getUri, postUri, deleteUri, canPostAsFacebookUser, canPostAsStation) {
