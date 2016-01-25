@@ -9,6 +9,7 @@ use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\EmailTasksMediaItem;
 use DB;
 use Carbon;
+use Config;
 use EmailHelpers;
 use DebugHelpers;
 
@@ -60,6 +61,11 @@ class MediaItemEmailsSendLiveShortlyCommand extends ScheduledCommand {
 		
 		if (!DebugHelpers::shouldSiteBeLive()) {
 			$this->info('Not running because site should not be live at the moment.');
+			return;
+		}
+
+		if (!Config::get("emails.liveShortlyEmailEnabled")) {
+			Log::info("Aborting because live shortly emails are disabled.");
 			return;
 		}
 		

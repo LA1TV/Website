@@ -9,6 +9,7 @@ use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\EmailTasksMediaItem;
 use DB;
 use Carbon;
+use Config;
 use EmailHelpers;
 use DebugHelpers;
 
@@ -61,6 +62,11 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 			$this->info('Not running because site should not be live at the moment.');
 			return;
 		}
+
+		if (!Config::get("emails.vodAvailableEmailEnabled")) {
+			Log::info("Aborting because vod available emails are disabled.");
+			return;
+		}
 		
 		$this->info('Looking for media items which contain VOD which has just gone live.');
 		// media items which have vod which is accessible, have the sent_vod_available_email flag set to 0, and have not had a email about this sent recently
@@ -78,6 +84,12 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 				$a->sent_vod_available_email = true;
 				$a->save();
 				
+				$stream = $a->liveStreamItem;
+				if (!is_null($stream) && $stream->getIsAccessible() && $stream->hasDvrRecording()) {
+					// don't send email if this is a recording of a stream and there's a dvr recording
+					continue;
+				}
+
 				$emailSentRecently = $a->emailTasksMediaItem()->where("created_at", ">=", Carbon::now()->subMinutes(15))->count() > 0;
 				
 				if ($emailSentRecently) {
