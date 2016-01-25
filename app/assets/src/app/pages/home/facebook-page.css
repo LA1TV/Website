@@ -1,0 +1,35 @@
+.page-fb-permissions .permissions-table {
+	table-layout: fixed;
+	margin-bottom: 0;
+}
+
+.page-fb-permissions .permissions-table td, .page-fb-permissions .permissions-table th {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.page-fb-permissions .permissions-table .status-col, .page-fb-permissions .permissions-table .permission-col {
+	width: 100px;
+}
+
+.page-fb-permissions .permissions-table .status-col .provide-permission-button {
+	white-space: inherit;
+}
+
+@media (min-width: 768px) {
+	.page-fb-permissions .permissions-table .status-col, .page-fb-permissions .permissions-table .permission-col {
+		width: 150px;
+	}
+}
+
+.page-fb-permissions .permissions-table .status-col .status-icon {
+	font-size: 30px;
+}
+
+.page-fb-permissions .permissions-table .status-col .status-icon .status-icon-tick {
+	color: #429e42;
+}
+
+.page-fb-permissions .permissions-table .status-col .status-icon .status-icon-cross {
+	color: #ff0000;
+}

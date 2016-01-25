@@ -44,24 +44,23 @@
 		<?php if (!$allowRobots): ?>
 		<meta name="robots" content="noindex, nofollow">
 		<?php endif; ?>
+		<script type="text/javascript">
+			window.LA1TV_GLOBAL = {
+				SERVER_DATA: <?=json_encode(isset($pageData) ? $pageData : array())?>
+			};
+		</script>
 		<?php if (isset($cssFiles)): ?>
 		<?php foreach($cssFiles as $a): ?>
 		<link href="<?=e($a);?><?=e(isset($version) ? "?v=".$version : "");?>" rel="stylesheet" type="text/css">
 		<?php endforeach; ?>
-		<?php endif; ?>
-		<?php if (isset($cssBootstrap)): ?>
-		<link href="<?=e($cssBootstrap);?><?=e(isset($version) ? "?v=".$version : "");?>" rel="stylesheet" type="text/css">
 		<?php endif; ?>
 		<?php if (isset($jsFiles)): ?>
 		<?php foreach($jsFiles as $a): ?>
 		<script src="<?=e($a);?><?=e(isset($version) ? "?v=".$version : "");?>"></script>
 		<?php endforeach; ?>
 		<?php endif; ?>
-		<?php if (isset($requireJsBootstrap)): ?>
-		<script data-main="<?=e($requireJsBootstrap);?><?=e(isset($version) ? "?v=".$version : "");?>" src="<?=asset("assets/scripts/require.js");?><?=e(isset($version) ? "?v=".$version : "");?>"></script>
-		<?php endif; ?>
 	</head>
-	<body data-pagedata="<?=e(json_encode(isset($pageData) ? $pageData : array()));?>">
+	<body>
 		@yield('body', '')
 	</body>
 </html>

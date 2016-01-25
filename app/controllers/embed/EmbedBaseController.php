@@ -26,8 +26,11 @@ class EmbedBaseController extends BaseController {
 		$view->description = "";
 		$view->content = $content;
 		$view->allowRobots = false;
-		$view->cssBootstrap = asset("assets/css/bootstrap/embed.css");
-		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/embed.js");
+		$view->jsFiles = [
+			asset("assets/built/embed/commons.chunk.js"),
+			asset("assets/built/embed/player.js")
+		];
+		
 		$view->supportEmail = Config::get("contactEmails.development");
 		$view->pageData = array(
 			"baseUrl"		=> URL::to("/"),
@@ -51,7 +54,6 @@ class EmbedBaseController extends BaseController {
 		// disable csp for main site because causing too many issues with live streams (and clappr uses unsafe evals etc)
 		$response->enableContentSecurityPolicy(false);
 		//$response->setContentSecurityPolicyDomains($contentSecurityPolicyDomains);
-		
 		
 		$this->layout = $response;
 	}

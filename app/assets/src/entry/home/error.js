@@ -1,0 +1,1 @@
+require("app/pages/home/global");
