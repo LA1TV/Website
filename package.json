@@ -1,0 +1,25 @@
+{
+  "scripts": {
+    "releaseHome": "node node_modules/webpack/bin/webpack.js --progress -p --config webpack-configs/home.js",
+    "buildHome": "node node_modules/webpack/bin/webpack.js --progress --config webpack-configs/home.js",
+    "watchHome": "node node_modules/webpack/bin/webpack.js --progress --watch --config webpack-configs/home.js",
+    "releaseEmbed": "node node_modules/webpack/bin/webpack.js --progress -p --config webpack-configs/embed.js",
+    "buildEmbed": "node node_modules/webpack/bin/webpack.js --progress --config webpack-configs/embed.js",
+    "watchEmbed": "node node_modules/webpack/bin/webpack.js --progress --watch --config webpack-configs/embed.js",
+    "releaseAdmin": "node node_modules/webpack/bin/webpack.js --progress -p --config webpack-configs/admin.js",
+    "buildAdmin": "node node_modules/webpack/bin/webpack.js --progress --config webpack-configs/admin.js",
+    "watchAdmin": "node node_modules/webpack/bin/webpack.js --progress --watch --config webpack-configs/admin.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.4.5",
+    "babel-loader": "^6.2.1",
+    "clean-webpack-plugin": "^0.1.6",
+    "css-loader": "^0.23.1",
+    "deasync": "^0.1.4",
+    "exports-loader": "^0.6.2",
+    "file-loader": "^0.8.5",
+    "imports-loader": "^0.6.5",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.12"
+  }
+}

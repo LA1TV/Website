@@ -40,8 +40,10 @@ class HomeBaseController extends BaseController {
 		$view->content = $content;
 		$view->allowRobots = true;
 		$view->manifestUri = URL::route('manifest');
-		$view->cssBootstrap = asset("assets/css/bootstrap/home.css");
-		$view->requireJsBootstrap = asset("assets/scripts/bootstrap/home.js");
+		$view->jsFiles = [
+			asset("assets/built/home/commons.chunk.js"),
+			asset("assets/built/home/".$navPage.".js")
+		];
 		$view->loggedIn = Facebook::isLoggedIn();
 		$view->sideBannersImageUrl = $sideBannersImageUrl;
 		$view->sideBannersFillImageUrl = $sideBannersFillImageUrl;
