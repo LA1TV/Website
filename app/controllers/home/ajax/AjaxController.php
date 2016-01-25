@@ -239,9 +239,9 @@ class AjaxController extends BaseController {
 					$redis->del($key);
 					$data = json_decode($data, true);
 					$now = time();
-					// ignore any notifications which have expired
+					// ignore any notifications which have expired (older than 2 days)
 					foreach($data as $a) {
-						if ($a["time"] >= ($now-600)*1000) {
+						if ($a["time"] >= ($now-172800)*1000) {
 							$payloads[] = $a["payload"];
 						}
 					}
