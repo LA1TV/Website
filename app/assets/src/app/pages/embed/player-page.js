@@ -71,7 +71,7 @@ $(document).ready(function() {
 			var enableSmartAutoPlay = $(this).attr("data-enable-smart-auto-play") === "1";
 			
 			// load async
-			require("app/components/player-container", function(PlayerContainer) {
+			require(["app/components/player-container"], function(PlayerContainer) {
 				
 				// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
 				playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
