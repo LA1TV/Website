@@ -9,6 +9,7 @@ use DebugHelpers;
 use Session;
 use View;
 use MyResponse;
+use App;
 
 class AdminBaseController extends BaseController {
 
