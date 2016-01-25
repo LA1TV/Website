@@ -325,6 +325,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 	
 	// contains reference to the clappr player which is used for streams
 	var clapprPlayer = null;
+	var clapprReadyTimeoutId = null;
 	var clapprHeadingPlugin = null;
 	var clapprQualitySelectionPlugin = null;
 	// reference to the dom element which contains the video tag
@@ -760,7 +761,19 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 					enabled: false
 				},
 				events: {
-					onReady: onClapprReady
+					onReady: function() {
+						if (clapprPlayer) {
+							onClapprReady();
+						}
+						else {
+							// this is in the same tick as clappr creation
+							// so wait a tick so clapprPlayer will be set
+							clapprReadyTimeoutId = setTimeout(function() {
+								clapprReadyTimeoutId = null;
+								onClapprReady();
+							}, 0);
+						}
+					}
 				}
 			};
 			
@@ -809,7 +822,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 					markers: markers
   				};
   			}
-			clapprPlayer = new Clappr.Player(clapprOptions)
+			clapprPlayer = new Clappr.Player(clapprOptions);
 
 
 			// restore fullscreen, and volume
@@ -856,6 +869,10 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 		if (playerType === "vod" || playerType === "live") {
 			clapprPlayer.destroy();
 			clapprPlayer = null;
+			if (clapprReadyTimeoutId !== null) {
+				clearTimeout(clapprReadyTimeoutId);
+				clapprReadyTimeoutId = null;
+			}
 			clapprHeadingPlugin = null;
 		}
 		$player.remove();
