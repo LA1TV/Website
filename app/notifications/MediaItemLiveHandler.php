@@ -38,6 +38,13 @@ class MediaItemLiveHandler {
 			// no longer available
 			return;
 		}
+
+		$stream = $mediaItemVideo->mediaItem->liveStreamItem;
+		if (!is_null($stream) && $stream->getIsAccessible() && $stream->hasDvrRecording()) {
+			// don't send notification if this is a recording of a stream and there's a dvr recording
+			return;
+		}
+
 		$mediaItem = $mediaItemVideo->mediaItem;
 		$eventId = "mediaItem.vodAvailable";
 		$payload = $this->generatePayload($mediaItem);

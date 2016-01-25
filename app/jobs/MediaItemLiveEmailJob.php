@@ -5,6 +5,7 @@ use Carbon;
 use EmailHelpers;
 use DebugHelpers;
 use Log;
+use Config;
 use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\EmailTasksMediaItem;
 
@@ -21,10 +22,15 @@ class MediaItemLiveEmailsJob {
 		
 		// remove the job from the queue to make sure it only runs once even if an exception is thrown
 		$job->delete();
-	
+
 		$mediaItemId = $data['mediaItemId'];
 		Log::info("Starting job to send email for media item with id ".$mediaItemId." which has gone live.");
 		
+		if (!Config::get("emails.liveEmailEnabled")) {
+			Log::info("Aborting because live emails are disabled.");
+			return;
+		}
+
 		// retrieve the media item
 		$mediaItem = DB::transaction(function() use (&$mediaItemId) {
 			$mediaItem = MediaItem::accessible()->whereHas("liveStreamItem", function($q) {

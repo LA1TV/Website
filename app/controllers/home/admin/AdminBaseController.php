@@ -39,6 +39,7 @@ class AdminBaseController extends BaseController {
 			"serviceWorkerUrl"	=> URL::route("home-service-worker"),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
+			"env"			=> App::environment(),
 			"sessionId"		=> Session::getId(),
 			"csrfToken"		=> Csrf::getToken(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
