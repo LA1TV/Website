@@ -4,6 +4,9 @@ require("./cookie-compliance-modal.css");
 var CookieComplainceModal = function() {
 	
 	var self = this;
+
+	var loaded = false;
+	var showPending = false;
 	
 	this.show = function(showParam) {
 		showParam ? show() : hide();
@@ -50,14 +53,22 @@ var CookieComplainceModal = function() {
 	
 	$footerOKBtn.click(hide);
 	
-	var $body = $("body").first();
+	$(document).ready(function() {
 
-	$container.modal({
-		backdrop: 'static',
-		keyboard: false,
-		show: false
+		$container.modal({
+			backdrop: 'static',
+			keyboard: false,
+			show: false
+		});
+
+		var $body = $("body").first();
+		$body.append($container);
+		loaded = true;
+		if (showPending) {
+			$container.modal("show");
+			showPending = false;
+		}
 	});
-	$body.append($container);
 	
 	$container.on("show.bs.modal hide.bs.model", function() {
 		animating = true;
@@ -82,7 +93,12 @@ var CookieComplainceModal = function() {
 			return;
 		}
 		animating = true;
-		$container.modal("show");
+		if (loaded) {
+			$container.modal("show");
+		}
+		else {
+			showPending = true;
+		}
 	}
 	
 	function hide() {
