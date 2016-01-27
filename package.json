@@ -1,14 +1,14 @@
 {
   "scripts": {
-    "releaseHome": "node node_modules/webpack/bin/webpack.js --progress -p --config webpack-configs/home.js",
-    "buildHome": "node node_modules/webpack/bin/webpack.js --progress --config webpack-configs/home.js",
-    "watchHome": "node node_modules/webpack/bin/webpack.js --progress --watch --config webpack-configs/home.js",
-    "releaseEmbed": "node node_modules/webpack/bin/webpack.js --progress -p --config webpack-configs/embed.js",
-    "buildEmbed": "node node_modules/webpack/bin/webpack.js --progress --config webpack-configs/embed.js",
-    "watchEmbed": "node node_modules/webpack/bin/webpack.js --progress --watch --config webpack-configs/embed.js",
-    "releaseAdmin": "node node_modules/webpack/bin/webpack.js --progress -p --config webpack-configs/admin.js",
-    "buildAdmin": "node node_modules/webpack/bin/webpack.js --progress --config webpack-configs/admin.js",
-    "watchAdmin": "node node_modules/webpack/bin/webpack.js --progress --watch --config webpack-configs/admin.js"
+    "releaseHome": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order -p --config webpack-configs/home.js",
+    "buildHome": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order --config webpack-configs/home.js",
+    "watchHome": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order --watch --config webpack-configs/home.js",
+    "releaseEmbed": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order -p --config webpack-configs/embed.js",
+    "buildEmbed": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order --config webpack-configs/embed.js",
+    "watchEmbed": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order --watch --config webpack-configs/embed.js",
+    "releaseAdmin": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order -p --config webpack-configs/admin.js",
+    "buildAdmin": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order --config webpack-configs/admin.js",
+    "watchAdmin": "node node_modules/webpack/bin/webpack.js --progress --optimize-occurence-order --watch --config webpack-configs/admin.js"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.1",
