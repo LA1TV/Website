@@ -62,9 +62,7 @@
 
 .reorderable-list .list-container .list-table .list-row .cell-options .option-drag {
 	cursor: move;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
+	user-select: none;
 	padding: 2px 4px;
 	background-color: #44ccff;
 	border-color: #00aaff;
