@@ -9,6 +9,7 @@ return array(
 	"gcmProjectNumber"	=> isset($_ENV['GCM_PROJECT_NUMBER']) ? $_ENV['GCM_PROJECT_NUMBER'] : "745046379475",
 	// only endpoints which start with the following will be accepted
 	"endpointWhiteList" => array(
-		"https://android.googleapis.com/gcm/send/"
+		"https://android.googleapis.com/gcm/send/",
+		"https://updates.push.services.mozilla.com/push/"
 	)
 );
