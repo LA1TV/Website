@@ -2,7 +2,7 @@ var path = require('path');
 var Clean = require('clean-webpack-plugin');
 var CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
 var generateEntryPoints = require('./generate-entry-points-config');
-//var autoprefixer = require('autoprefixer');
+var autoprefixer = require('autoprefixer');
 
 module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) {
     // generate entry points
@@ -31,7 +31,7 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
                 },
                 {
                     test: /\.css$/,
-                    loaders: ["style-loader", "css-loader"],
+                    loaders: ["style-loader", "css-loader", "postcss-loader"],
                     exclude: /node_modules/
                 },
                 {
@@ -40,11 +40,7 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
                 
             ]
         },
-        /*
-        postcss: [
-            autoprefixer({browsers: ['last 2 versions']})
-        ],
-        */
+        postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ],
         externals: {
             // should be an object defined in an inline script (form the server)
             "serverData": "LA1TV_GLOBAL.SERVER_DATA"
