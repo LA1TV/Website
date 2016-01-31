@@ -10015,13 +10015,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'events',
 	    get: function get() {
 	      return {
-	        'canplay': 'handleBufferingEvents',
+	        'canplay': 'onCanPlay',
 	        'canplaythrough': 'handleBufferingEvents',
 	        'durationchange': 'onDurationChange',
 	        'ended': 'onEnded',
 	        'error': 'onError',
+	        'loadeddata': 'onLoadedData',
 	        'loadedmetadata': 'onLoadedMetadata',
-	        'loadstart': 'onLoadStart',
 	        'pause': 'onPause',
 	        'playing': 'onPlaying',
 	        'progress': 'onProgress',
@@ -10029,7 +10029,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'seeking': 'handleBufferingEvents',
 	        'stalled': 'handleBufferingEvents',
 	        'timeupdate': 'onTimeUpdate',
-	        'waiting': 'handleBufferingEvents'
+	        'waiting': 'onWaiting'
 	      };
 	    }
 
@@ -10065,6 +10065,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.loadStarted = false;
 	    this.playheadMoving = false;
 	    this.playheadMovingTimer = null;
+	    this.stopped = false;
 	    this.options = options;
 	    this.setupSrc(options.src);
 	    this.el.loop = options.loop;
@@ -10148,10 +10149,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'play',
 	    value: function play() {
-	      if (!this.loadStarted && this.el.preload === 'none') {
-	        this.loadStarted = true;
-	        this.handleBufferingEvents();
-	      }
+	      this.stopped = false;
+	      this.handleBufferingEvents();
 	      this.el.play();
 	    }
 	  }, {
@@ -10163,6 +10162,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'stop',
 	    value: function stop() {
 	      this.pause();
+	      this.stopped = true;
 	      this.el.currentTime = 0;
 	      this.stopPlayheadMovingChecks();
 	      this.handleBufferingEvents();
@@ -10222,15 +10222,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.playheadMovingTimeOnCheck = now;
 	      this.handleBufferingEvents();
 	    }
+
+	    // this seems to happen when the user is having to wait
+	    // for something to happen AFTER A USER INTERACTION
+	    // e.g the player might be buffering, but when `play()` is called
+	    // only at this point will this be called.
+	    // Or the user may seek somewhere but the new area requires buffering,
+	    // so it will fire then as well.
+	    // On devices where playing is blocked until requested with a user action,
+	    // buffering may start, but never finish until the user initiates a play,
+	    // but this only happens when play is actually requested
 	  }, {
-	    key: 'onLoadStart',
-	    value: function onLoadStart() {
-	      if (this.el.preload !== 'none') {
-	        // when preload is none the onLoadStart event is still fired
-	        // immediately. Pretend that load starts in play()
-	        this.loadStarted = true;
-	        this.handleBufferingEvents();
-	      }
+	    key: 'onWaiting',
+	    value: function onWaiting() {
+	      this.loadStarted = true;
+	      this.handleBufferingEvents();
+	    }
+
+	    // called after the first frame has loaded
+	    // note this doesn't fire on ios before the user has requested play
+	    // ideally the "loadstart" event would be used instead, but this fires
+	    // before a user has requested play on iOS, and also this is always fired
+	    // even if the preload setting is "none". In both these cases this causes
+	    // infinite buffering until the user does something which isn't great.
+	  }, {
+	    key: 'onLoadedData',
+	    value: function onLoadedData() {
+	      this.loadStarted = true;
+	      this.handleBufferingEvents();
+	    }
+
+	    // note this doesn't fire on ios before user has requested play
+	  }, {
+	    key: 'onCanPlay',
+	    value: function onCanPlay() {
+	      this.handleBufferingEvents();
 	    }
 	  }, {
 	    key: 'onPlaying',
@@ -10255,13 +10281,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // The playback should be classed as buffering if the following are true:
 	    // - the ready state is less then HAVE_FUTURE_DATA or the playhead isn't moving and it should be
-	    // - the media hasn't "ended"
+	    // - the media hasn't "ended",
+	    // - the media hasn't been stopped
 	    // - loading has started
 	  }, {
 	    key: 'handleBufferingEvents',
 	    value: function handleBufferingEvents() {
 	      var playheadShouldBeMoving = !this.el.ended && !this.el.paused;
-	      var buffering = this.loadStarted && !this.el.ended && (playheadShouldBeMoving && !this.playheadMoving || this.el.readyState < this.el.HAVE_FUTURE_DATA);
+	      var buffering = this.loadStarted && !this.el.ended && !this.stopped && (playheadShouldBeMoving && !this.playheadMoving || this.el.readyState < this.el.HAVE_FUTURE_DATA);
 	      if (this.bufferingState !== buffering) {
 	        this.bufferingState = buffering;
 	        if (buffering) {
@@ -19664,7 +19691,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {// Copyright 2014 Globo.com Player authors. All rights reserved.
+	// Copyright 2014 Globo.com Player authors. All rights reserved.
 	// Use of this source code is governed by a BSD-style
 	// license that can be found in the LICENSE file.
 
@@ -19727,19 +19754,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }]);
 
 	  function SpinnerThreeBouncePlugin(container) {
-	    var _this = this;
-
 	    _classCallCheck(this, SpinnerThreeBouncePlugin);
 
 	    _get(Object.getPrototypeOf(SpinnerThreeBouncePlugin.prototype), 'constructor', this).call(this, container);
 	    this.template = (0, _baseTemplate2['default'])(_publicSpinnerHtml2['default']);
 	    this.showTimeout = null;
 	    this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERING, this.onBuffering);
-	    if (this.container.buffering) {
-	      process.nextTick(function () {
-	        return _this.onBuffering();
-	      });
-	    }
 	    this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERFULL, this.onBufferFull);
 	    this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STOP, this.onStop);
 	    this.listenTo(this.container, _baseEvents2['default'].CONTAINER_ENDED, this.onStop);
@@ -19765,11 +19785,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'show',
 	    value: function show() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      if (this.showTimeout === null) {
 	        this.showTimeout = setTimeout(function () {
-	          return _this2.$el.show();
+	          return _this.$el.show();
 	        }, 300);
 	      }
 	    }
@@ -19790,6 +19810,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.container.$el.append(style);
 	      this.container.$el.append(this.$el);
 	      this.$el.hide();
+	      if (this.container.buffering) {
+	        this.onBuffering();
+	      }
 	      return this;
 	    }
 	  }]);
@@ -19799,7 +19822,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports['default'] = SpinnerThreeBouncePlugin;
 	module.exports = exports['default'];
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(45)))
 
 /***/ },
 /* 122 */
@@ -20450,18 +20472,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(PosterPlugin, [{
 	    key: 'bindEvents',
 	    value: function bindEvents() {
-	      var _this2 = this;
-
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STOP, this.onStop);
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_PLAY, this.onPlay);
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_ENDED, this.onStop);
-	      if (this.container.buffering) {
-	        process.nextTick(function () {
-	          return _this2.onBuffering();
-	        });
-	      } else {
-	        this.listenToOnce(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERING, this.onBuffering);
-	      }
+	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERING, this.update);
+	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_STATE_BUFFERFULL, this.update);
 	      this.listenTo(this.container, _baseEvents2['default'].CONTAINER_OPTIONS_CHANGE, this.render);
 	      _componentsMediator2['default'].on(this.options.playerId + ':' + _baseEvents2['default'].PLAYER_RESIZE, this.updateSize, this);
 	    }
@@ -20483,17 +20498,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.hasStartedPlaying = false;
 	      this.playRequested = false;
 	      this.update();
-	    }
-	  }, {
-	    key: 'onBuffering',
-	    value: function onBuffering() {
-	      // on some mobile devices (e.g. iOS), autoplay doesn't work
-	      // this makes sure the play button only disappears when autoplay
-	      // is enabled if autoplay is actually working
-	      if (this.options.autoPlay) {
-	        this.playRequested = true;
-	        this.update();
-	      }
 	    }
 	  }, {
 	    key: 'showPlayButton',
@@ -20546,7 +20550,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (!this.hasStartedPlaying) {
 	        this.container.disableMediaControl();
 	        this.$el.show();
-	        this.showPlayButton(!this.playRequested);
+	        var showPlayButton = !this.playRequested && !this.container.buffering;
+	        this.showPlayButton(showPlayButton);
 	      } else {
 	        this.container.enableMediaControl();
 	        if (this.shouldHideOnPlay()) {
