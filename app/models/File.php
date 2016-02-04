@@ -201,8 +201,9 @@ class File extends MyEloquent {
 	}
 	
 	// process state: 0=waiting to process/processing, 1=processed successfully, 2=process error, 3=waiting to be reprocessed
-	public function getFinishedProcessing() {
-		return intval($this->process_state) === 1;
+	public function getFinishedProcessing($finished=true) {
+		$a = intval($this->process_state) === 1;
+		return $finished ? $a : !$a;
 	}
 	
 	// returns true if this file is ready for public 
