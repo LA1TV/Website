@@ -55,6 +55,16 @@ class File extends MyEloquent {
 		}
 		return $state;
 	}
+
+	public function getProcessPercentageAttribute($percentage) {
+		$state = $this->process_state;
+		if (intval($state) !== 0) {
+			// percentage only valid when in the processing stage
+			// ensure it's null if not in processing stage
+			$percentage = null;
+		}
+		return $percentage;
+	}
 	
 	public function fileType() {
 		return $this->belongsTo(self::$p.'FileType', 'file_type_id');
