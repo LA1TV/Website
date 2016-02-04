@@ -20,7 +20,7 @@
 | /shows    | All of the shows in the system.
 | /shows/{id} | Information about a specific show and the playlists it contains which represent the series of the show.
 | /shows/{id}/playlists | Information about the playlists that a specific show contains.
-| /mediaItems | Information about the media items that are returned as a result of the query parameters.<ul><li>**?limit=X:** X is the maximum number of items to retrieve.</li><li>**?sortMode=X:** X is "POPULARITY" or "SCHEDULED_PUBLISH_TIME".</li><li>**?sortDirection=X:** X is "ASC" or "DESC".</li><li>**?vodIncludeSetting=X:** X is "VOD_OPTIONAL", "HAS_VOD" or "HAS_AVAILABLE_VOD".</li><li>**?streamIncludeSetting=X:** X is "STREAM_OPTIONAL", "HAS_STREAM" or "HAS_LIVE_STREAM".</li></ul>
+| /mediaItems | Information about the media items that are returned as a result of the query parameters.<ul><li>**?limit=X:** X is the maximum number of items to retrieve.</li><li>**?sortMode=X:** X is "POPULARITY" or "SCHEDULED_PUBLISH_TIME".</li><li>**?sortDirection=X:** X is "ASC" or "DESC".</li><li>**?vodIncludeSetting=X:** X is "VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD" or "VOD_PROCESSING". Note "VOD_PROCESSING may only be used with sortMode "SCHEDULED_PUBLISH_TIME".</li><li>**?streamIncludeSetting=X:** X is "STREAM_OPTIONAL", "HAS_STREAM" or "HAS_LIVE_STREAM".</li></ul>
 | /mediaItems/{id} | Information about a specific media item and the playlists it is in.
 | /mediaItems/{id}/playlists | Information about the playlists that a specific media item is contained in.
 
