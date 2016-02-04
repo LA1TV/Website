@@ -81,8 +81,9 @@ class ApiController extends ApiBaseController {
 			($sortMode !== "SCHEDULED_PUBLISH_TIME" && $sortMode !== "POPULARITY") ||
 			($sortDirection !== "ASC" && $sortDirection !== "DESC") ||
 			($sortDirection === "ASC" && $sortMode === "POPULARITY") ||
-			!in_array($vodIncludeSetting, ["VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD"], true) ||
-			!in_array($streamIncludeSetting, ["STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"], true)
+			!in_array($vodIncludeSetting, ["VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD", "VOD_PROCESSING"], true) ||
+			!in_array($streamIncludeSetting, ["STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"], true) ||
+			($vodIncludeSetting === "VOD_PROCESSING" && $sortMode !== "SCHEDULED_PUBLISH_TIME")
 		){
 			return $this->respondServerError("Something is wrong with the provided query parameters.");
 		}
