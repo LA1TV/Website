@@ -115,7 +115,7 @@ class ApiResponseDataGenerator {
 	// $limit is the maximum amount of items to be retrieved
 	// $sortMode can be "POPULARITY", "SCHEDULED_PUBLISH_TIME"
 	// $sortDirection can be "ASC" or "DESC". Only "DESC" supported for "VIEW_COUNT"
-	// $vodIncludeSetting can be "VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD"
+	// $vodIncludeSetting can be "VOD_OPTIONAL", "HAS_VOD", "HAS_AVAILABLE_VOD", "VOD_PROCESSING"
 	// $streamIncludeSetting can be "STREAM_OPTIONAL", "HAS_STREAM", "HAS_LIVE_STREAM"
 	// the $vodIncludeSetting and $streamIncludeSetting are or'd together. E.g if HAS_VOD and HAS_LIVE_STREAM then
 	// all items will have either vod, or a stream that's live, or both
@@ -150,6 +150,9 @@ class ApiResponseDataGenerator {
 				}
 				else if ($vodIncludeSetting === "HAS_AVAILABLE_VOD") {
 					$includeVod = !is_null($a->videoItem) && $a->getIsAccessible() && $a->videoItem->getIsLive();
+				}
+				else if ($vodIncludeSetting === "VOD_PROCESSING") {
+					throw(new Exception("VOD_PROCESSING cannot be used with POPULARITY sort mode."));	
 				}
 				else {
 					throw(new Exception("Invalid vod include setting."));
@@ -188,6 +191,13 @@ class ApiResponseDataGenerator {
 				else if ($vodIncludeSetting === "HAS_AVAILABLE_VOD") {
 					$q->whereHas("videoItem", function($q2) {
 						$q2->live();
+					});
+				}
+				else if ($vodIncludeSetting === "VOD_PROCESSING") {
+					$q->whereHas("videoItem", function($q2) {
+						$q2->whereHas("sourceFile", function($q3) {
+							$q3->finishedProcessing(false);
+						});
 					});
 				}
 				else {

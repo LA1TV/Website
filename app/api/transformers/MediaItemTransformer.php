@@ -175,11 +175,32 @@ class MediaItemTransformer extends Transformer {
 					}
 				}
 			}
-			
+
+			$processingCompleted = false;
+			$processingError = false;
+			$processingPercentage = null;
+			$processingMessage = null;
+			$sourceFile = $mediaItemVideo->sourceFile;
+			if (!is_null($sourceFile)) {
+				$processingCompleted = $sourceFile->getFinishedProcessing();
+				if (!$processingCompleted) {
+					$processInfo = $sourceFile->getProcessInfo();
+					$processingPercentage = $processInfo["percentage"];
+					$processingMessage = $processInfo["msg"];
+					$processingError = $processInfo["state"] === 2;
+				}
+			}
+
 			$vodDetails = [
 				"available"		=> $vodAvailable,
 				"timeRecorded"	=> $vodTimeRecorded,
 				"duration"		=> $vodDuration,
+				"processing"	=> [
+					"completed"		=> $processingCompleted,
+					"percentage"	=> $processingPercentage,
+					"message"		=> $processingMessage,
+					"error"			=> $processingError
+				],
 				"chapters"		=> $vodChapters,
 				"viewCount"		=> $vodViewCount,
 				"qualities"		=> $vodQualities,
