@@ -4,6 +4,7 @@ use EloquentHelpers;
 use Exception;
 use \Session as SessionProvider;
 use Config;
+use URL;
 
 // FILE MODELS SHOULD NOT BE CREATED MANUALLY. They should be created and managed using the Upload service provider.
 
@@ -221,7 +222,7 @@ class File extends MyEloquent {
 		if (!$this->getShouldBeAccessible()) {
 			return null;
 		}
-		return Config::get("custom.base_url") . "/" . Config::get("uploads.retrieve_base_uri") . "/" . $this->id;
+		return URL::route('file', array($this->id));
 	}
 	
 	// THIS SHOULD NOT BE CALLED DIRECTLY. This should be managed from the Upload service provider

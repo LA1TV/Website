@@ -44,17 +44,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			
 			Route::post('webhook/configure', array("uses"=>$p.'api\v1\ApiWebhookController@postConfigure'));
 			Route::post('webhook/test', array("uses"=>$p.'api\v1\ApiWebhookController@postTest'));
-			
 
-			// handle requests with OPTIONS method
-			Route::options('{catchAll}', function() {
-				$response = Response::make("", 204); // 204 = No Content
-				$response->header("Access-Control-Allow-Origin", "*");
-				$response->header("Access-Control-Allow-Methods", "OPTIONS, GET");
-				$response->header("Access-Control-Max-Age", 300); // cache preflight request for 5 mins
-				$response->header("Access-Control-Allow-Headers", "X-Api-Key");
-				return $response;
-			});
 			// show a json 404
 			Route::any('{catchAll}', array("uses"=>$p.'api\v1\ApiController@respondNotFound'));
 		});
@@ -83,8 +73,6 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			// HOME
 			Route::get('/feeds/latest', array("as"=>"feeds-latest", "uses"=>$p.'home\feeds\FeedsController@getLatest'));
 			Route::controller('/facebook', $p.'home\facebook\FacebookController');
-			// make upload controller also accessible at /file
-			Route::controller('/file', $p.'home\admin\upload\UploadController');
 
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
 			// here for named route
@@ -135,7 +123,6 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::post('/livestream/register-watching/{id}', $p.'home\liveStream\LiveStreamController@postRegisterWatching');
 			
 			Route::controller('/ajax', $p.'home\ajax\AjaxController');
-			Route::controller('/file', $p.'home\admin\upload\UploadController');
 			
 			Route::get('/{id}/{id2}', array("as"=>"embed-player", "uses"=>$p.'embed\EmbedController@handleRequest'));
 			Route::get('/{id}', array("as"=>"embed-player-media-item", "uses"=>$p.'embed\EmbedController@handleMediaItemRequest'));
@@ -143,5 +130,22 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::get('{catchAll}', array("uses"=>$p.'embed\EmbedController@do404'));
 		});
 	});
+
+	// assets.la1tv.co.uk
+	Route::group(array('domain' => Config::get("subdomains.assets")), function() use(&$p) {
+		Route::get('/file/{id}', array("as"=>"file", "uses"=>$p.'home\admin\upload\UploadController@getIndex'));
 	
+	});
+	
+});
+
+// handle requests with OPTIONS method
+// this is just a preflight check. The server supports coors requests so allow everything
+// the appropriate access control headers still need to be returned from the specific requests
+Route::options('{catchAll}', function() {
+	$response = Response::make("", 204); // 204 = No Content
+	$response->header("Access-Control-Allow-Origin", "*");
+	$response->header("Access-Control-Allow-Methods", "OPTIONS, GET");
+	$response->header("Access-Control-Allow-Headers", Request::header("Access-Control-Request-Headers"));
+	return $response;
 });

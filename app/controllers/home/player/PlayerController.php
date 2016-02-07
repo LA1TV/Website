@@ -27,7 +27,7 @@ class PlayerController extends HomeBaseController {
 		if (is_null($playlistId) || is_null($mediaItemId)) {
 			App::abort(404);
 		}
-		
+
 		// true if a user is logged into the cms and has permission to view media items.
 		$userHasMediaItemsPermission = false;
 		// true if a user is logged into the cms and has permission to edit media items.
