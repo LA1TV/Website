@@ -487,6 +487,18 @@ class UploadManager {
 	// this will either be the file (with cache header to cache for a year), a redirect if the file has been updated, or a 404
 	public static function getFileResponse($fileId) {
 		$file = self::getFile($fileId);
+		
+		$headers = array();
+		if (isset($_SERVER['HTTP_ORIGIN'])) {
+			$origin = $_SERVER['HTTP_ORIGIN'];
+			$host = parse_url($origin, PHP_URL_HOST);
+			if (in_array($host, array(Config::get("subdomains.www"), Config::get("subdomains.embed")))) { 
+				// from a domain which is allowed access
+				$headers["Access-Control-Allow-Origin"] = $origin;
+				$headers["Vary"] = "Origin";
+			}
+		}
+
 		if (is_null($file)) {
 			// see if the file used to exist, and if it did then return a redirect to the new version
 			$oldFileIdModel = OldFileId::where("old_file_id", $fileId)->first();
@@ -494,16 +506,15 @@ class UploadManager {
 			if (!is_null($newFileUri)) {
 				// file has moved
 				// return permanent redirect
-				return Redirect::away($newFileUri, 301);
+				return Redirect::away($newFileUri, 301, $headers);
 			}
 			else {
 				// file doesn't exist (or is not accessible for some reason)
 				// return 404 response
-				return Response::make("", 404);
+				return Response::make("", 404, $headers);
 			}
 		}
 
-		$headers = array();
 		$mimeType = $file->fileType->mime_type;
 		if (!is_null($mimeType)) {
 			// explicitly set the mime type
