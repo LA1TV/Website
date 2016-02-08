@@ -36,7 +36,7 @@ require("./browser-notification-permission-request-bar.css");
 	function onPermissionGranted() {
 		requestBarHandle.remove();
 		setTimeout(function() {
-			createNotification("Notifications Enabled", "Thanks for letting us send you notifications.");
+			createNotification("Notifications Enabled", "Thanks for letting us send you notifications.", "notificationsEnabled");
 		}, 1000);
 		logger.debug("User accepted notifications permission.");
 		onHaveNotificationsPermission();
@@ -189,7 +189,7 @@ require("./browser-notification-permission-request-bar.css");
 
 	function listenForEvents() {
 		NotificationService.on("notification", function(data) {
-			createNotification(data.title, data.body, data.url, data.duration, data.iconUrl);
+			createNotification(data.title, data.body, data.url, data.duration, data.iconUrl, data.tag);
 		});
 	}
 
@@ -206,15 +206,19 @@ require("./browser-notification-permission-request-bar.css");
 		});
 	}
 
-	function createNotification(title, message, link, duration, iconUrl) {
+	function createNotification(title, message, link, duration, iconUrl, tag) {
 		duration = duration || 8000;
 		iconUrl = iconUrl || PageData.get("assetsBaseUrl")+"assets/img/notification-icon.png";
-		
-		var n = new N(title, {
+		tag = tag || null;
+		var options = {
 			lang: "EN",
 			body: message,
 			icon: iconUrl
-		});
+		};
+		if (tag) {
+			options.tag = tag;
+		}
+		var n = new N(title, options);
 
 		var timerId = null;
 

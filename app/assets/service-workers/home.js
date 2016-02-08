@@ -20,13 +20,17 @@ self.addEventListener('push', function(event) {
 
 		// show all pending notifications
 		return Promise.all(notificationsData.map(function(notificationData) {
-			return self.registration.showNotification(notificationData.title, {  
+			var options = {  
 				body: notificationData.body,  
 				icon: notificationData.iconUrl,
 				data: {
 					url: notificationData.url
 				}
-			});
+			};
+			if (notificationData.tag) {
+				options.tag = tag;
+			}
+			return self.registration.showNotification(notificationData.title, options);
 		}));
 
 	}).catch(function(e) {
@@ -79,6 +83,7 @@ function makeRequest(url) {
 
 function showErrorNotification() {
 	return self.registration.showNotification("Unable To Retrieve Notification Data", {  
-		body: "Something went wrong and we were unable to get the contents of this notification."
+		body: "Something went wrong and we were unable to get the contents of this notification.",
+		tag: "error"
 	});
 }

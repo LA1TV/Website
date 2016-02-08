@@ -186,7 +186,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
-	var version = ("0.2.33");
+	var version = ("0.2.34");
 
 	exports['default'] = {
 	    Player: _componentsPlayer2['default'],
@@ -771,6 +771,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'getCurrentTime',
 	    value: function getCurrentTime() {
 	      return this.core.mediaControl.container.getCurrentTime();
+	    }
+
+	    /**
+	     * The time that "0" now represents relative to when playback started.
+	     * For a stream with a sliding window this will increase as content is
+	     * removed from the beginning.
+	     * @method getStartTimeOffset
+	     * @return {Number} time (in seconds) that time "0" represents.
+	     */
+	  }, {
+	    key: 'getStartTimeOffset',
+	    value: function getStartTimeOffset() {
+	      return this.core.mediaControl.container.getStartTimeOffset();
 	    }
 
 	    /**
@@ -4002,136 +4015,126 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Simple JavaScript Templating
+	// Simple JavaScript Templating
 	// Paul Miller (http://paulmillr.com)
 	// http://underscorejs.org
+	// (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+
+	// By default, Underscore uses ERB-style template delimiters, change the
+	// following template settings to use alternative delimiters.
 	"use strict";
 
-	(function (globals) {
-	  // By default, Underscore uses ERB-style template delimiters, change the
-	  // following template settings to use alternative delimiters.
-	  var settings = {
-	    evaluate: /<%([\s\S]+?)%>/g,
-	    interpolate: /<%=([\s\S]+?)%>/g,
-	    escape: /<%-([\s\S]+?)%>/g
-	  };
+	var settings = {
+	  evaluate: /<%([\s\S]+?)%>/g,
+	  interpolate: /<%=([\s\S]+?)%>/g,
+	  escape: /<%-([\s\S]+?)%>/g
+	};
 
-	  // When customizing `templateSettings`, if you don't want to define an
-	  // interpolation, evaluation or escaping regex, we need one that is
-	  // guaranteed not to match.
-	  var noMatch = /(.)^/;
+	// When customizing `templateSettings`, if you don't want to define an
+	// interpolation, evaluation or escaping regex, we need one that is
+	// guaranteed not to match.
+	var noMatch = /(.)^/;
 
-	  // Certain characters need to be escaped so that they can be put into a
-	  // string literal.
-	  var escapes = {
-	    "'": "'",
-	    '\\': '\\',
-	    '\r': 'r',
-	    '\n': 'n',
-	    '\t': 't',
-	    "\u2028": 'u2028',
-	    "\u2029": 'u2029'
-	  };
+	// Certain characters need to be escaped so that they can be put into a
+	// string literal.
+	var escapes = {
+	  "'": "'",
+	  '\\': '\\',
+	  '\r': 'r',
+	  '\n': 'n',
+	  '\t': 't',
+	  "\u2028": 'u2028',
+	  "\u2029": 'u2029'
+	};
 
-	  var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
+	var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
 
-	  // List of HTML entities for escaping.
-	  var htmlEntities = {
-	    '&': '&amp;',
-	    '<': '&lt;',
-	    '>': '&gt;',
-	    '"': '&quot;',
-	    "'": '&#x27;'
-	  };
+	// List of HTML entities for escaping.
+	var htmlEntities = {
+	  '&': '&amp;',
+	  '<': '&lt;',
+	  '>': '&gt;',
+	  '"': '&quot;',
+	  "'": '&#x27;'
+	};
 
-	  var entityRe = new RegExp('[&<>"\']', 'g');
+	var entityRe = new RegExp('[&<>"\']', 'g');
 
-	  var escapeExpr = function escapeExpr(string) {
-	    if (string === null) {
-	      return '';
-	    }
-	    return ('' + string).replace(entityRe, function (match) {
-	      return htmlEntities[match];
+	var escapeExpr = function escapeExpr(string) {
+	  if (string === null) {
+	    return '';
+	  }
+	  return ('' + string).replace(entityRe, function (match) {
+	    return htmlEntities[match];
+	  });
+	};
+
+	var counter = 0;
+
+	// JavaScript micro-templating, similar to John Resig's implementation.
+	// Underscore templating handles arbitrary delimiters, preserves whitespace,
+	// and correctly escapes quotes within interpolated code.
+	var tmpl = function tmpl(text, data) {
+	  var render;
+
+	  // Combine delimiters into one regular expression via alternation.
+	  var matcher = new RegExp([(settings.escape || noMatch).source, (settings.interpolate || noMatch).source, (settings.evaluate || noMatch).source].join('|') + '|$', 'g');
+
+	  // Compile the template source, escaping string literals appropriately.
+	  var index = 0;
+	  var source = "__p+='";
+	  text.replace(matcher, function (match, escape, interpolate, evaluate, offset) {
+	    source += text.slice(index, offset).replace(escaper, function (match) {
+	      return '\\' + escapes[match];
 	    });
+
+	    if (escape) {
+	      source += "'+\n((__t=(" + escape + "))==null?'':escapeExpr(__t))+\n'";
+	    }
+	    if (interpolate) {
+	      source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+	    }
+	    if (evaluate) {
+	      source += "';\n" + evaluate + "\n__p+='";
+	    }
+	    index = offset + match.length;
+	    return match;
+	  });
+	  source += "';\n";
+
+	  // If a variable is not specified, place data values in local scope.
+	  if (!settings.variable) {
+	    source = 'with(obj||{}){\n' + source + '}\n';
+	  }
+
+	  source = "var __t,__p='',__j=Array.prototype.join," + "print=function(){__p+=__j.call(arguments,'');};\n" + source + "return __p;\n//# sourceURL=/microtemplates/source[" + counter++ + "]";
+
+	  try {
+	    /*jshint -W054 */
+	    // TODO: find a way to avoid eval
+	    render = new Function(settings.variable || 'obj', 'escapeExpr', source);
+	  } catch (e) {
+	    e.source = source;
+	    throw e;
+	  }
+
+	  if (data) {
+	    return render(data, escapeExpr);
+	  }
+	  var template = function template(data) {
+	    return render.call(this, data, escapeExpr);
 	  };
 
-	  var counter = 0;
+	  // Provide the compiled function source as a convenience for precompilation.
+	  template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
 
-	  // JavaScript micro-templating, similar to John Resig's implementation.
-	  // Underscore templating handles arbitrary delimiters, preserves whitespace,
-	  // and correctly escapes quotes within interpolated code.
-	  var tmpl = function tmpl(text, data) {
-	    var render;
+	  return template;
+	};
+	tmpl.settings = settings;
 
-	    // Combine delimiters into one regular expression via alternation.
-	    var matcher = new RegExp([(settings.escape || noMatch).source, (settings.interpolate || noMatch).source, (settings.evaluate || noMatch).source].join('|') + '|$', 'g');
-
-	    // Compile the template source, escaping string literals appropriately.
-	    var index = 0;
-	    var source = "__p+='";
-	    text.replace(matcher, function (match, escape, interpolate, evaluate, offset) {
-	      source += text.slice(index, offset).replace(escaper, function (match) {
-	        return '\\' + escapes[match];
-	      });
-
-	      if (escape) {
-	        source += "'+\n((__t=(" + escape + "))==null?'':escapeExpr(__t))+\n'";
-	      }
-	      if (interpolate) {
-	        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
-	      }
-	      if (evaluate) {
-	        source += "';\n" + evaluate + "\n__p+='";
-	      }
-	      index = offset + match.length;
-	      return match;
-	    });
-	    source += "';\n";
-
-	    // If a variable is not specified, place data values in local scope.
-	    if (!settings.variable) {
-	      source = 'with(obj||{}){\n' + source + '}\n';
-	    }
-
-	    source = "var __t,__p='',__j=Array.prototype.join," + "print=function(){__p+=__j.call(arguments,'');};\n" + source + "return __p;\n//# sourceURL=/microtemplates/source[" + counter++ + "]";
-
-	    try {
-	      /*jshint -W054 */
-	      // TODO: find a way to avoid eval
-	      render = new Function(settings.variable || 'obj', 'escapeExpr', source);
-	    } catch (e) {
-	      e.source = source;
-	      throw e;
-	    }
-
-	    if (data) {
-	      return render(data, escapeExpr);
-	    }
-	    var template = function template(data) {
-	      return render.call(this, data, escapeExpr);
-	    };
-
-	    // Provide the compiled function source as a convenience for precompilation.
-	    template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
-
-	    return template;
-	  };
-	  tmpl.settings = settings;
-
-	  /*global define */ // define is for RequireJS
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-	      return tmpl;
-	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)); // RequireJS
-	  } else if (typeof module !== 'undefined' && module.exports) {
-	      module.exports = tmpl; // CommonJS
-	    } else {
-	        globals.microtemplate = tmpl; // <script>
-	      }
-	})(undefined);
-	// (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	module.exports = tmpl;
 
 /***/ },
 /* 18 */
@@ -5438,6 +5441,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'isPlaying',
 	    value: function isPlaying() {
 	      return this.playback.isPlaying();
+	    }
+	  }, {
+	    key: 'getStartTimeOffset',
+	    value: function getStartTimeOffset() {
+	      return this.playback.getStartTimeOffset();
 	    }
 	  }, {
 	    key: 'getCurrentTime',
@@ -8894,11 +8902,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function seekPercentage(percentage) {} /*jshint unused:false*/
 
 	    /**
-	     * gets the duration in seconds
-	     * @method getDuration
-	     * @return {Number} duration time (in seconds) of the current source
+	     * The time that "0" now represents relative to when playback started.
+	     * For a stream with a sliding window this will increase as content is
+	     * removed from the beginning.
+	     * @method getStartTimeOffset
+	     * @return {Number} time (in seconds) that time "0" represents.
 	     */
 
+	  }, {
+	    key: 'getStartTimeOffset',
+	    value: function getStartTimeOffset() {
+	      return 0;
+	    }
+
+	    /**
+	     * gets the duration in seconds
+	     * @method getDuration
+	     * @return {Number} duration (in seconds) of the current source
+	     */
 	  }, {
 	    key: 'getDuration',
 	    value: function getDuration() {
@@ -10877,9 +10898,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _publicFlashScss2 = _interopRequireDefault(_publicFlashScss);
 
-	var IE_CLASSID = "clsid:d27cdb6e-ae6d-11cf-96b8-444553540000";
-
-	var objectIE = '<object type="application/x-shockwave-flash" id="<%= cid %>" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" data-hls="" width="100%" height="100%"><param name="movie" value="<%= swfPath %>"> <param name="quality" value="autohigh"> <param name="swliveconnect" value="true"> <param name="allowScriptAccess" value="always"> <param name="bgcolor" value="#001122"> <param name="allowFullScreen" value="false"> <param name="wmode" value="transparent"> <param name="tabindex" value="1"> <param name=FlashVars value="playbackId=<%= playbackId %>&callback=<%= callbackName %>" /> </object>';
+	var IE_CLASSID = 'clsid:d27cdb6e-ae6d-11cf-96b8-444553540000';
 
 	var BaseFlashPlayback = (function (_Playback) {
 	  _inherits(BaseFlashPlayback, _Playback);
@@ -10914,17 +10933,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        playbackId: this.uniqueId,
 	        wmode: this.wmode,
 	        callbackName: 'window.Clappr.flashlsCallbacks.' + this.cid }));
+
 	      if (_componentsBrowser2['default'].isIE) {
 	        this.$('embed').remove();
+
 	        if (_componentsBrowser2['default'].isLegacyIE) {
 	          this.$el.attr('classid', IE_CLASSID);
 	        }
-	      } else if (_componentsBrowser2['default'].isFirefox) {
+	      }
+
+	      if (_componentsBrowser2['default'].isFirefox) {
 	        this.setupFirefox();
 	      }
+
 	      this.el.id = this.cid;
-	      var style = _baseStyler2['default'].getStyleFor(_publicFlashScss2['default']);
-	      this.$el.append(style);
+	      this.$el.append(_baseStyler2['default'].getStyleFor(_publicFlashScss2['default']));
+
 	      return this;
 	    }
 	  }, {
@@ -10950,9 +10974,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'attributes',
 	    get: function get() {
+	      var type = 'application/x-shockwave-flash';
+
+	      if (_componentsBrowser2['default'].isLegacyIE) {
+	        type = '';
+	      }
+
 	      return {
 	        'class': 'clappr-flash-playback',
-	        type: 'application/x-shockwave-flash',
+	        type: type,
 	        width: '100%',
 	        height: '100%',
 	        'data-flash-playback': this.name
@@ -10970,7 +11000,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 72 */
 /***/ function(module, exports) {
 
-	module.exports = "<param name=\"movie\" value=\"<%= swfPath %>?inline=1\">\n<param name=\"quality\" value=\"autohigh\">\n<param name=\"swliveconnect\" value=\"true\">\n<param name=\"allowScriptAccess\" value=\"always\">\n<param name=\"bgcolor\" value=\"#000000\">\n<param name=\"allowFullScreen\" value=\"false\">\n<param name=\"wmode\" value=\"<%= wmode %>\">\n<param name=\"tabindex\" value=\"1\">\n<param name=FlashVars value=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\" />\n<embed\n  name=\"<%= cid %>\"\n  type=\"application/x-shockwave-flash\"\n  disabled=\"disabled\"\n  tabindex=\"-1\"\n  enablecontextmenu=\"false\"\n  allowScriptAccess=\"always\"\n  quality=\"autohigh\"\n  pluginspage=\"http://www.macromedia.com/go/getflashplayer\"\n  wmode=\"<%= wmode %>\"\n  swliveconnect=\"true\"\n  allowfullscreen=\"false\"\n  bgcolor=\"#000000\"\n  FlashVars=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\"\n  src=\"<%= swfPath %>\"\n  width=\"100%\"\n  height=\"100%\">\n</embed>\n";
+	module.exports = "<param name=\"movie\" value=\"<%= swfPath %>?inline=1\">\r\n<param name=\"quality\" value=\"autohigh\">\r\n<param name=\"swliveconnect\" value=\"true\">\r\n<param name=\"allowScriptAccess\" value=\"always\">\r\n<param name=\"bgcolor\" value=\"#000000\">\r\n<param name=\"allowFullScreen\" value=\"false\">\r\n<param name=\"wmode\" value=\"<%= wmode %>\">\r\n<param name=\"tabindex\" value=\"1\">\r\n<param name=\"FlashVars\" value=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\">\r\n<embed\r\n  name=\"<%= cid %>\"\r\n  type=\"application/x-shockwave-flash\"\r\n  disabled=\"disabled\"\r\n  tabindex=\"-1\"\r\n  enablecontextmenu=\"false\"\r\n  allowScriptAccess=\"always\"\r\n  quality=\"autohigh\"\r\n  pluginspage=\"http://www.macromedia.com/go/getflashplayer\"\r\n  wmode=\"<%= wmode %>\"\r\n  swliveconnect=\"true\"\r\n  allowfullscreen=\"false\"\r\n  bgcolor=\"#000000\"\r\n  FlashVars=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\"\r\n  src=\"<%= swfPath %>\"\r\n  width=\"100%\"\r\n  height=\"100%\">\r\n</embed>\r\n";
 
 /***/ },
 /* 73 */
@@ -11181,7 +11211,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'currentLevel',
 	    get: function get() {
-	      return this._currentLevel || AUTO;
+	      if (this._currentLevel === null || this._currentLevel === undefined) {
+	        return AUTO;
+	      } else {
+	        return this._currentLevel; //0 is a valid level ID
+	      }
 	    },
 	    set: function set(id) {
 	      this._currentLevel = id;
@@ -12073,7 +12107,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__.p + "836868f5c501cad9daabdcc31886bd7c.swf";
+	module.exports = __webpack_require__.p + "a0870237965deb2101e2311eb11b2cec.swf";
 
 /***/ },
 /* 81 */
@@ -12149,7 +12183,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'currentLevel',
 	    get: function get() {
-	      return this._currentLevel || AUTO;
+	      if (this._currentLevel === null || this._currentLevel === undefined) {
+	        return AUTO;
+	      } else {
+	        return this._currentLevel; //0 is a valid level ID
+	      }
 	    },
 	    set: function set(id) {
 	      this._currentLevel = id;
@@ -12191,7 +12229,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _this.updatePlaybackType(evt, data);
 	      });
 	      this.hls.on(_hlsJs2['default'].Events.LEVEL_UPDATED, function (evt, data) {
-	        return _this.updateDuration(evt, data);
+	        return _this.onLevelUpdated(evt, data);
 	      });
 	      this.hls.on(_hlsJs2['default'].Events.LEVEL_SWITCH, function (evt, data) {
 	        return _this.onLevelSwitch(evt, data);
@@ -12221,6 +12259,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'getCurrentTime',
 	    value: function getCurrentTime() {
 	      return this.el.currentTime - this.playableRegionStartTime;
+	    }
+
+	    // the time that "0" now represents relative to when playback started
+	    // for a stream with a sliding window this will increase as content is
+	    // removed from the beginning
+	  }, {
+	    key: 'getStartTimeOffset',
+	    value: function getStartTimeOffset() {
+	      return this.playableRegionStartTime;
 	    }
 	  }, {
 	    key: 'seekPercentage',
@@ -12312,14 +12359,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.trigger(_baseEvents2['default'].PLAYBACK_LEVELS_AVAILABLE, this._levels);
 	    }
 	  }, {
-	    key: 'updateDuration',
-	    value: function updateDuration(evt, data) {
+	    key: 'onLevelUpdated',
+	    value: function onLevelUpdated(evt, data) {
 	      var fragments = data.details.fragments;
 	      if (fragments.length > 0) {
 	        this.playableRegionStartTime = fragments[0].start;
 	      }
-	      this.playableRegionDuration = data.details.totalduration;
-	      this.onDurationChange();
+	      var newDuration = data.details.totalduration;
+
+	      // if it's a live stream then shorten the duration to remove access
+	      // to the area after hlsjs's live sync point
+	      // seeks to areas after this point sometimes have issues
+	      if (this.playbackType === _basePlayback2['default'].LIVE) {
+	        var currentLevel = this.hls.levels[data.level];
+	        var fragmentTargetDuration = currentLevel.details.targetduration;
+	        var hlsjsConfig = this.options.hlsjsConfig || {};
+	        var liveSyncDurationCount = hlsjsConfig.liveSyncDurationCount || _hlsJs2['default'].DefaultConfig.liveSyncDurationCount;
+	        var hiddenAreaDuration = fragmentTargetDuration * liveSyncDurationCount;
+	        if (hiddenAreaDuration <= newDuration) {
+	          newDuration -= hiddenAreaDuration;
+	        }
+	      }
+	      if (newDuration !== this.playableRegionDuration) {
+	        this.playableRegionDuration = newDuration;
+	        this.onDurationChange();
+	      }
 	    }
 	  }, {
 	    key: 'onFragmentLoaded',
@@ -21741,6 +21805,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _baseEvents2 = _interopRequireDefault(_baseEvents);
 
+	var _lodashFind = __webpack_require__(31);
+
+	var _lodashFind2 = _interopRequireDefault(_lodashFind);
+
 	var SourcesPlugin = (function (_CorePlugin) {
 	  _inherits(SourcesPlugin, _CorePlugin);
 
@@ -21758,9 +21826,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'onContainersCreated',
 	    value: function onContainersCreated() {
-	      var firstValidSource = this.core.containers.find(function (container) {
-	        return container.playback.name !== 'no_op';
-	      }) || this.core.containers[0];
+	      var _this = this;
+
+	      var firstValidSource = (0, _lodashFind2['default'])(this.core.containers, function (container) {
+	        return container.playback.name !== 'no_op' || _this.core.containers[0];
+	      });
 	      if (firstValidSource) {
 	        this.core.containers.forEach(function (container) {
 	          if (container !== firstValidSource) {
