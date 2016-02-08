@@ -747,6 +747,10 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 				sources: clapprSources,
 				persistConfig: false,
 				loop: false,
+				maxBufferLength: 30,
+				hlsjsConfig: {
+					maxMaxBufferLength: 30
+				},
 				chromeless: disableControls,
 				autoPlay: queuedPlayerTimeStartPlaying,
 				mediacontrol: {seekbar: "#ff0000"},
