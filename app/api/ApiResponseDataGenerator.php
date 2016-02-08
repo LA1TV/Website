@@ -195,7 +195,7 @@ class ApiResponseDataGenerator {
 				}
 				else if ($vodIncludeSetting === "VOD_PROCESSING") {
 					$q->whereHas("videoItem", function($q2) {
-						$q2->whereHas("sourceFile", function($q3) {
+						$q2->accessible()->whereHas("sourceFile", function($q3) {
 							$q3->finishedProcessing(false);
 						});
 					});
