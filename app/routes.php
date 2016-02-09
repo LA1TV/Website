@@ -40,6 +40,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::get('playlists', array("uses"=>$p.'api\v1\ApiController@getPlaylists'));
 			Route::get('mediaItems/{id}/playlists', array("uses"=>$p.'api\v1\ApiController@getMediaItemPlaylists'));
 			Route::get('mediaItems/{id}', array("uses"=>$p.'api\v1\ApiController@getMediaItem'));
+			Route::get('mediaItems/stats/watchingNow', array("uses"=>$p.'api\v1\ApiController@getMediaItemsStatsWatchingNow'));
 			Route::get('mediaItems', array("uses"=>$p.'api\v1\ApiController@getMediaItems'));
 			
 			Route::post('webhook/configure', array("uses"=>$p.'api\v1\ApiWebhookController@postConfigure'));
