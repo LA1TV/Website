@@ -6,6 +6,7 @@ use uk\co\la1tv\website\api\transformers\MediaItemTransformer;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\Playlist;
 use uk\co\la1tv\website\models\MediaItem;
+use uk\co\la1tv\website\models\PlaybackHistory;
 use App;
 use DebugHelpers;
 use Exception;
@@ -272,6 +273,19 @@ class ApiResponseDataGenerator {
 		}
 		$playlists = $mediaItem->playlists()->orderBy("id", "asc")->get()->all();
 		$data = $this->playlistTransformer->transformCollection($playlists);
+		return new ApiResponseData($data);
+	}
+
+	public function generateMediaItemsStatsWatchingNowResponseData() {
+		$items = PlaybackHistory::getNumWatchingNowByMediaItem();
+		$total = 0;
+		foreach($items as $item) {
+			$total += $item["count"];
+		}
+		$data = [
+			"total" => $total,
+			"items" => $items
+		];
 		return new ApiResponseData($data);
 	}
 	

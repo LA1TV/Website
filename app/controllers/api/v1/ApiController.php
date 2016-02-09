@@ -103,4 +103,10 @@ class ApiController extends ApiBaseController {
 		$this->log("Request for media item playlists with id ".$mediaItemId.".");
 		return $this->createResponseFromApiResponseData($this->withCache(15, "generateMediaItemPlaylistsResponseData", [$mediaItemId]));
 	}
+
+	public function getMediaItemsStatsWatchingNow() {
+		ApiAuth::hasUserOrApiException();
+		$this->log("Request for media items watching now stats.");
+		return $this->createResponseFromApiResponseData($this->withCache(5, "generateMediaItemsStatsWatchingNowResponseData", []));
+	}
 }
