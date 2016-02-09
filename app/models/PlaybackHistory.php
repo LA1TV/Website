@@ -2,6 +2,7 @@
 
 use Exception;
 use Carbon;
+use DB;
 
 class PlaybackHistory extends MyEloquent {
 	
@@ -47,5 +48,23 @@ class PlaybackHistory extends MyEloquent {
 	public static function getNumWatchingNow($mediaItemId) {
 		$cutOffTime = Carbon::now()->subSeconds(30);
 		return self::where("media_item_id", $mediaItemId)->where("playing", true)->where("created_at", ">", $cutOffTime)->distinct("session_id")->count("session_id");
+	}
+
+	public static function getNumWatchingNowByMediaItem() {
+		$cutOffTime = Carbon::now()->subSeconds(30);
+		$records = self::select(DB::raw('media_item_id, COUNT(DISTINCT session_id) as count'))
+			->where("playing", true)
+			->where("created_at", ">", $cutOffTime)
+			->groupBy("media_item_id")
+			->get();
+
+		$results = array();
+		foreach ($records as $a) {
+			$results[] = array(
+				"id"	=> intval($a->media_item_id),
+				"count"	=> intval($a->count)
+			);
+		}
+		return $results;
 	}
 }
