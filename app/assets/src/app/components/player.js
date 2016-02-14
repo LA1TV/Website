@@ -10,6 +10,7 @@ var SynchronisedTime = require("app/synchronised-time");
 var nl2br = require("app/helpers/nl2br");
 var e = require("app/helpers/html-encode");
 var pad = require("app/helpers/pad");
+var logger = require("app/logger");
 require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
 	
@@ -737,6 +738,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 				});
 			}
 
+			logger.debug("Setting player sources: "+JSON.stringify(clapprSources));
 			var clapprOptions = {
 				baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
 				width: "100%",
