@@ -28,7 +28,7 @@ self.addEventListener('push', function(event) {
 				}
 			};
 			if (notificationData.tag) {
-				options.tag = tag;
+				options.tag = notificationData.tag;
 			}
 			return self.registration.showNotification(notificationData.title, options);
 		}));
