@@ -47,6 +47,8 @@ define([
 	logger.debug("Logger initialised.");
 	if (debugId !== null) {
 		logger.debug('Using debug ID "'+debugId+'".');
+		// only send useragent if the user has opted in to debugging with an id
+		logger.debug('Browser user agent: '+navigator.userAgent);
 	}
 
 	var version = PageData.get("version");
