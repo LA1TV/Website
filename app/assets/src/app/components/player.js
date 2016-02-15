@@ -740,7 +740,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 
 			logger.debug("Setting player sources: "+JSON.stringify(clapprSources));
 			var clapprOptions = {
-				baseUrlF: PageData.get("assetsBaseUrl")+"assets/clappr",
+				baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
 				width: "100%",
 				height: "100%",
 				poster: coverUri,
