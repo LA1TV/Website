@@ -10,6 +10,7 @@ var SynchronisedTime = require("app/synchronised-time");
 var nl2br = require("app/helpers/nl2br");
 var e = require("app/helpers/html-encode");
 var pad = require("app/helpers/pad");
+var logger = require("app/logger");
 require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
 	
@@ -737,8 +738,9 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 				});
 			}
 
+			logger.debug("Setting player sources: "+JSON.stringify(clapprSources));
 			var clapprOptions = {
-				baseUrl: PageData.get("assetsBaseUrl")+"assets/clappr",
+				baseUrlF: PageData.get("assetsBaseUrl")+"assets/clappr",
 				width: "100%",
 				height: "100%",
 				poster: coverUri,
@@ -1011,8 +1013,10 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 		
 		if (queuedPlayerType === "vod" || queuedPlayerType === "live") {
 			var isAndroid = /(android)/i.test(navigator.userAgent);
-			if (isAndroid) {
-				// some android devices seem to have issues
+			var isWindowsPhone = navigator.userAgent.match(/Windows Phone/i) || navigator.userAgent.match(/iemobile/i) || navigator.userAgent.match(/WPDesktop/i);
+			if (isAndroid || isWindowsPhone) {
+				logger.debug("Removing HLS stream urls because detected android or windows phone.");
+				// some android and windows phone devices seem to have issues
 				// with hls so remove hls streams (unless no other option)
 				// TODO remove this when figured out why hls isn't working
 				// when move to Clappr this might not be an issue anymore
