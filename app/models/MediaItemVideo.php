@@ -93,6 +93,9 @@ class MediaItemVideo extends MyEloquent {
 				);
 			}
 
+			// shouldn't need dash anymore because should be covered with hls (hlsjs),
+			// and the standard mp4 for devices that can't do hls at all
+			/*
 			$videoFileDash = $videoFile->videoFileDash;
 			if (!is_null($videoFileDash)) {
 				// there is a dash render for this as well
@@ -102,6 +105,7 @@ class MediaItemVideo extends MyEloquent {
 					"supportedDevices"	=> null
 				);
 			}
+			*/
 
 			$uris[] = array(
 				"uri"	=> $a->getUri(),
