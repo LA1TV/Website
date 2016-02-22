@@ -1,6 +1,7 @@
 var PageData = require("app/page-data");
 var NotificationBar = require("./notification-bar");
 var NotificationPriorities = require("./notification-priorities");
+var $ = require("jquery");
 require("app/pages/home/degraded-service-bar.css");
 
 var degradedModeEnabled = PageData.get("degradedService");
