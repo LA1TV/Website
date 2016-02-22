@@ -761,6 +761,8 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 				actualLiveTime: true,
 				actualLiveServerTime: SynchronisedTime.getDate(),
 				plugins: {
+					// TODO remove when figured out back to live issue with js hls
+					playback: [Clappr.FlasHLS],
 					core: [ClapprHeadingPlugin]
 				},
 				headingPlugin: {

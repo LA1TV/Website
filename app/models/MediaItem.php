@@ -474,7 +474,7 @@ class MediaItem extends MyEloquent {
 					"uri"			=> $uri,
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
-				$finalItemIds[] = intval($a->id);
+				$finalItemsIds[] = intval($a->id);
 				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
 			}
 			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
@@ -493,7 +493,7 @@ class MediaItem extends MyEloquent {
 						"uri"			=> $a['uri'],
 						"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 					);
-					$finalItemIds[] = $itemId;
+					$finalItemsIds[] = $itemId;
 					if (count($finalItems) === $numItemsToShow) {
 						break;
 					}
