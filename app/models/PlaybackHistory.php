@@ -3,6 +3,7 @@
 use Exception;
 use Carbon;
 use DB;
+use SmartCache;
 
 class PlaybackHistory extends MyEloquent {
 	
@@ -38,33 +39,56 @@ class PlaybackHistory extends MyEloquent {
 	}
 
 	public static function getVodViewCount($mediaItemId) {
-		return self::where("type", "vod")->where("media_item_id", $mediaItemId)->where("constitutes_view", true)->count();
+		$key = "vodViewCount.".$mediaItemId;
+		// cache for 20 seconds (renew in background when 10 seconds old)
+		$seconds = 20;
+		$closure = function() use (&$mediaItemId) {
+			return PlaybackHistory::where("type", "vod")->where("media_item_id", $mediaItemId)->where("constitutes_view", true)->count();
+		};
+		return SmartCache::get($key, $seconds, $closure);
 	}
 
 	public static function getStreamViewCount($mediaItemId) {
-		return self::where("type", "live")->where("media_item_id", $mediaItemId)->where("constitutes_view", true)->count();
+		$key = "streamViewCount.".$mediaItemId;
+		// cache for 20 seconds (renew in background when 10 seconds old)
+		$seconds = 20;
+		$closure = function() use (&$mediaItemId) {
+			return PlaybackHistory::where("type", "live")->where("media_item_id", $mediaItemId)->where("constitutes_view", true)->count();
+		};
+		return SmartCache::get($key, $seconds, $closure);
 	}
 
 	public static function getNumWatchingNow($mediaItemId) {
-		$cutOffTime = Carbon::now()->subSeconds(30);
-		return self::where("media_item_id", $mediaItemId)->where("playing", true)->where("created_at", ">", $cutOffTime)->distinct("session_id")->count("session_id");
+		$key = "numWatchingNow.".$mediaItemId;
+		// cache for 12 seconds (renew in background when 6 seconds old)
+		$seconds = 12;
+		$closure = function() use (&$mediaItemId) {
+			$cutOffTime = Carbon::now()->subSeconds(30);
+			return PlaybackHistory::where("media_item_id", $mediaItemId)->where("playing", true)->where("created_at", ">", $cutOffTime)->distinct("session_id")->count("session_id");
+		};
+		return SmartCache::get($key, $seconds, $closure);
 	}
 
 	public static function getNumWatchingNowByMediaItem() {
-		$cutOffTime = Carbon::now()->subSeconds(30);
-		$records = self::select(DB::raw('media_item_id, COUNT(DISTINCT session_id) as count'))
-			->where("playing", true)
-			->where("created_at", ">", $cutOffTime)
-			->groupBy("media_item_id")
-			->get();
-
-		$results = array();
-		foreach ($records as $a) {
-			$results[] = array(
-				"id"	=> intval($a->media_item_id),
-				"count"	=> intval($a->count)
-			);
-		}
-		return $results;
+		$key = "numWatchingByMediaItem";
+		// cache for 12 seconds (renew in background when 6 seconds old)
+		$seconds = 12;
+		$closure = function() {
+			$cutOffTime = Carbon::now()->subSeconds(30);
+			$records = PlaybackHistory::select(DB::raw('media_item_id, COUNT(DISTINCT session_id) as count'))
+				->where("playing", true)
+				->where("created_at", ">", $cutOffTime)
+				->groupBy("media_item_id")
+				->get();
+			$results = array();
+			foreach ($records as $a) {
+				$results[] = array(
+					"id"	=> intval($a->media_item_id),
+					"count"	=> intval($a->count)
+				);
+			}
+			return $results;
+		};
+		return SmartCache::get($key, $seconds, $closure);
 	}
 }

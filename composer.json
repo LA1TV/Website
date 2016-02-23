@@ -10,7 +10,9 @@
 		"indatus/dispatcher": "1.4.*@dev",
 		"pda/pheanstalk": "2.0.*",
 		"roumen/feed": "2.8.*",
-		"elasticsearch/elasticsearch": "^2.0"
+		"elasticsearch/elasticsearch": "^2.0",
+		"malkusch/lock": "^0.4.0",
+		"jeremeamia/superclosure": "~1.0.1"
 	},
 	"autoload": {
 		"classmap": [

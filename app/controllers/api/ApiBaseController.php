@@ -7,6 +7,7 @@ use Config;
 use SmartCache;
 use Carbon;
 use Log;
+use App;
 use Request;
 use ApiAuth;
 
@@ -131,7 +132,10 @@ class ApiBaseController extends BaseController {
 	// $forceRefresh will force cache to be updated
 	protected function withCache($seconds, $providerMethod, $providerArgs, $forceRefresh=false) {
 		$key = "api.v1.".$providerMethod.".".md5(serialize($providerArgs));
-		return SmartCache::get($key, $seconds, "apiResponseDataGenerator", $providerMethod, $providerArgs, $forceRefresh);
+		$closure = function() use(&$providerMethod, &$providerArgs) {
+			return call_user_func_array([App::make("apiResponseDataGenerator"), $providerMethod], $providerArgs);
+		};
+		return SmartCache::get($key, $seconds, $closure, $forceRefresh);
 	}
 	
 	protected function log($msg) {
