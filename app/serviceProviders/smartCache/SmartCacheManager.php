@@ -13,10 +13,10 @@ class SmartCacheManager {
 	
 	// if the object is cached and not old return cached version.
 	// otherwise cache object and return it
-	// $forceRefresh will force cache to be updated if it is older than half of the timeout period
-	// $providerName is the name registered in the IOC container.
-	// $providerMethod is the name of the method to call on the provider
-	// $providerMethodArgs is an array of arguments to supply to the provider method
+	// $forceRefresh will force cache to be updated in the current request
+	// if it is older than half of the timeout period.
+	// The cache will automatically be update in the background if it is
+	// older than half the timeout period.
 	public function get($key, $seconds, $closure, $forceRefresh=false) {
 		// the first time the : must appear must be straight before $key
 		// otherwise there could be conflicts
