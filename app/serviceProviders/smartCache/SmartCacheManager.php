@@ -4,9 +4,10 @@ use Cache;
 use Carbon;
 use Event;
 use Queue;
-use App;
 use Redis;
+use Closure;
 use malkusch\lock\mutex\PredisMutex;
+use Jeremeamia\SuperClosure\SerializableClosure;
 
 class SmartCacheManager {
 	
@@ -16,14 +17,14 @@ class SmartCacheManager {
 	// $providerName is the name registered in the IOC container.
 	// $providerMethod is the name of the method to call on the provider
 	// $providerMethodArgs is an array of arguments to supply to the provider method
-	public function get($key, $seconds, $providerName, $providerMethod, $providerMethodArgs=array(), $forceRefresh=false) {
+	public function get($key, $seconds, $closure, $forceRefresh=false) {
 		// the first time the : must appear must be straight before $key
 		// otherwise there could be conflicts
 		$keyStart = "smartCache";
 		$fullKey = $keyStart . ":" . $key;
 	
-		$mutex = new PredisMutex([Redis::connection()], $fullKey);
-		return $mutex->synchronized(function() use (&$fullKey, &$forceRefresh, &$seconds, &$key, &$providerName, &$providerMethod, &$providerMethodArgs) {
+		$mutex = new PredisMutex([Redis::connection()], $fullKey, 20);
+		return $mutex->synchronized(function() use (&$fullKey, &$forceRefresh, &$seconds, &$key, &$closure) {
 			// get an updated cached version now in synchronized block
 			$responseAndTime = $this->getResponseAndTime($fullKey, $seconds);
 
@@ -39,22 +40,20 @@ class SmartCacheManager {
 					// refresh the cache in the background as > half the time has passed
 					// before a refresh would be required
 					// the app.finish event is fired after the response has been returned to the user.
-					Event::listen('app.finish', function() use (&$key, &$seconds, &$providerName, &$providerMethod, &$providerMethodArgs) {
+					Event::listen('app.finish', function() use (&$key, &$seconds, &$closure) {
 						Queue::push("uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheQueueJob", [
-							"key"					=> $key,
-							"seconds"				=> $seconds,
-							"providerName"			=> $providerName,
-							"providerMethod"		=> $providerMethod,
-							"providerMethodArgs"	=> $providerMethodArgs
+							"key"			=> $key,
+							"seconds"		=> $seconds,
+							"closure"		=> serialize(new SerializableClosure($closure))
 						]);
 					});
 				}
 			}
-		
+
 			if (is_null($responseAndTime) || $forceRefresh) {
 				$responseAndTime = [
 					"time"		=> Carbon::now()->timestamp,
-					"response"	=> call_user_func_array([App::make($providerName), $providerMethod], $providerMethodArgs)
+					"response"	=> $closure()
 				];
 				// the cache driver only works in minutes
 				Cache::put($fullKey, $responseAndTime, ceil($seconds/60));

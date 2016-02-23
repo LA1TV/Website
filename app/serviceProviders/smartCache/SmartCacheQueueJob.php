@@ -9,12 +9,10 @@ class SmartCacheQueueJob {
 
 		$key = $data['key'];
 		$seconds = $data['seconds'];
-		$providerName = $data['providerName'];
-		$providerMethod = $data['providerMethod'];
-		$providerMethodArgs = $data['providerMethodArgs'];
+		$closure =  unserialize($data['closure']);
 		
 		// this will force the cache to be updated.
-		SmartCache::get($key, $seconds, $providerName, $providerMethod, $providerMethodArgs, true);
+		SmartCache::get($key, $seconds, $closure, true);
 	}
 
 }
