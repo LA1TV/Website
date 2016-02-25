@@ -25,6 +25,7 @@ class HomeBaseController extends BaseController {
 	protected function setContent($content, $navPage, $cssPageId, $openGraphProperties=array(), $title=NULL, $statusCode=200, $twitterProperties=null, $sideBannersImageUrl=null, $sideBannersFillImageUrl=null) {
 		$description = Config::get("custom.site_description");
 		$registerPushNotificationEndpointUrl = Config::get("pushNotifications.enabled") ? URL::route("ajax-registerPushNotificationEndpoint") : null;
+		$facebookAppId = Config::get("facebook.appId");
 
 		$view = View::make("layouts.home.master");
 	
@@ -61,6 +62,7 @@ class HomeBaseController extends BaseController {
 			"csrfToken"		=> Csrf::getToken(),
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
+			"fbAppId"		=> $facebookAppId,
 			"notificationServiceUrl"	=> Config::get("notificationService.url"),
 			"registerPushNotificationEndpointUrl"	=> $registerPushNotificationEndpointUrl,
 			"promoAjaxUri"	=> Config::get("custom.live_shows_uri"),
@@ -68,7 +70,6 @@ class HomeBaseController extends BaseController {
 			"version"		=> DebugHelpers::getVersion(),
 			"degradedService"	=> Config::get("degradedService.enabled")
 		);
-		$facebookAppId = Config::get("facebook.appId");
 		$defaultOpenGraphProperties = array();
 		if (!is_null($facebookAppId)) {
 			$defaultOpenGraphProperties[] = array("name"=> "fb:app_id", "content"=> $facebookAppId);

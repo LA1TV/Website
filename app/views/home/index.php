@@ -29,7 +29,7 @@
 	</div>
 	<?php endif; ?>
 	<div class="row">
-		<?php if (!is_null($twitterWidgetId)): ?>
+		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		<div class="col-md-6">
 		<?php endif; ?>
 			<div class="most-popular-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
@@ -48,12 +48,17 @@
 				<div class="none-available">None available at the moment. Check back later!</div>
 				<?php endif; ?>
 			</div>
-		<?php if (!is_null($twitterWidgetId)): ?>
+		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		</div>
 		<?php endif; ?>
-		<?php if (!is_null($twitterWidgetId)): ?>
+		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		<div class="col-md-6">
-			<div class="twitter-timeline-container" data-twitter-widget-height="650" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
+			<?php if (!is_null($showFacebookWidget)): ?>
+			<div class="facebook-timeline-container" data-show-messages="0" data-page-url="<?=e($facebookPageUrl);?>" data-height="520"></div>
+			<?php endif; ?>
+			<?php if (!is_null($twitterWidgetId)): ?>
+			<div class="twitter-timeline-container" data-twitter-widget-height="520" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
+			<?php endif; ?>
 		</div>
 		<?php endif; ?>
 	</div>
