@@ -137,6 +137,8 @@ class HomeController extends HomeBaseController {
 			"tableData"		=> $mostPopularTableData
 		)) : null;
 		$view->twitterWidgetId = Config::get("twitter.timeline_widget_id");
+		$view->showFacebookWidget = Config::get("facebook.showTimelineWidget");
+		$view->facebookPageUrl = Config::get("facebook.pageUrl");
 
 		$hasPromoItem = !is_null($promoMediaItem);
 		$showPromoItem = $hasPromoItem;

@@ -23,16 +23,25 @@ class SmartCacheManager {
 		$keyStart = "smartCache";
 		$fullKey = $keyStart . ":" . $key;
 	
+		if (!$forceRefresh) {
+			// if there is already a version in the cache return it
+			// synchronisation only needed to update cache not read it
+			$responseAndTime = $this->getResponseAndTime($fullKey, $seconds);
+			if (!is_null($responseAndTime)) {
+				if (!$this->shouldForceRefresh($responseAndTime, $seconds)) {
+					// just return cached version
+					return $responseAndTime["response"];
+				}
+			}
+		}
+
+		// a cache update is needed. this needs to be synchronized so only one process is updating the cache
 		$mutex = new PredisMutex([Redis::connection()], $fullKey, 20);
 		return $mutex->synchronized(function() use (&$fullKey, &$forceRefresh, &$seconds, &$key, &$closure) {
 			// get an updated cached version now in synchronized block
 			$responseAndTime = $this->getResponseAndTime($fullKey, $seconds);
-
 			if ($forceRefresh && !is_null($responseAndTime)) {
-				if (Carbon::now()->timestamp - $responseAndTime["time"] <= $seconds / 2) {
-					// don't force a refresh because the cache isn't older than half the time period
-					$forceRefresh = false;
-				}
+				$forceRefresh = $this->shouldForceRefresh($responseAndTime, $seconds);
 			}
 			
 			if (!is_null($responseAndTime)) {
@@ -74,5 +83,9 @@ class SmartCacheManager {
 			}
 		}
 		return $responseAndTime;
+	}
+
+	private function shouldForceRefresh($responseAndTime, $seconds) {
+		return !(Carbon::now()->timestamp - $responseAndTime["time"] <= $seconds / 2);
 	}
 }

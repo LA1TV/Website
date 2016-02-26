@@ -11,15 +11,20 @@
 			<dt>Twitter</dt>
 			<dd><a href="<?=e($twitterPageUri);?>" target="_blank"><?=e($twitterPageUri);?></a></dd>
 		</dl>
-		<?php if (!is_null($twitterWidgetId)): ?>
+		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		<div class="image-container">
 			<img class="img-responsive img-rounded" src="<?=asset("assets/img/roses-photo.jpg");?>"/>
 		</div>
 		<?php endif; ?>
 	</div>
 	<div class="col-md-6">
-		<?php if (!is_null($twitterWidgetId)): ?>
-		<div class="twitter-timeline-container" data-twitter-widget-height="500" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
+		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
+			<?php if ($showFacebookWidget): ?>
+			<div class="facebook-timeline-container" data-show-messages="1" data-page-url="<?=e($facebookPageUrl);?>" data-height="500"></div>
+			<?php endif; ?>
+			<?php if (!is_null($twitterWidgetId)): ?>
+			<div class="twitter-timeline-container" data-twitter-widget-height="500" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
+			<?php endif; ?>
 		<?php else: ?>
 		<div class="image-container">
 			<img class="img-responsive img-rounded" src="<?=asset("assets/img/roses-photo.jpg");?>"/>
