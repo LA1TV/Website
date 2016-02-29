@@ -8,5 +8,8 @@ return array(
 	"updateInterval"	=> 10,
 	"wantedPermissions"	=> array(
 		array("id"=> "email", "name"=> "Email", "description"=> "We would like this permission in order to send you emails to the email address you registered with facebook.")
-	)
+	),
+	// enable the timeline widget on the homepage and contact page
+	"showTimelineWidget"	=> true,
+	"pageUrl"			=> "https://www.facebook.com/LA1TV/"
 );

@@ -4,3 +4,4 @@ require("lib/flexslider/css/flexslider.css");
 require("app/player-container-component-container.css");
 require("app/pages/home/home-page");
 require("app/pages/home/twitter-timeline");
+require("app/pages/home/facebook-timeline");
