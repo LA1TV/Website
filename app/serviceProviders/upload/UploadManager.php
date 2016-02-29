@@ -157,6 +157,13 @@ class UploadManager {
 				$fileName = Session::getId()."-".$fileId."-".$actualFileName;
 				$filePath = Config::get("custom.file_chunks_location") . DIRECTORY_SEPARATOR . $fileName;
 				
+				if ($chunk > 0 && !file_exists($filePath.".part")) {
+					// should be appending to file that's already been started
+					// It might be a complete file now, but the webpage is reuploading the last chunk
+					// because something failed after this point (e.g the copy to the filestore timing out)
+					throw(new Exception("Source file for chunk to be appended to is missing."));
+				}
+
 				// Open temp file
 				$out = @fopen($filePath.".part", $chunk === 0 ? "wb" : "ab");
 				if ($out) {
