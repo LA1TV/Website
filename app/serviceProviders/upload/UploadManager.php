@@ -101,7 +101,19 @@ class UploadManager {
 								}
 								// move the file providing the file record created successfully.
 								// it is important there's always a file record for each file.
-								if (self::moveFile($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id)) {
+								// remove the time limit during the file move
+								set_time_limit(0);
+								$moveSuccesful = self::moveFile($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id);
+								$defaultTimeLimit = ini_get('max_execution_time');
+								if (!is_string($defaultTimeLimit) || trim($defaultTimeLimit) === "") {
+									$defaultTimeLimit = 30;
+								}
+								else {
+									$defaultTimeLimit = intval($defaultTimeLimit);
+								}
+								// restart the time limit at the default value after the move has completed
+								set_time_limit($defaultTimeLimit);
+								if ($moveSuccesful) {
 									// set ready_for_processing to true so that processing can start.
 									$fileDb->ready_for_processing = true;
 									$fileDb->save();
@@ -157,6 +169,13 @@ class UploadManager {
 				$fileName = Session::getId()."-".$fileId."-".$actualFileName;
 				$filePath = Config::get("custom.file_chunks_location") . DIRECTORY_SEPARATOR . $fileName;
 				
+				if ($chunk > 0 && !file_exists($filePath.".part")) {
+					// should be appending to file that's already been started
+					// It might be a complete file now, but the webpage is reuploading the last chunk
+					// because something failed after this point (e.g the copy to the filestore timing out)
+					throw(new Exception("Source file for chunk to be appended to is missing."));
+				}
+
 				// Open temp file
 				$out = @fopen($filePath.".part", $chunk === 0 ? "wb" : "ab");
 				if ($out) {
