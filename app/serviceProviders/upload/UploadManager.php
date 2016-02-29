@@ -11,6 +11,7 @@ use Csrf;
 use EloquentHelpers;
 use FileHelpers;
 use Auth;
+use Queue;
 use uk\co\la1tv\website\models\UploadPoint;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\OldFileId;
@@ -73,9 +74,7 @@ class UploadManager {
 					}
 					if (in_array($extension, $extensions) && $fileSize != FALSE && $fileSize > 0) {
 
-						try {
-							DB::beginTransaction();
-							
+						$fileDb = DB::transaction(function() use (&$fileName, &$fileSize, &$uploadPoint) {
 							// create the file reference in the db
 							$fileDb = new File(array(
 								"in_use"	=> false,
@@ -86,60 +85,25 @@ class UploadManager {
 							$fileDb->fileType()->associate($uploadPoint->fileType);
 							$fileDb->uploadPoint()->associate($uploadPoint);
 							if ($fileDb->save() !== FALSE) {
-								
-								// commit transaction so file record is committed to database
-								DB::commit();
-								
-								DB::beginTransaction();
-								// another transaction to make sure the session doesn't become null on the model (which would result in the upload processor trying to delete it, and failing silently if it can't find the file) whilst the file is being moved.
-								$fileDb = File::find($fileDb->id);
-								if (is_null($fileDb)) {
-									throw(new Exception("File model has been deleted!"));
-								}
-								if ($fileDb->session_id !== Session::getId()) {
-									throw(new Exception("Session has changed between transactions!"));
-								}
-								// move the file providing the file record created successfully.
-								// it is important there's always a file record for each file.
-								// remove the time limit during the file move
-								set_time_limit(0);
-								$moveSuccesful = self::moveFile($fileLocation, Config::get("custom.files_location") . DIRECTORY_SEPARATOR . $fileDb->id);
-								$defaultTimeLimit = ini_get('max_execution_time');
-								if (!is_string($defaultTimeLimit) || trim($defaultTimeLimit) === "") {
-									$defaultTimeLimit = 30;
-								}
-								else {
-									$defaultTimeLimit = intval($defaultTimeLimit);
-								}
-								// restart the time limit at the default value after the move has completed
-								set_time_limit($defaultTimeLimit);
-								if ($moveSuccesful) {
-									// set ready_for_processing to true so that processing can start.
-									$fileDb->ready_for_processing = true;
-									$fileDb->save();
-									DB::commit();
-									
-									// if there is a failure before the ready_for_processing flag is set then it is possible for there to either be a file which will never be removed automatically, or no file for this record. I think this is the only place in the entire system where there could be an error which would require manual attention.
-									
-									// success
-									$success = true;
-									$this->responseData['success'] = true;
-									$this->responseData['id'] = $fileDb->id;
-									$this->responseData['fileName'] = $fileName;
-									$this->responseData['fileSize'] = $fileSize;
-									$this->responseData['processInfo'] = $fileDb->getProcessInfo();
-								}
-								else {
-									DB::rollback();
-								}
+								return $fileDb;
 							}
-							else {
-								DB::rollback();
-							}
-						}
-						catch (\Exception $e) {
-							DB::rollback();
-							throw($e);
+							return null;
+						});				
+
+						$success = !is_null($fileDb);
+
+						if ($success) {
+							// queue the job which will move the file to the file server and queue the processing
+							Queue::push("uk\co\la1tv\website\jobs\TransferUploadJob", array(
+								"fileId"	=> intval($fileDb->id),
+								"filePath"	=> $fileLocation
+							));
+
+							$this->responseData['success'] = true;
+							$this->responseData['id'] = intval($fileDb->id);
+							$this->responseData['fileName'] = $fileName;
+							$this->responseData['fileSize'] = $fileSize;
+							$this->responseData['processInfo'] = $fileDb->getProcessInfo();
 						}
 					}
 				}
@@ -210,18 +174,6 @@ class UploadManager {
 			}
 		}	
 		return $returnVal;
-	}
-	
-	// rename() is unreliable when the file may be being moved accross volumes
-	// this does a copy operation and then a delete instead
-	// if the source file fails to be be deleted TRUE will still be returned
-	private static function moveFile($src, $dest) {
-		if (copy($src, $dest)) {
-			// now delete the source
-			unlink($src);
-			return true;
-		}
-		return false;
 	}
 
 	// removes any files that no longer belong to a session
