@@ -424,86 +424,89 @@ class MediaItem extends MyEloquent {
 	}
 	
 	public static function getCachedPromotedItems() {
-		return Cache::remember('promotedMediaItems', Config::get("custom.cache_time"), function() {
-			// retrieve y number of items in each direction, with items that are more than z time away excluded
-			// then ordered by time away from now ascending
-			// if shortage of content then most popular items will be appended to end to bring up to $numItemsToShow
-			$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
-			$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
-			$numItemsToShow = intval(Config::get("promoCarousel.numItemsToShow"));
-			
-			$now = Carbon::now();
-			$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
-			$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
-			
-			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
-				$q->has("liveStreamItem", "=", 0)
-				->orWhereHas("liveStreamItem", function($q2) {
-					$q2->accessible()->showOver(false);
-				});
-			})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
-			
-			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
-				$q->whereHas("videoItem", function($q2) {
-					$q2->live()->whereHas("sourceFile", function($q3) {
-						$q3->finishedProcessing();
-					});
-				})
-				->orWhereHas("liveStreamItem", function($q2) {
-					$q2->accessible()->where(function($q3) {
-						$q3->showOver(false);
-					})->orWhere(function($q3) {
-						$q3->showOver(true)->hasDvrRecording(true);
-					});
-				});
-			})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
+		return Cache::get('promotedMediaItems', array());
+	}
+
+	public static function generateCachedPromotedItems() {
+		// retrieve y number of items in each direction, with items that are more than z time away excluded
+		// then ordered by time away from now ascending
+		// if shortage of content then most popular items will be appended to end to bring up to $numItemsToShow
+		$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
+		$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
+		$numItemsToShow = intval(Config::get("promoCarousel.numItemsToShow"));
 		
-			$items = $pastItems->merge($futureItems);
-			$distances = array();
-			$finalItems = array();
-			$finalItemsIds = array();
-			$coverArtResolutions = Config::get("imageResolutions.coverArt");
-			foreach($items as $a) {
-				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $playlist->generateEpisodeTitle($a);
-				$uri = $playlist->getMediaItemUri($a);
+		$now = Carbon::now();
+		$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
+		$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
+		
+		$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
+			$q->has("liveStreamItem", "=", 0)
+			->orWhereHas("liveStreamItem", function($q2) {
+				$q2->accessible()->showOver(false);
+			});
+		})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
+		
+		$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
+			$q->whereHas("videoItem", function($q2) {
+				$q2->live()->whereHas("sourceFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})
+			->orWhereHas("liveStreamItem", function($q2) {
+				$q2->accessible()->where(function($q3) {
+					$q3->showOver(false);
+				})->orWhere(function($q3) {
+					$q3->showOver(true)->hasDvrRecording(true);
+				});
+			});
+		})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
+	
+		$items = $pastItems->merge($futureItems);
+		$distances = array();
+		$finalItems = array();
+		$finalItemsIds = array();
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		foreach($items as $a) {
+			$playlist = $a->getDefaultPlaylist();
+			$generatedName = $playlist->generateEpisodeTitle($a);
+			$uri = $playlist->getMediaItemUri($a);
+			$finalItems[] = array(
+				"mediaItem"		=> $a,
+				"generatedName"	=> $generatedName,
+				"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
+				"uri"			=> $uri,
+				"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+			);
+			$finalItemsIds[] = intval($a->id);
+			$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
+		}
+		array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
+		if (count($finalItems) < $numItemsToShow) {
+			$popularItems = self::getCachedMostPopularItems();
+			foreach($popularItems as $a) {
+				$itemId = intval($a['mediaItem']->id);
+				if(in_array($itemId, $finalItemsIds)) {
+					// this item is already in the list
+					continue;
+				}
 				$finalItems[] = array(
-					"mediaItem"		=> $a,
-					"generatedName"	=> $generatedName,
-					"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
-					"uri"			=> $uri,
-					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+					"mediaItem"		=> $a['mediaItem'],
+					"generatedName"	=> $a['generatedName'],
+					"seriesName"	=> !is_null($a['playlist']->show) ? $a['playlistName'] : null,
+					"uri"			=> $a['uri'],
+					"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
-				$finalItemsIds[] = intval($a->id);
-				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
-			}
-			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
-			if (count($finalItems) < $numItemsToShow) {
-				$popularItems = self::getCachedMostPopularItems();
-				foreach($popularItems as $a) {
-					$itemId = intval($a['mediaItem']->id);
-					if(in_array($itemId, $finalItemsIds)) {
-						// this item is already in the list
-						continue;
-					}
-					$finalItems[] = array(
-						"mediaItem"		=> $a['mediaItem'],
-						"generatedName"	=> $a['generatedName'],
-						"seriesName"	=> !is_null($a['playlist']->show) ? $a['playlistName'] : null,
-						"uri"			=> $a['uri'],
-						"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
-					);
-					$finalItemsIds[] = $itemId;
-					if (count($finalItems) === $numItemsToShow) {
-						break;
-					}
+				$finalItemsIds[] = $itemId;
+				if (count($finalItems) === $numItemsToShow) {
+					break;
 				}
 			}
-			else {
-				$finalItems = array_slice($finalItems, 0, $numItemsToShow);
-			}
-			return $finalItems;
-		});
+		}
+		else {
+			$finalItems = array_slice($finalItems, 0, $numItemsToShow);
+		}
+		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
+		Cache::put("promotedMediaItems", $finalItems, Config::get("custom.cache_time")+5);
 	}
 	
 	public static function getCachedRecentItems() {
