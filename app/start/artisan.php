@@ -10,6 +10,10 @@ use uk\co\la1tv\website\commands\SearchIndexCheckForItemsCommand;
 use uk\co\la1tv\website\commands\UpdateSearchIndexCommand;
 use uk\co\la1tv\website\commands\TriggerVODAvailableEventCommand;
 use uk\co\la1tv\website\commands\CheckFileStoreAvailabilityCommand;
+use uk\co\la1tv\website\commands\PopularItemsCacheUpdateCommand;
+use uk\co\la1tv\website\commands\RecentItemsCacheUpdateCommand;
+use uk\co\la1tv\website\commands\PromotedItemsCacheUpdateCommand;
+use uk\co\la1tv\website\commands\LiveItemsCacheUpdateCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,3 +37,7 @@ Artisan::add(new SearchIndexCheckForItemsCommand());
 Artisan::add(new UpdateSearchIndexCommand());
 Artisan::add(new TriggerVODAvailableEventCommand());
 Artisan::add(new CheckFileStoreAvailabilityCommand());
+Artisan::add(new PopularItemsCacheUpdateCommand());
+Artisan::add(new RecentItemsCacheUpdateCommand());
+Artisan::add(new PromotedItemsCacheUpdateCommand());
+Artisan::add(new LiveItemsCacheUpdateCommand());

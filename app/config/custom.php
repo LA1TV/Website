@@ -18,7 +18,11 @@ return array(
 	"live_stream_domains_cache_time"	=> 1,
 	"num_popular_items_to_cache"	=> 100,
 	"num_recent_items"	=> 8,
+	// time to cache reent items in minutes.
+	"recent_items_cache_time"	=> 2,
 	"num_popular_items"	=> 8,
+	// time to cache popular items in minutes.
+	"popular_items_cache_time"	=> 10,
 	"num_playlists_per_page"	=> 20,
 	"num_shows_per_page"	=> 20,
 	"min_number_of_views"	=> 100, // view counts will only be sent to the client when the sum of live stream + vod goes >= this number (unless logged in with media item view permission)
