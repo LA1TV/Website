@@ -400,27 +400,30 @@ class MediaItem extends MyEloquent {
 	
 	// returns an array of ("mediaItem", "generatedName")
 	public static function getCachedLiveItems() {
-		return Cache::remember('liveMediaItems', Config::get("custom.cache_time"), function() {
-			$mediaItems = self::accessible()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->whereHas("liveStreamItem", function($q) {
-				$q->accessible()->live();
-			})->get();
-			
-			$items = array();
-			foreach($mediaItems as $a) {
-				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $a->name;
-				if (!is_null($playlist->show)) {
-					$generatedName = $playlist->generateName() . ": " . $generatedName;
-				}
-				$uri = $playlist->getMediaItemUri($a);
-				$items[] = array(
-					"mediaItem"		=> $a,
-					"generatedName"	=> $generatedName,
-					"uri"			=> $uri
-				);
+		return Cache::get('liveMediaItems', array());
+	}
+
+	public static function generateCachedLiveItems() {
+		$mediaItems = self::accessible()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->whereHas("liveStreamItem", function($q) {
+			$q->accessible()->live();
+		})->get();
+		
+		$items = array();
+		foreach($mediaItems as $a) {
+			$playlist = $a->getDefaultPlaylist();
+			$generatedName = $a->name;
+			if (!is_null($playlist->show)) {
+				$generatedName = $playlist->generateName() . ": " . $generatedName;
 			}
-			return $items;
-		});
+			$uri = $playlist->getMediaItemUri($a);
+			$items[] = array(
+				"mediaItem"		=> $a,
+				"generatedName"	=> $generatedName,
+				"uri"			=> $uri
+			);
+		}
+		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
+		Cache::put("liveMediaItems", $items, Config::get("custom.cache_time")+5);
 	}
 	
 	public static function getCachedPromotedItems() {
