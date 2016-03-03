@@ -400,155 +400,165 @@ class MediaItem extends MyEloquent {
 	
 	// returns an array of ("mediaItem", "generatedName")
 	public static function getCachedLiveItems() {
-		return Cache::remember('liveMediaItems', Config::get("custom.cache_time"), function() {
-			$mediaItems = self::accessible()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->whereHas("liveStreamItem", function($q) {
-				$q->accessible()->live();
-			})->get();
-			
-			$items = array();
-			foreach($mediaItems as $a) {
-				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $a->name;
-				if (!is_null($playlist->show)) {
-					$generatedName = $playlist->generateName() . ": " . $generatedName;
-				}
-				$uri = $playlist->getMediaItemUri($a);
-				$items[] = array(
-					"mediaItem"		=> $a,
-					"generatedName"	=> $generatedName,
-					"uri"			=> $uri
-				);
+		return Cache::get('liveMediaItems', array());
+	}
+
+	public static function generateCachedLiveItems() {
+		$mediaItems = self::accessible()->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->whereHas("liveStreamItem", function($q) {
+			$q->accessible()->live();
+		})->get();
+		
+		$items = array();
+		foreach($mediaItems as $a) {
+			$playlist = $a->getDefaultPlaylist();
+			$generatedName = $a->name;
+			if (!is_null($playlist->show)) {
+				$generatedName = $playlist->generateName() . ": " . $generatedName;
 			}
-			return $items;
-		});
+			$uri = $playlist->getMediaItemUri($a);
+			$items[] = array(
+				"mediaItem"		=> $a,
+				"generatedName"	=> $generatedName,
+				"uri"			=> $uri
+			);
+		}
+		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
+		Cache::put("liveMediaItems", $items, Config::get("custom.cache_time")+5);
 	}
 	
 	public static function getCachedPromotedItems() {
-		return Cache::remember('promotedMediaItems', Config::get("custom.cache_time"), function() {
-			// retrieve y number of items in each direction, with items that are more than z time away excluded
-			// then ordered by time away from now ascending
-			// if shortage of content then most popular items will be appended to end to bring up to $numItemsToShow
-			$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
-			$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
-			$numItemsToShow = intval(Config::get("promoCarousel.numItemsToShow"));
-			
-			$now = Carbon::now();
-			$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
-			$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
-			
-			$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
-				$q->has("liveStreamItem", "=", 0)
-				->orWhereHas("liveStreamItem", function($q2) {
-					$q2->accessible()->showOver(false);
-				});
-			})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
-			
-			$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
-				$q->whereHas("videoItem", function($q2) {
-					$q2->live()->whereHas("sourceFile", function($q3) {
-						$q3->finishedProcessing();
-					});
-				})
-				->orWhereHas("liveStreamItem", function($q2) {
-					$q2->accessible()->where(function($q3) {
-						$q3->showOver(false);
-					})->orWhere(function($q3) {
-						$q3->showOver(true)->hasDvrRecording(true);
-					});
-				});
-			})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
+		return Cache::get('promotedMediaItems', array());
+	}
+
+	public static function generateCachedPromotedItems() {
+		// retrieve y number of items in each direction, with items that are more than z time away excluded
+		// then ordered by time away from now ascending
+		// if shortage of content then most popular items will be appended to end to bring up to $numItemsToShow
+		$itemTimeSpan = intval(Config::get("promoCarousel.itemTimeSpan")); // items further away than this time (seconds) should be excluded
+		$numItemsEachDirection = intval(Config::get("promoCarousel.numItemsEachDirection")); // number items to find in each direction
+		$numItemsToShow = intval(Config::get("promoCarousel.numItemsToShow"));
 		
-			$items = $pastItems->merge($futureItems);
-			$distances = array();
-			$finalItems = array();
-			$finalItemsIds = array();
-			$coverArtResolutions = Config::get("imageResolutions.coverArt");
-			foreach($items as $a) {
-				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $playlist->generateEpisodeTitle($a);
-				$uri = $playlist->getMediaItemUri($a);
+		$now = Carbon::now();
+		$futureCutOffDate = (new Carbon($now))->addSeconds($itemTimeSpan);
+		$pastCutOffDate = (new Carbon($now))->subSeconds($itemTimeSpan);
+		
+		$futureItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", ">=", $now)->where("scheduled_publish_time", "<", $futureCutOffDate)->where(function($q) {
+			$q->has("liveStreamItem", "=", 0)
+			->orWhereHas("liveStreamItem", function($q2) {
+				$q2->accessible()->showOver(false);
+			});
+		})->orderBy("scheduled_publish_time", "asc")->take($numItemsEachDirection)->get();
+		
+		$pastItems = self::with("liveStreamItem", "videoItem")->accessible()->where("scheduled_publish_time", "<", $now)->where("scheduled_publish_time", ">=", $pastCutOffDate)->where(function($q) {
+			$q->whereHas("videoItem", function($q2) {
+				$q2->live()->whereHas("sourceFile", function($q3) {
+					$q3->finishedProcessing();
+				});
+			})
+			->orWhereHas("liveStreamItem", function($q2) {
+				$q2->accessible()->where(function($q3) {
+					$q3->showOver(false);
+				})->orWhere(function($q3) {
+					$q3->showOver(true)->hasDvrRecording(true);
+				});
+			});
+		})->orderBy("scheduled_publish_time", "desc")->take($numItemsEachDirection)->get();
+	
+		$items = $pastItems->merge($futureItems);
+		$distances = array();
+		$finalItems = array();
+		$finalItemsIds = array();
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		foreach($items as $a) {
+			$playlist = $a->getDefaultPlaylist();
+			$generatedName = $playlist->generateEpisodeTitle($a);
+			$uri = $playlist->getMediaItemUri($a);
+			$finalItems[] = array(
+				"mediaItem"		=> $a,
+				"generatedName"	=> $generatedName,
+				"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
+				"uri"			=> $uri,
+				"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+			);
+			$finalItemsIds[] = intval($a->id);
+			$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
+		}
+		array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
+		if (count($finalItems) < $numItemsToShow) {
+			$popularItems = self::getCachedMostPopularItems();
+			foreach($popularItems as $a) {
+				$itemId = intval($a['mediaItem']->id);
+				if(in_array($itemId, $finalItemsIds)) {
+					// this item is already in the list
+					continue;
+				}
 				$finalItems[] = array(
-					"mediaItem"		=> $a,
-					"generatedName"	=> $generatedName,
-					"seriesName"	=> !is_null($playlist->show) ? $playlist->generateName() : null,
-					"uri"			=> $uri,
-					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
+					"mediaItem"		=> $a['mediaItem'],
+					"generatedName"	=> $a['generatedName'],
+					"seriesName"	=> !is_null($a['playlist']->show) ? $a['playlistName'] : null,
+					"uri"			=> $a['uri'],
+					"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
 				);
-				$finalItemsIds[] = intval($a->id);
-				$distances[] = abs($now->timestamp - $a->scheduled_publish_time->timestamp);
-			}
-			array_multisort($distances, SORT_NUMERIC, SORT_ASC, $finalItems);
-			if (count($finalItems) < $numItemsToShow) {
-				$popularItems = self::getCachedMostPopularItems();
-				foreach($popularItems as $a) {
-					$itemId = intval($a['mediaItem']->id);
-					if(in_array($itemId, $finalItemsIds)) {
-						// this item is already in the list
-						continue;
-					}
-					$finalItems[] = array(
-						"mediaItem"		=> $a['mediaItem'],
-						"generatedName"	=> $a['generatedName'],
-						"seriesName"	=> !is_null($a['playlist']->show) ? $a['playlistName'] : null,
-						"uri"			=> $a['uri'],
-						"coverArtUri"	=> $a['playlist']->getMediaItemCoverArtUri($a['mediaItem'], $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h'])
-					);
-					$finalItemsIds[] = $itemId;
-					if (count($finalItems) === $numItemsToShow) {
-						break;
-					}
+				$finalItemsIds[] = $itemId;
+				if (count($finalItems) === $numItemsToShow) {
+					break;
 				}
 			}
-			else {
-				$finalItems = array_slice($finalItems, 0, $numItemsToShow);
-			}
-			return $finalItems;
-		});
+		}
+		else {
+			$finalItems = array_slice($finalItems, 0, $numItemsToShow);
+		}
+		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
+		Cache::put("promotedMediaItems", $finalItems, Config::get("custom.cache_time")+5);
 	}
 	
 	public static function getCachedRecentItems() {
-		return Cache::remember('recentMediaItems', Config::get("custom.cache_time"), function() {
-			$numRecentItems = intval(Config::get("custom.num_recent_items"));
-			$mediaItems = self::accessible()->active()->whereHas("videoItem", function($q) {
-				$q->live()->whereHas("sourceFile", function($q2) {
-					$q2->finishedProcessing();
-				});
-			})->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numRecentItems)->get();
+		return Cache::get('recentMediaItems', array());
+	}
+
+	public static function generateCachedRecentItems() {
+		$numRecentItems = intval(Config::get("custom.num_recent_items"));
+		$mediaItems = self::accessible()->active()->whereHas("videoItem", function($q) {
+			$q->live()->whereHas("sourceFile", function($q2) {
+				$q2->finishedProcessing();
+			});
+		})->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numRecentItems)->get();
+		
+		$items = array();
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		foreach($mediaItems as $a) {
+			$playlist = $a->getDefaultPlaylist();
+			$generatedName = $playlist->generateEpisodeTitle($a);
+			$uri = $playlist->getMediaItemUri($a);
 			
-			$items = array();
-			$coverArtResolutions = Config::get("imageResolutions.coverArt");
-			foreach($mediaItems as $a) {
-				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $playlist->generateEpisodeTitle($a);
-				$uri = $playlist->getMediaItemUri($a);
-				
-				$playlistName = $playlist->generateName();
-				$items[] = array(
-					"playlist"		=> $playlist,
-					"mediaItem"		=> $a,
-					"generatedName"	=> $generatedName,
-					"playlistName"	=> $playlistName,
-					"duration"		=> PlaylistTableHelpers::getDuration($a),
-					"uri"			=> $uri,
-					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
-				);
-			}
-			return $items;
-		});
+			$playlistName = $playlist->generateName();
+			$items[] = array(
+				"playlist"		=> $playlist,
+				"mediaItem"		=> $a,
+				"generatedName"	=> $generatedName,
+				"playlistName"	=> $playlistName,
+				"duration"		=> PlaylistTableHelpers::getDuration($a),
+				"uri"			=> $uri,
+				"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
+			);
+		}
+		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
+		Cache::put("recentMediaItems", $items, Config::get("custom.recent_items_cache_time")+5);
 	}
 	
 	// the accessible media items with the most views
 	public static function getCachedMostPopularItems() {
-		return Cache::remember('mostPopularMediaItems', Config::get("custom.cache_time"), function() {
-			$numPopularItems = intval(Config::get("custom.num_popular_items"));
+		return Cache::get('mostPopularMediaItems', array());
+	}
 
-			// get ids for media items with ones with most views at the top
-			$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(constitutes_view) as view_count, media_item_id")->orderBy("view_count", "desc")->orderBy("id", "asc")->lists("media_item_id");
+	public static function generateCachedMostPopularItems() {
+		$numPopularItems = intval(Config::get("custom.num_popular_items"));
 
-			if (count($popularMediaItemIds) === 0) {
-				return array();
-			}
-			
+		// get ids for media items with ones with most views at the top
+		$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(constitutes_view) as view_count, media_item_id")->orderBy("view_count", "desc")->orderBy("id", "asc")->lists("media_item_id");
+
+		$items = array();
+		if (count($popularMediaItemIds) > 0) {
 			$tmp = "";
 			foreach($popularMediaItemIds as $i=>$a) {
 				if ($i > 0) {
@@ -558,7 +568,6 @@ class MediaItem extends MyEloquent {
 			}
 			$mediaItems = self::accessible()->whereIn("id", $popularMediaItemIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numPopularItems)->get();
 			
-			$items = array();
 			$coverArtResolutions = Config::get("imageResolutions.coverArt");
 			foreach($mediaItems as $a) {
 				$playlist = $a->getDefaultPlaylist();
@@ -576,8 +585,9 @@ class MediaItem extends MyEloquent {
 					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
 				);
 			}
-			return $items;
-		});
+		}
+		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
+		Cache::put("mostPopularMediaItems", $items, Config::get("custom.popular_items_cache_time")+5);
 	}
 	
 	// returns true if this media item should be accessible
