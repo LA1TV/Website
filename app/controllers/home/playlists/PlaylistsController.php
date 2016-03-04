@@ -44,7 +44,8 @@ class PlaylistsController extends HomeBaseController {
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> null,
 				"duration"				=> null,
-				"active"				=> false
+				"active"				=> false,
+				"stats"					=> null
 			);
 		}
 		

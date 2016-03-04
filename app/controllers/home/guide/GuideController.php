@@ -72,7 +72,8 @@ class GuideController extends HomeBaseController {
 						"isLive"	=> $isLive,
 						"dateTxt"	=> $item->scheduled_publish_time->format("H:i")
 					),
-					"active"				=> false
+					"active"				=> false,
+					"stats"					=> null
 				);
 			}
 			

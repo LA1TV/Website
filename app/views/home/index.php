@@ -30,7 +30,7 @@
 	<?php endif; ?>
 	<div class="row">
 		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
-		<div class="col-md-6">
+		<div class="col-md-7">
 		<?php endif; ?>
 			<div class="most-popular-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
 				<h2 class="heading">Most Popular</h2>
@@ -52,7 +52,7 @@
 		</div>
 		<?php endif; ?>
 		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
-		<div class="col-md-6">
+		<div class="col-md-5">
 			<?php if (!is_null($showFacebookWidget)): ?>
 			<div class="facebook-timeline-container" data-show-messages="0" data-page-url="<?=e($facebookPageUrl);?>" data-height="520"></div>
 			<?php endif; ?>

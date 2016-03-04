@@ -64,6 +64,7 @@ class HomeController extends HomeBaseController {
 			$promotedItemsData[] = array(
 				"coverArtUri"	=> $promoPlaylist->getMediaItemCoverArtUri($promoMediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']),
 				"name"			=> $promoMediaItem->name,
+				"escapedDescription"	=> !is_null($promoMediaItem->description) ? e($promoMediaItem->description) : null,
 				"seriesName"	=> !is_null($promoPlaylist->show) ? $promoPlaylist->generateName() : null,
 				"availableMsg"	=> $liveNow ? "Live Now!" : $this->buildTimeStr($isLiveShow, $promoMediaItem->scheduled_publish_time),
 				"uri"			=> $promoPlaylist->getMediaItemUri($promoMediaItem)
@@ -97,12 +98,13 @@ class HomeController extends HomeBaseController {
 				"uri"					=> $a['uri'],
 				"active"				=> false,
 				"title"					=> $mediaItem->name,
-				"escapedDescription"	=> null,
+				"escapedDescription"	=> !is_null($mediaItem->description) ? e($mediaItem->description) : null,
 				"playlistName"			=> $a['playlistName'],
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
-				"duration"				=> $a['duration']
+				"duration"				=> $a['duration'],
+				"stats"					=> null
 			);
 		}
 		
@@ -114,12 +116,13 @@ class HomeController extends HomeBaseController {
 				"uri"					=> $a['uri'],
 				"active"				=> false,
 				"title"					=> $mediaItem->name,
-				"escapedDescription"	=> null,
+				"escapedDescription"	=> !is_null($mediaItem->description) ? e($mediaItem->description) : null,
 				"playlistName"			=> $a['playlistName'],
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
-				"duration"				=> $a['duration']
+				"duration"				=> $a['duration'],
+				"stats"					=> null
 			);
 		}
 		
