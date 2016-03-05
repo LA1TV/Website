@@ -99,7 +99,7 @@ class PlayerController extends HomeBaseController {
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
 				"duration"				=> PlaylistTableHelpers::getDuration($item),
-				"stats"					=> null
+				"stats"					=> PlaylistTableHelpers::getStatsObj($item)
 			);
 			$newIndex++;
 		}
@@ -131,7 +131,7 @@ class PlayerController extends HomeBaseController {
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
 				"duration"				=> PlaylistTableHelpers::getDuration($item),
-				"stats"					=> null
+				"stats"					=> PlaylistTableHelpers::getStatsObj($item)
 			);
 		}
 

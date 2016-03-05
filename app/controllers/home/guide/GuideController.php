@@ -6,6 +6,7 @@ use Config;
 use Carbon;
 use URL;
 use App;
+use PlaylistTableHelpers;
 use uk\co\la1tv\website\models\MediaItem;
 
 class GuideController extends HomeBaseController {
@@ -73,7 +74,7 @@ class GuideController extends HomeBaseController {
 						"dateTxt"	=> $item->scheduled_publish_time->format("H:i")
 					),
 					"active"				=> false,
-					"stats"					=> null
+					"stats"					=> PlaylistTableHelpers::getStatsObj($item)
 				);
 			}
 			

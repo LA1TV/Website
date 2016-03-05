@@ -563,21 +563,11 @@ class MediaItem extends MyEloquent {
 
 	private static function generateMediaItemDataForCache($mediaItem) {
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		$a = $mediaItem;
 		$playlist = $a->getDefaultPlaylist();
 		$generatedName = $playlist->generateEpisodeTitle($a);
 		$uri = $playlist->getMediaItemUri($a);
 		$playlistName = $playlist->generateName();
-		$viewCount = PlaybackHistory::getViewCount(intval($a->id));
-		if ($viewCount < $minNumberOfViews) {
-			// too low to display
-			$viewCount = null;
-		}
-		$playlistFragmenData = array("stats" => array(
-			"viewCount"	=> $viewCount,
-			"numLikes"	=> $a->likes_enabled ? $a->likes()->where("is_like", true)->count() : null
-		));
 		return array(
 			"playlist"		=> $playlist,
 			"mediaItem"		=> $a,
@@ -586,7 +576,7 @@ class MediaItem extends MyEloquent {
 			"duration"		=> PlaylistTableHelpers::getDuration($a),
 			"uri"			=> $uri,
 			"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
-			"playlistFragment"	=> $playlistFragmenData
+			"playlistFragment"	=> array("stats" => PlaylistTableHelpers::getStatsObj($a))
 		);
 	}
 	

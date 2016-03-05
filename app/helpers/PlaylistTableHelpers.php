@@ -1,4 +1,5 @@
 <?php
+use uk\co\la1tv\website\models\PlaybackHistory;
 
 class PlaylistTableHelpers {
 	
@@ -24,5 +25,18 @@ class PlaylistTableHelpers {
 			return null;
 		}
 		return $videoItem->getDurationPretty();
+	}
+
+	public static function getStatsObj($mediaItem) {
+		$minNumberOfViews = Config::get("custom.min_number_of_views");
+		$viewCount = PlaybackHistory::getViewCount(intval($mediaItem->id));
+		if ($viewCount < $minNumberOfViews) {
+			// too low to display
+			$viewCount = null;
+		}
+		return array(
+			"viewCount"	=> $viewCount,
+			"numLikes"	=> $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", true)->count() : null
+		);
 	}
 }
