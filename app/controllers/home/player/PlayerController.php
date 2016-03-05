@@ -93,12 +93,13 @@ class PlayerController extends HomeBaseController {
 				"uri"					=> $playlist->getMediaItemUri($item),
 				"active"				=> $active,
 				"title"					=> $item->name,
-				"escapedDescription"	=> null,
+				"escapedDescription"	=> !is_null($item->description) ? e($item->description) : null,
 				"playlistName"			=> $playlistName,
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
-				"duration"				=> PlaylistTableHelpers::getDuration($item)
+				"duration"				=> PlaylistTableHelpers::getDuration($item),
+				"stats"					=> PlaylistTableHelpers::getStatsObj($item)
 			);
 			$newIndex++;
 		}
@@ -124,12 +125,13 @@ class PlayerController extends HomeBaseController {
 				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
 				"active"				=> false,
 				"title"					=> $item->name,
-				"escapedDescription"	=> null,
+				"escapedDescription"	=> !is_null($item->description) ? e($item->description) : null,
 				"playlistName"			=> $relatedItemPlaylist->generateName(),
 				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
-				"duration"				=> PlaylistTableHelpers::getDuration($item)
+				"duration"				=> PlaylistTableHelpers::getDuration($item),
+				"stats"					=> PlaylistTableHelpers::getStatsObj($item)
 			);
 		}
 
