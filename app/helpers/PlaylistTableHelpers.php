@@ -34,9 +34,18 @@ class PlaylistTableHelpers {
 			// too low to display
 			$viewCount = null;
 		}
+
+		$numLikes = null;
+		if ($mediaItem->likes_enabled) {
+			$numLikes = $mediaItem->likes()->where("is_like", true)->count();
+			if ($numLikes === 0) {
+				$numLikes = null;
+			}
+		}
+
 		return array(
 			"viewCount"	=> $viewCount,
-			"numLikes"	=> $mediaItem->likes_enabled ? $mediaItem->likes()->where("is_like", true)->count() : null
+			"numLikes"	=> $numLikes
 		);
 	}
 }
