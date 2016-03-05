@@ -1,4 +1,4 @@
-<div class="playlist-element  <?=!is_null($headerRowData)?"with-buttons":""?>">
+<div class="playlist-element  <?=!is_null($headerRowData)?"with-header":""?>">
 	<?php if (!is_null($headerRowData)): ?>
 	<div class="button-row clearfix">
 		<div class="buttons">
@@ -31,54 +31,56 @@
 	</div>
 	<?php endif; ?>
 	<div class="playlist-table-container">
-		<table class="playlist-table table table-hover">
-			<tbody>
-				<?php foreach($tableData as $row):?>
-				<tr class="<?=$row['active'] ? "chosen" : ""?> zoom-animation-container" data-link="<?=e($row['uri']);?>">
-					<?php if (!is_null($row['episodeNo'])): ?>
-					<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
-					<?php endif; ?>
-					<td class="col-thumbnail" data-thumbnailuri="<?=e($row['thumbnailUri']);?>">
-						<div class="height-helper"></div>
-						<div class="image-container">
-							<div class="image-holder zoom-animation"></div>
-						</div>
-						<?php if (!is_null($row['thumbnailFooter'])): ?>
-						<div class="footer">
-							<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
-							<div><?=e($row['thumbnailFooter']['dateTxt']);?></div>
-						</div>
-						<?php elseif(!is_null($row['duration'])): ?>
-						<div class="duration"><?=e($row['duration']);?></div>
+		<div class="playlist-list">
+			<?php foreach($tableData as $row):?>
+			<table class="playlist-table table table-hover">
+				<tbody>
+					<tr class="<?=$row['active'] ? "chosen" : ""?> zoom-animation-container" data-link="<?=e($row['uri']);?>">
+						<?php if (!is_null($row['episodeNo'])): ?>
+						<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
 						<?php endif; ?>
-						<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
-					</td>
-					<td class="col-title clearfix">
-						<div class="title"><?=e($row['title']);?></div>
-						<?php if (!is_null($row['stats'])): ?>
-						<div class="stats-bar">
-							<?php if (!is_null($row['stats']['viewCount'])): ?>
-							<div class="item">
-								<span class="glyphicon glyphicon-eye-open"></span> <?=e($row['stats']['viewCount'])?> <?=$row['stats']['viewCount'] !== 1 ? "views" : "view"?>
+						<td class="col-thumbnail" data-thumbnailuri="<?=e($row['thumbnailUri']);?>">
+							<div class="height-helper"></div>
+							<div class="image-container">
+								<div class="image-holder zoom-animation"></div>
+							</div>
+							<?php if (!is_null($row['thumbnailFooter'])): ?>
+							<div class="footer">
+								<div><?=$row['thumbnailFooter']['isLive']?"Live":"Available"?></div>
+								<div><?=e($row['thumbnailFooter']['dateTxt']);?></div>
+							</div>
+							<?php elseif(!is_null($row['duration'])): ?>
+							<div class="duration"><?=e($row['duration']);?></div>
+							<?php endif; ?>
+							<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
+						</td>
+						<td class="col-title clearfix">
+							<div class="title"><?=e($row['title']);?></div>
+							<?php if (!is_null($row['stats'])): ?>
+							<div class="stats-bar">
+								<?php if (!is_null($row['stats']['viewCount'])): ?>
+								<div class="item">
+									<span class="glyphicon glyphicon-eye-open"></span> <?=e($row['stats']['viewCount'])?> <?=$row['stats']['viewCount'] !== 1 ? "views" : "view"?>
+								</div>
+								<?php endif; ?>
+								<?php if (!is_null($row['stats']['numLikes'])): ?>
+								<div class="item">
+									<span class="glyphicon glyphicon-thumbs-up"></span> <?=e($row['stats']['numLikes'])?> <?=$row['stats']['numLikes'] !== 1 ? "likes" : "like"?>
+								</div>
+								<?php endif; ?>
 							</div>
 							<?php endif; ?>
-							<?php if (!is_null($row['stats']['numLikes'])): ?>
-							<div class="item">
-								<span class="glyphicon glyphicon-thumbs-up"></span> <?=e($row['stats']['numLikes'])?> <?=$row['stats']['numLikes'] !== 1 ? "likes" : "like"?>
-							</div>
+							<?php if (!is_null($row['escapedDescription'])): ?>
+							<div class="description"><?=$row['escapedDescription'];?></div>
 							<?php endif; ?>
-						</div>
-						<?php endif; ?>
-						<?php if (!is_null($row['escapedDescription'])): ?>
-						<div class="description"><?=$row['escapedDescription'];?></div>
-						<?php endif; ?>
-						<?php if (!is_null($row['playlistName'])): ?>
-						<div class="subtitle-filler"><?=e($row['playlistName']);?></div>
-						<div class="subtitle"><?=e($row['playlistName']);?></div>
-						<?php endif; ?>
-					</td>
-				</tr>
-				<?php endforeach; ?>
-		</table>
+							<?php if (!is_null($row['playlistName'])): ?>
+							<div class="subtitle-filler"><?=e($row['playlistName']);?></div>
+							<div class="subtitle"><?=e($row['playlistName']);?></div>
+							<?php endif; ?>
+						</td>
+					</tr>
+			</table>
+			<?php endforeach; ?>
+		</div>
 	</div>
 </div>

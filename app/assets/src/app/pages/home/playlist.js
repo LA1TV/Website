@@ -3,9 +3,9 @@ require("app/pages/home/playlist-element.css");
 
 $(document).ready(function() {
 	$(".playlist-element").each(function() {
-		var $table = $(this).find(".playlist-table").first();
+		var $list = $(this).find(".playlist-list").first();
 		// make the entire row a link to the item using the link on the thumbnail
-		$table.find("tbody").find("tr").each(function() {
+		$list.find("table").find("tr").each(function() {
 			
 			var $imageHolder = null;
 			
