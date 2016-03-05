@@ -54,9 +54,6 @@
 						<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
 					</td>
 					<td class="col-title clearfix">
-						<?php if (!is_null($row['playlistName'])): ?>
-						<div class="subtitle"><?=e($row['playlistName']);?></div>
-						<?php endif; ?>
 						<div class="title"><?=e($row['title']);?></div>
 						<?php if (!is_null($row['stats'])): ?>
 						<div class="stats-bar">
@@ -74,6 +71,10 @@
 						<?php endif; ?>
 						<?php if (!is_null($row['escapedDescription'])): ?>
 						<div class="description"><?=$row['escapedDescription'];?></div>
+						<?php endif; ?>
+						<?php if (!is_null($row['playlistName'])): ?>
+						<div class="subtitle-filler"><?=e($row['playlistName']);?></div>
+						<div class="subtitle"><?=e($row['playlistName']);?></div>
 						<?php endif; ?>
 					</td>
 				</tr>

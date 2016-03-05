@@ -104,7 +104,7 @@ class HomeController extends HomeBaseController {
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
 				"duration"				=> $a['duration'],
-				"stats"					=> null
+				"stats"					=> $a['playlistFragment']['stats']
 			);
 		}
 		
@@ -122,7 +122,7 @@ class HomeController extends HomeBaseController {
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
 				"duration"				=> $a['duration'],
-				"stats"					=> null
+				"stats"					=> $a['playlistFragment']['stats']
 			);
 		}
 		

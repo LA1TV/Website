@@ -525,22 +525,8 @@ class MediaItem extends MyEloquent {
 		})->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numRecentItems)->get();
 		
 		$items = array();
-		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		foreach($mediaItems as $a) {
-			$playlist = $a->getDefaultPlaylist();
-			$generatedName = $playlist->generateEpisodeTitle($a);
-			$uri = $playlist->getMediaItemUri($a);
-			
-			$playlistName = $playlist->generateName();
-			$items[] = array(
-				"playlist"		=> $playlist,
-				"mediaItem"		=> $a,
-				"generatedName"	=> $generatedName,
-				"playlistName"	=> $playlistName,
-				"duration"		=> PlaylistTableHelpers::getDuration($a),
-				"uri"			=> $uri,
-				"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
-			);
+			$items[] = self::generateMediaItemDataForCache($a);
 		}
 		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
 		Cache::put("recentMediaItems", $items, Config::get("custom.recent_items_cache_time")+5);
@@ -567,27 +553,41 @@ class MediaItem extends MyEloquent {
 				$tmp .= "'".$a."'";
 			}
 			$mediaItems = self::accessible()->whereIn("id", $popularMediaItemIds)->orderBy(DB::raw("FIELD(id,".$tmp.")"), "asc")->orderBy("scheduled_publish_time", "desc")->orderBy("name", "asc")->take($numPopularItems)->get();
-			
-			$coverArtResolutions = Config::get("imageResolutions.coverArt");
 			foreach($mediaItems as $a) {
-				$playlist = $a->getDefaultPlaylist();
-				$generatedName = $playlist->generateEpisodeTitle($a);
-				$uri = $playlist->getMediaItemUri($a);
-				
-				$playlistName = $playlist->generateName();
-				$items[] = array(
-					"playlist"		=> $playlist,
-					"mediaItem"		=> $a,
-					"generatedName"	=> $generatedName,
-					"playlistName"	=> $playlistName,
-					"duration"		=> PlaylistTableHelpers::getDuration($a),
-					"uri"			=> $uri,
-					"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h'])
-				);
+				$items[] = self::generateMediaItemDataForCache($a);
 			}
 		}
 		// expire after +5 for some leeway. The cron should run at the custom.popular_items_cache_time interval
 		Cache::put("mostPopularMediaItems", $items, Config::get("custom.popular_items_cache_time")+5);
+	}
+
+	private static function generateMediaItemDataForCache($mediaItem) {
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		$minNumberOfViews = Config::get("custom.min_number_of_views");
+		$a = $mediaItem;
+		$playlist = $a->getDefaultPlaylist();
+		$generatedName = $playlist->generateEpisodeTitle($a);
+		$uri = $playlist->getMediaItemUri($a);
+		$playlistName = $playlist->generateName();
+		$viewCount = PlaybackHistory::getViewCount(intval($a->id));
+		if ($viewCount < $minNumberOfViews) {
+			// too low to display
+			$viewCount = null;
+		}
+		$playlistFragmenData = array("stats" => array(
+			"viewCount"	=> $viewCount,
+			"numLikes"	=> $a->likes_enabled ? $a->likes()->where("is_like", true)->count() : null
+		));
+		return array(
+			"playlist"		=> $playlist,
+			"mediaItem"		=> $a,
+			"generatedName"	=> $generatedName,
+			"playlistName"	=> $playlistName,
+			"duration"		=> PlaylistTableHelpers::getDuration($a),
+			"uri"			=> $uri,
+			"coverArtUri"	=> $playlist->getMediaItemCoverArtUri($a, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
+			"playlistFragment"	=> $playlistFragmenData
+		);
 	}
 	
 	// returns true if this media item should be accessible

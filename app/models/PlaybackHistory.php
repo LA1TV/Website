@@ -58,6 +58,10 @@ class PlaybackHistory extends MyEloquent {
 		return SmartCache::get($key, $seconds, $closure);
 	}
 
+	public static function getViewCount($mediaItemId) {
+		return self::getVodViewCount($mediaItemId) + self::getStreamViewCount($mediaItemId);
+	}
+
 	public static function getNumWatchingNow($mediaItemId) {
 		$key = "numWatchingNow.".$mediaItemId;
 		// cache for 12 seconds (renew in background when 6 seconds old)
