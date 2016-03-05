@@ -32,6 +32,7 @@
 	background-color: #ffffff;
 	table-layout: fixed;
 	border-style: none;
+	margin-bottom: 0;
 }
 
 .playlist-element .playlist-list .playlist-table tbody tr {
