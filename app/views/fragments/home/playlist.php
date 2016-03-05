@@ -1,4 +1,4 @@
-<div class="playlist-element">
+<div class="playlist-element  <?=!is_null($headerRowData)?"with-buttons":""?>">
 	<?php if (!is_null($headerRowData)): ?>
 	<div class="button-row clearfix">
 		<div class="buttons">
@@ -31,7 +31,7 @@
 	</div>
 	<?php endif; ?>
 	<div class="playlist-table-container">
-		<table class="playlist-table table table-bordered <?=$stripedTable?"table-striped":""?> table-hover">
+		<table class="playlist-table table table-hover">
 			<tbody>
 				<?php foreach($tableData as $row):?>
 				<tr class="<?=$row['active'] ? "chosen" : ""?> zoom-animation-container" data-link="<?=e($row['uri']);?>">
@@ -54,12 +54,27 @@
 						<a class="hyperlink" href="<?=e($row['uri']);?>"></a>
 					</td>
 					<td class="col-title clearfix">
-						<?php if (!is_null($row['playlistName'])): ?>
-						<div class="subtitle"><span class="label label-info"><?=e($row['playlistName']);?></span></div>
-						<?php endif; ?>
 						<div class="title"><?=e($row['title']);?></div>
+						<?php if (!is_null($row['stats'])): ?>
+						<div class="stats-bar">
+							<?php if (!is_null($row['stats']['viewCount'])): ?>
+							<div class="item">
+								<span class="glyphicon glyphicon-eye-open"></span> <?=e($row['stats']['viewCount'])?> <?=$row['stats']['viewCount'] !== 1 ? "views" : "view"?>
+							</div>
+							<?php endif; ?>
+							<?php if (!is_null($row['stats']['numLikes'])): ?>
+							<div class="item">
+								<span class="glyphicon glyphicon-thumbs-up"></span> <?=e($row['stats']['numLikes'])?> <?=$row['stats']['numLikes'] !== 1 ? "likes" : "like"?>
+							</div>
+							<?php endif; ?>
+						</div>
+						<?php endif; ?>
 						<?php if (!is_null($row['escapedDescription'])): ?>
 						<div class="description"><?=$row['escapedDescription'];?></div>
+						<?php endif; ?>
+						<?php if (!is_null($row['playlistName'])): ?>
+						<div class="subtitle-filler"><?=e($row['playlistName']);?></div>
+						<div class="subtitle"><?=e($row['playlistName']);?></div>
 						<?php endif; ?>
 					</td>
 				</tr>
