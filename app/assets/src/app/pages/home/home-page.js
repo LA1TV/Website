@@ -69,8 +69,8 @@ $(document).ready(function() {
 				var registerLikeUri = $(this).attr("data-register-like-uri");
 				var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 				var loginRequiredMsg = $(this).attr("data-login-required-msg");
-				var autoPlayVod = true;
-				var autoPlayStream = true;
+				var autoPlayVod = false;
+				var autoPlayStream = false;
 				var vodPlayStartTime = null;
 				var ignoreExternalStreamUrl = true;
 				var initialVodQualityId = null;

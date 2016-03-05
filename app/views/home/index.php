@@ -54,10 +54,10 @@
 		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		<div class="col-md-5">
 			<?php if (!is_null($showFacebookWidget)): ?>
-			<div class="facebook-timeline-container" data-show-messages="0" data-page-url="<?=e($facebookPageUrl);?>" data-height="520"></div>
+			<div class="facebook-timeline-container" data-show-messages="0" data-page-url="<?=e($facebookPageUrl);?>" data-height="620"></div>
 			<?php endif; ?>
 			<?php if (!is_null($twitterWidgetId)): ?>
-			<div class="twitter-timeline-container" data-twitter-widget-height="520" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
+			<div class="twitter-timeline-container" data-twitter-widget-height="620" data-twitter-widget-id="<?=e($twitterWidgetId);?>"></div>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>

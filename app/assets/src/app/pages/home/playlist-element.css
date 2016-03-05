@@ -23,48 +23,58 @@
 	font-size: 25px;
 }
 
-.playlist-element .playlist-table {
+.playlist-element.with-header .playlist-list {
+	border: 1px solid #ddd;
+	border-top-style: none;
+}
+
+.playlist-element .playlist-list .playlist-table {
 	background-color: #ffffff;
 	table-layout: fixed;
-	margin: 0;
+	border-style: none;
+	margin: 2px 0;
 }
 
-.playlist-element.with-buttons .playlist-table {
-	border: 1px solid #ddd;
+.playlist-element .playlist-list .playlist-table:first-child {
+	margin-top: 0;
 }
 
-.playlist-element .playlist-table tbody tr {
+.playlist-element .playlist-list .playlist-table:last-child {
+	margin-bottom: 0;
+}
+
+.playlist-element .playlist-list .playlist-table tbody tr {
 	cursor: pointer;
 }
 
-.playlist-element .playlist-table tr.chosen td {
+.playlist-element .playlist-list .playlist-table tr.chosen td {
 	background-color: #9C0000;
 	color: #ffffff;
 }
 
-.playlist-element .playlist-table tr td {
+.playlist-element .playlist-list .playlist-table tr td {
 	word-wrap: break-word;
 	vertical-align: middle;
 	font-size: 17px;
 	border-top-style: none;
 }
 
-.playlist-element .playlist-table td, .playlist-element .playlist-table .col-title .subtitle {
+.playlist-element .playlist-list .playlist-table td, .playlist-element .playlist-list .playlist-table .col-title .subtitle {
 	padding: 3px 8px;
 }
 
-.playlist-element .playlist-table .col-episode-no {
+.playlist-element .playlist-list .playlist-table .col-episode-no {
 	width: 55px;
 	text-align: right;
 }
 
-.playlist-element .playlist-table .col-thumbnail {
+.playlist-element .playlist-list .playlist-table .col-thumbnail {
 	width: 107px;
 	padding: 0;
 	position: relative;
 }
 
-.playlist-element .playlist-table .col-thumbnail .image-container, .playlist-element .playlist-table .col-thumbnail .image-container .image-holder {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .image-container, .playlist-element .playlist-list .playlist-table .col-thumbnail .image-container .image-holder {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -72,11 +82,11 @@
 	bottom: 0;
 }
 
-.playlist-element .playlist-table .col-thumbnail .image-container {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .image-container {
 	overflow: hidden;
 }
 
-.playlist-element .playlist-table .col-thumbnail .image-container .image-holder {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .image-container .image-holder {
 	background-color: #000000 !important;
 	background-repeat: no-repeat;
 	background-attachment: scroll;
@@ -84,11 +94,11 @@
 	background-size: cover;
 }
 
-.playlist-element .playlist-table .col-thumbnail .height-helper {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .height-helper {
 	min-height: 60px;
 }
 
-.playlist-element .playlist-table .col-thumbnail .hyperlink {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .hyperlink {
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -96,7 +106,7 @@
 	right: 0;
 }
 
-.playlist-element .playlist-table .col-thumbnail .footer {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .footer {
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -110,7 +120,7 @@
 	overflow: auto;
 }
 
-.playlist-element .playlist-table .col-thumbnail .duration {
+.playlist-element .playlist-list .playlist-table .col-thumbnail .duration {
 	position: absolute;
 	bottom: 0;
 	right: 0;
@@ -121,23 +131,23 @@
 	text-align: center;
 }
 
-.playlist-element .playlist-table .col-title {
+.playlist-element .playlist-list .playlist-table .col-title {
 	width: 100%;
 	position: relative;
 	vertical-align: top;
 }
 
 
-.playlist-element .playlist-table .col-title .title {
+.playlist-element .playlist-list .playlist-table .col-title .title {
 	font-weight: bold;
 }
 
-.playlist-element .playlist-table .col-title .subtitle-filler {
+.playlist-element .playlist-list .playlist-table .col-title .subtitle-filler {
 	visibility: hidden;
 	margin-top: 3px;
 }
 
-.playlist-element .playlist-table .col-title .subtitle {
+.playlist-element .playlist-list .playlist-table .col-title .subtitle {
 	display: inline-block;
 	position: absolute;
 	right: 0;
@@ -145,7 +155,7 @@
 	bottom: 0;
 }
 
-.playlist-element .playlist-table .col-title .subtitle, .playlist-element .playlist-table .col-title .subtitle-filler {
+.playlist-element .playlist-list .playlist-table .col-title .subtitle, .playlist-element .playlist-list .playlist-table .col-title .subtitle-filler {
 	white-space: nowrap;
 	text-align: right;
 	overflow: hidden;
@@ -153,22 +163,22 @@
 	font-style: italic;
 }
 
-.playlist-element .playlist-table .col-title .stats-bar {
+.playlist-element .playlist-list .playlist-table .col-title .stats-bar {
 	font-size: 12px;
 	margin-bottom: 3px;
 	display: none; /* enabled with @media query below if screen big enough */
 }
 
-.playlist-element .playlist-table .col-title .stats-bar .item {
+.playlist-element .playlist-list .playlist-table .col-title .stats-bar .item {
 	display: inline-block;
 	margin-right: 3px;
 }
 
-.playlist-element .playlist-table .col-title .stats-bar .item:last-child {
+.playlist-element .playlist-list .playlist-table .col-title .stats-bar .item:last-child {
 	margin-right: 0;
 }
 
-.playlist-element .playlist-table .col-title .description {
+.playlist-element .playlist-list .playlist-table .col-title .description {
 	display: none; /* enabled with @media query below if screen big enough */
 	font-size: 13px;
 	text-overflow: ellipsis;
@@ -178,19 +188,19 @@
 }
 
 @media (min-width: 530px) {
-	.playlist-element .playlist-table .col-thumbnail {
+	.playlist-element .playlist-list .playlist-table .col-thumbnail {
 		width: 155px;
 	}
 
-	.playlist-element .playlist-table .col-title .stats-bar {
+	.playlist-element .playlist-list .playlist-table .col-title .stats-bar {
 		display: block;
 	}
 
-	.playlist-element .playlist-table .col-title .description {
+	.playlist-element .playlist-list .playlist-table .col-title .description {
 		display: -webkit-box;
 	}
 	
-	.playlist-element .playlist-table .col-thumbnail .height-helper {
+	.playlist-element .playlist-list .playlist-table .col-thumbnail .height-helper {
 		min-height: 75px;
 	}
 }
