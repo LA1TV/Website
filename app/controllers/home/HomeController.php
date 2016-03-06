@@ -100,7 +100,7 @@ class HomeController extends HomeBaseController {
 				"title"					=> $mediaItem->name,
 				"escapedDescription"	=> !is_null($mediaItem->description) ? e($mediaItem->description) : null,
 				"playlistName"			=> $a['playlistName'],
-				"episodeNo"				=> $i+1,
+				"episodeNo"				=> null, // don't show numbers
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
 				"duration"				=> $a['duration'],
@@ -118,7 +118,7 @@ class HomeController extends HomeBaseController {
 				"title"					=> $mediaItem->name,
 				"escapedDescription"	=> !is_null($mediaItem->description) ? e($mediaItem->description) : null,
 				"playlistName"			=> $a['playlistName'],
-				"episodeNo"				=> $i+1,
+				"episodeNo"				=> null, // don't show numbers
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
 				"duration"				=> $a['duration'],
