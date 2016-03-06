@@ -28,24 +28,28 @@ class PlaylistTableHelpers {
 	}
 
 	public static function getStatsObj($mediaItem) {
-		$minNumberOfViews = Config::get("custom.min_number_of_views");
-		$viewCount = PlaybackHistory::getViewCount(intval($mediaItem->id));
-		if ($viewCount < $minNumberOfViews) {
-			// too low to display
-			$viewCount = null;
-		}
-
-		$numLikes = null;
-		if ($mediaItem->likes_enabled) {
-			$numLikes = $mediaItem->likes()->where("is_like", true)->count();
-			if ($numLikes === 0) {
-				$numLikes = null;
+		$mediaItemId = intval($mediaItem->id);
+		// cache for 10 minutes
+		return Cache::remember("playlistTableHelpers.statsObj.".$mediaItemId, 10, function() use (&$mediaItemId, &$mediaItem) {
+			$minNumberOfViews = Config::get("custom.min_number_of_views");
+			$viewCount = PlaybackHistory::getViewCount($mediaItemId);
+			if ($viewCount < $minNumberOfViews) {
+				// too low to display
+				$viewCount = null;
 			}
-		}
 
-		return array(
-			"viewCount"	=> $viewCount,
-			"numLikes"	=> $numLikes
-		);
+			$numLikes = null;
+			if ($mediaItem->likes_enabled) {
+				$numLikes = $mediaItem->likes()->where("is_like", true)->count();
+				if ($numLikes === 0) {
+					$numLikes = null;
+				}
+			}
+
+			return array(
+				"viewCount"	=> $viewCount,
+				"numLikes"	=> $numLikes
+			);
+		});
 	}
 }
