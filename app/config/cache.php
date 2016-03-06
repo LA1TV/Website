@@ -15,7 +15,7 @@ return array(
 	|
 	*/
 
-	// loaded in filters.php
+	// loaded in global.php
 	'driver' => 'redisSynchronized',
 
 	/*
