@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Cache\RedisStore;
+use uk\co\la1tv\website\extensions\cache\SynchronizedRepository;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +71,13 @@ App::error(function(Illuminate\Session\TokenMismatchException $exception) {
 App::down(function()
 {
 	return DebugHelpers::generateMaintenanceModeResponse();
+});
+
+
+// add the redisSynchronized cache driver
+Cache::extend('redisSynchronized', function($app) {
+	$redis = $app['redis'];
+	return new SynchronizedRepository(new RedisStore($redis, $app['config']['cache.prefix']));
 });
 
 /*
