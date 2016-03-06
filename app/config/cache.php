@@ -15,7 +15,8 @@ return array(
 	|
 	*/
 
-	'driver' => 'memcached',
+	// loaded in filters.php
+	'driver' => 'redisSynchronized',
 
 	/*
 	|--------------------------------------------------------------------------
