@@ -90,7 +90,7 @@ class HomeController extends HomeBaseController {
 		
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
-		$recentlyAddedItems = MediaItem::getCachedRecentItems();
+		$recentlyAddedItems = array_slice(MediaItem::getCachedRecentItems(), 0, 5);
 		$recentlyAddedTableData = array();
 		foreach($recentlyAddedItems as $i=>$a) {
 			$mediaItem = $a['mediaItem'];
@@ -100,7 +100,7 @@ class HomeController extends HomeBaseController {
 				"title"					=> $mediaItem->name,
 				"escapedDescription"	=> !is_null($mediaItem->description) ? e($mediaItem->description) : null,
 				"playlistName"			=> $a['playlistName'],
-				"episodeNo"				=> $i+1,
+				"episodeNo"				=> null, // don't show numbers
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
 				"duration"				=> $a['duration'],
@@ -108,7 +108,7 @@ class HomeController extends HomeBaseController {
 			);
 		}
 		
-		$mostPopularItems = MediaItem::getCachedMostPopularItems();
+		$mostPopularItems = array_slice(MediaItem::getCachedMostPopularItems(), 0, 5);
 		$mostPopularTableData = array();
 		foreach($mostPopularItems as $i=>$a) {
 			$mediaItem = $a['mediaItem'];
@@ -118,7 +118,7 @@ class HomeController extends HomeBaseController {
 				"title"					=> $mediaItem->name,
 				"escapedDescription"	=> !is_null($mediaItem->description) ? e($mediaItem->description) : null,
 				"playlistName"			=> $a['playlistName'],
-				"episodeNo"				=> $i+1,
+				"episodeNo"				=> null, // don't show numbers
 				"thumbnailUri"			=> $a['coverArtUri'],
 				"thumbnailFooter"		=> null,
 				"duration"				=> $a['duration'],

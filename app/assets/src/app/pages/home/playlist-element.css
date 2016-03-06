@@ -57,7 +57,9 @@
 
 .playlist-element .playlist-list .playlist-table .col-episode-no {
 	width: 55px;
-	text-align: right;
+	text-align: center;
+	font-size: 23px;
+	font-weight: bold;
 }
 
 .playlist-element .playlist-list .playlist-table .col-thumbnail {

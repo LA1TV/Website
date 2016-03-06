@@ -37,7 +37,7 @@
 				<tbody>
 					<tr class="<?=$row['active'] ? "chosen" : ""?> zoom-animation-container" data-link="<?=e($row['uri']);?>">
 						<?php if (!is_null($row['episodeNo'])): ?>
-						<td class="col-episode-no"><?=e($row['episodeNo'])?>.</td>
+						<td class="col-episode-no"><?=e($row['episodeNo'])?></td>
 						<?php endif; ?>
 						<td class="col-thumbnail" data-thumbnailuri="<?=e($row['thumbnailUri']);?>">
 							<div class="height-helper"></div>

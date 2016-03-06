@@ -1,5 +1,6 @@
 <?php
-
+use Illuminate\Cache\RedisStore;
+use uk\co\la1tv\website\extensions\cache\SynchronizedRepository;
 use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiException;
 use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedException;
 
@@ -15,6 +16,12 @@ use uk\co\la1tv\website\serviceProviders\apiAuth\exceptions\ApiNotAuthenticatedE
 */
 App::before(function($request)
 {
+	// add the redisSynchronized driver
+	Cache::extend('redisSynchronized', function($app) {
+		$redis = $app['redis'];
+		return new SynchronizedRepository(new RedisStore($redis, $app['config']['cache.prefix']));
+	});
+
 	// determine if degraded mode should be enabled
 	if (Redis::get("fileStoreUnavailable")) {
 		// automatically enable if filestore not accessible
