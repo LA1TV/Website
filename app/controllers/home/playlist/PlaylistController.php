@@ -48,10 +48,10 @@ class PlaylistController extends HomeBaseController {
 			}
 			$playlistTableData[] = array(
 				"uri"					=> $playlist->getMediaItemUri($item),
-				"title"					=> $playlist->generateEpisodeTitle($item),
+				"title"					=> $item->name,
 				"escapedDescription"	=> !is_null($item->description) ? e($item->description) : null,
 				"playlistName"			=> $playlistName,
-				"episodeNo"				=> is_null($playlist->show) ? $i+1 : null,
+				"episodeNo"				=> $i+1,
 				"thumbnailUri"			=> $thumbnailUri,
 				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
 				"duration"				=> PlaylistTableHelpers::getDuration($item),
