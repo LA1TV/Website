@@ -55,37 +55,31 @@ class Show extends MyEloquent {
 		return URL::route('show', array($this->id));
 	}
 	
-	// returns the cover from the highest series that has one, or null otherwise
+	// returns the cover from the latest series, or null otherwise
 	public function getCoverUri($width, $height) {
-		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
-			$coverUri = $a->getCoverUri($width, $height);
-			if (!is_null($coverUri)) {
-				return $coverUri;
-			}
+		$playlist = $this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->first();
+		if (is_null($playlist)) {
+			return null;
 		}
-		return null;
+		return $playlist->getCoverUri($width, $height);
 	}
 	
-	// returns the side banner from the highest series that has one, or null otherwise
+	// returns the side banner from the latest series
 	public function getSideBannerUri($width, $height) {
-		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
-			$sideBannerUri = $a->getSideBannerUri($width, $height);
-			if (!is_null($sideBannerUri)) {
-				return $sideBannerUri;
-			}
+		$playlist = $this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->first();
+		if (is_null($playlist)) {
+			return null;
 		}
-		return null;
+		return $playlist->getSideBannerUri($width, $height);
 	}
 	
-	// returns the side banner fill from the highest series that has one, or null otherwise
+	// returns the side banner fill from the latest series
 	public function getSideBannerFillUri($width, $height) {
-		foreach($this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->get() as $a) {
-			$sideBannerFillUri = $a->getSideBannerFillUri($width, $height);
-			if (!is_null($sideBannerFillUri)) {
-				return $sideBannerFillUri;
-			}
+		$playlist = $this->playlists()->accessibleToPublic()->orderBy("series_no", "desc")->first();
+		if (is_null($playlist)) {
+			return null;
 		}
-		return null;
+		return $playlist->getSideBannerFillUri($width, $height);
 	}
 	
 	// returns the cover art from the highest series that has one, or the default cover otherwise
