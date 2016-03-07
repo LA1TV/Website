@@ -281,51 +281,55 @@ class MediaItem extends MyEloquent {
 		$user = Facebook::getUser();
 		$now = Carbon::now();
 
-		// entries in the db with constitutes_view as true will be counted as a view
-		$constitutesView = false;
+		DB::transaction(function() use (&$playing, &$type, &$time, &$sessionId, &$user, &$now) {
 
-		if ($playing) {
-			$intervalBetweenViewCounts = Config::get("custom.interval_between_registering_view_counts") * 60;
-			// register as a view if $intervalBetweenViewCounts has passed since the content was last playing
-			// filter it by the $type. This means if the player switches from stream to vod, the vod will get views at the switch point
-			$latestPlayingPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->where("type", $type)->where("playing", true)->first();
-			if (is_null($latestPlayingPlaybackHistory) || $latestPlayingPlaybackHistory->created_at->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
-				$constitutesView = true;
+			// entries in the db with constitutes_view as true will be counted as a view
+			$constitutesView = false;
+
+			if ($playing) {
+				$intervalBetweenViewCounts = Config::get("custom.interval_between_registering_view_counts") * 60;
+				// register as a view if $intervalBetweenViewCounts has passed since the content was last playing
+				// filter it by the $type. This means if the player switches from stream to vod, the vod will get views at the switch point
+				// lock for update to present duplicate constitute views 
+				$latestPlayingPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->where("type", $type)->where("playing", true)->lockForUpdate()->first();
+				if (is_null($latestPlayingPlaybackHistory) || $latestPlayingPlaybackHistory->created_at->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
+					$constitutesView = true;
+				}
 			}
-		}
 
-		// if the content is not playing, and the last entry created for the current session was with playing as false,
-		// then update the last record instead of creating a new one.
-		// this is to prevent flooding the database with records for content that is not playing
-		$playbackHistory = null;
-		if (!$playing) {
-			$latestPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->first();
-			if (!is_null($latestPlaybackHistory) && !$latestPlaybackHistory->playing) {
-				// just update this record
-				$playbackHistory = $latestPlaybackHistory;
+			// if the content is not playing, and the last entry created for the current session was with playing as false,
+			// then update the last record instead of creating a new one.
+			// this is to prevent flooding the database with records for content that is not playing
+			$playbackHistory = null;
+			if (!$playing) {
+				$latestPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->first();
+				if (!is_null($latestPlaybackHistory) && !$latestPlaybackHistory->playing) {
+					// just update this record
+					$playbackHistory = $latestPlaybackHistory;
+				}
 			}
-		}
 
-		if (is_null($playbackHistory)) {
-			$playbackHistory = new PlaybackHistory();
-		}
+			if (is_null($playbackHistory)) {
+				$playbackHistory = new PlaybackHistory();
+			}
 
-		$playbackHistory->session_id = $sessionId;
-		$playbackHistory->type = $type;
-		$playbackHistory->playing = $playing;
-		$playbackHistory->time = $time;
-		$playbackHistory->constitutes_view = $constitutesView;
-		$playbackHistory->mediaItem()->associate($this);
+			$playbackHistory->session_id = $sessionId;
+			$playbackHistory->type = $type;
+			$playbackHistory->playing = $playing;
+			$playbackHistory->time = $time;
+			$playbackHistory->constitutes_view = $constitutesView;
+			$playbackHistory->mediaItem()->associate($this);
 
-		if ($type === "vod") {
-			$playbackHistory->vodSourceFile()->associate($this->videoItem->sourceFile);
-		}
+			if ($type === "vod") {
+				$playbackHistory->vodSourceFile()->associate($this->videoItem->sourceFile);
+			}
 
-		if (!is_null($user)) {
-			$playbackHistory->user()->associate($user);
-		}
+			if (!is_null($user)) {
+				$playbackHistory->user()->associate($user);
+			}
 
-		$playbackHistory->save();
+			$playbackHistory->save();
+		});
 		return true;
 	}
 	
