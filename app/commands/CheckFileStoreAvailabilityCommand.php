@@ -54,10 +54,17 @@ class CheckFileStoreAvailabilityCommand extends ScheduledCommand {
 	public function fire()
 	{
 		$this->info('Checking to see if the file store is available.');
-		$filesLocation = Config::get("custom.files_location");
-		$available = file_exists($filesLocation);
-		$this->info($available ? "Available.":"Unavailable.");
-		Redis::set("fileStoreUnavailable", !$available, "EX", 90);
+		if (Redis::get("fileStoreAvailableCheckRunning")) {
+			$this->info('Check already in progress.');
+		}
+		else {
+			Redis::set("fileStoreAvailableCheckRunning", true, "EX", 300);
+			$filesLocation = Config::get("custom.files_location");
+			$available = file_exists($filesLocation);
+			Redis::set("fileStoreAvailable", $available, "EX", 90);
+			Redis::del("fileStoreAvailableCheckRunning");
+			$this->info($available ? "Available.":"Unavailable.");
+		}
 		$this->info("Finished.");
 	}
 

@@ -68,8 +68,7 @@ App::error(function(Illuminate\Session\TokenMismatchException $exception) {
 |
 */
 
-App::down(function()
-{
+App::down(function() {
 	return DebugHelpers::generateMaintenanceModeResponse();
 });
 
@@ -79,6 +78,18 @@ Cache::extend('redisSynchronized', function($app) {
 	$redis = $app['redis'];
 	return new SynchronizedRepository(new RedisStore($redis, $app['config']['cache.prefix']));
 });
+
+// determine if degraded mode should be enabled
+if (!Redis::get("fileStoreAvailable") && App::environment() !== "local") {
+	// automatically enable if filestore not accessible
+	// this key in redis is set in the CheckFileStoreAvailability command
+	Config::set('degradedService.enabled', true);
+}
+
+if (Config::get('degradedService.enabled')) {
+	// if degradedService is enabled disable search (thumbnail urls incorrect)
+	Config::set('search.enabled', false);
+}
 
 /*
 |--------------------------------------------------------------------------
