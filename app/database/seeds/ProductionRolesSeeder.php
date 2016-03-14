@@ -33,7 +33,6 @@ class ProductionRolesSeeder extends Seeder {
 			[16, "Lighting", null, [null, null], [null, null]],
 			[17, "Broadcast Sound", null, [null, null], [null, null]],
 			[18, "House Sound", null, [null, null], [null, null]],
-			[19, "Sound", null, [null, null], [null, null]],
 			[20, "Make-up", null, [null, null], [null, null]],
 			[21, "Costume Designer", null, [null, null], [null, null]],
 			[22, "Floor Manager", null, [null, null], [null, null]],
