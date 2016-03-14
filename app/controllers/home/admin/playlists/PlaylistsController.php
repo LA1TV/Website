@@ -21,6 +21,9 @@ use uk\co\la1tv\website\models\MediaItem;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\Show;
 use uk\co\la1tv\website\models\CustomUri;
+use uk\co\la1tv\website\models\Credit;
+use uk\co\la1tv\website\models\ProductionRolePlaylist;
+use uk\co\la1tv\website\models\SiteUser;
 
 class PlaylistsController extends PlaylistsBaseController {
 
@@ -111,6 +114,7 @@ class PlaylistsController extends PlaylistsBaseController {
 			array("side-banners-fill-image-id", ObjectHelpers::getProp("", $playlist, "sideBannerFillFile", "id")),
 			array("cover-art-id", ObjectHelpers::getProp("", $playlist, "coverArtFile", "id")),
 			array("publish-time", ObjectHelpers::getProp("", $playlist, "scheduled_publish_time_for_input")),
+			array("credits", json_encode(array())),
 			array("playlist-content", json_encode(array())),
 			array("related-items", json_encode(array())),
 		), !$formSubmitted);
@@ -123,6 +127,8 @@ class PlaylistsController extends PlaylistsBaseController {
 			"sideBannersFillImageFile"	=> FormHelpers::getFileInfo($formData['side-banners-fill-image-id']),
 			"coverArtFile"			=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"showItemText"			=> !is_null($show) ? $show->name : "",
+			"creditsInput"			=> null,
+			"creditsInputInitialData"	=> null,
 			"playlistContentInput"	=> null,
 			"playlistContentInitialData"	=> null,
 			"relatedItemsInput"		=> null,
@@ -130,18 +136,21 @@ class PlaylistsController extends PlaylistsBaseController {
 		);
 		
 		if (!$formSubmitted) {
+			$additionalFormData['creditsInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "credits_for_input");
+			$additionalFormData['creditsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "credits_for_reorderable_list");
 			$additionalFormData['playlistContentInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_input");
 			$additionalFormData['playlistContentInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "playlist_content_for_reorderable_list");
 			$additionalFormData['relatedItemsInput'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_input");
 			$additionalFormData['relatedItemsInitialData'] = ObjectHelpers::getProp(json_encode(array()), $playlist, "related_items_for_reorderable_list");
 		}
 		else {
+			$additionalFormData['creditsInput'] = Playlist::generateInputValueForPlaylistCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($formData['credits'], true));
+			$additionalFormData['creditsInitialData'] = Playlist::generateInitialDataForPlaylistCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($formData['credits'], true));
 			$additionalFormData['playlistContentInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
 			$additionalFormData['playlistContentInitialData'] = MediaItem::generateInitialDataForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["playlist-content"], true));
 			$additionalFormData['relatedItemsInput'] = MediaItem::generateInputValueForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
 			$additionalFormData['relatedItemsInitialData'] = MediaItem::generateInitialDataForAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($formData["related-items"], true));
 		}
-		
 		$errors = null;
 		
 		if ($formSubmitted) {
@@ -150,6 +159,9 @@ class PlaylistsController extends PlaylistsBaseController {
 			Validator::extend('my_date', FormHelpers::getValidDateValidatorFunction());
 			Validator::extend('valid_show_id', function($attribute, $value, $parameters) {
 				return !is_null(Show::find(intval($value)));
+			});
+			Validator::extend('valid_credits', function($attribute, $value, $parameters) {
+				return Playlist::isValidDataFromPlaylistCreditsReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 			});
 			Validator::extend('valid_playlist_content', function($attribute, $value, $parameters) {
 				return MediaItem::isValidIdsFromAjaxSelectReorderableList(JsonHelpers::jsonDecodeOrNull($value, true));
@@ -182,6 +194,7 @@ class PlaylistsController extends PlaylistsBaseController {
 					'description'	=> array('max:500'),
 					'cover-art-id'	=> array('valid_file_id'),
 					'publish-time'	=> array('my_date'),
+					'credits'	=> array('required', 'valid_credits'),
 					'playlist-content'	=> array('required', 'valid_playlist_content'),
 					'related-items'	=> array('required', 'valid_related_items')
 				), array(
@@ -199,6 +212,8 @@ class PlaylistsController extends PlaylistsBaseController {
 					'side-banners-fill-image-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
 					'publish-time.my_date'	=> FormHelpers::getInvalidTimeMsg(),
+					'credits.required'	=> FormHelpers::getGenericInvalidMsg(),
+					'credits.valid_credits'	=> FormHelpers::getGenericInvalidMsg(),
 					'playlist-content.required'	=> FormHelpers::getGenericInvalidMsg(),
 					'playlist-content.valid_playlist_content'	=> FormHelpers::getGenericInvalidMsg(),
 					'related-items.required'	=> FormHelpers::getGenericInvalidMsg(),
@@ -287,6 +302,33 @@ class PlaylistsController extends PlaylistsBaseController {
 							}
 						}
 						
+						// update credits
+						if ($playlist->credits()->count() > 0) {
+							if (!$playlist->credits()->delete()) { // remove all credits
+								throw(new Exception("Error deleting Playlist credits."));
+							}
+						}
+
+						$creditsData = json_decode($formData['credits'], true);
+						foreach($creditsData as $credit) {
+							$creditModel = new Credit(array(
+								"name_override"	=> $credit["nameOverride"]
+							));
+							
+							$productionRole = ProductionRolePlaylist::with("productionRole")->find($credit["productionRoleId"]);
+							$creditModel->productionRole()->associate($productionRole->productionRole);
+							
+							if (!is_null($credit["siteUserId"])) {
+								$siteUser = SiteUser::find($credit["siteUserId"]);
+								if (is_null($siteUser)) {
+									// given the credits data has been validated earlier, it shouldn't have passed if the SiteUser didn't exist
+									throw(new Exception("Was expecting the SiteUser to exist."));
+								}
+								$creditModel->siteUser()->associate($siteUser);
+							}
+							$playlist->credits()->save($creditModel);
+						}
+
 						// touch so that their search index numbers will be incremented
 						// each media item in the search index has the playlists it's in stored with it
 						// so will therefore need reindexing

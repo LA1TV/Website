@@ -4,9 +4,13 @@ define([
 	"./ajax-select"
 ], function($, PageData, AjaxSelect) {
 
-	var CreditInput = function(state) {
+	var CreditInput = function(type, state) {
 		
 		var self = this;
+
+		if (type !== "mediaItem" && type !== "playlist") {
+			throw "Invalid type.";
+		}
 		
 		this.getId = function() {
 			return null;
@@ -36,7 +40,7 @@ define([
 			return $el;
 		};
 		
-		var productionRoleAjaxSelect = new AjaxSelect(PageData.get("baseUrl")+"/admin/productionroles/ajaxselect", {
+		var productionRoleAjaxSelect = new AjaxSelect(PageData.get("baseUrl")+"/admin/productionroles/ajaxselect/"+type, {
 			id: null,
 			text: null
 		}, "Select role...");

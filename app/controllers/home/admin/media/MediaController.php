@@ -433,7 +433,7 @@ class MediaController extends MediaBaseController {
 					
 					// update credits
 					if ($mediaItem->credits()->count() > 0) {
-						if (!$mediaItem->credits()->delete()) { // remove all chapters
+						if (!$mediaItem->credits()->delete()) { // remove all credits
 							throw(new Exception("Error deleting MediaItem credits."));
 						}
 					}
@@ -444,8 +444,8 @@ class MediaController extends MediaBaseController {
 							"name_override"	=> $credit["nameOverride"]
 						));
 						
-						$productionRole = ProductionRoleMediaItem::find($credit["productionRoleId"]);
-						$creditModel->productionRole()->associate($productionRole);
+						$productionRole = ProductionRoleMediaItem::with("productionRole")->find($credit["productionRoleId"]);
+						$creditModel->productionRole()->associate($productionRole->productionRole);
 						
 						if (!is_null($credit["siteUserId"])) {
 							$siteUser = SiteUser::find($credit["siteUserId"]);
