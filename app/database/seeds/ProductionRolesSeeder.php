@@ -60,6 +60,19 @@ class ProductionRolesSeeder extends Seeder {
 		];
 		
 		DB::transaction(function() use (&$roles) {
+			// increase all the positions past the maximum one
+			// otherwise there will be integrity issues when they are changed below
+			// because they have to be unique
+			foreach (ProductionRole::get() as $b=>$role) {
+				$count = ProductionRole::count();
+				$numRoles = count($roles);
+				if ($numRoles > $count) {
+					$count = $numRoles;
+				}
+				$role->position = $count+$b;
+				$role->save();
+			}
+
 			foreach($roles as $b=>$a) {
 				$role = ProductionRole::find($a[0]);
 				if (is_null($role)) {
