@@ -21,7 +21,6 @@ class ProductionRolesSeeder extends Seeder {
 			["Boom Operator", null, [null, null], [null, null]],
 			["Broadcast Vision Mixer", null, [null, null], [null, null]],
 			["Projection Vision Mixer", null, [null, null], [null, null]],
-			["Vision Mixer", null, [null, null], [null, null]],
 			["Communications Manager", null, [null, null], [null, null]],
 			["Autocue", null, [null, null], [null, null]],
 			["Graphics Developer", null, [null, null], [null, null]],
