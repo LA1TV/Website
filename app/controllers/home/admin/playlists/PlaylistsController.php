@@ -223,7 +223,8 @@ class PlaylistsController extends PlaylistsBaseController {
 				if (!$validator->fails()) {
 				
 					$show = $formData['show-id'] !== "" ? Show::find(intval($formData['show-id'])) : null;
-					
+					$hasCredits = count(json_decode($formData['credits'], true)) > 0;
+
 					Validator::extend('unique_series_no', function($attribute, $value, $parameters) use (&$playlist, &$show) {
 						if (is_null($show)) {
 							return true;
@@ -235,11 +236,23 @@ class PlaylistsController extends PlaylistsBaseController {
 						$count = $count->count();
 						return $count === 0;
 					});
+
+					Validator::extend('valid_credits_presence', function($attribute, $value, $parameters) use (&$show, &$hasCredits) {
+						if (!is_null($show)) {
+							return true;
+						}
+						if ($hasCredits) {
+							return false;
+						}
+						return true;
+					});
 					
 					$validator = Validator::make($formData,	array(
-						'series-no'		=> array('unique_series_no')
+						'series-no'		=> array('unique_series_no'),
+						'credits'		=> array('valid_credits_presence')
 					), array(
-						'series-no.unique_series_no'	=> "A series already exists with that number."
+						'series-no.unique_series_no'	=> "A series already exists with that number.",
+						'credits.valid_credits_presence'	=> "You cannot have credits for a playlist without a show."
 					));
 						
 					if (!$validator->fails()) {
@@ -310,6 +323,9 @@ class PlaylistsController extends PlaylistsBaseController {
 						}
 
 						$creditsData = json_decode($formData['credits'], true);
+						if (count($creditsData) > 0 && is_null($show)) {
+							throw(new Exception("Cannot have credits for a playlist without a show."));
+						}
 						foreach($creditsData as $credit) {
 							$creditModel = new Credit(array(
 								"name_override"	=> $credit["nameOverride"]
