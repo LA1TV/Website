@@ -15,7 +15,6 @@ use uk\co\la1tv\website\commands\RecentItemsCacheUpdateCommand;
 use uk\co\la1tv\website\commands\PromotedItemsCacheUpdateCommand;
 use uk\co\la1tv\website\commands\LiveItemsCacheUpdateCommand;
 use uk\co\la1tv\website\commands\ClearTempChunksCommand;
-use uk\co\la1tv\website\commands\ClearOldSessionsCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,4 +43,3 @@ Artisan::add(new RecentItemsCacheUpdateCommand());
 Artisan::add(new PromotedItemsCacheUpdateCommand());
 Artisan::add(new LiveItemsCacheUpdateCommand());
 Artisan::add(new ClearTempChunksCommand());
-Artisan::add(new ClearOldSessionsCommand());
