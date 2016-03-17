@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Cache\RedisStore;
 use uk\co\la1tv\website\extensions\cache\SynchronizedRepository;
+use uk\co\la1tv\website\extensions\cache\ImprovedRedisStore;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +77,7 @@ App::down(function() {
 // add the redisSynchronized cache driver
 Cache::extend('redisSynchronized', function($app) {
 	$redis = $app['redis'];
-	return new SynchronizedRepository(new RedisStore($redis, $app['config']['cache.prefix']));
+	return new SynchronizedRepository(new ImprovedRedisStore($redis, $app['config']['cache.prefix']));
 });
 
 // determine if degraded mode should be enabled

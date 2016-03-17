@@ -4,14 +4,64 @@ use Illuminate\Cache\Repository;
 use malkusch\lock\mutex\PredisMutex;
 use Closure;
 use Redis;
+use Config;
 
 /*
  * Ensures that the "remember" and "rememberForever" methods are synchronized, so that the
  * cache can only be updated by one process at once. Once the cache
  * has updated if there are other processes waiting they will get
  * the cached value.
+ *
+ * Also adds support for seconds instead of minutes.
  */
 class SynchronizedRepository extends Repository {
+
+	/**
+	 * Store an item in the cache.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @param  \DateTime|int  $minutes
+	 * @param  bool $isSeconds
+	 * @return void
+	 */
+	public function put($key, $value, $minutes, $isSeconds=false)
+	{
+		$seconds = null;
+		if (!$isSeconds) {
+			$minutes = $this->getMinutes($minutes);
+			if (!is_null($minutes)) {
+				$seconds = $minutes * 60;
+			}
+		}
+		else {
+			$seconds = $minutes;
+		}
+
+		if ( ! is_null($seconds))
+		{
+			$this->store->put($key, $value, $seconds, true);
+		}
+	}
+
+	/**
+	 * Store an item in the cache if the key does not exist.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @param  \DateTime|int  $minutes
+	 * @param  bool $isSeconds
+	 * @return bool
+	 */
+	public function add($key, $value, $minutes, $isSeconds=false)
+	{
+		if (is_null($this->get($key)))
+		{
+			$this->put($key, $value, $minutes, $isSeconds); return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Get an item from the cache, or store the default value.
@@ -21,11 +71,10 @@ class SynchronizedRepository extends Repository {
 	 * @param  \Closure  $callback
 	 * @return mixed
 	 */
-	public function remember($key, $minutes, Closure $callback)
+	public function remember($key, $minutes, Closure $callback, $isSeconds=false)
 	{
-		// timeout after 20 seconds
 		$lockKey = "SynchronizedRepository.lockKey.".$key;
-		$mutex = new PredisMutex([Redis::connection()], $lockKey, 20);
+		$mutex = new PredisMutex([Redis::connection()], $lockKey, Config::get("predisMutex.timeout"));
 
 		$value = null;
 
@@ -40,8 +89,8 @@ class SynchronizedRepository extends Repository {
 			// and if true is returned again at this point, the "then" callback will run
 			// and the cache will be updated
 			return is_null($value);
-		})->then(function() use (&$value, &$key, &$minutes, &$callback) {
-			$this->put($key, $value = $callback(), $minutes);
+		})->then(function() use (&$value, &$key, &$minutes, &$callback, &$isSeconds) {
+			$this->put($key, $value = $callback(), $minutes, $isSeconds);
 		});
 
 		return $value;
@@ -56,9 +105,8 @@ class SynchronizedRepository extends Repository {
 	 */
 	public function rememberForever($key, Closure $callback)
 	{
-		// timeout after 20 seconds
 		$lockKey = "SynchronizedRepository.lockKey.".$key;
-		$mutex = new PredisMutex([Redis::connection()], $lockKey, 20);
+		$mutex = new PredisMutex([Redis::connection()], $lockKey, Config::get("predisMutex.timeout"));
 
 		$value = null;
 

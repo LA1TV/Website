@@ -110,6 +110,9 @@ class FacebookManager {
 			$user->fb_access_token = (String) $token;
 			$user->fb_uid = $profile->getId();
 			$user->fb_last_update_time = Carbon::now();
+			// default to email notifications being disabled.
+			// the user can enable them on the account settings page
+			$user->email_notifications_enabled = false;
 			$user->last_seen = Carbon::now();
 			// populate the model with the rest of the users information from facebook.
 			if (!$this->updateUser($user)) {
