@@ -6,6 +6,7 @@ use Event;
 use Queue;
 use Redis;
 use Closure;
+use Config;
 use malkusch\lock\mutex\PredisMutex;
 use Jeremeamia\SuperClosure\SerializableClosure;
 
@@ -36,7 +37,7 @@ class SmartCacheManager {
 		}
 
 		// a cache update is needed. this needs to be synchronized so only one process is updating the cache
-		$mutex = new PredisMutex([Redis::connection()], $fullKey, 20);
+		$mutex = new PredisMutex([Redis::connection()], $fullKey, Config::get("predisMutex.timeout"));
 		return $mutex->synchronized(function() use (&$fullKey, &$forceRefresh, &$seconds, &$key, &$closure) {
 			// get an updated cached version now in synchronized block
 			$responseAndTime = $this->getResponseAndTime($fullKey, $seconds);

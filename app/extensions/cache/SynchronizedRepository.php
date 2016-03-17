@@ -4,6 +4,7 @@ use Illuminate\Cache\Repository;
 use malkusch\lock\mutex\PredisMutex;
 use Closure;
 use Redis;
+use Config;
 
 /*
  * Ensures that the "remember" and "rememberForever" methods are synchronized, so that the
@@ -25,7 +26,7 @@ class SynchronizedRepository extends Repository {
 	{
 		// timeout after 20 seconds
 		$lockKey = "SynchronizedRepository.lockKey.".$key;
-		$mutex = new PredisMutex([Redis::connection()], $lockKey, 20);
+		$mutex = new PredisMutex([Redis::connection()], $lockKey, Config::get("predisMutex.timeout"));
 
 		$value = null;
 
@@ -58,7 +59,7 @@ class SynchronizedRepository extends Repository {
 	{
 		// timeout after 20 seconds
 		$lockKey = "SynchronizedRepository.lockKey.".$key;
-		$mutex = new PredisMutex([Redis::connection()], $lockKey, 20);
+		$mutex = new PredisMutex([Redis::connection()], $lockKey, Config::get("predisMutex.timeout"));
 
 		$value = null;
 
