@@ -24,7 +24,6 @@ class SynchronizedRepository extends Repository {
 	 */
 	public function remember($key, $minutes, Closure $callback)
 	{
-		// timeout after 20 seconds
 		$lockKey = "SynchronizedRepository.lockKey.".$key;
 		$mutex = new PredisMutex([Redis::connection()], $lockKey, Config::get("predisMutex.timeout"));
 
@@ -57,7 +56,6 @@ class SynchronizedRepository extends Repository {
 	 */
 	public function rememberForever($key, Closure $callback)
 	{
-		// timeout after 20 seconds
 		$lockKey = "SynchronizedRepository.lockKey.".$key;
 		$mutex = new PredisMutex([Redis::connection()], $lockKey, Config::get("predisMutex.timeout"));
 
