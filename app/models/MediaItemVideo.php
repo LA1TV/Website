@@ -5,6 +5,7 @@ use Carbon;
 use Config;
 use DB;
 use Cache;
+use Auth;
 use uk\co\la1tv\website\helpers\reorderableList\ChaptersReorderableList;
 
 class MediaItemVideo extends MyEloquent {
@@ -64,7 +65,11 @@ class MediaItemVideo extends MyEloquent {
 	// returns the uris to the different renders of the video
 	public function getQualitiesWithUris() {
 		// cache for 10 seconds
-		return Cache::remember("mediaItemVideo.".$this->id.".qualitiesWithUris", 10, function() {
+		// Urls may be different depending on the logged in (cms) user depending on the permissions the user has
+		// so different caches are needed per (cms) user.
+		$user = Auth::getUser();
+		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
+		return Cache::remember("mediaItemVideo.".$cacheKeyUserId.".".$this->id.".qualitiesWithUris", 10, function() {
 
 			$sourceFile = $this->sourceFile;
 			
@@ -130,7 +135,11 @@ class MediaItemVideo extends MyEloquent {
 	
 	public function getScrubThumbnails() {
 		// cache for 30 seconds
-		return Cache::remember("mediaItemVideo.".$this->id.".scrubThumbnails", 30, function() {
+		// Urls may be different depending on the logged in (cms) user depending on the permissions the user has
+		// so different caches are needed per (cms) user.
+		$user = Auth::getUser();
+		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
+		return Cache::remember("mediaItemVideo.".$cacheKeyUserId.".".$this->id.".scrubThumbnails", 30, function() {
 
 			$sourceFile = $this->sourceFile;
 			
