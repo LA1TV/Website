@@ -8,6 +8,7 @@ use URL;
 use Session;
 use DB;
 use Facebook;
+use Auth;
 use uk\co\la1tv\website\helpers\reorderableList\StreamUrlsReorderableList;
 
 class LiveStream extends MyEloquent {
@@ -100,61 +101,69 @@ class LiveStream extends MyEloquent {
 			throw new Exception("MediaItemLiveStream model required if retrieving dvr bridge service urls.");
 		}
 		
-		$qualities = array();
-		$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
-		foreach($urisOrganisedByQuality as $quality) {
+		$mediaItemLiveStreamId = !is_null($mediaItemLiveStream) ? intval($mediaItemLiveStream->id) : null;
+		sort($filters);
 
-			$entry = array(
-				"qualityDefinition"	=> $quality["qualityDefinition"],
-				"uris"				=> array()
-			);
-			
-			foreach($quality['uris'] as $uriAndInfo) {
-				if (!$uriAndInfo['enabled']) {
-					continue;
-				}
+		$user = Auth::getUser();
+		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
+		$cacheKeyMediaItemLiveStreamId = !is_null($mediaItemLiveStreamId) ? $mediaItemLiveStreamId : -1;
+		return Cache::remember("liveStream.".$cacheKeyUserId.".".$this->id.".".$cacheKeyMediaItemLiveStreamId.".".md5(serialize($filters)).".qualitiesWithUris", 10, function() use (&$mediaItemLiveStreamId, &$filters) {
+			$qualities = array();
+			$urisOrganisedByQuality = $this->getUrisOrganisedByQuality();
+			foreach($urisOrganisedByQuality as $quality) {
+
+				$entry = array(
+					"qualityDefinition"	=> $quality["qualityDefinition"],
+					"uris"				=> array()
+				);
 				
-				// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
-				// the url it returns will be a hls url with dvr support.
-				$uriForDvrBridgeService = $uriAndInfo['uriForDvrBridgeService'];
-				$uriWithDvrSupport = $uriForDvrBridgeService || $uriAndInfo["hasDvr"];
-				// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
-				// this may be null if there's been an error, in which case the user should not see it
-				$uri = null;
-				if(!$uriForDvrBridgeService) {
-					if (in_array("nativeDvr", $filters) && $uriWithDvrSupport) {
-						$uri = $uriAndInfo['uri'];
+				foreach($quality['uris'] as $uriAndInfo) {
+					if (!$uriAndInfo['enabled']) {
+						continue;
 					}
-					else if (in_array("live", $filters) && !$uriWithDvrSupport) {
-						$uri = $uriAndInfo['uri'];
-					}
-				}
-				else {
-					if (in_array("dvrBridge", $filters)) {
-						$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", intval($mediaItemLiveStream->id))->first();
-						if (!is_null($dvrLiveStreamUriModel)) {
-							$uri = $dvrLiveStreamUriModel->uri;
+					
+					// if the url is a url for a dvr bridge service then the url the user gets will be the url it returns
+					// the url it returns will be a hls url with dvr support.
+					$uriForDvrBridgeService = $uriAndInfo['uriForDvrBridgeService'];
+					$uriWithDvrSupport = $uriForDvrBridgeService || $uriAndInfo["hasDvr"];
+					// if a dvr bridge service is being used then the url it provides will be placed in uri_from_dvr_bridge_service
+					// this may be null if there's been an error, in which case the user should not see it
+					$uri = null;
+					if(!$uriForDvrBridgeService) {
+						if (in_array("nativeDvr", $filters) && $uriWithDvrSupport) {
+							$uri = $uriAndInfo['uri'];
+						}
+						else if (in_array("live", $filters) && !$uriWithDvrSupport) {
+							$uri = $uriAndInfo['uri'];
 						}
 					}
+					else {
+						if (in_array("dvrBridge", $filters)) {
+							$dvrLiveStreamUriModel = $uriAndInfo["liveStreamUriModel"]->dvrLiveStreamUris()->where("dvr_live_stream_uris.media_item_live_stream_id", $mediaItemLiveStreamId)->first();
+							if (!is_null($dvrLiveStreamUriModel)) {
+								$uri = $dvrLiveStreamUriModel->uri;
+							}
+						}
+					}
+					
+					if (is_null($uri)) {
+						continue;
+					}
+					
+					$entry['uris'][] = array(
+						"uri"	=> $uri,
+						"uriWithDvrSupport"	=> $uriWithDvrSupport,
+						"type"	=> $uriAndInfo['type'],
+						"supportedDevices"	=> $uriAndInfo['supportedDevices']
+					);
 				}
 				
-				if (is_null($uri)) {
-					continue;
+				if (count($entry["uris"]) > 0) {
+					$qualities[] = $entry;
 				}
-				
-				$entry['uris'][] = array(
-					"uri"	=> $uri,
-					"uriWithDvrSupport"	=> $uriWithDvrSupport,
-					"type"	=> $uriAndInfo['type'],
-					"supportedDevices"	=> $uriAndInfo['supportedDevices']
-				);
 			}
-			
-			if (count($entry["uris"]) > 0) {
-				$qualities[] = $entry;
-			}
-		}
-		return $qualities;
+			return $qualities;
+		}, true);
 	}
 	
 	public function getUrlsDataForReorderableList() {
