@@ -4,6 +4,7 @@ use FormHelpers;
 use Carbon;
 use Config;
 use DB;
+use Cache;
 use uk\co\la1tv\website\helpers\reorderableList\ChaptersReorderableList;
 
 class MediaItemVideo extends MyEloquent {
@@ -62,93 +63,100 @@ class MediaItemVideo extends MyEloquent {
 	
 	// returns the uris to the different renders of the video
 	public function getQualitiesWithUris() {
-		
-		$sourceFile = $this->sourceFile;
-		
-		if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
-			return array();
-		}
-	
-		$renders = $sourceFile->renderFiles;
-		$qualities = array();
-		$positions = array();
-		foreach($renders as $a) {
+		// cache for 10 seconds
+		return Cache::remember("mediaItemVideo.".$this->id.".qualitiesWithUris", 10, function() {
+
+			$sourceFile = $this->sourceFile;
 			
-			$videoFile = $a->videoFile;
-			if (is_null($videoFile)) {
-				// this file is not a render. e.g. could be thumbnail
-				continue;
+			if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
+				return array();
 			}
 			
-			$uris = array();
+			$renders = $sourceFile->renderFiles;
+			$qualities = array();
+			$positions = array();
+			foreach($renders as $a) {
+				
+				$videoFile = $a->videoFile;
+				if (is_null($videoFile)) {
+					// this file is not a render. e.g. could be thumbnail
+					continue;
+				}
+				
+				$uris = array();
 
-			// hls must be before dash because safari 8.0.6 has issues playing the dash version
-			$videoFileHls = $videoFile->videoFileHls;
-			if (!is_null($videoFileHls)) {
-				// there is a hls render for this as well
+				// hls must be before dash because safari 8.0.6 has issues playing the dash version
+				$videoFileHls = $videoFile->videoFileHls;
+				if (!is_null($videoFileHls)) {
+					// there is a hls render for this as well
+					$uris[] = array(
+						"uri"	=> $videoFileHls->playlistFile->getUri(),
+						"type"	=> "application/x-mpegURL",
+						"supportedDevices"	=> null
+					);
+				}
+
+				// shouldn't need dash anymore because should be covered with hls (hlsjs),
+				// and the standard mp4 for devices that can't do hls at all
+				/*
+				$videoFileDash = $videoFile->videoFileDash;
+				if (!is_null($videoFileDash)) {
+					// there is a dash render for this as well
+					$uris[] = array(
+						"uri"	=> $videoFileDash->mediaPresentationDescriptionFile->getUri(),
+						"type"	=> "application/dash+xml",
+						"supportedDevices"	=> null
+					);
+				}
+				*/
+
 				$uris[] = array(
-					"uri"	=> $videoFileHls->playlistFile->getUri(),
-					"type"	=> "application/x-mpegURL",
+					"uri"	=> $a->getUri(),
+					"type"	=> "video/mp4",
 					"supportedDevices"	=> null
 				);
-			}
 
-			// shouldn't need dash anymore because should be covered with hls (hlsjs),
-			// and the standard mp4 for devices that can't do hls at all
-			/*
-			$videoFileDash = $videoFile->videoFileDash;
-			if (!is_null($videoFileDash)) {
-				// there is a dash render for this as well
-				$uris[] = array(
-					"uri"	=> $videoFileDash->mediaPresentationDescriptionFile->getUri(),
-					"type"	=> "application/dash+xml",
-					"supportedDevices"	=> null
+				$positions[] = intval($a->videoFile->qualityDefinition->position);
+				$qualities[] = array(
+					"qualityDefinition"		=> $a->videoFile->qualityDefinition,
+					"uris"					=> $uris
 				);
 			}
-			*/
-
-			$uris[] = array(
-				"uri"	=> $a->getUri(),
-				"type"	=> "video/mp4",
-				"supportedDevices"	=> null
-			);
-
-			$positions[] = intval($a->videoFile->qualityDefinition->position);
-			$qualities[] = array(
-				"qualityDefinition"		=> $a->videoFile->qualityDefinition,
-				"uris"					=> $uris
-			);
-		}
-		// reorder so in qualities order with dash entries first
-		array_multisort($positions, SORT_NUMERIC, SORT_ASC, $qualities);
-		return $qualities;
+			// reorder so in qualities order with dash entries first
+			array_multisort($positions, SORT_NUMERIC, SORT_ASC, $qualities);
+			return $qualities;
+		}, true);
 	}
 	
 	public function getScrubThumbnails() {
-		$sourceFile = $this->sourceFile;
-		
-		if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
-			return array();
-		}
-	
-		$renders = $sourceFile->renderFiles;
-		$thumbnails = array();
-		$times = array();
-		foreach($renders as $a) {
-			$thumbnailFile = $a->videoScrubThumbnailFile;
-			if (is_null($thumbnailFile)) {
-				// this file is not a thumbnail.
-				continue;
+		// cache for 30 seconds
+		return Cache::remember("mediaItemVideo.".$this->id.".scrubThumbnails", 30, function() {
+
+			$sourceFile = $this->sourceFile;
+			
+			if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
+				return array();
 			}
-			$time = intval($thumbnailFile->time);
-			$times[] = $time;
-			$thumbnails[] = array(
-				"uri"	=> $a->getUri(),
-				"time"	=> $time
-			);
-		}
-		array_multisort($times, SORT_NUMERIC, SORT_ASC, $thumbnails);
-		return $thumbnails;
+		
+			$renders = $sourceFile->renderFiles;
+			$thumbnails = array();
+			$times = array();
+			foreach($renders as $a) {
+				$thumbnailFile = $a->videoScrubThumbnailFile;
+				if (is_null($thumbnailFile)) {
+					// this file is not a thumbnail.
+					continue;
+				}
+				$time = intval($thumbnailFile->time);
+				$times[] = $time;
+				$thumbnails[] = array(
+					"uri"	=> $a->getUri(),
+					"time"	=> $time
+				);
+			}
+			array_multisort($times, SORT_NUMERIC, SORT_ASC, $thumbnails);
+			return $thumbnails;
+		}, true);
 	}
 
 	public function getViewCount() {

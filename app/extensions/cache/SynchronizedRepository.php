@@ -34,6 +34,9 @@ class SynchronizedRepository extends Repository {
 				$seconds = $minutes * 60;
 			}
 		}
+		else {
+			$seconds = $minutes;
+		}
 
 		if ( ! is_null($seconds))
 		{
