@@ -1,5 +1,6 @@
 <?php namespace uk\co\la1tv\website\models;
 
+use uk\co\la1tv\website\helpers\reorderableList\PlaylistCreditsReorderableList;
 use Exception;
 use FormHelpers;
 use Carbon;
@@ -13,7 +14,7 @@ class Playlist extends MyEloquent {
 
 	protected $table = 'playlists';
 	protected $fillable = array('name', 'enabled', 'scheduled_publish_time', 'description', 'series_no', 'pending_search_index_version', 'current_search_index_version', 'in_index');
-	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_reorderable_list", "playlist_content_for_input", "related_items_for_reorderable_list", "related_items_for_input", "custom_uri_name");
+	protected $appends = array("scheduled_publish_time_for_input", "playlist_content_for_reorderable_list", "playlist_content_for_input", "related_items_for_reorderable_list", "related_items_for_input", "custom_uri_name", "credits_for_reorderable_list", "credits_for_input");
 	
 	protected static function boot() {
 		parent::boot();
@@ -192,6 +193,52 @@ class Playlist extends MyEloquent {
 	
 	public function getRelatedItemsForReorderableListAttribute() {
 		return MediaItem::generateInitialDataForAjaxSelectReorderableList($this->getRelatedItemsIdsForOrderableList());
+	}
+
+	private function getCreditsDataForReorderableList() {
+		$positions = array();
+		$names = array();
+		$data = array();
+		$this->load("credits", "credits.productionRole", "credits.siteUser", "credits.productionRole.productionRolePlaylist");
+		$items = $this->credits()->get();
+		foreach($items as $a) {
+			$nameOverride = $a->name_override;
+			$siteUser = $a->siteUser;
+			$positions[] = intval($a->productionRole->position);
+			$names[] = !is_null($nameOverride) ? $nameOverride : $siteUser->name;
+			$data[] = array(
+				"productionRoleId"	=> intval($a->productionRole->id),
+				"siteUserId"		=> !is_null($siteUser) ? intval($siteUser->id) : null,
+				"nameOverride"		=> $nameOverride
+			);
+		}
+		// sort so that credits are in the correct order
+		// first by role position, then by name (because could be more than one person per role)
+		array_multisort($positions, SORT_ASC, SORT_NUMERIC, $names, SORT_ASC, SORT_STRING, $data);
+		return $data;
+	}
+
+	public function getCreditsForReorderableListAttribute() {
+		return self::generateInitialDataForPlaylistCreditsReorderableList($this->getCreditsDataForReorderableList());
+	}
+	
+	public function getCreditsForInputAttribute() {
+		return self::generateInputValueForPlaylistCreditsReorderableList($this->getCreditsDataForReorderableList());
+	}
+
+	public static function isValidDataFromPlaylistCreditsReorderableList($data) {
+		$reorderableList = new PlaylistCreditsReorderableList($data);
+		return $reorderableList->isValid();
+	}
+	
+	public static function generateInitialDataForPlaylistCreditsReorderableList($data) {
+		$reorderableList = new PlaylistCreditsReorderableList($data);
+		return $reorderableList->getInitialDataString();
+	}
+	
+	public static function generateInputValueForPlaylistCreditsReorderableList($data) {
+		$reorderableList = new PlaylistCreditsReorderableList($data);
+		return $reorderableList->getStringForInput();
 	}
 	
 	public function getUri() {

@@ -4,25 +4,33 @@ use Response;
 use Auth;
 use Config;
 use FormHelpers;
+use Exception;
 use uk\co\la1tv\website\models\ProductionRoleMediaItem;
+use uk\co\la1tv\website\models\ProductionRolePlaylist;
 
 class ProductionRolesController extends ProductionRolesBaseController {
 
 	// json data for ajaxSelect element
-	public function postAjaxselect() {
+	public function postAjaxselect($type) {
 		
-		// TODO will need to be playlists for playlists version
-		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 0);
+		if ($type !== "mediaItem" && $type !== "playlist") {
+			throw(new Exception("Invalid type."));
+		}
+
+		$permissionId = $type === "mediaItem" ? Config::get("permissions.mediaItems") : Config::get("permissions.playlists");
+		Auth::getUser()->hasPermissionOr401($permissionId, 0);
 	
 		$resp = array("success"=>false, "payload"=>null);
 		
+		$model = $type === "mediaItem" ? new ProductionRoleMediaItem() : new ProductionRolePlaylist();
+
 		$searchTerm = FormHelpers::getValue("term", "");
 		$qualities = null;
 		if (!empty($searchTerm)) {
-			$productionRoles = ProductionRoleMediaItem::with("productionRole")->search($searchTerm)->get();
+			$productionRoles = $model->with("productionRole")->search($searchTerm)->get();
 		}
 		else {
-			$productionRoles = ProductionRoleMediaItem::get();
+			$productionRoles = $model->get();
 		}
 		
 		$positions = array();
