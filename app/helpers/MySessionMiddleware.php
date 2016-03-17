@@ -33,4 +33,11 @@ class MySessionMiddleware extends Illuminate\Session\Middleware {
 		return $session;
 	}
 	
+
+	protected function collectGarbage(SessionInterface $session)
+	{
+		// disable garbage collection.
+		// It is handled in the ClearOldSessionsCommand artisan command instead
+		return;
+	}
 }
