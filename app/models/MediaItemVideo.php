@@ -64,19 +64,23 @@ class MediaItemVideo extends MyEloquent {
 	
 	// returns the uris to the different renders of the video
 	public function getQualitiesWithUris() {
+		$sourceFile = $this->sourceFile;
+		
+		// the check to see if the item is accessible shouldn't be cached
+		if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
+			return array();
+		}
+
+
 		// cache for 10 seconds
 		// Urls may be different depending on the logged in (cms) user depending on the permissions the user has
 		// so different caches are needed per (cms) user.
+		// the check to make sure the item is accessible was above, so we can guarantee that the cached version (or to be cached)
+		// version will contain urls
 		$user = Auth::getUser();
 		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
-		return Cache::remember("mediaItemVideo.".$cacheKeyUserId.".".$this->id.".qualitiesWithUris", 10, function() {
+		return Cache::remember("mediaItemVideo.".$cacheKeyUserId.".".$this->id.".qualitiesWithUris", 10, function() use (&$sourceFile) {
 
-			$sourceFile = $this->sourceFile;
-			
-			if (is_null($sourceFile) || !$sourceFile->getShouldBeAccessible()) {
-				return array();
-			}
-			
 			$renders = $sourceFile->renderFiles;
 			$qualities = array();
 			$positions = array();
