@@ -68,7 +68,7 @@ define([
 				var initialData = $.parseJSON(initialDataStr);
 				
 				var reorderableList = new ReorderableList(true, true, true, function(state) {
-					return new CreditInput(state);
+					return new CreditInput("mediaItem", state);
 				}, {
 					productionRoleState: {id: null, text: null},
 					siteUserState: {id: null, text: null},

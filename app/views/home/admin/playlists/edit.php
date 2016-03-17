@@ -16,7 +16,10 @@
 		<?=FormHelpers::getFormUploadInput(1, $sideBannersFillImageUploadPointId, "Side Banners Fill Image (Optional) (Should Be 250x1400)", "side-banners-fill-image-id", $form['side-banners-fill-image-id'], $formErrors, $additionalForm['sideBannersFillImageFile']['name'], $additionalForm['sideBannersFillImageFile']['size'], $additionalForm['sideBannersFillImageFile']['processState'], $additionalForm['sideBannersFillImageFile']['processPercentage'], $additionalForm['sideBannersFillImageFile']['processMsg']);?>
 		<?=FormHelpers::getFormUploadInput(1, $coverArtUploadPointId, "Cover Art (Optional) (Should Be 16:9)", "cover-art-id", $form['cover-art-id'], $formErrors, $additionalForm['coverArtFile']['name'], $additionalForm['coverArtFile']['size'], $additionalForm['coverArtFile']['processState'], $additionalForm['coverArtFile']['processPercentage'], $additionalForm['coverArtFile']['processMsg']);?>
 		<?=FormHelpers::getFormDateInput(1, "Scheduled Publish Time (Optional)", "publish-time", $form['publish-time'], $formErrors);?>
-		
+		<?=FormHelpers::getFormGroupStart("credits", $formErrors);
+		?><label class="control-label">Credits</label><div class="form-control form-credits" data-initialdata="<?=e($additionalForm['creditsInitialData'])?>"></div><?php
+		echo(FormHelpers::getFormHiddenInput(1, "credits", $additionalForm['creditsInput']));
+		echo(FormHelpers::getErrMsgHTML($formErrors, "credits"));?></div>
 		<?=FormHelpers::getFormGroupStart("playlist-content", $formErrors);
 		?><label class="control-label">Playlist Content</label><div class="form-control form-playlist-content" data-initialdata="<?=e($additionalForm['playlistContentInitialData'])?>"></div><?php
 		echo(FormHelpers::getFormHiddenInput(1, "playlist-content", $additionalForm['playlistContentInput']));

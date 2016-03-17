@@ -1,4 +1,5 @@
 <?php namespace uk\co\la1tv\website\models;
+use Exception;
 
 class Credit extends MyEloquent {
 
@@ -8,8 +9,9 @@ class Credit extends MyEloquent {
 	protected static function boot() {
 		parent::boot();
 		self::saving(function($model) {
-			
-			// TODO check doesn't have site user and name_override
+			if (is_null($model->siteUser) === is_null($model->name_override)) {
+				throw(new Exception("Either SiteUser or a name override must be provided but not both."));
+			}
 			return true;
 		});
 	}
