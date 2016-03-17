@@ -52,6 +52,8 @@ App::after(function($request, $response)
 		}
 	}
 
+	// https://github.com/LA1TV/Website/issues/818
+	$response->setProtocolVersion("1.1");
 });
 
 App::finish(function() {
