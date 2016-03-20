@@ -38,6 +38,7 @@
 		<link rel="icon" type="image/png" href="<?=asset("assets/favicon/favicon-16x16.png");?>?v=2" sizes="16x16">
 		<link rel="manifest" href="<?=asset("assets/favicon/manifest.json");?>?v=2">
 		<link rel="shortcut icon" href="<?=asset("assets/favicon/favicon.ico");?>?v=2">
+		<link rel="mask-icon" href="<?=asset("assets/favicon/favicon.svg");?>" color="#FF0000">
 		<meta name="msapplication-TileColor" content="#603cba">
 		<meta name="msapplication-TileImage" content="<?=asset("assets/favicon/mstile-144x144.png");?>?v=2">
 		<meta name="theme-color" content="#ffffff">
