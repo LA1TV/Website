@@ -14,7 +14,7 @@ class PlaylistsController extends HomeBaseController {
 	public function getIndex($pageNo=0) {
 		$pageNo = intval($pageNo);
 		
-		$fromCache = Cache::remember("pages.playlists", 15, function() use(&$pageNo) {
+		$fromCache = Cache::remember("pages.playlists.pageNo.".$pageNo, 15, function() use(&$pageNo) {
 
 			$itemsPerPage = intval(Config::get("custom.num_playlists_per_page"));
 			
