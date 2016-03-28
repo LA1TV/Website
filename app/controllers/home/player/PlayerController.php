@@ -20,6 +20,7 @@ use URLHelpers;
 use PlayerHelpers;
 use Exception;
 use PlaylistTableHelpers;
+use Cache;
 
 class PlayerController extends HomeBaseController {
 
@@ -27,6 +28,8 @@ class PlayerController extends HomeBaseController {
 		if (is_null($playlistId) || is_null($mediaItemId)) {
 			App::abort(404);
 		}
+		$playlistId = intval($playlistId);
+		$mediaItemId = intval($mediaItemId);
 		
 		// true if a user is logged into the cms and has permission to view media items.
 		$userHasMediaItemsPermission = false;
@@ -36,108 +39,297 @@ class PlayerController extends HomeBaseController {
 		$userHasPlaylistsPermission = false;
 		// true if a user is logged into the cms and has permission to manage comments and post as station.
 		$userHasCommentsPermission = false;
-		if (Auth::isLoggedIn()) {
-			$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
-			$userHasMediaItemsEditPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 1);
-			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
-			$userHasCommentsPermission = Auth::getUser()->hasPermission(Config::get("permissions.siteComments"), 0);
+		$user = Auth::getUser();
+		if (!is_null($user)) {
+			$userHasMediaItemsPermission = $user->hasPermission(Config::get("permissions.mediaItems"), 0);
+			$userHasMediaItemsEditPermission = $user->hasPermission(Config::get("permissions.mediaItems"), 1);
+			$userHasPlaylistsPermission = $user->hasPermission(Config::get("permissions.playlists"), 0);
+			$userHasCommentsPermission = $user->hasPermission(Config::get("permissions.siteComments"), 0);
 		}
+
+		// note, null is returned on an error and null is not cached. This is wanted in this case
+		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
+		$fromCache = Cache::remember("pages.player.".$cacheKeyUserId.".".$playlistId.".".$mediaItemId, 15, function() use (&$mediaItemId, &$playlistId, &$userHasMediaItemsPermission, &$userHasMediaItemsEditPermission, &$userHasPlaylistsPermission, &$userHasCommentsPermission) {
 		
-		$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessible();
-		if (!$userHasPlaylistsPermission) {
-			// current cms user (if logged in) does not have permission to view playlists, so only search playlists accessible to the public.
-			$playlist = $playlist->accessibleToPublic();
-		}
-		$playlist = $playlist->find(intval($playlistId));
-		if (is_null($playlist)) {
-			App::abort(404);
-		}
-		
-		$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
-		if (is_null($currentMediaItem)) {
-			App::abort(404);
-		}
-		
-		$coverArtResolutions = Config::get("imageResolutions.coverArt");
-		
-		// retrieving inaccessible items as well and then skipping them in the loop. This is so that we get the correct episode number.
-		$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
-		$playlistTableData = array();
-		$activeItemIndex = null;
-		
-		$newIndex = 0;
-		foreach($playlistMediaItems as $i=>$item) {
-			if (!$item->getIsAccessible()) {
-				// this shouldn't be accessible
-				continue;
+			$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessible();
+			if (!$userHasPlaylistsPermission) {
+				// current cms user (if logged in) does not have permission to view playlists, so only search playlists accessible to the public.
+				$playlist = $playlist->accessibleToPublic();
 			}
-			$thumbnailUri = Config::get("custom.default_cover_uri");
-			if (!Config::get("degradedService.enabled")) {
-				$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			$playlist = $playlist->find(intval($playlistId));
+			if (is_null($playlist)) {
+				return null;
 			}
-			$active = intval($item->id) === intval($currentMediaItem->id);
-			if ($active) {
-				$activeItemIndex = $newIndex;
+			
+			$currentMediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
+			if (is_null($currentMediaItem)) {
+				return null;
 			}
-			$playlistName = null;
+			
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+			
+			// retrieving inaccessible items as well and then skipping them in the loop. This is so that we get the correct episode number.
+			$playlistMediaItems = $playlist->mediaItems()->orderBy("media_item_to_playlist.position")->get();
+			$playlistTableData = array();
+			$activeItemIndex = null;
+			
+			$newIndex = 0;
+			foreach($playlistMediaItems as $i=>$item) {
+				if (!$item->getIsAccessible()) {
+					// this shouldn't be accessible
+					continue;
+				}
+				$thumbnailUri = Config::get("custom.default_cover_uri");
+				if (!Config::get("degradedService.enabled")) {
+					$thumbnailUri = $playlist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+				}
+				$active = intval($item->id) === intval($currentMediaItem->id);
+				if ($active) {
+					$activeItemIndex = $newIndex;
+				}
+				$playlistName = null;
+				if (is_null($playlist->show)) {
+					// this is a playlist not a series.
+					// show the series/playlist that each video in the playlist is from
+					$defaultPlaylist = $item->getDefaultPlaylist();
+					if (!is_null($defaultPlaylist->show)) {
+						// the current item in the playlist is part of a show.
+						$playlistName = $defaultPlaylist->generateName();
+					}
+				}
+				$playlistTableData[] = array(
+					"uri"					=> $playlist->getMediaItemUri($item),
+					"active"				=> $active,
+					"title"					=> $item->name,
+					"escapedDescription"	=> null,
+					"playlistName"			=> $playlistName,
+					"episodeNo"				=> $i+1,
+					"thumbnailUri"			=> $thumbnailUri,
+					"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
+					"duration"				=> PlaylistTableHelpers::getDuration($item),
+					"stats"					=> PlaylistTableHelpers::getStatsObj($item)
+				);
+				$newIndex++;
+			}
+			$playlistPreviousItemUri = null;
+			$playlistNextItemUri = null;
+			if ($activeItemIndex > 0) {
+				$playlistPreviousItemUri = $playlistTableData[$activeItemIndex-1]['uri'];
+			}
+			if ($activeItemIndex < count($playlistTableData)-1) {
+				$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
+			}	
+			
+			$relatedItems = $playlist->generateRelatedItems($currentMediaItem);
+			$relatedItemsTableData = array();
+			foreach($relatedItems as $i=>$item) {
+				// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
+				$relatedItemPlaylist = $item->getDefaultPlaylist();
+				$thumbnailUri = Config::get("custom.default_cover_uri");
+				if (!Config::get("degradedService.enabled")) {
+					$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+				}
+				$relatedItemsTableData[] = array(
+					"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
+					"active"				=> false,
+					"title"					=> $item->name,
+					"escapedDescription"	=> null,
+					"playlistName"			=> $relatedItemPlaylist->generateName(),
+					"episodeNo"				=> $i+1,
+					"thumbnailUri"			=> $thumbnailUri,
+					"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
+					"duration"				=> PlaylistTableHelpers::getDuration($item),
+					"stats"					=> PlaylistTableHelpers::getStatsObj($item)
+				);
+			}
+
+			$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
+			$liveStreamItem = $currentMediaItem->liveStreamItem;
+			
+			$seriesAd = null;
 			if (is_null($playlist->show)) {
-				// this is a playlist not a series.
-				// show the series/playlist that each video in the playlist is from
-				$defaultPlaylist = $item->getDefaultPlaylist();
+				// user is currently browsing playlist not series
+				$defaultPlaylist = $currentMediaItem->getDefaultPlaylist();
 				if (!is_null($defaultPlaylist->show)) {
-					// the current item in the playlist is part of a show.
-					$playlistName = $defaultPlaylist->generateName();
+					// show the button to link the user to the series containing the video they are watching.
+					$seriesAd = array(
+						"name"	=> $defaultPlaylist->generateName(),
+						"uri"		=> $defaultPlaylist->getMediaItemUri($currentMediaItem)
+					);
 				}
 			}
-			$playlistTableData[] = array(
-				"uri"					=> $playlist->getMediaItemUri($item),
-				"active"				=> $active,
-				"title"					=> $item->name,
-				"escapedDescription"	=> null,
-				"playlistName"			=> $playlistName,
-				"episodeNo"				=> $i+1,
-				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
-				"duration"				=> PlaylistTableHelpers::getDuration($item),
-				"stats"					=> PlaylistTableHelpers::getStatsObj($item)
-			);
-			$newIndex++;
-		}
-		$playlistPreviousItemUri = null;
-		$playlistNextItemUri = null;
-		if ($activeItemIndex > 0) {
-			$playlistPreviousItemUri = $playlistTableData[$activeItemIndex-1]['uri'];
-		}
-		if ($activeItemIndex < count($playlistTableData)-1) {
-			$playlistNextItemUri = $playlistTableData[$activeItemIndex+1]['uri'];
-		}	
-		
-		$relatedItems = $playlist->generateRelatedItems($currentMediaItem);
-		$relatedItemsTableData = array();
-		foreach($relatedItems as $i=>$item) {
-			// a mediaitem can be part of several playlists. Always use the first one that has a show if there is one, or just the first one otherwise
-			$relatedItemPlaylist = $item->getDefaultPlaylist();
-			$thumbnailUri = Config::get("custom.default_cover_uri");
-			if (!Config::get("degradedService.enabled")) {
-				$thumbnailUri = $relatedItemPlaylist->getMediaItemCoverArtUri($item, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+			
+			$episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
+			$openGraphCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+			$twitterCardCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
+				
+			$twitterProperties = array();
+			$twitterProperties[] = array("name"=> "card", "content"=> "player");
+			$openGraphProperties = array();
+			if (is_null($playlist->show)) {
+				$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
 			}
-			$relatedItemsTableData[] = array(
-				"uri"					=> $relatedItemPlaylist->getMediaItemUri($item),
-				"active"				=> false,
-				"title"					=> $item->name,
-				"escapedDescription"	=> null,
-				"playlistName"			=> $relatedItemPlaylist->generateName(),
-				"episodeNo"				=> $i+1,
-				"thumbnailUri"			=> $thumbnailUri,
-				"thumbnailFooter"		=> PlaylistTableHelpers::getFooterObj($item),
-				"duration"				=> PlaylistTableHelpers::getDuration($item),
-				"stats"					=> PlaylistTableHelpers::getStatsObj($item)
+			else {
+				$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.episode");
+				$openGraphProperties[] = array("name"=> "video:series", "content"=> $playlist->getUri());
+			}
+			$twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
+			$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
+			$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
+			
+			if (!is_null($currentMediaItem->description)) {
+				$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
+				$twitterProperties[] = array("name"=> "description", "content"=> str_limit($currentMediaItem->description, 197, "..."));
+			}
+			$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());;
+			$openGraphProperties[] = array("name"=> "og:title", "content"=> $episodeTitle);
+			$twitterProperties[] = array("name"=> "title", "content"=> $episodeTitle);
+			$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+			$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
+			if (!is_null($playlist->show)) {
+				if (!is_null($playlistNextItemUri)) {
+					$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistNextItemUri);
+				}
+				if (!is_null($playlistPreviousItemUri)) {
+					$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistPreviousItemUri);
+				}
+			}
+			foreach($relatedItemsTableData as $a) {
+				if (!in_array($a['uri'], array($playlistNextItemUri, $playlistPreviousItemUri))) {
+					$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
+				}
+			}
+			
+			$viewProps = array();
+			$viewProps['episodeTitle'] = $episodeTitle;
+			$viewProps['episodeDescriptionEscaped'] = !is_null($currentMediaItem->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($currentMediaItem->description)) : null;
+			$playlistTableFragmentData = array(
+				"stripedTable"	=> true,
+				"headerRowData"	=> array(
+					"title" 			=> $playlist->generateName(),
+					"seriesUri"			=> !is_null($playlist->show) ? $playlist->show->getUri() : null,
+					"navButtons"		=> array(
+						"previousItemUri"		=> $playlistPreviousItemUri,
+						"nextItemUri"			=> $playlistNextItemUri,
+						"showAutoPlayButton"	=> true
+					)
+				),
+				"tableData"		=> $playlistTableData
+			);
+			$relatedItemsTableFragmentData = count($relatedItemsTableData) > 0 ? array(
+				"stripedTable"	=> true,
+				"headerRowData"	=> array(
+					"title" 		=> "Related Items",
+					"seriesUri"		=> null,
+					"navButtons"	=> null
+				),
+				"tableData"		=> $relatedItemsTableData
+			) : null;
+			
+			$currentMediaItem->load("videoItem", "videoItem.chapters");
+			$videoItem = $currentMediaItem->videoItem;
+			$hasAccessibleVod = false;
+			if (!Config::get("degradedService.enabled")) {
+				$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
+			}
+			$commentsEnabled = $currentMediaItem->comments_enabled;
+			
+			$vodChapters = array();
+			if ($hasAccessibleVod) {
+				foreach($videoItem->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
+					$vodChapters[] = array(
+						"num"		=> $b+1,
+						"title"		=> $a->title,
+						"timeStr"	=> $a->time_str,
+						"time"		=> intval($a->time)
+					);
+				}
+			}
+
+			$coverImageUri = null;
+			$sideBannerUri = null;
+			$sideBannerFillUri = null;
+			if (!Config::get("degradedService.enabled")) {
+				$coverImageResolutions = Config::get("imageResolutions.coverImage");
+				$coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
+				$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
+				$sideBannerUri = $playlist->getMediaItemSideBannerUri($currentMediaItem, $sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
+				$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerImage");
+				$sideBannerFillUri = $playlist->getMediaItemSideBannerFillUri($currentMediaItem, $sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
+			}
+
+			$viewProps['vodChapters'] = $vodChapters;
+			$beingRecordedForVod = !is_null($liveStreamItem) ? (boolean) $liveStreamItem->being_recorded : null;
+			$viewProps['beingRecordedForVod'] = $beingRecordedForVod;
+			$viewProps['mediaItemId'] = $currentMediaItem->id;
+			$viewProps['seriesAd'] = $seriesAd;
+			$viewProps['coverImageUri'] = $coverImageUri;
+			$viewProps['playerInfoUri'] = PlayerHelpers::getInfoUri($playlist->id, $currentMediaItem->id);
+			$viewProps['playlistInfoUri'] = $this->getPlaylistInfoUri($playlist->id);
+			$viewProps['registerWatchingUri'] = PlayerHelpers::getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
+			$viewProps['registerLikeUri'] = PlayerHelpers::getRegisterLikeUri($playlist->id, $currentMediaItem->id);
+			
+			if ($commentsEnabled) {
+				$viewProps['getCommentsUri'] = $this->getGetCommentsUri($currentMediaItem->id);
+				$viewProps['postCommentUri'] = $this->getPostCommentUri($currentMediaItem->id);
+				$viewProps['deleteCommentUri']= $this->getDeleteCommentUri($currentMediaItem->id);
+			}
+
+			return array(
+				"viewProps"			=> $viewProps,
+				"currentMediaItem"	=> $currentMediaItem,
+				"sideBannerUri"		=> $sideBannerUri,
+				"sideBannerFillUri"	=> $sideBannerFillUri,
+				"videoItem"			=> $videoItem,
+				"liveStreamItem"	=> $liveStreamItem,
+				"commentsEnabled"	=> $commentsEnabled,
+				"openGraphProperties"	=> $openGraphProperties,
+				"twitterProperties"	=> $twitterProperties,
+				"playlistTableFragmentData"	=> $playlistTableFragmentData,
+				"relatedItemsTableFragmentData"	=> $relatedItemsTableFragmentData
+			);
+		}, true);
+
+		if (is_null($fromCache)) {
+			App::abort(404);
+			return;
+		}
+
+		$cachedViewProps = $fromCache["viewProps"];
+		$currentMediaItem = $fromCache["currentMediaItem"];
+		$sideBannerUri = $fromCache["sideBannerUri"];
+		$sideBannerFillUri = $fromCache["sideBannerFillUri"];
+		$videoItem = $fromCache["videoItem"];
+		$liveStreamItem = $fromCache["liveStreamItem"];
+		$commentsEnabled = $fromCache["commentsEnabled"];
+		$openGraphProperties = $fromCache["openGraphProperties"];
+		$twitterProperties = $fromCache["twitterProperties"];
+		$playlistTableFragmentData = $fromCache["playlistTableFragmentData"];
+		$relatedItemsTableFragmentData = $fromCache["relatedItemsTableFragmentData"];
+
+		$view = View::make("home.player.index");
+		foreach($cachedViewProps as $b=>$a) {
+			$view[$b] = $a;
+		}
+
+		$view->playlistTableFragment = View::make("fragments.home.playlist", $playlistTableFragmentData);
+		$view->relatedItemsTableFragment = !is_null($relatedItemsTableFragmentData) ? View::make("fragments.home.playlist", $relatedItemsTableFragmentData) : null;
+
+		$vodControlData = null;
+		if ($userHasMediaItemsEditPermission) {
+			$vodFileId = null;
+			if (!is_null($videoItem)) {
+				$vodFile = $videoItem->sourceFile;
+				$vodFileId = !is_null($vodFile) ? intval($vodFile->id) : null;
+			}
+			$vodControlData = array(
+				"uploadPointId"	=> Config::get("uploadPoints.vodVideo"),
+				"fileId"		=> $vodFileId,
+				"info"			=> FormHelpers::getFileInfo($vodFileId)
 			);
 		}
 
 		$streamControlData = null;
-		$currentMediaItem->load("liveStreamItem", "liveStreamItem.stateDefinition");
-		$liveStreamItem = $currentMediaItem->liveStreamItem;
 		if ($userHasMediaItemsEditPermission && !is_null($liveStreamItem)) {
 			$infoMsg = $liveStreamItem->information_msg;
 			$liveStreamStateDefinitions = LiveStreamStateDefinition::orderBy("id", "asc")->get();
@@ -160,162 +352,22 @@ class PlayerController extends HomeBaseController {
 				"streamInfoMsg"				=> !is_null($infoMsg) ? $infoMsg : ""
 			);
 		}
-		
-		$seriesAd = null;
-		if (is_null($playlist->show)) {
-			// user is currently browsing playlist not series
-			$defaultPlaylist = $currentMediaItem->getDefaultPlaylist();
-			if (!is_null($defaultPlaylist->show)) {
-				// show the button to link the user to the series containing the video they are watching.
-				$seriesAd = array(
-					"name"	=> $defaultPlaylist->generateName(),
-					"uri"		=> $defaultPlaylist->getMediaItemUri($currentMediaItem)
-				);
-			}
-		}
-		
-		$episodeTitle = $playlist->generateEpisodeTitle($currentMediaItem);
-		$openGraphCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
-		$twitterCardCoverArtUri = $playlist->getMediaItemCoverArtUri($currentMediaItem, $coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
-			
-		$twitterProperties = array();
-		$twitterProperties[] = array("name"=> "card", "content"=> "player");
-		$openGraphProperties = array();
-		if (is_null($playlist->show)) {
-			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
-		}
-		else {
-			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.episode");
-			$openGraphProperties[] = array("name"=> "video:series", "content"=> $playlist->getUri());
-		}
-		$twitterProperties[] = array("name"=> "player", "content"=> $playlist->getMediaItemEmbedUri($currentMediaItem)."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
-		$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
-		$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
-		
-		if (!is_null($currentMediaItem->description)) {
-			$openGraphProperties[] = array("name"=> "og:description", "content"=> $currentMediaItem->description);
-			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($currentMediaItem->description, 197, "..."));
-		}
-		$openGraphProperties[] = array("name"=> "video:release_date", "content"=> $currentMediaItem->scheduled_publish_time->toISO8601String());;
-		$openGraphProperties[] = array("name"=> "og:title", "content"=> $episodeTitle);
-		$twitterProperties[] = array("name"=> "title", "content"=> $episodeTitle);
-		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
-		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
-		if (!is_null($playlist->show)) {
-			if (!is_null($playlistNextItemUri)) {
-				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistNextItemUri);
-			}
-			if (!is_null($playlistPreviousItemUri)) {
-				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $playlistPreviousItemUri);
-			}
-		}
-		foreach($relatedItemsTableData as $a) {
-			if (!in_array($a['uri'], array($playlistNextItemUri, $playlistPreviousItemUri))) {
-				$openGraphProperties[] = array("name"=> "og:see_also", "content"=> $a['uri']);
-			}
-		}
-		
-		$view = View::make("home.player.index");
-		$view->episodeTitle = $episodeTitle;
-		$view->episodeDescriptionEscaped = !is_null($currentMediaItem->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($currentMediaItem->description)) : null;
-		$view->playlistTableFragment = View::make("fragments.home.playlist", array(
-			"stripedTable"	=> true,
-			"headerRowData"	=> array(
-				"title" 			=> $playlist->generateName(),
-				"seriesUri"			=> !is_null($playlist->show) ? $playlist->show->getUri() : null,
-				"navButtons"		=> array(
-					"previousItemUri"		=> $playlistPreviousItemUri,
-					"nextItemUri"			=> $playlistNextItemUri,
-					"showAutoPlayButton"	=> true
-				)
-			),
-			"tableData"		=> $playlistTableData
-		));
-		$view->relatedItemsTableFragment = count($relatedItemsTableData) > 0 ? View::make("fragments.home.playlist", array(
-			"stripedTable"	=> true,
-			"headerRowData"	=> array(
-				"title" 		=> "Related Items",
-				"seriesUri"		=> null,
-				"navButtons"	=> null
-			),
-			"tableData"		=> $relatedItemsTableData
-		)) : null;
-		
-		$currentMediaItem->load("videoItem", "videoItem.chapters");
-		$videoItem = $currentMediaItem->videoItem;
-		$hasAccessibleVod = false;
-		if (!Config::get("degradedService.enabled")) {
-			$hasAccessibleVod = !is_null($videoItem) && $videoItem->getIsLive();
-		}
-		$commentsEnabled = $currentMediaItem->comments_enabled;
-		
+
 		$vodPlayStartTime = $this->getVodStartTimeFromUrl();
-		
-		$vodChapters = array();
-		if ($hasAccessibleVod) {
-			foreach($videoItem->chapters()->orderBy("time", "asc")->orderBy("title", "asc")->get() as $b=>$a) {
-				$vodChapters[] = array(
-					"num"		=> $b+1,
-					"title"		=> $a->title,
-					"timeStr"	=> $a->time_str,
-					"time"		=> intval($a->time)
-				);
-			}
-		}
-		
-		$vodControlData = null;
-		if ($userHasMediaItemsEditPermission) {
-			$vodFileId = null;
-			if (!is_null($videoItem)) {
-				$vodFile = $videoItem->sourceFile;
-				$vodFileId = !is_null($vodFile) ? intval($vodFile->id) : null;
-			}
-			$vodControlData = array(
-				"uploadPointId"	=> Config::get("uploadPoints.vodVideo"),
-				"fileId"		=> $vodFileId,
-				"info"			=> FormHelpers::getFileInfo($vodFileId)
-			);
-		}
-
-		$coverImageUri = null;
-		$sideBannerUri = null;
-		$sideBannerFillUri = null;
-		if (!Config::get("degradedService.enabled")) {
-			$coverImageResolutions = Config::get("imageResolutions.coverImage");
-			$coverImageUri = $playlist->getMediaItemCoverUri($currentMediaItem, $coverImageResolutions['full']['w'], $coverImageResolutions['full']['h']);
-			$sideBannerImageResolutions = Config::get("imageResolutions.sideBannerImage");
-			$sideBannerUri = $playlist->getMediaItemSideBannerUri($currentMediaItem, $sideBannerImageResolutions['full']['w'], $sideBannerImageResolutions['full']['h']);
-			$sideBannerFillImageResolutions = Config::get("imageResolutions.sideBannerImage");
-			$sideBannerFillUri = $playlist->getMediaItemSideBannerFillUri($currentMediaItem, $sideBannerFillImageResolutions['full']['w'], $sideBannerFillImageResolutions['full']['h']);
-		}
-
 		// only autoplay if the user has come from an external site, or specified a start time
 		$autoPlay = !is_null($vodPlayStartTime) || !URLHelpers::hasInternalReferrer();
-		
-		$view->playerInfoUri = PlayerHelpers::getInfoUri($playlist->id, $currentMediaItem->id);
-		$view->playlistInfoUri = $this->getPlaylistInfoUri($playlist->id);
+		$view->autoPlay = $autoPlay;
 		$view->autoContinueMode = $this->getAutoContinueMode();
-		$view->registerWatchingUri = PlayerHelpers::getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
-		$view->registerLikeUri = PlayerHelpers::getRegisterLikeUri($playlist->id, $currentMediaItem->id);
 		$view->adminOverrideEnabled = $userHasMediaItemsPermission;
 		$view->loginRequiredMsg = "Please log in to use this feature.";
-		$view->beingRecordedForVod = !is_null($liveStreamItem) ? (boolean) $liveStreamItem->being_recorded : null;
-		$view->autoPlay = $autoPlay;
 		$view->vodPlayStartTime = is_null($vodPlayStartTime) ? "" : $vodPlayStartTime;
-		$view->vodChapters = $vodChapters;
 		$view->commentsEnabled = $commentsEnabled;
 		if ($commentsEnabled) {
-			$view->getCommentsUri = $this->getGetCommentsUri($currentMediaItem->id);
-			$view->postCommentUri = $this->getPostCommentUri($currentMediaItem->id);
-			$view->deleteCommentUri = $this->getDeleteCommentUri($currentMediaItem->id);
 			$view->canCommentAsFacebookUser = Facebook::isLoggedIn() && Facebook::getUserState() === 0;
 			$view->canCommentAsStation = $userHasCommentsPermission;
 		}
 		$view->vodControlData = $vodControlData;
 		$view->streamControlData = $streamControlData;
-		$view->mediaItemId = $currentMediaItem->id;
-		$view->seriesAd = $seriesAd;
-		$view->coverImageUri = $coverImageUri;
 		$this->setContent($view, "player", "player", $openGraphProperties, $currentMediaItem->name, 200, $twitterProperties, $sideBannerUri, $sideBannerFillUri);
 	}
 	

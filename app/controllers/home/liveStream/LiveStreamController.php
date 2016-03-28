@@ -10,6 +10,7 @@ use URLHelpers;
 use Auth;
 use Exception;
 use Carbon;
+use Cache;
 
 class LiveStreamController extends HomeBaseController {
 
@@ -18,42 +19,70 @@ class LiveStreamController extends HomeBaseController {
 			App::abort(404);
 		}
 		
-		$liveStream = LiveStream::showAsLiveStream()->find($id);
-		if (is_null($liveStream)) {
+		$id = intval($id);
+
+		$fromCache = Cache::remember("pages.liveStream.".$id, 15, function() use(&$id) {
+
+			$liveStream = LiveStream::showAsLiveStream()->find($id);
+			if (is_null($liveStream)) {
+				return null;
+			}
+
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+
+			$twitterProperties = array();
+			$twitterProperties[] = array("name"=> "card", "content"=> "player");
+			$openGraphProperties = array();
+			$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
+
+			$twitterProperties[] = array("name"=> "player", "content"=> $liveStream->getEmbedUri()."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
+			$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
+			$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
+
+			if (!is_null($liveStream->description)) {
+				$openGraphProperties[] = array("name"=> "og:description", "content"=> $liveStream->description);
+				$twitterProperties[] = array("name"=> "description", "content"=> str_limit($liveStream->description, 197, "..."));
+			}
+			$liveStreamName = $liveStream->name;
+			$openGraphProperties[] = array("name"=> "og:title", "content"=> $liveStreamName);
+			$twitterProperties[] = array("name"=> "title", "content"=> $liveStreamName);
+			$openGraphCoverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
+			$twitterCardCoverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
+			$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
+			$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
+			
+			$viewProps = array();
+			$viewProps["title"] = $liveStreamName;
+			$viewProps["descriptionEscaped"] = !is_null($liveStream->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($liveStream->description)) : null;
+			$viewProps["playerInfoUri"] = $this->getInfoUri($liveStream->id);
+			$viewProps["registerWatchingUri"] = $this->getRegisterWatchingUri($liveStream->id);
+			$viewProps["scheduleUri"] = $this->getScheduleUri($liveStream->id);
+
+			return array(
+				"viewProps"				=> $viewProps,
+				"openGraphProperties"	=> $openGraphProperties,
+				"twitterProperties"		=> $twitterProperties,
+				"liveStreamName"		=> $liveStreamName
+			);
+
+		}, true);
+
+		if (is_null($fromCache)) {
 			App::abort(404);
+			return;
 		}
 
-		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		$cachedViewProps = $fromCache["viewProps"];
+		$openGraphProperties = $fromCache["openGraphProperties"];
+		$twitterProperties = $fromCache["twitterProperties"];
+		$liveStreamName = $fromCache["liveStreamName"];
 
-		$twitterProperties = array();
-		$twitterProperties[] = array("name"=> "card", "content"=> "player");
-		$openGraphProperties = array();
-		$openGraphProperties[] = array("name"=> "og:type", "content"=> "video.other");
-
-		$twitterProperties[] = array("name"=> "player", "content"=> $liveStream->getEmbedUri()."?autoPlayVod=0&autoPlayStream=0&flush=1&disableFullScreen=1&disableRedirect=1");
-		$twitterProperties[] = array("name"=> "player:width", "content"=> "1280");
-		$twitterProperties[] = array("name"=> "player:height", "content"=> "720");
-		
-		
-		if (!is_null($liveStream->description)) {
-			$openGraphProperties[] = array("name"=> "og:description", "content"=> $liveStream->description);
-			$twitterProperties[] = array("name"=> "description", "content"=> str_limit($liveStream->description, 197, "..."));
-		}
-		$openGraphProperties[] = array("name"=> "og:title", "content"=> $liveStream->name);
-		$twitterProperties[] = array("name"=> "title", "content"=> $liveStream->name);
-		$openGraphCoverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['fbOpenGraph']['w'], $coverArtResolutions['fbOpenGraph']['h']);
-		$twitterCardCoverArtUri = $liveStream->getCoverArtUri($coverArtResolutions['twitterCard']['w'], $coverArtResolutions['twitterCard']['h']);
-		$openGraphProperties[] = array("name"=> "og:image", "content"=> $openGraphCoverArtUri);
-		$twitterProperties[] = array("name"=> "image", "content"=> $twitterCardCoverArtUri);
-		
 		$view = View::make("home.liveStream.index");
-		$view->title = $liveStream->name;
-		$view->descriptionEscaped = !is_null($liveStream->description) ? nl2br(URLHelpers::escapeAndReplaceUrls($liveStream->description)) : null;
-		$view->playerInfoUri = $this->getInfoUri($liveStream->id);
-		$view->registerWatchingUri = $this->getRegisterWatchingUri($liveStream->id);
-		$view->scheduleUri = $this->getScheduleUri($liveStream->id);
+		foreach($cachedViewProps as $b=>$a) {
+			$view[$b] = $a;
+		}
 		$view->loginRequiredMsg = "Please log in to use this feature.";
-		$this->setContent($view, "live-stream", "live-stream", $openGraphProperties, $liveStream->name, 200, $twitterProperties);
+		$this->setContent($view, "live-stream", "live-stream", $openGraphProperties, $liveStreamName, 200, $twitterProperties);
 	}
 	
 	public function postPlayerInfo($id) {
