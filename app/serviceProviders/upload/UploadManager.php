@@ -277,12 +277,6 @@ class UploadManager {
 		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
 		$cacheKey = "uploadManager.getFile.accessAllowed.".$cacheKeyUserId.".".$fileId;
 
-		$accessAllowed = Cache::get($cacheKey);
-		if (!$accessAllowed) {
-			// if access was denied always try again (fail safe)
-			Cache::forget($cacheKey);
-		}
-
 		$accessAllowed = Cache::remember($cacheKey, 120, function() use(&$fileId, &$user) {
 
 			// the file must be a render (ie have a source file) file to be valid. Then the security checks are performed on the source file.
@@ -431,8 +425,10 @@ class UploadManager {
 					}
 				}
 			}
-			return $accessAllowed;
-		}, true);
+
+			// if access is not allowed return null, as this will not be cached.
+			return $accessAllowed ? true : null;
+		}, true) === true; // to concert to boolean (because can be null, see above)
 		
 		return $accessAllowed ? File::find($fileId) : null;
 	}
