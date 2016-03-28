@@ -18,8 +18,7 @@ class PlaylistController extends HomeBaseController {
 		}
 
 		$id = intval($id);
-		$cacheKeyPlaylistId = !is_null($id) ? $id : -1;
-		$fromCache = Cache::remember("pages.playlist.".$cacheKeyPlaylistId, 15, function() use (&$id) {
+		$fromCache = Cache::remember("pages.playlist.".$id, 15, function() use (&$id) {
 		
 			$playlist = Playlist::with("show", "mediaItems", "relatedItems", "relatedItems.playlists")->accessibleToPublic()->find(intval($id));
 			if (is_null($playlist)) {
