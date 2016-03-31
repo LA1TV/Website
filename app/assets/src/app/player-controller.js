@@ -343,8 +343,10 @@ define([
 
 			var onComplete = function() {
 				if (!destroyed) {
-					// schedule update again in 15 seconds
-					timerId = setTimeout(update, 15000);
+					// schedule update again in 15 seconds if not connected to notification service
+					// otherwise 25 seconds as update() will be called instantly when the playback
+					// type should change. View count and watching now updating less often not a big issue
+					timerId = setTimeout(update, notificationService.isConnected() ? 25000 : 15000);
 				}
 			};
 
