@@ -36,7 +36,7 @@ require("./browser-notification-permission-request-bar.css");
 	function onPermissionGranted() {
 		requestBarHandle.remove();
 		setTimeout(function() {
-			createNotification("Notifications Enabled", "Thanks for letting us send you notifications.", "notificationsEnabled");
+			createNotification("Notifications Enabled", "Thanks for letting us send you notifications.", null, null, null, "notificationsEnabled");
 		}, 1000);
 		logger.debug("User accepted notifications permission.");
 		onHaveNotificationsPermission();
