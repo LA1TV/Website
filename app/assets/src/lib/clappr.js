@@ -17208,6 +17208,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // if content is removed from the beginning then this empty area should
 	    // be ignored. "playableRegionDuration" does not consider this
 	    _this.playableRegionDuration = 0;
+	    // true when the actual duration is longer than hlsjs's live sync point
+	    // when this is false playableRegionDuration will be the actual duration
+	    // when this is true playableRegionDuration will exclude the time after the sync point
+	    _this.durationExcludesAfterLiveSyncPoint = false;
 	    options.autoPlay && _this.setupHls();
 	    _this.recoverAttemptsRemaining = options.hlsRecoverAttempts || 16;
 	    return _this;
@@ -17399,6 +17403,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var hiddenAreaDuration = fragmentTargetDuration * liveSyncDurationCount;
 	      if (hiddenAreaDuration <= newDuration) {
 	        newDuration -= hiddenAreaDuration;
+	        this.durationExcludesAfterLiveSyncPoint = true;
+	      } else {
+	        this.durationExcludesAfterLiveSyncPoint = false;
 	      }
 	    }
 	    if (newDuration !== this.playableRegionDuration) {
@@ -17442,7 +17449,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(HLS, [{
 	    key: 'dvrEnabled',
 	    get: function get() {
-	      return this.playableRegionDuration >= this.minDvrSize && this.getPlaybackType() === _playback2.default.LIVE;
+	      // enabled when:
+	      // - the duration does not include content after hlsjs's live sync point
+	      // - the playable region duration is longer than the configured duration to enable dvr after
+	      // - the playback type is LIVE.
+	      return this.durationExcludesAfterLiveSyncPoint && this.playableRegionDuration >= this.minDvrSize && this.getPlaybackType() === _playback2.default.LIVE;
 	    }
 	  }]);
 
