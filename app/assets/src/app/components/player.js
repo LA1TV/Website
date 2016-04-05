@@ -751,7 +751,8 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 				loop: false,
 				maxBufferLength: 30,
 				hlsjsConfig: {
-					maxMaxBufferLength: 30
+					maxMaxBufferLength: 30,
+					debug: PageData.get("debugId") !== null || PageData.get("env") !== "production"
 				},
 				chromeless: disableControls,
 				autoPlay: queuedPlayerTimeStartPlaying,
