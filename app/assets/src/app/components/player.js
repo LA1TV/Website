@@ -11,8 +11,26 @@ var nl2br = require("app/helpers/nl2br");
 var e = require("app/helpers/html-encode");
 var pad = require("app/helpers/pad");
 var logger = require("app/logger");
+var PageData = require("app/page-data");
+var Promise = require("lib/es6-promise").Promise;
 require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
+
+var peer5ApiKey = PageData.get("peer5ApiKey");
+var peer5ClapprPluginLoader = Promise.reject();
+if (peer5ApiKey) {
+	peer5ClapprPluginLoader = new Promise(function(resolve, reject) {
+		require(["external/peer5"], function(peer5ExternalLoader) {
+			peer5ExternalLoader.then(function() {
+				require(["external/peer5-clappr"], function(peer5ClapprExternalLoader) {
+					resolve(peer5ClapprExternalLoader);
+				});
+			}).catch(function() {
+				reject();
+			});
+		});
+	});
+}
 	
 var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
 

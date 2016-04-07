@@ -44,7 +44,7 @@ class EmbedBaseController extends BaseController {
 			"loggedIn"		=> Facebook::isLoggedIn(),
 			"gaEnabled"		=> Config::get("googleAnalytics.enabled"),
 			"notificationServiceUrl"	=> Config::get("notificationService.url"),
-			"peer5ApiKey"	=> Config::get("peer5.api_key"),
+			"peer5ApiKey"	=> Config::get("peer5.apiKey"),
 			"env"			=> App::environment(),
 			"version"		=> DebugHelpers::getVersion(),
 			"degradedService"	=> Config::get("degradedService.enabled")
