@@ -17,8 +17,10 @@ require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
 
 var peer5ApiKey = PageData.get("peer5ApiKey");
+// default to peer5 being disabled
 var peer5ClapprPluginLoader = Promise.reject();
 if (peer5ApiKey) {
+	// this is a promise that will resolve peer5 has loaded with their clappr plugin
 	peer5ClapprPluginLoader = new Promise(function(resolve, reject) {
 		require(["external/peer5"], function(peer5ExternalLoader) {
 			peer5ExternalLoader.then(function() {
