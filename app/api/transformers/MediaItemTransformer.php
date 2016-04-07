@@ -117,6 +117,7 @@ class MediaItemTransformer extends Transformer {
 				"streamEndTime"			=> $streamEndTime,
 				"informationMsg"		=> $infoMsg, // only accessible when the stream is in NOT_LIVE mode
 				"qualities"				=> $streamQualities,
+				"hasDvr"				=> $mediaItemLiveStream->hasDvrRecording(),
 				"urlData"				=> $streamUrlData
 			];
 		}
