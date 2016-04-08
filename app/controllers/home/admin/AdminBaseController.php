@@ -37,6 +37,7 @@ class AdminBaseController extends BaseController {
 			"cookieDomain"	=> Config::get("cookies.domain"),
 			"cookieSecure"	=> Config::get("ssl.enabled"),
 			"assetsBaseUrl"	=> asset(""),
+			"webAppCapable"		=> true,
 			"serviceWorkerUrl"	=> URL::route("home-service-worker"),
 			"logUri"		=> Config::get("custom.log_uri"),
 			"debugId"		=> DebugHelpers::getDebugId(),
