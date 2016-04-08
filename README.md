@@ -16,3 +16,13 @@ https://www.vagrantup.com/) at "https://github.com/LA1TV/Website-Homestead".
 - meta
 - sessions
 - views
+
+# Assets
+The javascript and css is all built using webpack, and is managed with npm. So first install npm, then run `npm install` to get all the dependencies.
+
+They are split up into "home" for the main front end, "admin" for the CMS, and "embed".
+
+To build the assets and automatically rebuild when you make changes use:
+- `npm run watchHome`
+- `npm run watchAdmin`
+- `npm run watchEmbed`
