@@ -227,6 +227,9 @@ class MediaItemTransformer extends Transformer {
 			$responseData['siteUrl'] = $playlist->getMediaItemUri($mediaItem);
 			$responseData['episodeNumber'] =  $playlist->getEpisodeNumber($mediaItem);
 		}
+		else {
+			$responseData['siteUrl'] = $mediaItem->getUri();
+		}
 		return $responseData;
 	}
 	

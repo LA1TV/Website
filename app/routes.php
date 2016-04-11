@@ -97,6 +97,7 @@ Route::group(array('before' => array("liveCheck"), 'after' => array('setContentS
 			Route::get('/playlists/{a?}', array("as"=>"playlists", "uses"=>$p.'home\playlists\PlaylistsController@getIndex'));
 			Route::controller('/playlist', $p.'home\playlist\PlaylistController');
 			Route::get('/playlist/{a}', array("as"=>"playlist", "uses"=>$p.'home\playlist\PlaylistController@getIndex'));
+			Route::get('/player/{a}', array("as"=>"player-media-item", "uses"=>$p.'home\player\PlayerController@redirectFromMediaItem'));
 			Route::controller('/player', $p.'home\player\PlayerController');
 			// this is here so the named route can be retrieved in EmbedController
 			Route::get('/player/{a}/{b}', array("as"=>"player", "uses"=>$p.'home\player\PlayerController@getIndex'));

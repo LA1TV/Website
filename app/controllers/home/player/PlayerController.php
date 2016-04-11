@@ -11,6 +11,7 @@ use uk\co\la1tv\website\models\LiveStreamStateDefinition;
 use uk\co\la1tv\website\models\File;
 use uk\co\la1tv\website\models\PlaybackTime;
 use Response;
+use Redirect;
 use Config;
 use Carbon;
 use Facebook;
@@ -23,6 +24,19 @@ use PlaylistTableHelpers;
 use Cache;
 
 class PlayerController extends HomeBaseController {
+
+	public function redirectFromMediaItem($mediaItemId) {
+		// redirect to the player page for a playlist this media item is in
+		$mediaItem = MediaItem::find($mediaItemId);
+		if (is_null($mediaItem) || !$mediaItem->getIsAccessible()) {
+			App::abort(404);
+		}
+		$playlist = $mediaItem->getDefaultPlaylist();
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		return Redirect::route('player', array($playlist->id, $mediaItem->id), 302);
+	}
 
 	public function getIndex($playlistId=null, $mediaItemId=null) {
 		if (is_null($playlistId) || is_null($mediaItemId)) {

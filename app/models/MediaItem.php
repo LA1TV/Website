@@ -105,6 +105,10 @@ class MediaItem extends MyEloquent {
 	public function credits() {
 		return $this->morphMany('uk\co\la1tv\website\models\Credit', 'creditable');
 	}
+
+	public function getUri() {
+		return URL::route('player-media-item', array($this->id));
+	}
 	
 	public function getNumWatchingNow() {
 		return PlaybackHistory::getNumWatchingNow(intval($this->id));
