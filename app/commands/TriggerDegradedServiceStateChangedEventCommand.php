@@ -67,7 +67,7 @@ class TriggerDegradedServiceStateChangedEventCommand extends ScheduledCommand {
 		Redis::set("degradedServiceEnabled", $degradedServiceEnabled);
 
 		if ($degradedServiceEnabled !== $degradedServiceWasEnabled) {
-			// fire an event because filestore availability has changed
+			// fire an event because degraded service state has changed
 			$this->info("Firing event because degraded service state has changed.");
 			Event::fire('degradedService.stateChanged', [$degradedServiceEnabled]);
 		}
