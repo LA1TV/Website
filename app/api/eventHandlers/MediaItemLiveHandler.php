@@ -77,6 +77,6 @@ class MediaItemLiveHandler {
 			"payload"	=> $payload
 		);
 		$redis = Redis::connection();
-		$redis->publish("mediaItemLiveChannel", json_encode($data));
+		$redis->publish("broadcastChannel", json_encode($data));
 	}
 }
