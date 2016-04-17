@@ -73,6 +73,9 @@ App::down(function() {
 	return DebugHelpers::generateMaintenanceModeResponse();
 });
 
+if (App::environment() === "production") {
+	DB::connection()->disableQueryLog();
+}
 
 // add the redisSynchronized cache driver
 Cache::extend('redisSynchronized', function($app) {

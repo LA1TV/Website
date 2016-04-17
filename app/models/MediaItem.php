@@ -549,7 +549,9 @@ class MediaItem extends MyEloquent {
 		$numPopularItems = intval(Config::get("custom.num_popular_items"));
 
 		// get ids for media items with ones with most views at the top
-		$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(constitutes_view) as view_count, media_item_id")->orderBy("view_count", "desc")->orderBy("id", "asc")->lists("media_item_id");
+		// weight the view counts so that views closer to now weigh more, up to popular_items_weight_period days ago
+		// views have a weighting of the number of days from popular_items_weight_period days ago * popular_items_weight
+		$popularMediaItemIds = PlaybackHistory::groupBy("media_item_id")->selectRaw("SUM(`constitutes_view` * (GREATEST(TIMESTAMPDIFF(SECOND, DATE_SUB(NOW(), INTERVAL ".intval(Config::get("custom.popular_items_weight_period"))." day), `created_at`), 0)/86400*".Config::get("custom.popular_items_weight").")+1) as weighted_view_count, media_item_id")->orderBy("weighted_view_count", "desc")->orderBy("id", "asc")->lists("media_item_id");
 
 		$items = array();
 		if (count($popularMediaItemIds) > 0) {

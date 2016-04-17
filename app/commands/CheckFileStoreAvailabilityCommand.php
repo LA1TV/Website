@@ -62,13 +62,15 @@ class CheckFileStoreAvailabilityCommand extends ScheduledCommand {
 			$filesLocation = Config::get("custom.files_location");
 			$checkTime = time();
 			$available = file_exists($filesLocation);
-			if ($available && time() - $checkTime > 2.5) {
+			$responseTime = time() - $checkTime;
+			if ($available && $responseTime > 2.5) {
 				// took longer than 2.5 seconds to check existance
 				// presume there are issues
 				$available = false;
 			}
 			Redis::set("fileStoreAvailable", $available, "EX", 90);
 			Redis::del("fileStoreAvailableCheckRunning");
+			$this->info("File store response time: " . $responseTime."s");
 			$this->info($available ? "Available.":"Unavailable.");
 		}
 		$this->info("Finished.");
