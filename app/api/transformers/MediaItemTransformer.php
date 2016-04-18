@@ -76,6 +76,7 @@ class MediaItemTransformer extends Transformer {
 			$infoMsg = $stateDefinition === 1 ? $mediaItemLiveStream->information_msg : null;
 			
 			$liveStream = $mediaItemLiveStream->liveStream;
+			$liveStreamId = !is_null($liveStream) ? intval($liveStream->id) : null;
 			$streamQualities = null;
 			$streamUrlData = null;
 			// $liveStream can be null whilst the state being "LIVE" if there's an external stream url
@@ -118,7 +119,8 @@ class MediaItemTransformer extends Transformer {
 				"informationMsg"		=> $infoMsg, // only accessible when the stream is in NOT_LIVE mode
 				"qualities"				=> $streamQualities,
 				"hasDvr"				=> $mediaItemLiveStream->hasDvrRecording(),
-				"urlData"				=> $streamUrlData
+				"urlData"				=> $streamUrlData,
+				"liveStreamId"			=> $liveStreamId
 			];
 		}
 		
