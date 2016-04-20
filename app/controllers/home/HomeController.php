@@ -108,7 +108,7 @@ class HomeController extends HomeBaseController {
 			);
 		}
 		
-		$mostPopularItems = array_slice(MediaItem::getCachedMostPopularItems(), 0, 5);
+		$mostPopularItems = array_slice(MediaItem::getCachedMostPopularItems(), 0, 10-count($recentlyAddedItems));
 		$mostPopularTableData = array();
 		foreach($mostPopularItems as $i=>$a) {
 			$mediaItem = $a['mediaItem'];
