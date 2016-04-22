@@ -73,14 +73,10 @@ class MediaItemVideo extends MyEloquent {
 
 
 		// cache for 10 seconds
-		// Urls may be different depending on the logged in (cms) user depending on the permissions the user has
-		// so different caches are needed per (cms) user.
-		// also need to include the domain as the urls depend on this. E.g. embed.la1tv.co.uk and www.la1tv.co.uk
+		// need to include the domain as the urls depend on this. E.g. embed.la1tv.co.uk and www.la1tv.co.uk
 		// the check to make sure the item is accessible was above, so we can guarantee that the cached version (or to be cached)
 		// version will contain urls
-		$user = Auth::getUser();
-		$cacheKeyUserId = !is_null($user) ? intval($user->id) : -1;
-		return Cache::remember("mediaItemVideo.".$cacheKeyUserId.".".$this->id.".".md5($_SERVER['SERVER_NAME']).".qualitiesWithUris", 10, function() use (&$sourceFile) {
+		return Cache::remember("mediaItemVideo.".$this->id.".".md5($_SERVER['SERVER_NAME']).".qualitiesWithUris", 10, function() use (&$sourceFile) {
 
 			$renders = $sourceFile->renderFiles;
 			$qualities = array();
