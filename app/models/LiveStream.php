@@ -336,6 +336,15 @@ class LiveStream extends MyEloquent {
 		})->orderBy("scheduled_publish_time", "desc")->first();
 	}
 
+	// get the media item that is currently live on this stream,
+	// even though it is assigned and live on a different stream.
+	// e.g this might be a 24 hour stream which has currently switched to
+	// part of a football match, which is being streamed in whole on a separate
+	// stream to a media item
+	public function getInheritedLiveMediaItem() {
+		// TODO
+	}
+
 	public function getIsAccessible() {
 		return $this->enabled && $this->liveStreamUris()->count() > 0;
 	}
