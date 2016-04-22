@@ -6,6 +6,7 @@ use Config;
 use DB;
 use Cache;
 use Auth;
+use Request;
 use uk\co\la1tv\website\helpers\reorderableList\ChaptersReorderableList;
 
 class MediaItemVideo extends MyEloquent {
@@ -76,7 +77,7 @@ class MediaItemVideo extends MyEloquent {
 		// need to include the domain as the urls depend on this. E.g. embed.la1tv.co.uk and www.la1tv.co.uk
 		// the check to make sure the item is accessible was above, so we can guarantee that the cached version (or to be cached)
 		// version will contain urls
-		return Cache::remember("mediaItemVideo.".$this->id.".".md5($_SERVER['SERVER_NAME']).".qualitiesWithUris", 10, function() use (&$sourceFile) {
+		return Cache::remember("mediaItemVideo.".$this->id.".".md5(Request::root()).".qualitiesWithUris", 10, function() use (&$sourceFile) {
 
 			$renders = $sourceFile->renderFiles;
 			$qualities = array();
