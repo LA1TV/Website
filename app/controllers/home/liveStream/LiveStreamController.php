@@ -146,6 +146,7 @@ class LiveStreamController extends HomeBaseController {
 		return Response::json($data);
 	}
 
+	// TODO cache this
 	public function postScheduleInfo($id) {
 		
 		$liveStream = LiveStream::showAsLiveStream()->find($id);
@@ -164,6 +165,12 @@ class LiveStreamController extends HomeBaseController {
 		$comingUp = !is_null($comingUpMediaItem) ? $this->getMediaItemArray($comingUpMediaItem) : null;
 		$live = !is_null($liveMediaItem) ? $this->getMediaItemArray($liveMediaItem) : null;
 		$previouslyLive = !is_null($previouslyLiveMediaItem) ? $this->getMediaItemArray($previouslyLiveMediaItem) : null;
+
+		if (is_null($liveMediaItem)) {
+			// if there is another media item live on this stream then show that
+			$inheritedLiveMediaItem = $liveStream->getInheritedLiveMediaItem();
+			$live = !is_null($inheritedLiveMediaItem) ? $this->getMediaItemArray($inheritedLiveMediaItem) : null;
+		}
 
 		$data = array(
 			"previouslyLive"	=> $previouslyLive,
