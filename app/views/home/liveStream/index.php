@@ -1,4 +1,21 @@
 <h1 class="no-top-margin"><?=e($title);?></h1>
+<?php if (!is_null($adminControl)): ?>
+<div class="admin-panel panel-group custom-accordian" data-grouptogether="1" data-livestreamid="<?=e($liveStreamId);?>">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">Admin Control</h4>
+		</div>
+		<div class="panel-collapse collapse">
+			<div class="panel-body">
+				<div class="my-row inherited-live-media-item-row">
+					<div>Inherited live media item:</div>
+					<div class="inherited-live-media-item-ajax-select" data-datasourceuri="<?=e($adminControl['mediaItemsAjaxSelectDataUri']);?>" data-chosenitemid="<?=e($adminControl['inheritedLiveMediaItemId']);?>" data-chosenitemtext="<?=e($adminControl['inheritedLiveMediaItemText']);?>"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<?php endif; ?>
 <div class="row">
 	<div class="col-md-12 player-container-col">
 		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-watching-uri="<?=e($registerWatchingUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>">

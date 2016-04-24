@@ -3,14 +3,79 @@ define([
 	"../../components/player-container",
 	"../../page-data",
 	"../../helpers/ajax-helpers",
+	"../../components/ajax-select",
+	"../../components/alert-modal",
 	"../../helpers/pad",
 	"../../synchronised-time"
-], function($, PlayerContainer, PageData, AjaxHelpers, pad, SynchronisedTime) {
+], function($, PlayerContainer, PageData, AjaxHelpers, AjaxSelect, AlertModal, pad, SynchronisedTime) {
 	
 	$(document).ready(function() {
 		$(".page-live-stream").first().each(function() {
 			
 			var $pageContainer = $(this).first();
+
+			$pageContainer.find(".admin-panel").first().each(function() {
+				var liveStreamId = parseInt($(this).attr("data-livestreamid"));
+				$(".inherited-live-media-item-row .inherited-live-media-item-ajax-select").first().each(function() {
+					var dataSourceUri = $(this).attr("data-datasourceuri");
+					var chosenItemId = $(this).attr("data-chosenitemid") !== "" ? parseInt($(this).attr("data-chosenitemid")) : null;
+					var chosenItemText = $(this).attr("data-chosenitemtext");
+
+					var successModal = null;
+					var failModal  = null;
+
+					var ajaxSelect = new AjaxSelect(dataSourceUri, {
+						id: chosenItemId,
+						text: chosenItemText
+					});
+					$(ajaxSelect).on("stateChanged", function() {
+						var id = ajaxSelect.getId();
+						makeAjaxRequest(id);
+					});
+
+					var $container = $("<div />").addClass("form-control");
+					$container.append(ajaxSelect.getEl());
+					$(this).append($container);
+
+
+					function makeAjaxRequest(mediaItemId) {
+						$.ajax(PageData.get("baseUrl")+"/admin/livestreams/admin-vod-control-inherited-live-media-item/"+liveStreamId, {
+							cache: false,
+							dataType: "json",
+							headers: AjaxHelpers.getHeaders(),
+							data: {
+								csrf_token: PageData.get("csrfToken"),
+								id: mediaItemId !== null ? mediaItemId : ""
+							},
+							type: "POST"
+						}).always(function(data, textStatus, jqXHR) {
+							if (jqXHR.status === 200) {
+								// updated succesfully
+								showSuccessModal();
+							}
+							else {
+								// failed to save.
+								showErrorModal();
+							}
+						});
+					}
+
+					function showSuccessModal() {
+						if (!successModal) {
+							successModal = new AlertModal("Updated!", "The inherited live media item has been updated.");
+						}
+						successModal.show(true);
+					}
+
+					function showErrorModal() {
+						if (!failModal) {
+							failModal = new AlertModal("Update failed!", "The inherited live media item failed to update for some reason.");
+						}
+						failModal.show(true);
+					}
+				});
+
+			});
 
 			$pageContainer.find(".player-container-component-container").each(function() {
 				var self = this;

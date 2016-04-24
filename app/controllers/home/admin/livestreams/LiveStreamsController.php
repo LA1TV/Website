@@ -282,4 +282,34 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		}
 		return Response::json($resp);
 	}
+
+	// ajax from the admin control box on the live stream page on the main site
+	public function postAdminVodControlInheritedLiveMediaItem($id) {
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 1);
+		
+		$liveStream = LiveStream::with("inheritedLiveMediaItem")->find($id);
+		if (is_null($liveStream)) {
+			App::abort(404);
+		}
+		
+		$id = null;
+		if (isset($_POST['id']) && $_POST['id'] !== "") {
+			$id = intval($_POST['id']);
+		}
+		
+		$inheritedLiveMediaItem = null;
+		if (!is_null($id)) {
+			$inheritedLiveMediaItem = MediaItem::find($id);
+			if (is_null($inheritedLiveMediaItem)) {
+				App::abort(500);
+			}
+		}
+		EloquentHelpers::associateOrNull($liveStream->inheritedLiveMediaItem(), $inheritedLiveMediaItem);
+		if (!$liveStream->save()) {
+			App::abort(500);
+		}
+
+		$resp = array("success" => true);
+		return Response::json($resp);
+	}
 }
