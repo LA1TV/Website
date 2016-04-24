@@ -2,13 +2,18 @@ define([
 	"jquery",
 	"../../page-data",
 	"../../components/reorderable-list",
+	"../../default-ajax-select",
 	"../../components/quality-and-url-input"
-], function($, PageData, ReorderableList, QualityAndUrlInput) {
+], function($, PageData, ReorderableList, DefaultAjaxSelect, QualityAndUrlInput) {
 	
 	$(document).ready(function() {
 		$(".page-livestreams-edit").first().each(function() {
 		
 			var $pageContainer = $(this).first();
+
+			$pageContainer.find(".form-inherited-live-media-item").each(function() {
+				DefaultAjaxSelect.register($(this).first());
+			});
 			
 			$pageContainer.find(".form-urls").each(function() {
 				var $container = $(this).first();

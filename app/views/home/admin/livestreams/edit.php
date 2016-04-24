@@ -8,6 +8,7 @@
 		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormUploadInput(1, $coverArtUploadPointId, "Cover Art (Optional) (Should Be 16:9)", "cover-art-id", $form['cover-art-id'], $formErrors, $additionalForm['coverArtFile']['name'], $additionalForm['coverArtFile']['size'], $additionalForm['coverArtFile']['processState'], $additionalForm['coverArtFile']['processPercentage'], $additionalForm['coverArtFile']['processMsg']);?>
+		<?=FormHelpers::getAjaxSelectInput(1, "Inherited Live Stream Media Item (Optional)", "inherited-live-media-item-id", $form['inherited-live-media-item-id'], $formErrors, $mediaItemsAjaxSelectDataUri, $additionalForm['inheritedLiveMediaItemText'], "form-inherited-live-media-item");?>
 		<?=FormHelpers::getFormGroupStart("urls", $formErrors);
 		?><label class="control-label">Urls and Qualities</label><div class="form-control form-urls" data-initialdata="<?=e($additionalForm['urlsInitialData'])?>"></div><?php
 		echo(FormHelpers::getFormHiddenInput(1, "urls", $additionalForm['urlsInput']));
