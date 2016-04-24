@@ -163,37 +163,38 @@ class LiveStreamController extends HomeBaseController {
 		return Response::json($data);
 	}
 
-	// TODO cache this
 	public function postScheduleInfo($id) {
-		
-		$liveStream = LiveStream::showAsLiveStream()->find($id);
-		if (is_null($liveStream)) {
-			App::abort(404);
-		}
+	
+		$data = Cache::remember("pages.liveStream.".$id.".scheduleInfo", 20, function() use(&$id) {
+			$liveStream = LiveStream::showAsLiveStream()->find($id);
+			if (is_null($liveStream)) {
+				App::abort(404);
+			}
 
-		$comingUpMediaItem = $liveStream->getComingUpMediaItem();
-		// there may be more than one media item live stream which is live at the same time
-		// this will just pick the one scheduled later which should be consistant
-		// if there is ever more than one media item live at once it would probably only be
-		// for a short period of time anyway during a switch over
-		$liveMediaItem = $liveStream->getLiveMediaItem();
-		$previouslyLiveMediaItem = $liveStream->getPreviouslyLiveMediaItem();
-		
-		$comingUp = !is_null($comingUpMediaItem) ? $this->getMediaItemArray($comingUpMediaItem) : null;
-		$live = !is_null($liveMediaItem) ? $this->getMediaItemArray($liveMediaItem) : null;
-		$previouslyLive = !is_null($previouslyLiveMediaItem) ? $this->getMediaItemArray($previouslyLiveMediaItem) : null;
+			$comingUpMediaItem = $liveStream->getComingUpMediaItem();
+			// there may be more than one media item live stream which is live at the same time
+			// this will just pick the one scheduled later which should be consistant
+			// if there is ever more than one media item live at once it would probably only be
+			// for a short period of time anyway during a switch over
+			$liveMediaItem = $liveStream->getLiveMediaItem();
+			$previouslyLiveMediaItem = $liveStream->getPreviouslyLiveMediaItem();
+			
+			$comingUp = !is_null($comingUpMediaItem) ? $this->getMediaItemArray($comingUpMediaItem) : null;
+			$live = !is_null($liveMediaItem) ? $this->getMediaItemArray($liveMediaItem) : null;
+			$previouslyLive = !is_null($previouslyLiveMediaItem) ? $this->getMediaItemArray($previouslyLiveMediaItem) : null;
 
-		if (is_null($liveMediaItem)) {
-			// if there is another media item live on this stream then show that
-			$inheritedLiveMediaItem = $liveStream->getInheritedLiveMediaItem();
-			$live = !is_null($inheritedLiveMediaItem) ? $this->getMediaItemArray($inheritedLiveMediaItem) : null;
-		}
+			if (is_null($liveMediaItem)) {
+				// if there is another media item live on this stream then show that
+				$inheritedLiveMediaItem = $liveStream->getInheritedLiveMediaItem();
+				$live = !is_null($inheritedLiveMediaItem) ? $this->getMediaItemArray($inheritedLiveMediaItem) : null;
+			}
 
-		$data = array(
-			"previouslyLive"	=> $previouslyLive,
-			"live"				=> $live,
-			"comingUp"			=> $comingUp
-		);
+			return array(
+				"previouslyLive"	=> $previouslyLive,
+				"live"				=> $live,
+				"comingUp"			=> $comingUp
+			);
+		}, true);
 
 		return Response::json($data);
 	}
