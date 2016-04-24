@@ -77,11 +77,28 @@ class LiveStreamController extends HomeBaseController {
 		$twitterProperties = $fromCache["twitterProperties"];
 		$liveStreamName = $fromCache["liveStreamName"];
 
+
+		$adminControl = null;
+		$user = Auth::getUser();
+		if (!is_null($user) && $user->hasPermission(Config::get("permissions.liveStreams"), 1)) {
+			$adminControlLiveStream = LiveStream::find($id);
+			// might no longer exist if got here from cache
+			if (!is_null($adminControlLiveStream)) {
+				$inheritedLiveMediaItem = $adminControlLiveStream->inheritedLiveMediaItem;
+				$adminControl = array(
+					"inheritedLiveMediaItemId"		=> !is_null($inheritedLiveMediaItem) ? intval($inheritedLiveMediaItem->id) : null,
+					"inheritedLiveMediaItemText"	=> !is_null($inheritedLiveMediaItem) ? $inheritedLiveMediaItem->getNameWithInfo() : null,
+					"mediaItemsAjaxSelectDataUri"	=> Config::get("custom.admin_base_url") . "/media/ajaxselect"
+				);
+			}
+		}
 		$view = View::make("home.liveStream.index");
 		foreach($cachedViewProps as $b=>$a) {
 			$view[$b] = $a;
 		}
 		$view->loginRequiredMsg = "Please log in to use this feature.";
+		$view->liveStreamId = $id;
+		$view->adminControl = $adminControl;
 		$this->setContent($view, "live-stream", "live-stream", $openGraphProperties, $liveStreamName, 200, $twitterProperties);
 	}
 	
@@ -146,6 +163,7 @@ class LiveStreamController extends HomeBaseController {
 		return Response::json($data);
 	}
 
+	// TODO cache this
 	public function postScheduleInfo($id) {
 		
 		$liveStream = LiveStream::showAsLiveStream()->find($id);
@@ -164,6 +182,12 @@ class LiveStreamController extends HomeBaseController {
 		$comingUp = !is_null($comingUpMediaItem) ? $this->getMediaItemArray($comingUpMediaItem) : null;
 		$live = !is_null($liveMediaItem) ? $this->getMediaItemArray($liveMediaItem) : null;
 		$previouslyLive = !is_null($previouslyLiveMediaItem) ? $this->getMediaItemArray($previouslyLiveMediaItem) : null;
+
+		if (is_null($liveMediaItem)) {
+			// if there is another media item live on this stream then show that
+			$inheritedLiveMediaItem = $liveStream->getInheritedLiveMediaItem();
+			$live = !is_null($inheritedLiveMediaItem) ? $this->getMediaItemArray($inheritedLiveMediaItem) : null;
+		}
 
 		$data = array(
 			"previouslyLive"	=> $previouslyLive,

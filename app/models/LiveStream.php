@@ -29,6 +29,15 @@ class LiveStream extends MyEloquent {
 		return $this->belongsTo(self::$p.'File', 'cover_art_file_id');
 	}
 
+	// the media item that is currently live on this stream (if there is one),
+	// even though it is assigned and live on a different stream.
+	// e.g this might be a 24 hour stream which has currently switched to
+	// part of a football match, which is being streamed in whole on a separate
+	// stream to a media item
+	public function inheritedLiveMediaItem() {
+		return $this->belongsTo(self::$p.'MediaItem', 'inherited_live_media_item_id');
+	}
+
 	public function watchingNows() {
 		return $this->hasMany(self::$p.'LiveStreamWatchingNow', 'live_stream_id');
 	}
@@ -244,6 +253,13 @@ class LiveStream extends MyEloquent {
 		if (!is_null($liveMediaItem)) {
 			$liveMediaItem->registerWatching($playing, null);
 		}
+
+		// this media item is live on this stream even though it's assigned
+		// a different one. See the comment for inheritedLiveMediaItemLiveStream() for more info.
+		$inheritedLiveMediaItem = $this->getInheritedLiveMediaItem();
+		if (!is_null($inheritedLiveMediaItem)) {
+			$inheritedLiveMediaItem->registerWatching($playing, null);
+		}
 		return true;
 	}
 
@@ -334,6 +350,26 @@ class LiveStream extends MyEloquent {
 				$q2->where("id", intval($this->id));
 			});
 		})->orderBy("scheduled_publish_time", "desc")->first();
+	}
+
+	// this media item is live on this stream even though it's assigned
+	// a different one. See the comment for inheritedLiveMediaItemLiveStream() for more info.	
+	// Will only return media item if it is valid.
+	public function getInheritedLiveMediaItem() {
+		$inheritedLiveMediaItem = $this->inheritedLiveMediaItem;
+		if (!is_null($inheritedLiveMediaItem)) {
+			// if the inherited live media item happens to be set to the same media item as the thing that's live,
+			// don't register watching again.
+			$liveMediaItem = $this->getLiveMediaItem();
+			if (is_null($liveMediaItem) || intval($liveMediaItem->id) !== intval($inheritedLiveMediaItem->id)) {
+				$inheritedLiveMediaItemLiveStream = $inheritedLiveMediaItem->liveStreamItem;
+				// the stream must currently be marked as live in order for it to be live somewhere else
+				if (!is_null($inheritedLiveMediaItemLiveStream) && $inheritedLiveMediaItemLiveStream->getIsAccessible() && $inheritedLiveMediaItemLiveStream->isLive()) {
+					return $inheritedLiveMediaItem;
+				}
+			}
+		}
+		return null;
 	}
 
 	public function getIsAccessible() {
