@@ -573,7 +573,11 @@ class MediaController extends MediaBaseController {
 	// json data for ajaxSelect element
 	public function postAjaxselect() {
 		
-		Auth::getUser()->hasPermissionOr401(Config::get("permissions.mediaItems"), 0);
+		// media items ajax select in livestreams edit page to select which media item is live
+		if (!Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0) &&
+			!Auth::getUser()->hasPermission(Config::get("permissions.liveStreams"), 1)) {
+			App::abort(403); // unauthorized
+		}
 	
 		$resp = array("success"=>false, "payload"=>null);
 		

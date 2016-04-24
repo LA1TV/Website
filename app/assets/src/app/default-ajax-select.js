@@ -1,18 +1,8 @@
-// will attach an AjaxSelect to elements with .default-ajax-select
-
 define([
 	"jquery",
 	"./components/ajax-select"
 ], function($, AjaxSelect) {
 
-	var registerDefaultAjaxSelect = register;
-
-	$(document).ready(function() {
-		$(".default-ajax-select").each(function() {
-			register($(this).first());
-		});
-	});
-	
 	function register($container) {
 		var destinationName = $container.attr("data-destinationname");
 		// the reference to the hidden form element where chosen rows id should be placed
@@ -34,6 +24,6 @@ define([
 	};
 	
 	return {
-		register: registerDefaultAjaxSelect
+		register: register
 	};
 });

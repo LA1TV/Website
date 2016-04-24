@@ -16,6 +16,7 @@ use EloquentHelpers;
 use uk\co\la1tv\website\models\LiveStream;
 use uk\co\la1tv\website\models\LiveStreamUri;
 use uk\co\la1tv\website\models\QualityDefinition;
+use uk\co\la1tv\website\models\MediaItem;
 
 class LiveStreamsController extends LiveStreamsBaseController {
 
@@ -128,6 +129,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 			array("name", ObjectHelpers::getProp("", $liveStream, "name")),
 			array("description", ObjectHelpers::getProp("", $liveStream, "description")),
 			array("cover-art-id", ObjectHelpers::getProp("", $liveStream, "coverArtFile", "id")),
+			array("inherited-live-media-item-id", ObjectHelpers::getProp("", $liveStream, "inheritedLiveMediaItem", "id")),
 			array("urls", json_encode(array())),
 		), !$formSubmitted);
 		
@@ -135,6 +137,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		$additionalFormData = array(
 			"coverArtFile"		=> FormHelpers::getFileInfo($formData['cover-art-id']),
 			"urlsInput"			=> null,
+			"inheritedLiveMediaItemText"	=> !is_null($liveStream) && !is_null($liveStream->inheritedLiveMediaItem) ? $liveStream->inheritedLiveMediaItem->getNameWithInfo() : "",
 			"urlsInitialData"	=> null
 		);
 
@@ -156,17 +159,23 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				Validator::extend('valid_urls', function($attribute, $value, $parameters) {
 					return LiveStream::isValidDataFromUrlsOrderableList(JsonHelpers::jsonDecodeOrNull($value, true));
 				});
+
+				Validator::extend('valid_media_item_id', function($attribute, $value, $parameters) {
+					return !is_null(MediaItem::find($value));
+				});
 				
 				$validator = Validator::make($formData,	array(
 					'name'				=> array('required', 'max:50'),
 					'description'		=> array('max:500'),
 					'cover-art-id'		=> array('valid_file_id'),
+					'inherited-live-media-item-id'		=> array('valid_media_item_id'),
 					'urls'				=> array('required', 'valid_urls')
 				), array(
 					'name.required'			=> FormHelpers::getRequiredMsg(),
 					'name.max'				=> FormHelpers::getLessThanCharactersMsg(50),
 					'description.max'		=> FormHelpers::getLessThanCharactersMsg(500),
 					'cover-art-id.valid_file_id'	=> FormHelpers::getInvalidFileMsg(),
+					'inherited-live-media-item-id.valid_media_item_id'	=> FormHelpers::getGenericInvalidMsg(),
 					'urls.required'			=> FormHelpers::getGenericInvalidMsg(),
 					'urls.valid_urls'		=> FormHelpers::getGenericInvalidMsg()
 				));
@@ -185,6 +194,10 @@ class LiveStreamsController extends LiveStreamsBaseController {
 					$coverArtFileId = FormHelpers::nullIfEmpty($formData['cover-art-id']);
 					$file = Upload::register(Config::get("uploadPoints.coverArt"), $coverArtFileId, $liveStream->coverArtFile);
 					EloquentHelpers::associateOrNull($liveStream->coverArtFile(), $file);
+
+					$inheritedLiveMediaItemId = FormHelpers::nullIfEmpty($formData['inherited-live-media-item-id']);
+					$inheritedLiveMediaItem = !is_null($inheritedLiveMediaItemId) ? MediaItem::find($inheritedLiveMediaItemId) : null;
+					EloquentHelpers::associateOrNull($liveStream->inheritedLiveMediaItem(), $inheritedLiveMediaItem);
 
 					if ($liveStream->save() === false) {
 						throw(new Exception("Error saving LiveStream."));
@@ -240,7 +253,8 @@ class LiveStreamsController extends LiveStreamsBaseController {
 		$view->coverArtUploadPointId = Config::get("uploadPoints.coverArt");
 		$view->formErrors = $errors;
 		$view->cancelUri = Config::get("custom.admin_base_url") . "/livestreams";
-	
+		$view->mediaItemsAjaxSelectDataUri = Config::get("custom.admin_base_url") . "/media/ajaxselect";
+
 		$this->setContent($view, "livestreams", "livestreams-edit");
 	}
 	
@@ -266,6 +280,36 @@ class LiveStreamsController extends LiveStreamsBaseController {
 				}
 			});
 		}
+		return Response::json($resp);
+	}
+
+	// ajax from the admin control box on the live stream page on the main site
+	public function postAdminVodControlInheritedLiveMediaItem($id) {
+		Auth::getUser()->hasPermissionOr401(Config::get("permissions.liveStreams"), 1);
+		
+		$liveStream = LiveStream::with("inheritedLiveMediaItem")->find($id);
+		if (is_null($liveStream)) {
+			App::abort(404);
+		}
+		
+		$id = null;
+		if (isset($_POST['id']) && $_POST['id'] !== "") {
+			$id = intval($_POST['id']);
+		}
+		
+		$inheritedLiveMediaItem = null;
+		if (!is_null($id)) {
+			$inheritedLiveMediaItem = MediaItem::find($id);
+			if (is_null($inheritedLiveMediaItem)) {
+				App::abort(500);
+			}
+		}
+		EloquentHelpers::associateOrNull($liveStream->inheritedLiveMediaItem(), $inheritedLiveMediaItem);
+		if (!$liveStream->save()) {
+			App::abort(500);
+		}
+
+		$resp = array("success" => true);
 		return Response::json($resp);
 	}
 }
