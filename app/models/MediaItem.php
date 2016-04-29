@@ -294,10 +294,15 @@ class MediaItem extends MyEloquent {
 				$intervalBetweenViewCounts = Config::get("custom.interval_between_registering_view_counts") * 60;
 				// register as a view if $intervalBetweenViewCounts has passed since the content was last playing
 				// filter it by the $type. This means if the player switches from stream to vod, the vod will get views at the switch point
-				// lock for update to present duplicate constitute views 
-				$latestPlayingPlaybackHistory = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->where("type", $type)->where("playing", true)->lockForUpdate()->first();
+				$latestPlayingPlaybackHistoryQuery = PlaybackHistory::orderBy("created_at", "desc")->where("session_id", $sessionId)->where("media_item_id", intval($this->id))->where("type", $type)->where("playing", true);
+				$latestPlayingPlaybackHistory = $latestPlayingPlaybackHistoryQuery->first();
 				if (is_null($latestPlayingPlaybackHistory) || $latestPlayingPlaybackHistory->created_at->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
-					$constitutesView = true;
+					// double check and get lock
+					$latestPlayingPlaybackHistory = $latestPlayingPlaybackHistoryQuery->lockForUpdate()->first();
+					if (is_null($latestPlayingPlaybackHistory) || $latestPlayingPlaybackHistory->created_at->timestamp < $now->timestamp - $intervalBetweenViewCounts) {
+						// still constitutes view
+						$constitutesView = true;
+					}
 				}
 			}
 
