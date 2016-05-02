@@ -14,7 +14,7 @@ class SmartCacheQueueJob {
 		$expireTime = $data['expireTime'];
 
 		if (Carbon::now()->timestamp >= $expireTime) {
-			Log::warning("Smart cache job expired and will therefore not run.");
+			Log::info("Smart cache job expired and will therefore not run.");
 			return;
 		}
 
