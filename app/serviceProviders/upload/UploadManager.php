@@ -97,7 +97,7 @@ class UploadManager {
 							Queue::push("uk\co\la1tv\website\jobs\TransferUploadJob", array(
 								"fileId"	=> intval($fileDb->id),
 								"filePath"	=> $fileLocation
-							));
+							), "uploadTransfer");
 
 							$this->responseData['success'] = true;
 							$this->responseData['id'] = intval($fileDb->id);

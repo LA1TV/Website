@@ -23,6 +23,7 @@ class SmartCacheManager {
 		// otherwise there could be conflicts
 		$keyStart = "smartCache";
 		$fullKey = $keyStart . ":" . $key;
+		$updatingInJobKey = $keyStart . ":updating:" . $key;
 	
 		if (!$forceRefresh) {
 			// if there is already a version in the cache return it
@@ -38,7 +39,9 @@ class SmartCacheManager {
 
 		// a cache update is needed. this needs to be synchronized so only one process is updating the cache
 		$mutex = new PredisMutex([Redis::connection()], $fullKey, Config::get("predisMutex.timeout"));
-		return $mutex->synchronized(function() use (&$fullKey, &$forceRefresh, &$seconds, &$key, &$closure) {
+		return $mutex->synchronized(function() use (&$fullKey, &$updatingInJobKey, &$forceRefresh, &$seconds, &$key, &$closure) {
+			$now = Carbon::now()->timestamp;
+
 			// get an updated cached version now in synchronized block
 			$responseAndTime = $this->getResponseAndTime($fullKey, $seconds);
 			if ($forceRefresh && !is_null($responseAndTime)) {
@@ -46,27 +49,33 @@ class SmartCacheManager {
 			}
 			
 			if (!is_null($responseAndTime)) {
-				if (Carbon::now()->timestamp - $responseAndTime["time"] > $seconds / 2) {
-					// refresh the cache in the background as > half the time has passed
-					// before a refresh would be required
-					// the app.finish event is fired after the response has been returned to the user.
-					Event::listen('app.finish', function() use (&$key, &$seconds, &$closure) {
-						Queue::push("uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheQueueJob", [
-							"key"			=> $key,
-							"seconds"		=> $seconds,
-							"closure"		=> serialize(new SerializableClosure($closure))
-						]);
-					});
+				$updateJobTime = Cache::get($updatingInJobKey);
+				if (is_null($updateJobTime) || $updateJobTime >= $now + $seconds) {
+					// no update job queued/running/will run
+					if ($now - $responseAndTime["time"] > $seconds / 2) {
+						Cache::put($updatingInJobKey, $now, $seconds, true);
+						// refresh the cache in the background as > half the time has passed
+						// before a refresh would be required
+						// the app.finish event is fired after the response has been returned to the user.
+						Event::listen('app.finish', function() use (&$key, &$seconds, &$closure, &$responseAndTime) {
+							Queue::push("uk\co\la1tv\website\serviceProviders\smartCache\SmartCacheQueueJob", [
+								"key"			=> $key,
+								"seconds"		=> $seconds,
+								"closure"		=> serialize(new SerializableClosure($closure)),
+								// if this job is executed after this time it shouldn't run as its too late
+								"expireTime"	=> $responseAndTime["time"] + $seconds
+							], "smartCache");
+						});
+					}
 				}
 			}
 
 			if (is_null($responseAndTime) || $forceRefresh) {
 				$responseAndTime = [
-					"time"		=> Carbon::now()->timestamp,
+					"time"		=> $now,
 					"response"	=> $closure()
 				];
-				// the cache driver only works in minutes
-				Cache::put($fullKey, $responseAndTime, ceil($seconds/60));
+				Cache::put($fullKey, $responseAndTime, $seconds, true);
 			}
 			return $responseAndTime["response"];
 		});
