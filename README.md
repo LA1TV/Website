@@ -17,6 +17,8 @@ https://www.vagrantup.com/) at "https://github.com/LA1TV/Website-Homestead".
 - sessions
 - views
 
+You also need to run the laravel queue listener on the default queue, and also "uploadTransfer" and "smartCache" queues. The homestead environment handles this for you.
+
 # Assets
 The javascript and css is all built using webpack, and is managed with npm. So first install npm, then run `npm install` to get all the dependencies.
 
