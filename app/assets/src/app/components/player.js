@@ -814,6 +814,8 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 					clapprOptions.scrubThumbnails = {
 						backdropHeight: 64,
 						spotlightHeight: 84,
+						backdropMinOpacity: 0.4,
+						backdropMaxOpacity: 1,
 						thumbs: thumbsData
 	  				};
 				}
