@@ -5,7 +5,7 @@
 	<div class="panel-body">
 		<?=FormHelpers::getFormCheckInput(1, "Enabled", "enabled", $form['enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormCheckInput(1, "Promoted", "promoted", $form['promoted'] === "y", $formErrors);?>
-		<?=FormHelpers::getFormTxtInput(1, "Name", "name", $form['name'], $formErrors);?>
+		<?=FormHelpers::getFormTxtInput(1, "Name (Should Not Include Series/Playlist Name)", "name", $form['name'], $formErrors);?>
 		<?=FormHelpers::getFormTxtAreaInput(1, "Description (Optional)", "description", $form['description'], $formErrors);?>
 		<?=FormHelpers::getFormCheckInput(1, "Email Notifications Enabled", "email-notifications-enabled", $form['email-notifications-enabled'] === "y", $formErrors);?>
 		<?=FormHelpers::getFormCheckInput(1, "Likes Enabled", "likes-enabled", $form['likes-enabled'] === "y", $formErrors);?>
