@@ -4,6 +4,7 @@ var FitTextHandler = require("app/fit-text-handler");
 var Clappr = require("lib/clappr");
 var ClapprThumbnailsPlugin = require("lib/clappr-thumbnails-plugin");
 var ClapprHeadingPlugin = require("lib/clappr-heading-plugin");
+var ClapprPIPPlugin = require("lib/clappr-pip-plugin");
 var ClapprMarkersPlugin = require("lib/clappr-markers-plugin");
 var ClapprQualitySelectionPlugin = require("lib/clappr-quality-selection-plugin");
 var SynchronisedTime = require("app/synchronised-time");
@@ -762,7 +763,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 				actualLiveTime: true,
 				actualLiveServerTime: SynchronisedTime.getDate(),
 				plugins: {
-					core: [ClapprHeadingPlugin]
+					core: [ClapprHeadingPlugin, ClapprPIPPlugin]
 				},
 				headingPlugin: {
 					enabled: false
