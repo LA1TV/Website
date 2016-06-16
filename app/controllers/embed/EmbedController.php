@@ -75,8 +75,25 @@ class EmbedController extends EmbedBaseController {
 	private function doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $adminOverrideEnabled, $hyperlink) {
 		
 		$kioskMode = isset($_GET['kiosk']) && $_GET['kiosk'] === "1";
-		$autoPlayVod = $kioskMode || (isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1");
-		$autoPlayStream = $kioskMode || (isset($_GET['autoPlayStream']) && $_GET['autoPlayStream'] === "1");
+		$autoPlayVod = null;
+		$autoPlayStream = null;
+		// if autoPlay (or autoplay) set then this takes precedense over autoPlayVod and autoPlayStream
+		// twitter seems to append "autoplay" with it's player widget when it shows it's own poster
+		if ($kioskMode) {
+			$autoPlayVod = $autoPlayStream = true;
+		}
+		else if (isset($_GET['autoPlay'])) {
+			$autoPlayVod = $_GET['autoPlay'] === "1";
+			$autoPlayStream = $_GET['autoPlay'] === "1";
+		}
+		else if (isset($_GET['autoplay'])) {
+			$autoPlayVod = $_GET['autoplay'] === "1";
+			$autoPlayStream = $_GET['autoplay'] === "1";
+		}
+		else {
+			$autoPlayVod = isset($_GET['autoPlayVod']) && $_GET['autoPlayVod'] === "1";
+			$autoPlayStream = isset($_GET['autoPlayStream']) && $_GET['autoPlayStream'] === "1";
+		}
 		$vodPlayStartTime = $kioskMode ? 0 : $this->getVodStartTimeFromUrl();
 		$flushMode = $kioskMode || (!isset($_GET['flush']) || $_GET['flush'] === "1");
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
