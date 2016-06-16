@@ -13,6 +13,7 @@ You can get an example embed code by clicking on the "share" button under the pl
 There are quite a few url paramaters that can be provided to contol it's behaviour which are provided below along with there default values.
 - **autoPlayVod**: Defaults to "0". Set to "1" to cause vod to automatically play.
 - **autoPlayStream**: Defaults to "0". Set to "1" to automatically start live streams.
+- **autoPlay (or autoplay)**: Set to "1" to automatically play vod and start live streams. If set this overrides "autoPlayVod" and "autoPlayStream".
 - **vodPlayStartTime**: Defaults to "". Set to "XmYs" to start vod playback from a specific point.
 - **flush**: Defaults to "1". Enables flush mode which means the player fills the frame without any margins. If "0" the bottom bar will be available which contains the like button and view count, along with quality selection.
 - **showHeading**: Defaults to "0". Show the title of the media item above the player. Only valid when "flush" is "0".

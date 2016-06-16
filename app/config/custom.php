@@ -18,7 +18,7 @@ return array(
 	"live_stream_domains_cache_time"	=> 1,
 	"num_popular_items_to_cache"	=> 100,
 	"popular_items_weight_period"	=> 30,
-	"popular_items_weight"			=> 1,
+	"popular_items_weight"			=> 25,
 	"num_recent_items"	=> 8,
 	// time to cache reent items in minutes.
 	"recent_items_cache_time"	=> 2,
