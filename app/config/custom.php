@@ -19,10 +19,10 @@ return array(
 	"num_popular_items_to_cache"	=> 100,
 	"popular_items_weight_period"	=> 30,
 	"popular_items_weight"			=> 25,
-	"num_recent_items"	=> 8,
+	"num_recent_items"	=> 15,
 	// time to cache reent items in minutes.
 	"recent_items_cache_time"	=> 2,
-	"num_popular_items"	=> 8,
+	"num_popular_items"	=> 15,
 	// time to cache popular items in minutes.
 	"popular_items_cache_time"	=> 10,
 	"num_playlists_per_page"	=> 20,
