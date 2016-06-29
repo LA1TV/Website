@@ -62,6 +62,197 @@
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
+
+		<style>
+			.suggestions-overlay {
+				height: 348px;
+				margin-bottom: 100px;
+
+				position: relative;
+				text-align: center;
+				background-color: #000000;
+				color: #ffffff;
+				overflow: hidden;
+			}
+
+			.suggestions-overlay .restart-container {
+				position: absolute;
+				display: inline-block;
+				padding: 5px 10px;
+				background-color: rgba(0, 0, 0, 0.5);
+				bottom: 5px;
+				left: 5px;
+				cursor: pointer;
+				box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
+			}
+
+			.suggestions-overlay .restart-container:hover {
+				background-color: rgba(0, 0, 0, 0.8);
+			}
+
+			.suggestions-overlay .background {
+				position: absolute;
+				top: -10px;
+				bottom: -10px;
+				left: -10px;
+				right: -10px;
+				background-image: url("https://www.la1tv.co.uk/file/91745");
+				background-position: center;
+				background-size: cover;
+				filter: blur(5px);
+				-webkit-filter: blur(5px); /* TODO remove and fix above */
+				opacity: 0.7;
+			}
+
+			.suggestions-overlay .recommended-title {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				opacity: 0.7;
+			}
+
+			.suggestions-overlay .recommended-title .title {
+				text-align: left;
+				font-weight: bold;
+				font-style: italic;
+				font-size: 22px;
+				text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.77);
+				margin: 10px 10px 0px 10px;
+			}
+
+			.suggestions-overlay .background.darken {
+				opacity: 0.5;
+			}
+
+			.suggestions-overlay .top-layer {
+				position: absolute;
+				width: 75%;
+				max-width: 410px;
+				top: 50%;
+				left: 50%;
+				padding: 0 50px;
+				transform: translateX(-50%) translateY(-50%) scale(1);
+			}
+
+			.suggestions-overlay .arrow-container {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				width: 50px;
+				cursor: pointer;
+			}
+
+			.suggestions-overlay .left-arrow-container {
+				left: 0;
+			}
+
+			.suggestions-overlay .right-arrow-container {
+				right: 0;
+			}
+
+			.suggestions-overlay .top-layer .arrow {
+				position: absolute;
+				width: 100%;
+				top: 50%;
+				text-align: center;
+				vertical-align: middle;
+				font-size: 40px;
+				font-weight: bold;
+				opacity: 0.6;
+				transform: translateY(-50%);
+				text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.77);
+			}
+
+			.suggestions-overlay .top-layer .left-arrow-container .left-arrow {
+				left: 0;
+				transition: opacity 0.08s ease-in-out, left 0.08s ease-in-out;
+			}
+
+			.suggestions-overlay .top-layer .left-arrow-container:hover .left-arrow {
+				left: -10px;
+				opacity: 1;
+			}
+
+			.suggestions-overlay .top-layer .right-arrow-container .right-arrow {
+				right: 0;
+				transition: opacity 0.08s ease-in-out, right 0.08s ease-in-out;
+			}
+
+			.suggestions-overlay .top-layer .right-arrow-container:hover .right-arrow {
+				right: -10px;
+				opacity: 1;
+			}
+
+			.suggestions-overlay .top-layer .suggestion {
+				transform: scale(1);
+				background-color: rgba(0, 0, 0, 0.8);
+				cursor: pointer;
+				transition: transform 0.08s ease-in-out;
+				box-shadow: 0px 0px 14px 2px rgba(0, 0, 0, 0.65);
+			}
+
+			.suggestions-overlay .top-layer .suggestion:hover {
+				transform: scale(1.15);
+			}
+
+			.suggestions-overlay .top-layer .suggestion .art {
+				
+			}
+
+			.suggestions-overlay .top-layer .suggestion .title {
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				padding: 5px 5px;
+				background-color: rgba(0, 0, 0, 0.5);
+				overflow: auto;
+				max-height: 100%;
+				font-size: 12px;
+			}
+
+			@media (min-width: 450px) {
+				.suggestions-overlay .recommended-title .title{
+					font-size: 30px;
+				}
+
+				.suggestions-overlay .top-layer .suggestion .title {
+					font-size: 20px;
+				}
+			}
+
+
+		</style>
+
+		<div class="suggestions-overlay">
+			<div class="background"></div>
+			<div class="recommended-title">
+				<h3 class="title">Recommended For You</h3>
+			</div>
+			<div class="top-layer">
+				<div class="arrow-container left-arrow-container">
+					<div class="arrow left-arrow">
+						&#x3C;
+					</div>
+				</div>
+				<div class="arrow-container right-arrow-container">
+					<div class="arrow right-arrow">&#x3E;</div>
+				</div>
+				<div class="suggestion">
+					<div class="art">
+						<img class="img-responsive" src="https://www.la1tv.co.uk/file/91745">
+					</div>
+					<div class="title">
+						19) Grizedale
+					</div>
+				</div>
+			</div>
+			<div class="restart-container">
+				<span class="glyphicon glyphicon-repeat"></span> Watch Again
+			</div>
+		</div>
 		<div class="player-container-component-container" data-info-uri="<?=e($playerInfoUri);?>" data-register-watching-uri="<?=e($registerWatchingUri);?>" data-register-like-uri="<?=e($registerLikeUri);?>" data-login-required-msg="<?=e($loginRequiredMsg);?>" data-enable-admin-override="<?=$adminOverrideEnabled?"1":"0"?>" data-auto-play-vod="<?=$autoPlay?"1":"0"?>" data-vod-play-start-time="<?=$vodPlayStartTime?>">
 			<div class="msg-container">
 				<div class="embed-responsive embed-responsive-16by9">
