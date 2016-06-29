@@ -1,3 +1,6 @@
+<?php
+	$twoColumns = !is_null($twitterWidgetId) || $showFacebookWidget;
+?>
 <div class="wrapper hidden">
 	<?php if ($showPromoItem): ?>
 	<div class="promo-item-container">
@@ -29,29 +32,48 @@
 	</div>
 	<?php endif; ?>
 	<div class="row">
-		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
+		<?php if ($twoColumns): ?>
 		<div class="col-md-7">
 		<?php endif; ?>
-			<div class="most-popular-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
-				<h2 class="heading">Most Popular</h2>
-				<?php if (!is_null($mostPopularPlaylistFragment)): ?>
-				<?=$mostPopularPlaylistFragment?>
-				<?php else: ?>
-				<div class="none-available">None available at the moment. Check back later!</div>
-				<?php endif; ?>
+			<?php if ($twoColumns): ?>
+			<div class="list-selection-button-group"></div>	
+				<div class="lists animation-enabled" data-list="mostPopular">
+					<div class="carousel">
+			<?php else: ?>
+			<div class="lists">
+			<?php endif; ?>	
+					<div class="most-popular-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
+						<?php if (!$twoColumns): ?>
+						<h2 class="heading">Most Popular</h2>
+						<?php endif; ?>
+						<div class="list-holder">
+							<?php if (!is_null($mostPopularPlaylistFragment)): ?>
+							<?=$mostPopularPlaylistFragment?>
+							<?php else: ?>
+							<div class="none-available">None available at the moment. Check back later!</div>
+							<?php endif; ?>
+						</div>
+					</div>
+					<div class="recently-added-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
+						<?php if (!$twoColumns): ?>
+						<h2 class="heading">Recently Added</h2>
+						<div class="list-holder">
+						<?php else: ?>
+						<div class="list-holder hidden">
+						<?php endif; ?>
+							<?php if (!is_null($recentlyAddedPlaylistFragment)): ?>
+							<?=$recentlyAddedPlaylistFragment?>
+							<?php else: ?>
+							<div class="none-available">None available at the moment. Check back later!</div>
+							<?php endif; ?>
+						</div>
+					</div>
+				</div>
+			<?php if ($twoColumns): ?>
 			</div>
-			<div class="recently-added-section<?=is_null($twitterWidgetId) ? " col-md-6" : ""?>">
-				<h2 class="heading">Recently Added</h2>
-				<?php if (!is_null($recentlyAddedPlaylistFragment)): ?>
-				<?=$recentlyAddedPlaylistFragment?>
-				<?php else: ?>
-				<div class="none-available">None available at the moment. Check back later!</div>
-				<?php endif; ?>
-			</div>
-		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		</div>
 		<?php endif; ?>
-		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
+		<?php if ($twoColumns): ?>
 		<div class="col-md-5">
 			<?php if (!is_null($showFacebookWidget)): ?>
 			<div class="facebook-timeline-container" data-show-messages="0" data-page-url="<?=e($facebookPageUrl);?>" data-height="620"></div>

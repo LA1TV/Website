@@ -90,7 +90,7 @@ class HomeController extends HomeBaseController {
 		
 		$coverArtResolutions = Config::get("imageResolutions.coverArt");
 		
-		$recentlyAddedItems = array_slice(MediaItem::getCachedRecentItems(), 0, 5);
+		$recentlyAddedItems = array_slice(MediaItem::getCachedRecentItems(), 0, 10);
 		$recentlyAddedTableData = array();
 		foreach($recentlyAddedItems as $i=>$a) {
 			$mediaItem = $a['mediaItem'];
@@ -108,7 +108,7 @@ class HomeController extends HomeBaseController {
 			);
 		}
 		
-		$mostPopularItems = array_slice(MediaItem::getCachedMostPopularItems(), 0, 10-count($recentlyAddedItems));
+		$mostPopularItems = array_slice(MediaItem::getCachedMostPopularItems(), 0, 10);
 		$mostPopularTableData = array();
 		foreach($mostPopularItems as $i=>$a) {
 			$mediaItem = $a['mediaItem'];
