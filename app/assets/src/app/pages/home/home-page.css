@@ -148,14 +148,17 @@ html.csstransforms .page-home .promo-carousel[data-animate="1"] .item.flex-activ
 	padding: 0 15px;
 }
 
-.page-home .lists.animation-enabled {
-	white-space: nowrap;
-}
-
 .page-home .lists .carousel {
 	position: relative;
 	transition: left 1s ease;
 	left: 0;
+	white-space: nowrap;
+}
+
+.page-home .lists .carousel > * {
+	vertical-align: top;
+	white-space: normal;
+	overflow: hidden;
 }
 
 .page-home .lists[data-list="recentlyAdded"] .carousel {
