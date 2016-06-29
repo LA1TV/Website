@@ -135,16 +135,58 @@ html.csstransforms .page-home .promo-carousel[data-animate="1"] .item.flex-activ
 	background: rgba(255, 0, 0, 0.9);
 }
 
-.page-home .most-popular-section, .page-home .recently-added-section {
+.page-home .list-selection-button-group {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.page-home .lists {
+	overflow: hidden;
+	position: relative;
+	/* hack so that the animation slides off to the side banner */
+	margin: 0 -15px;
+	padding: 0 15px;
+}
+
+.page-home .lists.animation-enabled {
+	white-space: nowrap;
+}
+
+.page-home .lists .carousel {
+	position: relative;
+	transition: left 1s ease;
+	left: 0;
+}
+
+.page-home .lists[data-list="recentlyAdded"] .carousel {
+	left: -100%;
+}
+
+.page-home .lists[data-list="recentlyAdded"] .carousel .most-popular-section {
+	opacity: 0;
+}
+
+.page-home .lists[data-list="mostPopular"] .carousel .recently-added-section {
+	opacity: 0;
+}
+
+.page-home .lists .most-popular-section .list-holder, .page-home .lists .recently-added-section .list-holder {
 	margin-bottom: 20px;
 }
 
-.page-home .most-popular-section .heading, .page-home .recently-added-section .heading {
+.page-home .lists.animation-enabled .most-popular-section, .page-home .lists.animation-enabled .recently-added-section {
+	width: 100%;
+	display: inline-block;
+	opacity: 1;
+	transition: opacity 1s ease;
+}
+
+.page-home .lists .most-popular-section .heading, .page-home .lists .recently-added-section .heading {
 	text-align: center;
 	margin-top: 0;
 }
 
-.page-home .most-popular-section .none-available, .page-home .recently-added-section .none-available {
+.page-home .lists .most-popular-section .list-holder .none-available, .page-home .lists .recently-added-section .list-holder .none-available {
 	text-align: center;
 	font-style: italic;
 }

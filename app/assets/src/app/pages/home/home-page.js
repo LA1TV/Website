@@ -1,4 +1,5 @@
 var $ = require("jquery");
+var ButtonGroup = require("app/components/button-group");
 require("imports?jQuery=lib/jquery!lib/jquery.flexslider");
 	
 $(document).ready(function() {
@@ -96,6 +97,54 @@ $(document).ready(function() {
 		else {
 			animatePageIn();
 		}
-		
+
+		var $listSelectionButtonGroup = $pageContainer.find(".list-selection-button-group").first();
+		if ($listSelectionButtonGroup.length > 0) {
+
+			var $lists = $pageContainer.find(".lists");
+			var $mostPopularListHolder = $lists.find(".most-popular-section .list-holder");
+			var $recentlyAddedListHolder = $lists.find(".recently-added-section .list-holder");
+
+			var buttonGroup = new ButtonGroup([
+				{
+					id: "mostPopular",
+					text: "Most Popular"
+				},
+				{
+					id: "recentlyAdded",
+					text: "Recently Added"
+				}
+			], true, {id: "mostPopular"});
+
+			$listSelectionButtonGroup.append(buttonGroup.getEl());
+
+			$(buttonGroup).on("stateChanged", updateChosenList);
+
+			var hideTimerId = null;
+			var currentList = buttonGroup.getId();
+
+			function updateChosenList() {
+				var list = buttonGroup.getId();
+				if (list === currentList) {
+					return;
+				}
+				currentList = list;
+				$mostPopularListHolder.removeClass("hidden");
+				$recentlyAddedListHolder.removeClass("hidden");
+				$lists.attr("data-list", list);
+				if (hideTimerId !== null) {
+					clearTimeout(hideTimerId);
+				}
+				hideTimerId = setTimeout(function() {
+					hideTimerId = null;
+					if (list === "mostPopular") {
+						$recentlyAddedListHolder.addClass("hidden");
+					}
+					else {
+						$mostPopularListHolder.addClass("hidden");
+					}
+				}, 1100);
+			}
+		}
 	});
 });
