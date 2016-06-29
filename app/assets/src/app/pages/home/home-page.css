@@ -158,6 +158,10 @@ html.csstransforms .page-home .promo-carousel[data-animate="1"] .item.flex-activ
 	left: 0;
 }
 
+.page-home .lists .carousel > * {
+	vertical-align: top;
+}
+
 .page-home .lists[data-list="recentlyAdded"] .carousel {
 	left: -100%;
 }
