@@ -1,0 +1,215 @@
+.unstyleButton {
+	text-decoration: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-user-drag: none;
+	border: none;
+	outline: none;
+	background: transparent;
+	padding: 0;
+}
+
+.suggestionsOverlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	background-color: #000000;
+	color: #ffffff;
+	overflow: hidden;
+
+	&:not([data-ready="1"]) {
+		.topLayer {
+			display: none;
+		}
+
+		.recommendedTitle {
+			display: none;
+		}
+	}
+
+	&[data-loaded="1"] {
+		.topLayer {
+			opacity: 1;
+		}
+
+		.recommendedTitle {
+			opacity: 0.7;
+		}
+	}
+
+	.restartButton {
+		@extend .unstyleButton;
+
+		position: absolute;
+		display: inline-block;
+		padding: 5px 10px;
+		background-color: rgba(0, 0, 0, 0.5);
+		bottom: 5px;
+		left: 5px;
+		cursor: pointer;
+		box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
+
+		&:hover, &:focus {
+			background-color: rgba(0, 0, 0, 0.8);
+		}
+	}
+
+	.background {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		margin: -10px;
+		background-position: center;
+		background-size: cover;
+		filter: blur(5px);
+		opacity: 0.7;
+		transition: opacity 0.8s ease-in-out;
+
+		&.darken {
+			opacity: 0.35;
+		}
+	}
+
+	.recommendedTitle {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		opacity: 0;
+		transition: opacity 0.6s ease-in-out;
+	
+	 	.recommendedTitleTitle {
+			text-align: left;
+			font-weight: bold;
+			font-style: italic;
+			font-size: 22px;
+			text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.77);
+			margin: 10px 10px 0px 10px;
+		}
+	}
+
+	.topLayer {
+		position: absolute;
+		width: 75%;
+		max-width: 410px;
+		top: 50%;
+		left: 50%;
+		padding: 0 50px;
+		transform: translateX(-50%) translateY(-50%) scale(1);
+		opacity: 0;
+		transition: opacity 0.6s ease-in-out;
+
+		.arrowContainer {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			width: 50px;
+			cursor: pointer;
+			z-index: -1;
+			
+			&.leftArrowContainer {
+				left: 0;
+			}
+
+			&.rightArrowContainer {
+				right: 0;
+			}
+
+			.arrow {
+				@extend .unstyleButton;
+
+				position: absolute;
+				display: block;
+				width: 100%;
+				top: 50%;
+				text-align: center;
+				vertical-align: middle;
+				font-size: 40px;
+				font-weight: bold;
+				opacity: 0.6;
+				transform: translateY(-50%);
+				text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.77);
+				
+				&.leftArrow {
+					left: 0;
+					transition: opacity 0.08s ease-in-out, left 0.08s ease-in-out;
+				}
+
+				&.rightArrow {
+					right: 0;
+					transition: opacity 0.08s ease-in-out, right 0.08s ease-in-out;
+				}
+			}
+		}
+
+		.leftArrowContainer:hover .leftArrow, .leftArrowContainer .leftArrow:focus {
+			left: -10px;
+			opacity: 1;
+		}
+
+		.rightArrowContainer:hover .rightArrow, .rightArrowContainer .rightArrow:focus {
+			right: -10px;
+			opacity: 1;
+		}
+
+		.suggestion {
+			@extend .unstyleButton;
+
+			display: block;
+			width: 100%;
+			transform: scale(1);
+			background-color: rgba(0, 0, 0, 0.8);
+			cursor: pointer;
+			transition: transform 0.08s ease-in-out;
+			box-shadow: 0px 0px 14px 2px rgba(0, 0, 0, 0.65);
+			overflow: hidden;
+
+			&:hover, &:focus {
+				transform: scale(1.15);
+			}
+
+			.artContainer {
+				width: 100%;
+
+				.art {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					overflow: hidden;
+				}
+			}
+
+			.title {
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				padding: 5px 5px;
+				background-color: rgba(0, 0, 0, 0.8);
+				overflow: auto;
+				max-height: 100%;
+				font-size: 12px;
+				opacity: 1;
+			}
+		}
+	}
+}
+
+@media (min-width: 450px) {
+	.suggestionsOverlay {
+		.recommendedTitle .recommendedTitleTitle {
+			font-size: 30px;
+		}
+
+		.topLayer .suggestion .title {
+			font-size: 20px;
+		}
+	}
+}

@@ -2,6 +2,7 @@ var $ = require("jquery");
 var QualitySelectionComponent = require("./quality-selection");
 var ShareModal= require("./share-modal");
 var AlertModal = require("./alert-modal");
+var PlayerSuggestionSlide = require("./player-suggestion-slide");
 var PlayerController = require("../player-controller");
 var PageData = require("app/page-data");
 var SynchronisedTime = require("app/synchronised-time");
@@ -44,6 +45,18 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	if (embedded) {
 		$container.addClass("embedded-player-container");
 	}
+	var $playerOuter = $("<div />").addClass("player-outer");
+	if (!embedded) {
+		$playerOuter.addClass("embed-responsive-item");
+		var $playerOuterOuter = $("<div />").addClass("player-outer-outer embed-responsive embed-responsive-16by9");
+		$playerOuterOuter.append($playerOuter);
+		$container.append($playerOuterOuter);
+	}
+	else {
+		$container.append($playerOuter);
+	}
+	var $playerWrapper = $("<div />").addClass("player-wrapper");
+	$playerOuter.append($playerWrapper);
 	var $bottomContainer = $("<div />").addClass("bottom-container clearfix");
 	var $count1ItemContainer = $("<div />").addClass("item-container hide");
 	var $count1 = $("<div />").addClass("view-count");
@@ -82,7 +95,9 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	var $qualitySelectionItemContainer = $("<div />").addClass("item-container right");
 	
 	var $rightGroupContainer = $("<div />").addClass("right");
-	
+
+	var suggestionSlide = null;
+
 	$bottomContainer.append($count1ItemContainer);
 	$bottomContainer.append($overrideButtonItemContainer);
 	$rightGroupContainer.append($qualitySelectionItemContainer);
@@ -107,10 +122,10 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 	
 	
-	var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded);
+	var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded);
 	$(playerController).on("playerComponentElAvailable", function() {
 		$playerComponent = playerController.getPlayerComponentEl();
-		$container.append($playerComponent);
+		$playerWrapper.append($playerComponent);
 		if (bottomBarMode !== "none") {
 			$container.append($bottomContainer);
 		}
@@ -174,6 +189,10 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	$(playerController).on("scheduledPublishTimeChanged streamStateChanged playerTypeChanged", function() {
 		renderBroadcastTime();
 	});
+
+	$(playerController).on("playerTypeChanged play ended", function() {
+		renderSuggestionSlide();
+	});
 	
 	// time won't appear if in the past,
 	// this condition could become true at a point in time
@@ -190,13 +209,12 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	/* if !responsive then the player should fill the size of the container, minus the space for the nav bar below.
 	   The height of the container should not be assumed as constant. E.g. it may be set to fill the document width and height in the case of an iframe */
 	function updatePlayerComponentSize() {
-		if (responsive || $playerComponent === null) {
+		if (responsive) {
 			return;
 		}
 		var containerHeight = $container.innerHeight();
 		var bottomContainerHeight = bottomBarMode !== "none" ? $bottomContainer.outerHeight(true) : 0;
-		var playerComponentPadding = $playerComponent.outerHeight(true) - $playerComponent.height();
-		$playerComponent.height(Math.max(containerHeight - bottomContainerHeight - playerComponentPadding, 0));
+		$playerOuter.height(Math.max(containerHeight - bottomContainerHeight, 0));
 	}
 	
 	function renderQualitySelectionComponent() {
@@ -353,6 +371,32 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 		else {
 			$broadcastTimeContainer.addClass("hide");
 			$broadcastTime.text("");
+		}
+	}
+
+	function renderSuggestionSlide() {
+		if (playerController.getPlayerType() !== "vod" || !playerController.hasEnded()) {
+			// slide should not be shown
+			if (suggestionSlide) {
+				suggestionSlide.getEl().remove();
+				suggestionSlide.destroy();
+				suggestionSlide = null;
+				$playerWrapper.removeClass("invisible");
+			}
+		}
+		else {
+			// slide should be shown. player is for VOD and in ended state
+			if (!suggestionSlide) {
+				// TODO proper ajax url
+				suggestionSlide = new PlayerSuggestionSlide(playerController.getCoverUri(), playerInfoUri, onWatchAgainClicked);
+				$playerOuter.append(suggestionSlide.getEl());
+				$playerWrapper.addClass("invisible");
+			}
+		}
+
+		function onWatchAgainClicked() {
+			// seek to 0 and play
+			playerController.jumpToTime(0, true);
 		}
 	}
 	

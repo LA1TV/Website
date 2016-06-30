@@ -3,6 +3,26 @@
 	background-color: #ffffff;
 }
 
+.player-container .player-outer-outer {
+	width: 100%;
+}
+
+.player-container .player-outer:not(.embed-responsive-item) {
+	position: relative;
+}
+
+.player-container .player-outer .player-wrapper {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.player-container .player-outer .player-wrapper.invisible {
+	visibility: hidden;
+}
+
 /* when the player is embedded player-component width and height will be set with javascript to whatever the height of player-container is - bottom-container height. */
 .embedded-player-container .bottom-container {
 	position: absolute;
