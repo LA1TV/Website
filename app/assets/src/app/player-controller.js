@@ -68,7 +68,7 @@ define([
 
 		this.getCoverUri = function() {
 			return cachedData ? cachedData.coverUri : null;
-		}
+		};
 		
 		// get the id corresponding to this players content
 		this.getContentId = function() {

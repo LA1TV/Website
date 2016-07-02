@@ -103,7 +103,7 @@ PlayerSuggestionSlide.prototype._makeRequest = function() {
 	}).fail(() => {
 		this._xhr = null;
 		onError();
-	})
+	});
 
 	var onError = () => {
 		// retry in 15 seconds
@@ -111,7 +111,7 @@ PlayerSuggestionSlide.prototype._makeRequest = function() {
 			this._retryTimer = null;
 			this._makeRequest();
 		}, 15000);
-	}
+	};
 		
 };
 
@@ -154,7 +154,7 @@ PlayerSuggestionSlide.prototype._animate = function(instant) {
 
 	// append new art
 	var $art = this._buildArt(item.coverArtUri).css({opacity: 0});
-	var $artToRemove = this._$currentArt
+	var $artToRemove = this._$currentArt;
 	this._$currentArt = $art;
 	this._$artContainer.append($art);
 	// animate in new art over previous
