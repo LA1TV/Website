@@ -279,6 +279,7 @@ class PlayerController extends HomeBaseController {
 			$viewProps['seriesAd'] = $seriesAd;
 			$viewProps['coverImageUri'] = $coverImageUri;
 			$viewProps['playerInfoUri'] = PlayerHelpers::getInfoUri($playlist->id, $currentMediaItem->id);
+			$viewProps['recommendationsUri'] = PlayerHelpers::getRecommendationsUri($playlist->id, $currentMediaItem->id);
 			$viewProps['playlistInfoUri'] = $this->getPlaylistInfoUri($playlist->id);
 			$viewProps['registerWatchingUri'] = PlayerHelpers::getRegisterWatchingUri($playlist->id, $currentMediaItem->id);
 			$viewProps['registerLikeUri'] = PlayerHelpers::getRegisterLikeUri($playlist->id, $currentMediaItem->id);
@@ -592,6 +593,141 @@ class PlayerController extends HomeBaseController {
 		);
 		
 		return Response::json($data);
+	}
+
+	public function postRecommendations($playlistId, $mediaItemId) {
+		// true if a user is logged into the cms and has permission to view playlists.
+		$userHasPlaylistsPermission = false;
+		
+		if (Auth::isLoggedIn()) {
+			$userHasPlaylistsPermission = Auth::getUser()->hasPermission(Config::get("permissions.playlists"), 0);
+		}
+
+		$playlist = Playlist::with("relatedItems")->accessible();
+		if (!$userHasPlaylistsPermission) {
+			// current cms user (if logged in) does not have permission to view playlists, so only search playlists accessible to the public.
+			$playlist = $playlist->accessibleToPublic();
+		}
+		$playlist = $playlist->find(intval($playlistId));
+		if (is_null($playlist)) {
+			App::abort(404);
+		}
+		
+		$mediaItem = $playlist->mediaItems()->accessible()->find($mediaItemId);
+		if (is_null($mediaItem)) {
+			App::abort(404);
+		}
+
+		// cache recommended items for 10 minutes
+		$itemsFromCache = Cache::remember("pages.playerRecommendations.".$playlistId.".".$mediaItemId, 10, function() use (&$mediaItem, &$playlist) {
+			
+			$coverArtResolutions = Config::get("imageResolutions.coverArt");
+
+			$buildItemFromModel = function($playlist, $mediaItem) use (&$coverArtResolutions) {
+				$thumbnailUri = Config::get("custom.default_cover_uri");
+				if (!Config::get("degradedService.enabled")) {
+					$thumbnailUri = $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']);
+				}
+				return [
+					"title" => $mediaItem->name,
+					"coverArtUri" => $thumbnailUri,
+					"uri"	=> $playlist->getMediaItemUri($mediaItem)
+				];
+			};
+
+			$items = [];
+			$itemIds = [];
+			// put the current item id in here to ensure it isn't returned as a recommended one
+			$itemIds [] = intval($mediaItem->id);
+			// if there is a next item (that's available) then put this first
+			$mediaItems = $playlist->mediaItems()->accessible()->orderBy("media_item_to_playlist.position")->get();
+			$mediaItems->load("videoItem", "liveStreamItem", "liveStreamItem.stateDefinition");
+
+			$foundCurrentItem = false;
+			foreach($mediaItems as $a) {
+				if (intval($a->id) === intval($mediaItem->id)) {
+					$foundCurrentItem = true;
+					continue;
+				}
+				if (!$foundCurrentItem) {
+					continue;
+				}
+				if (!Config::get("degradedService.enabled") && !is_null($a->videoItem) && $a->videoItem->getIsLive()) {
+					// vod that's available
+					$items[] = $buildItemFromModel($playlist, $a);
+					$itemIds[] = intval($a->id);
+					break;
+				}
+				if (!is_null($a->liveStreamItem) && $a->liveStreamItem->hasWatchableContent()) {
+					// stream that's live/dvr recording available
+					$items[] = $buildItemFromModel($playlist, $a);
+					$itemIds[] = intval($a->id);
+					break;
+				}
+			}
+
+			// then show related items (limited to 3)
+			$relatedItems = $playlist->generateRelatedItems($mediaItem)->shuffle();
+
+			$numAdded = 0;
+			for($i=0; $numAdded<3 && $i<count($relatedItems); $i++) {
+				$item = $relatedItems[$i];
+				if (!$item->hasWatchableContent()) {
+					continue;
+				}
+				$id = intval($item->id);
+				if (!in_array($id, $itemIds)) {
+					$items[] = $buildItemFromModel($item->getDefaultPlaylist(), $item);
+					$itemIds[] = $id;
+					$numAdded++;
+				}
+			}
+
+			$recentAndPopular = [];
+			$recentAndPopularIds = [];
+
+			// then show a random selection of most popular and recently added
+			$mostPopular = MediaItem::getCachedMostPopularItems();
+			shuffle($mostPopular);
+			$numAdded = 0;
+			for($i=0; $numAdded<5 && $i<count($mostPopular); $i++) {
+				$item = $mostPopular[$i];
+				if (!$item["mediaItem"]->hasWatchableContent()) {
+					continue;
+				}
+				$id = intval($item["mediaItem"]->id);
+				if (!in_array($id, $itemIds)) {
+					$recentAndPopular[] = $buildItemFromModel($item["playlist"], $item["mediaItem"]);
+					$recentAndPopularIds[] = $id;
+					$numAdded++;
+				}
+			}
+			$mostRecent = MediaItem::getCachedRecentItems();
+			shuffle($mostRecent);
+			$numAdded = 0;
+			for($i=0; $numAdded<5 && $i<count($mostRecent); $i++) {
+				$item = $mostRecent[$i];
+				if (!$item["mediaItem"]->hasWatchableContent()) {
+					continue;
+				}
+				$id = intval($item["mediaItem"]->id);
+				if (!in_array($id, $itemIds) && !in_array($id, $recentAndPopularIds)) {
+					$recentAndPopular[] = $buildItemFromModel($item["playlist"], $item["mediaItem"]);
+					$recentAndPopularIds[] = $id;
+					$numAdded++;
+				}
+			}
+			shuffle($recentAndPopular);
+
+			for ($i=0; $i<8 && $i<count($recentAndPopular); $i++) {
+				$items[] = $recentAndPopular[$i];
+			}
+			return $items;
+		});
+
+		return Response::json([
+			"items" => $itemsFromCache
+		]);
 	}
 	
 	public function postRegisterWatching($playlistId, $mediaItemId) {

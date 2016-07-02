@@ -17,6 +17,7 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
         entry: entryConfig,
         resolve: {
             root: path.resolve(baseDir, 'app/assets/src'),
+            extensions: ["", ".js", ".es6.js"],
             alias: {
                 jquery: path.resolve(baseDir, 'app/assets/src/lib/jquery.js'),
                 Clappr: path.resolve(baseDir, 'app/assets/src/lib/clappr.js')
@@ -30,14 +31,23 @@ module.exports = function(baseDir, buildDir, entryPointsbaseDirDir, publicPath) 
                     exclude: /node_modules/
                 },
                 {
+                    test: /\.es6\.js$/,
+                    loader: 'babel-loader?compact=true&presets[]=es2015',
+                    exclude: /node_modules/
+                },
+                {
                     test: /\.css$/,
                     loaders: ["style-loader", "css-loader", "postcss-loader"],
                     exclude: /node_modules/
                 },
                 {
+                    test: /\.scss$/,
+                    loaders: ["style-loader", "css-loader?modules", "postcss-loader", "sass-loader"],
+                    exclude: /node_modules/
+                },
+                {
                     test: /\.(eot|svg|ttf|woff|woff2|png)/, loader: 'file-loader'
                 }
-                
             ]
         },
         postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ],

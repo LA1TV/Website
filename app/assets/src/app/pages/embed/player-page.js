@@ -52,6 +52,7 @@ $(document).ready(function() {
 			}
 			
 			var playerInfoUri = $(this).attr("data-info-uri");
+			var recommendationsUri = $(this).attr("data-recommendations-uri");
 			var registerWatchingUri = $(this).attr("data-register-watching-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
@@ -74,7 +75,7 @@ $(document).ready(function() {
 			require(["app/components/player-container"], function(PlayerContainer) {
 				
 				// replace the player-container on the dom with the PlayerContainerComponent element when the component has loaded.
-				playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+				playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 				
 				playerContainer.onLoaded(function() {
 					
