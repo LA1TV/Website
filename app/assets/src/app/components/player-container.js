@@ -12,7 +12,7 @@ require("./player-container.css");
 	
 // registerWatchingUri and registerLikeUri may be null to disable these features
 // bottom bar mode can be "full", "compact" or "none"
-var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
+var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
 
 	var self = this;
 
@@ -387,8 +387,8 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 		else {
 			// slide should be shown. player is for VOD and in ended state
 			if (!suggestionSlide) {
-				// TODO proper ajax url
-				suggestionSlide = new PlayerSuggestionSlide(playerController.getCoverUri(), playerInfoUri, onWatchAgainClicked);
+				var openInNewWindow = embedded;
+				suggestionSlide = new PlayerSuggestionSlide(playerController.getCoverUri(), recommendationsUri, onWatchAgainClicked, openInNewWindow);
 				$playerOuter.append(suggestionSlide.getEl());
 				$playerWrapper.addClass("invisible");
 			}

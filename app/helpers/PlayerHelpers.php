@@ -13,4 +13,8 @@ class PlayerHelpers {
 	public static function getRegisterLikeUri($playlistId, $mediaItemId) {
 		return Config::get("custom.player_register_like_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
+
+	public static function getRecommendationsUri($playlistId, $mediaItemId) {
+		return Config::get("custom.player_recommendations_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
 }

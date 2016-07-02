@@ -341,6 +341,18 @@ class MediaItem extends MyEloquent {
 		});
 		return true;
 	}
+
+	public function hasWatchableContent() {
+		if ($this->getIsAccessible()) {
+			if (!Config::get("degradedService.enabled") && !is_null($this->videoItem) && $this->videoItem->getIsLive()) {
+				return true;
+			}
+			else if (!is_null($this->liveStreamItem) && $this->liveStreamItem->getIsAccessible() && $this->liveStreamItem->hasWatchableContent()) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public function registerView() {
 		$liveStreamItem = $this->liveStreamItem;

@@ -368,7 +368,7 @@ define([
 					csrf_token: PageData.get("csrfToken")
 				},
 				type: "POST"
-			}).always(function(data, textStatus, jqXHR) {
+			}).done(function(data, textStatus, jqXHR) {
 				updateXHR = null;
 				if (jqXHR.status === 200) {
 					var localVodSourceId = nullify(data.vodSourceId);
@@ -391,6 +391,8 @@ define([
 				else {
 					onComplete();
 				}
+			}).fail(function() {
+				onComplete();
 			});
 		}
 		

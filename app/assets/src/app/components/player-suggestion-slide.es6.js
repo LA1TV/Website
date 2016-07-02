@@ -5,13 +5,14 @@ var css = require("./player-suggestion-slide.scss");
 
 var speed = 100;
 
-function PlayerSuggestionSlide(coverUri, ajaxUrl, onWatchAgainClicked) {
+function PlayerSuggestionSlide(coverUri, ajaxUrl, onWatchAgainClicked, openInNewWindow) {
 	this._coverUri = coverUri;
 	this._ajaxUrl = ajaxUrl;
 	this._onWatchAgainClicked = onWatchAgainClicked;
 
 	this._$el = null;
 	this._$topLayer = null;
+	this._$suggestion = null;
 	this._$background = null;
 	this._$leftArrow = null;
 	this._$rightArrow = null;
@@ -38,6 +39,15 @@ function PlayerSuggestionSlide(coverUri, ajaxUrl, onWatchAgainClicked) {
 	this._$rightArrow.click(() => {
 		this._$rightArrow.blur();
 		this._onRightClicked();
+	});
+	this._$suggestion.click(() => {
+		var uri = this._items[this._currentItemIndex].uri;
+		if (openInNewWindow) {
+			window.open(uri);
+		}
+		else {
+			window.location = uri;
+		}
 	});
 	this._$topLayer.hover(() => {
 		this._$background.addClass(css.darken);
@@ -70,35 +80,17 @@ PlayerSuggestionSlide.prototype._makeRequest = function() {
 			csrf_token: PageData.get("csrfToken")
 		},
 		type: "POST"
-	}).always((data, textStatus, jqXHR) => {
+	}).done((data, textStatus, jqXHR) => {
 		this._xhr = null;
-
-		// TODO temp
-		jqXHR.status = 200;
-		data = {
-			items: [
-				{
-					coverArtUri: "https://www.la1tv.co.uk/file/90633",
-					title: "Bowland"
-				},
-				{
-					coverArtUri: "https://www.la1tv.co.uk/file/90647",
-					title: "Furness"
-				},
-				{
-					coverArtUri: "https://www.la1tv.co.uk/file/91745",
-					title: "Fylde"
-				}
-			]
-		};
-
-
 		if (jqXHR.status === 200) {
-			if (data.items.length < 2) {
-				// the component needs 2 or more items to function
+			if (data.items.length === 0) {
+				// the component needs 1 or more items to function
 				return;
 			}
 			this._items = data.items;
+			if (this._items.length > 1) {
+				this._$topLayer.addClass(css.multipleItems);
+			}
 			this._animate(true);
 			this._$el.attr("data-ready", "1");
 			setTimeout(() => {
@@ -106,13 +98,20 @@ PlayerSuggestionSlide.prototype._makeRequest = function() {
 			}, 0);
 		}
 		else {
-			// retry in 15 seconds
-			this._retryTimer = setTimeout(() => {
-				this._retryTimer = null;
-				this._makeRequest();
-			}, 15000);
+			onError();
 		}
-	});
+	}).fail(() => {
+		this._xhr = null;
+		onError();
+	})
+
+	var onError = () => {
+		// retry in 15 seconds
+		this._retryTimer = setTimeout(() => {
+			this._retryTimer = null;
+			this._makeRequest();
+		}, 15000);
+	}
 		
 };
 
@@ -228,6 +227,7 @@ PlayerSuggestionSlide.prototype._buildEl = function() {
 
 	this._$el = $el;
 	this._$topLayer = $topLayer;
+	this._$suggestion = $suggestion;
 	this._$background = $background;
 	this._$leftArrow = $leftArrow;
 	this._$rightArrow = $rightArrow;
