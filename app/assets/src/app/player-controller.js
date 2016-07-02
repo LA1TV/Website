@@ -28,7 +28,7 @@ define([
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
 	// registerWatchingUri and registerLikeUri can be null to disable these features
-	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, qualitiesHandler, responsive, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, openLinksInNewWindow) {
+	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, qualitiesHandler, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, openLinksInNewWindow) {
 		
 		var self = this;
 		
@@ -64,6 +64,10 @@ define([
 				return playerComponent.getEl();
 			}
 			return null;
+		};
+
+		this.getCoverUri = function() {
+			return cachedData ? cachedData.coverUri : null;
 		};
 		
 		// get the id corresponding to this players content
@@ -364,7 +368,7 @@ define([
 					csrf_token: PageData.get("csrfToken")
 				},
 				type: "POST"
-			}).always(function(data, textStatus, jqXHR) {
+			}).done(function(data, textStatus, jqXHR) {
 				updateXHR = null;
 				if (jqXHR.status === 200) {
 					var localVodSourceId = nullify(data.vodSourceId);
@@ -387,6 +391,8 @@ define([
 				else {
 					onComplete();
 				}
+			}).fail(function() {
+				onComplete();
 			});
 		}
 		
@@ -429,7 +435,7 @@ define([
 			var firstLoad = false;
 			if (playerComponent === null) {
 				firstLoad = true;
-				playerComponent = new PlayerComponent(data.coverUri, responsive, placeQualitySelectionComponentInPlayer ? qualitiesHandler : null);
+				playerComponent = new PlayerComponent(data.coverUri, placeQualitySelectionComponentInPlayer ? qualitiesHandler : null);
 				$(self).triggerHandler("playerComponentElAvailable");
 				$(playerComponent).on("play", function() {
 					// content is playing (again)

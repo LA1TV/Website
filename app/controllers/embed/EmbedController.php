@@ -63,16 +63,17 @@ class EmbedController extends EmbedBaseController {
 
 		$title = $mediaItem->name;
 		$playerInfoUri = $this->getInfoUri($playlist->id, $mediaItem->id);
+		$recommendationsUri = $this->getRecommendationsUri($playlist->id, $mediaItem->id);
 		$registerWatchingUri = $this->getRegisterWatchingUri($playlist->id, $mediaItem->id);
 		$registerLikeUri = $this->getRegisterLikeUri($playlist->id, $mediaItem->id);
 		$adminOverrideEnabled = $userHasMediaItemsPermission;
 		$hyperlink = URL::route('player', array($playlist->id, $mediaItem->id));
 
-		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $adminOverrideEnabled, $hyperlink);
+		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $recommendationsUri, $adminOverrideEnabled, $hyperlink);
 	}
 
 
-	private function doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $adminOverrideEnabled, $hyperlink) {
+	private function doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $recommendationsUri, $adminOverrideEnabled, $hyperlink) {
 		
 		$kioskMode = isset($_GET['kiosk']) && $_GET['kiosk'] === "1";
 		$autoPlayVod = null;
@@ -122,6 +123,7 @@ class EmbedController extends EmbedBaseController {
 		$view->enableSmartAutoPlay = $enableSmartAutoPlay;
 		$view->episodeTitle = $title;
 		$view->playerInfoUri = $playerInfoUri;
+		$view->recommendationsUri = $recommendationsUri;
 		$view->registerWatchingUri = $registerWatchingUri;
 		$view->registerLikeUri = $registerLikeUri;
 		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
@@ -150,6 +152,10 @@ class EmbedController extends EmbedBaseController {
 		return Config::get("custom.embed_player_info_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}
 	
+	private function getRecommendationsUri($playlistId, $mediaItemId) {
+		return Config::get("custom.embed_recommendations_base_uri")."/".$playlistId ."/".$mediaItemId;
+	}
+
 	private function getRegisterWatchingUri($playlistId, $mediaItemId) {
 		return Config::get("custom.embed_player_register_watching_base_uri")."/".$playlistId ."/".$mediaItemId;
 	}

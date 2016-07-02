@@ -15,7 +15,7 @@ var logger = require("app/logger");
 require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
 	
-var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) {
+var PlayerComponent = function(coverUri, qualitySelectionComponent) {
 
 	var self = this;
 	
@@ -301,10 +301,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 	var wasFullScreen = null;
 	var previousVolume = null;
 	
-	var $container = $("<div />").addClass("player-component embed-responsive");
-	if (responsive) {
-		$container.addClass("embed-responsive-16by9");
-	}
+	var $container = $("<div />").addClass("player-component");
 	
 	// === AD ===
 	// reference to dom element which holds the ad
@@ -510,7 +507,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 		// destroy the ad first if necessary.
 		// there should never be the case where this is called and it's already there but best be safe.
 		destroyAd();
-		$ad = $("<div />").addClass("ad embed-responsive-item");
+		$ad = $("<div />").addClass("ad");
 		var $bg = $("<div />").addClass("bg");
 		$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
 		$overlayTop = $("<div />").addClass("player-top-bar");
@@ -559,7 +556,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 		// destroy the external stream slide first if necessary.
 		// there should never be the case where this is called and it's already there but best be safe.
 		destroyExternalStreamSlide();
-		$externalStreamSlide = $("<div />").addClass("ad embed-responsive-item");
+		$externalStreamSlide = $("<div />").addClass("ad");
 		var $bg = $("<div />").addClass("bg");
 		$bg.css("background-image", 'url("'+coverUri+'")'); // set the image uri. rest of background css is in css file
 		$overlayTop = $("<div />").addClass("player-top-bar");
@@ -719,7 +716,7 @@ var PlayerComponent = function(coverUri, responsive, qualitySelectionComponent) 
 	// creates the player
 	// if the player already exists it destroys the current one first.
 	function createPlayer(playerExisted) {
-		$player = $("<div />").addClass("player embed-responsive-item");
+		$player = $("<div />").addClass("player");
 
 		// set the sources
 		playerUris = shortlistedPlayerUris;

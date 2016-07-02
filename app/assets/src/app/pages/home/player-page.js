@@ -24,11 +24,13 @@ $(document).ready(function() {
 			var self = this;
 		
 			var playerInfoUri = $(this).attr("data-info-uri");
+			var recommendationsUri = $(this).attr("data-recommendations-uri");
 			var registerWatchingUri = $(this).attr("data-register-watching-uri");
 			var registerLikeUri = $(this).attr("data-register-like-uri");
 			var enableAdminOverride = $(this).attr("data-enable-admin-override") === "1";
 			var loginRequiredMsg = $(this).attr("data-login-required-msg");
 			var autoPlayVod = $(this).attr("data-auto-play-vod") === "1";
+			var autoPlayStream = true; // always autoplay stream
 			var autoPlayStream = true; // always autoplay stream
 			var vodPlayStartTime = $(this).attr("data-vod-play-start-time") === "" ? null : parseInt($(this).attr("data-vod-play-start-time"));
 			var ignoreExternalStreamUrl = false;
@@ -44,7 +46,7 @@ $(document).ready(function() {
 		
 			// load async
 			require(["app/components/player-container"], function(PlayerContainer) {
-				var playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
+				var playerContainer = new PlayerContainer(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay);
 				playerContainer.onLoaded(function() {
 					$(self).empty();
 					$(self).append(playerContainer.getEl());
