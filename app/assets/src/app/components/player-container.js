@@ -375,6 +375,10 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	}
 
 	function renderSuggestionSlide() {
+		if (!recommendationsUri) {
+			// recommendations disabled
+			return;
+		}
 		if (playerController.getPlayerType() !== "vod" || !playerController.hasEnded()) {
 			// slide should not be shown
 			if (suggestionSlide) {

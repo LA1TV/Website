@@ -54,7 +54,7 @@ class EmbedController extends EmbedBaseController {
 		$adminOverrideEnabled = false;
 		$hyperlink = URL::route('liveStream', array($liveStream->id));
 
-		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, $adminOverrideEnabled, $hyperlink);
+		$this->doResponse($title, $playerInfoUri, $registerWatchingUri, $registerLikeUri, null, $adminOverrideEnabled, $hyperlink);
 	}
 	
 	private function prepareResponse($playlist, $mediaItem) {
@@ -123,7 +123,7 @@ class EmbedController extends EmbedBaseController {
 		$view->enableSmartAutoPlay = $enableSmartAutoPlay;
 		$view->episodeTitle = $title;
 		$view->playerInfoUri = $playerInfoUri;
-		$view->recommendationsUri = $recommendationsUri;
+		$view->recommendationsUri = is_null($recommendationsUri) ? "" : $recommendationsUri;
 		$view->registerWatchingUri = $registerWatchingUri;
 		$view->registerLikeUri = $registerLikeUri;
 		$view->loginRequiredMsg = "Please log in to our website to use this feature.";
