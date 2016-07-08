@@ -164,6 +164,7 @@ class HomeController extends HomeBaseController {
 				$userHasMediaItemsPermission = Auth::getUser()->hasPermission(Config::get("permissions.mediaItems"), 0);
 			}
 			$view->promoPlayerInfoUri = PlayerHelpers::getInfoUri($promoPlaylist->id, $promoMediaItem->id);
+			$view->promoRecommendationsUri = PlayerHelpers::getRecommendationsUri($promoPlaylist->id, $promoMediaItem->id);
 			$view->promoRegisterWatchingUri = PlayerHelpers::getRegisterWatchingUri($promoPlaylist->id, $promoMediaItem->id);
 			$view->promoRegisterLikeUri = PlayerHelpers::getRegisterLikeUri($promoPlaylist->id, $promoMediaItem->id);
 			$view->promoAdminOverrideEnabled = $userHasMediaItemsPermission;

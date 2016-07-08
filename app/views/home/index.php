@@ -4,7 +4,7 @@
 <div class="wrapper hidden">
 	<?php if ($showPromoItem): ?>
 	<div class="promo-item-container">
-		<div class="player-container-component-container" data-info-uri="<?=e($promoPlayerInfoUri);?>" data-register-watching-uri="<?=e($promoRegisterWatchingUri);?>" data-register-like-uri="<?=e($promoRegisterLikeUri);?>" data-login-required-msg="<?=e($promoLoginRequiredMsg);?>" data-enable-admin-override="<?=$promoAdminOverrideEnabled?"1":"0"?>"></div>
+		<div class="player-container-component-container" data-info-uri="<?=e($promoPlayerInfoUri);?>" data-recommendations-uri="<?=e($promoRecommendationsUri);?>" data-register-watching-uri="<?=e($promoRegisterWatchingUri);?>" data-register-like-uri="<?=e($promoRegisterLikeUri);?>" data-login-required-msg="<?=e($promoLoginRequiredMsg);?>" data-enable-admin-override="<?=$promoAdminOverrideEnabled?"1":"0"?>"></div>
 	</div>
 	<?php endif; ?>
 	<?php if (!$showPromoItem && count($promotedItemsData) > 0): ?>
