@@ -10042,7 +10042,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (draining) {
 	        return;
 	    }
-	    var timeout = cachedSetTimeout.call(null, cleanUpNextTick);
+	    var timeout = cachedSetTimeout(cleanUpNextTick);
 	    draining = true;
 
 	    var len = queue.length;
@@ -10059,7 +10059,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    currentQueue = null;
 	    draining = false;
-	    cachedClearTimeout.call(null, timeout);
+	    cachedClearTimeout(timeout);
 	}
 
 	process.nextTick = function (fun) {
@@ -10071,7 +10071,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    queue.push(new Item(fun, args));
 	    if (queue.length === 1 && !draining) {
-	        cachedSetTimeout.call(null, drainQueue, 0);
+	        cachedSetTimeout(drainQueue, 0);
 	    }
 	};
 
@@ -10498,7 +10498,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 36 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"media-control-background\" data-background></div>\n<div class=\"media-control-layer\" data-controls>\n  <%  var renderBar = function(name) { %>\n      <div class=\"bar-container\" data-<%= name %>>\n        <div class=\"bar-background\" data-<%= name %>>\n          <div class=\"bar-fill-1\" data-<%= name %>></div>\n          <div class=\"bar-fill-2\" data-<%= name %>></div>\n          <div class=\"bar-hover\" data-<%= name %>></div>\n        </div>\n        <div class=\"bar-scrubber\" data-<%= name %>>\n          <div class=\"bar-scrubber-icon\" data-<%= name %>></div>\n        </div>\n      </div>\n  <%  }; %>\n  <%  var renderSegmentedBar = function(name, segments) {\n      segments = segments || 10; %>\n    <div class=\"bar-container\" data-<%= name %>>\n    <% for (var i = 0; i < segments; i++) { %>\n      <div class=\"segmented-bar-element\" data-<%= name %>></div>\n    <% } %>\n    </div>\n  <% }; %>\n  <% var renderDrawer = function(name, renderContent) { %>\n      <div class=\"drawer-container\" data-<%= name %>>\n        <div class=\"drawer-icon-container\" data-<%= name %>>\n          <div class=\"drawer-icon media-control-icon\" data-<%= name %>></div>\n          <span class=\"drawer-text\" data-<%= name %>></span>\n        </div>\n        <% renderContent(name); %>\n      </div>\n  <% }; %>\n  <% var renderIndicator = function(name) { %>\n      <div class=\"media-control-indicator\" data-<%= name %>></div>\n  <% }; %>\n  <% var renderButton = function(name) { %>\n      <button type=\"button\" class=\"media-control-button media-control-icon\" data-<%= name %>></button>\n  <% }; %>\n  <%  var templates = {\n        bar: renderBar,\n        segmentedBar: renderSegmentedBar,\n      };\n      var render = function(settingsList) {\n        settingsList.forEach(function(setting) {\n          if(setting === \"seekbar\") {\n            renderBar(setting);\n          } else if (setting === \"volume\") {\n            renderDrawer(setting, settings.volumeBarTemplate ? templates[settings.volumeBarTemplate] : function(name) { return renderSegmentedBar(name); });\n          } else if (setting === \"duration\" || setting === \"position\") {\n            renderIndicator(setting);\n          } else {\n            renderButton(setting);\n          }\n        });\n      }; %>\n  <% if (settings.default && settings.default.length) { %>\n  <div class=\"media-control-center-panel\" data-media-control>\n    <% render(settings.default); %>\n  </div>\n  <% } %>\n  <% if (settings.left && settings.left.length) { %>\n  <div class=\"media-control-left-panel\" data-media-control>\n    <% render(settings.left); %>\n  </div>\n  <% } %>\n  <% if (settings.right && settings.right.length) { %>\n  <div class=\"media-control-right-panel\" data-media-control>\n    <% render(settings.right); %>\n  </div>\n  <% } %>\n</div>\n";
+	module.exports = "<div class=\"media-control-background\" data-background></div>\r\n<div class=\"media-control-layer\" data-controls>\r\n  <%  var renderBar = function(name) { %>\r\n      <div class=\"bar-container\" data-<%= name %>>\r\n        <div class=\"bar-background\" data-<%= name %>>\r\n          <div class=\"bar-fill-1\" data-<%= name %>></div>\r\n          <div class=\"bar-fill-2\" data-<%= name %>></div>\r\n          <div class=\"bar-hover\" data-<%= name %>></div>\r\n        </div>\r\n        <div class=\"bar-scrubber\" data-<%= name %>>\r\n          <div class=\"bar-scrubber-icon\" data-<%= name %>></div>\r\n        </div>\r\n      </div>\r\n  <%  }; %>\r\n  <%  var renderSegmentedBar = function(name, segments) {\r\n      segments = segments || 10; %>\r\n    <div class=\"bar-container\" data-<%= name %>>\r\n    <% for (var i = 0; i < segments; i++) { %>\r\n      <div class=\"segmented-bar-element\" data-<%= name %>></div>\r\n    <% } %>\r\n    </div>\r\n  <% }; %>\r\n  <% var renderDrawer = function(name, renderContent) { %>\r\n      <div class=\"drawer-container\" data-<%= name %>>\r\n        <div class=\"drawer-icon-container\" data-<%= name %>>\r\n          <div class=\"drawer-icon media-control-icon\" data-<%= name %>></div>\r\n          <span class=\"drawer-text\" data-<%= name %>></span>\r\n        </div>\r\n        <% renderContent(name); %>\r\n      </div>\r\n  <% }; %>\r\n  <% var renderIndicator = function(name) { %>\r\n      <div class=\"media-control-indicator\" data-<%= name %>></div>\r\n  <% }; %>\r\n  <% var renderButton = function(name) { %>\r\n      <button type=\"button\" class=\"media-control-button media-control-icon\" data-<%= name %>></button>\r\n  <% }; %>\r\n  <%  var templates = {\r\n        bar: renderBar,\r\n        segmentedBar: renderSegmentedBar,\r\n      };\r\n      var render = function(settingsList) {\r\n        settingsList.forEach(function(setting) {\r\n          if(setting === \"seekbar\") {\r\n            renderBar(setting);\r\n          } else if (setting === \"volume\") {\r\n            renderDrawer(setting, settings.volumeBarTemplate ? templates[settings.volumeBarTemplate] : function(name) { return renderSegmentedBar(name); });\r\n          } else if (setting === \"duration\" || setting === \"position\") {\r\n            renderIndicator(setting);\r\n          } else {\r\n            renderButton(setting);\r\n          }\r\n        });\r\n      }; %>\r\n  <% if (settings.default && settings.default.length) { %>\r\n  <div class=\"media-control-center-panel\" data-media-control>\r\n    <% render(settings.default); %>\r\n  </div>\r\n  <% } %>\r\n  <% if (settings.left && settings.left.length) { %>\r\n  <div class=\"media-control-left-panel\" data-media-control>\r\n    <% render(settings.left); %>\r\n  </div>\r\n  <% } %>\r\n  <% if (settings.right && settings.right.length) { %>\r\n  <div class=\"media-control-right-panel\" data-media-control>\r\n    <% render(settings.right); %>\r\n  </div>\r\n  <% } %>\r\n</div>\r\n";
 
 /***/ },
 /* 37 */
@@ -14299,7 +14299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 59 */
 /***/ function(module, exports) {
 
-	module.exports = "<param name=\"movie\" value=\"<%= swfPath %>?inline=1\">\n<param name=\"quality\" value=\"autohigh\">\n<param name=\"swliveconnect\" value=\"true\">\n<param name=\"allowScriptAccess\" value=\"always\">\n<param name=\"bgcolor\" value=\"#000000\">\n<param name=\"allowFullScreen\" value=\"false\">\n<param name=\"wmode\" value=\"<%= wmode %>\">\n<param name=\"tabindex\" value=\"1\">\n<param name=\"FlashVars\" value=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\">\n<embed\n  name=\"<%= cid %>\"\n  type=\"application/x-shockwave-flash\"\n  disabled=\"disabled\"\n  tabindex=\"-1\"\n  enablecontextmenu=\"false\"\n  allowScriptAccess=\"always\"\n  quality=\"autohigh\"\n  pluginspage=\"http://www.macromedia.com/go/getflashplayer\"\n  wmode=\"<%= wmode %>\"\n  swliveconnect=\"true\"\n  allowfullscreen=\"false\"\n  bgcolor=\"#000000\"\n  FlashVars=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\"\n  src=\"<%= swfPath %>\"\n  width=\"100%\"\n  height=\"100%\">\n</embed>\n";
+	module.exports = "<param name=\"movie\" value=\"<%= swfPath %>?inline=1\">\r\n<param name=\"quality\" value=\"autohigh\">\r\n<param name=\"swliveconnect\" value=\"true\">\r\n<param name=\"allowScriptAccess\" value=\"always\">\r\n<param name=\"bgcolor\" value=\"#000000\">\r\n<param name=\"allowFullScreen\" value=\"false\">\r\n<param name=\"wmode\" value=\"<%= wmode %>\">\r\n<param name=\"tabindex\" value=\"1\">\r\n<param name=\"FlashVars\" value=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\">\r\n<embed\r\n  name=\"<%= cid %>\"\r\n  type=\"application/x-shockwave-flash\"\r\n  disabled=\"disabled\"\r\n  tabindex=\"-1\"\r\n  enablecontextmenu=\"false\"\r\n  allowScriptAccess=\"always\"\r\n  quality=\"autohigh\"\r\n  pluginspage=\"http://www.macromedia.com/go/getflashplayer\"\r\n  wmode=\"<%= wmode %>\"\r\n  swliveconnect=\"true\"\r\n  allowfullscreen=\"false\"\r\n  bgcolor=\"#000000\"\r\n  FlashVars=\"playbackId=<%= playbackId %>&callback=<%= callbackName %>\"\r\n  src=\"<%= swfPath %>\"\r\n  width=\"100%\"\r\n  height=\"100%\">\r\n</embed>\r\n";
 
 /***/ },
 /* 60 */
@@ -15427,11 +15427,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this._hls.currentLevel = this._currentLevel;
 	    }
 	  }, {
-	    key: '_duration',
-	    get: function get() {
-	      return this._playableRegionDuration;
-	    }
-	  }, {
 	    key: '_startTime',
 	    get: function get() {
 	      if (this._playbackType === _playback2.default.LIVE && this._playlistType !== 'EVENT') {
@@ -15461,10 +15456,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return Math.min(extrapolatedWindowStartTime, this._playableRegionStartTime + this._extrapolatedWindowDuration);
 	    }
 
+	    // the time in the video element which should represent the end of the content
+	    // extrapolated to increase in real time (instead of jumping as segments are added)
+
+	  }, {
+	    key: '_extrapolatedEndTime',
+	    get: function get() {
+	      var actualEndTime = this._playableRegionStartTime + this._playableRegionDuration;
+	      if (!this._localEndTimeCorrelation) {
+	        return actualEndTime;
+	      }
+	      var corr = this._localEndTimeCorrelation;
+	      var timePassed = this._now - corr.local;
+	      var extrapolatedEndTime = (corr.remote + timePassed) / 1000;
+	      return Math.max(actualEndTime - this._extrapolatedWindowDuration, Math.min(extrapolatedEndTime, actualEndTime));
+	    }
+	  }, {
+	    key: '_duration',
+	    get: function get() {
+	      return this._extrapolatedEndTime - this._startTime;
+	    }
+
 	    // Returns the duration (seconds) of the window that the extrapolated start time is allowed
 	    // to move in before being capped.
 	    // The extrapolated start time should never reach the cap at the end of the window as the
 	    // window should slide as chunks are removed from the start.
+	    // This also applies to the extrapolated end time in the same way.
 	    //
 	    // If chunks aren't being removed for some reason that the start time will reach and remain fixed at
 	    // playableRegionStartTime + extrapolatedWindowDuration
@@ -15508,6 +15525,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _this._playbackType = _playback2.default.VOD;
 	    _this._lastTimeUpdate = null;
+	    _this._lastDuration = null;
 	    // for hls streams which have dvr with a sliding window,
 	    // the content at the start of the playlist is removed as new
 	    // content is appended at the end.
@@ -15519,8 +15537,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // {local, remote} remote is the time in the video element that should represent 0
 	    //                 local is the system time when the 'remote' measurment took place
 	    _this._localStartTimeCorrelation = null;
+	    // {local, remote} remote is the time in the video element that should represents the end
+	    //                 local is the system time when the 'remote' measurment took place
+	    _this._localEndTimeCorrelation = null;
 	    // if content is removed from the beginning then this empty area should
-	    // be ignored. "playableRegionDuration" does not consider this
+	    // be ignored. "playableRegionDuration" excludes the empty area
 	    _this._playableRegionDuration = 0;
 	    // true when the actual duration is longer than hlsjs's live sync point
 	    // when this is false playableRegionDuration will be the actual duration
@@ -15530,7 +15551,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this._segmentTargetDuration = null;
 	    // #EXT-X-PLAYLIST-TYPE
 	    _this._playlistType = null;
-	    _this.options.autoPlay && _this._setupHls();
 	    _this._recoverAttemptsRemaining = _this.options.hlsRecoverAttempts || 16;
 	    _this._startTimeUpdateTimer();
 	    return _this;
@@ -15586,6 +15606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _this3 = this;
 
 	    this._timeUpdateTimer = setInterval(function () {
+	      _this3._onDurationChange();
 	      _this3._onTimeUpdate();
 	    }, 100);
 	  };
@@ -15620,7 +15641,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  HLS.prototype.seekPercentage = function seekPercentage(percentage) {
-	    var seekTo = this._playableRegionDuration;
+	    var seekTo = this._duration;
 	    if (percentage > 0) {
 	      seekTo = this._duration * (percentage / 100);
 	    }
@@ -15695,6 +15716,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    this._lastTimeUpdate = update;
 	    this.trigger(_events2.default.PLAYBACK_TIMEUPDATE, update, this.name);
+	  };
+
+	  HLS.prototype._onDurationChange = function _onDurationChange() {
+	    var duration = this.getDuration();
+	    if (this._lastDuration === duration) {
+	      return;
+	    }
+	    this._lastDuration = duration;
+	    _HTML5VideoPlayback.prototype._onDurationChange.call(this);
 	  };
 
 	  HLS.prototype._onProgress = function _onProgress() {
@@ -15773,13 +15803,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var durationChanged = false;
 	    var fragments = data.details.fragments;
 	    var previousPlayableRegionStartTime = this._playableRegionStartTime;
+	    var previousPlayableRegionDuration = this._playableRegionDuration;
 
-	    if (fragments.length > 0 && this._playableRegionStartTime !== fragments[0].start) {
+	    if (fragments.length === 0) {
+	      return;
+	    }
+
+	    if (this._playableRegionStartTime !== fragments[0].start) {
 	      startTimeChanged = true;
 	      this._playableRegionStartTime = fragments[0].start;
 	    }
 
-	    if (fragments.length > 0 && startTimeChanged) {
+	    if (startTimeChanged) {
 	      if (!this._localStartTimeCorrelation) {
 	        // set the correlation to map to middle of the extrapolation window
 	        this._localStartTimeCorrelation = {
@@ -15787,7 +15822,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          remote: (fragments[0].start + this._extrapolatedWindowDuration / 2) * 1000
 	        };
 	      } else {
-	        // check if the start time correlation still works
+	        // check if the correlation still works
 	        var corr = this._localStartTimeCorrelation;
 	        var timePassed = this._now - corr.local;
 	        // this should point to a time within the extrapolation window
@@ -15801,7 +15836,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            remote: fragments[0].start * 1000
 	          };
 	        } else if (startTime > previousPlayableRegionStartTime + this._extrapolatedWindowDuration) {
-	          // start time was past the end of the old extrapolation window
+	          // start time was past the end of the old extrapolation window (so would have been capped)
 	          // see if now that time would be inside the window, and if it would be set the correlation
 	          // so that it resumes from the time it was at at the end of the old window
 	          // update the correlation so that the time starts counting again from the value it's on now
@@ -15822,9 +15857,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var hlsjsConfig = this.options.playback || {};
 	      var liveSyncDurationCount = hlsjsConfig.liveSyncDurationCount || _hls2.default.DefaultConfig.liveSyncDurationCount;
 	      var hiddenAreaDuration = fragmentTargetDuration * liveSyncDurationCount;
-	      // as the start time moves to the end of the window the user is able to seek closer to the live point
-	      // this makes sure if the start time reaches the end of the window the live point is hlsjs's live sync point and not past it
-	      hiddenAreaDuration += this._extrapolatedWindowDuration;
 	      if (hiddenAreaDuration <= newDuration) {
 	        newDuration -= hiddenAreaDuration;
 	        this._durationExcludesAfterLiveSyncPoint = true;
@@ -15836,6 +15868,48 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (newDuration !== this._playableRegionDuration) {
 	      durationChanged = true;
 	      this._playableRegionDuration = newDuration;
+	    }
+
+	    // Note the end time is not the playableRegionDuration
+	    // The end time will always increase even if content is removed from the beginning
+	    var endTime = fragments[0].start + newDuration;
+	    var previousEndTime = previousPlayableRegionStartTime + previousPlayableRegionDuration;
+	    var endTimeChanged = endTime !== previousEndTime;
+	    if (endTimeChanged) {
+	      if (!this._localEndTimeCorrelation) {
+	        // set the correlation to map to the end
+	        this._localEndTimeCorrelation = {
+	          local: this._now,
+	          remote: endTime * 1000
+	        };
+	      } else {
+	        // check if the correlation still works
+	        var _corr = this._localEndTimeCorrelation;
+	        var _timePassed = this._now - _corr.local;
+	        // this should point to a time within the extrapolation window from the end
+	        var extrapolatedEndTime = (_corr.remote + _timePassed) / 1000;
+	        if (extrapolatedEndTime > endTime) {
+	          this._localEndTimeCorrelation = {
+	            local: this._now,
+	            remote: endTime * 1000
+	          };
+	        } else if (extrapolatedEndTime < endTime - this._extrapolatedWindowDuration) {
+	          // our extrapolated end time is now earlier than the extrapolation window from the actual end time
+	          // (maybe a chunk became available early)
+	          // reset correlation so that it sits at the beginning of the extrapolation window from the end time
+	          this._localEndTimeCorrelation = {
+	            local: this._now,
+	            remote: (endTime - this._extrapolatedWindowDuration) * 1000
+	          };
+	        } else if (extrapolatedEndTime > previousEndTime) {
+	          // end time was past the old end time (so would have been capped)
+	          // set the correlation so that it resumes from the time it was at at the end of the old window
+	          this._localEndTimeCorrelation = {
+	            local: this._now,
+	            remote: previousEndTime * 1000
+	          };
+	        }
+	      }
 	    }
 
 	    // now that the values have been updated call any methods that use on them so they get the updated values
@@ -28225,7 +28299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 129 */
 /***/ function(module, exports) {
 
-	module.exports = "<div data-watermark data-watermark-<%=position %>>\n<% if(typeof imageLink !== 'undefined') { %>\n<a target=_blank href=\"<%= imageLink %>\">\n<% } %>\n<img src=\"<%= imageUrl %>\">\n<% if(typeof imageLink !== 'undefined') { %>\n</a>\n<% } %>\n</div>\n";
+	module.exports = "<div data-watermark data-watermark-<%=position %>>\r\n<% if(typeof imageLink !== 'undefined') { %>\r\n<a target=_blank href=\"<%= imageLink %>\">\r\n<% } %>\r\n<img src=\"<%= imageUrl %>\">\r\n<% if(typeof imageLink !== 'undefined') { %>\r\n</a>\r\n<% } %>\r\n</div>\r\n";
 
 /***/ },
 /* 130 */
@@ -28460,7 +28534,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 133 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"play-wrapper\" data-poster></div>\n";
+	module.exports = "<div class=\"play-wrapper\" data-poster></div>\r\n";
 
 /***/ },
 /* 134 */
@@ -28997,7 +29071,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 142 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"live-info\"><%= live %></div>\n<button type=\"button\" class=\"live-button\"><%= backToLive %></button>\n";
+	module.exports = "<div class=\"live-info\"><%= live %></div>\r\n<button type=\"button\" class=\"live-button\"><%= backToLive %></button>\r\n";
 
 /***/ },
 /* 143 */
