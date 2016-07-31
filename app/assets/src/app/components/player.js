@@ -16,6 +16,7 @@ require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
 	
 var PlayerComponent = function(coverUri, qualitySelectionComponent) {
+	qualitySelectionComponent = qualitySelectionComponent || null;
 
 	var self = this;
 	

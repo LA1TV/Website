@@ -30,7 +30,7 @@ define([
 					var qualitySelectionComponent = new QualitySelectionComponent();
 					qualitySelectionComponent.setAvailableQualities(qualities, false);
 					
-					var playerComponent = new PlayerComponent(coverArtUri, true, null);
+					var playerComponent = new PlayerComponent(coverArtUri);
 					playerComponent.setPlayerType("live");
 					updatePlayerUris();
 					playerComponent.showPlayer(true);
@@ -43,8 +43,12 @@ define([
 					
 					var $row = $("<div />").addClass("row");
 					var $col = $("<div />").addClass("col-md-6 col-md-offset-3");
+					var $responsiveOuter = $("<div />").addClass("embed-responsive embed-responsive-16by9");
+					var $responsiveInner = $("<div />").addClass("embed-responsive-item");
 					$row.append($col);
-					$col.append(playerComponent.getEl());
+					$col.append($responsiveOuter);
+					$responsiveOuter.append($responsiveInner);
+					$responsiveInner.append(playerComponent.getEl());
 					var $bottomRow = $("<div />").addClass("clearfix bottom-row");
 					var $qualitySelectionContainer = $("<div />").addClass("quality-selection-container");
 					$bottomRow.append($qualitySelectionContainer);
@@ -61,8 +65,8 @@ define([
 					for (var i=0; i<uriGroups.length; i++) {
 						var uriGroup = uriGroups[i];
 						var newUriGroup = {
-								uris: [],
-								quality: uriGroup.quality
+							uris: [],
+							quality: uriGroup.quality
 						};
 						for (var j=0; j<uriGroup.uris.length; j++) {
 							var uri = uriGroup.uris[j];
