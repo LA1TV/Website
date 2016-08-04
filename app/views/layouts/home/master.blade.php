@@ -76,8 +76,8 @@
 	</ul>
 </li>
 <?php endif; ?>
-<?php if (!is_null($blogUri)): ?>
-<li><a href="<?=e($blogUri);?>">Blog</a></li>
+<?php if (!is_null($wikiUri)): ?>
+<li><a href="<?=e($wikiUri);?>">Wiki</a></li>
 <?php endif; ?>
 <li><a href="<?=e($contactUri);?>">Contact</a></li>
 <li class="dropdown">
