@@ -31,7 +31,7 @@ return array(
 	"min_num_watching_now"	=> 3, // number of people watching now will only be sent to the client when it is higher than this number (unless logged in with media item view permission)
 	"log_uri"			=> URL::to("/") . "/ajax/log", # where javascript log events should be posted to
 	"js_log_file_path"	=> storage_path() . DIRECTORY_SEPARATOR ."logs" . DIRECTORY_SEPARATOR . "js-log.log",
-	"blog_url"			=> isset($_ENV['BLOG_URL']) ? $_ENV['BLOG_URL'] : null,
+	"wiki_url"			=> isset($_ENV['WIKI_URL']) ? $_ENV['WIKI_URL'] : null,
 	"default_cover_uri"		=> asset("assets/img/default-cover.jpg"),
 	"open_graph_logo_uri"	=> asset("assets/img/og-logo.jpg"),
 	"twitter_card_logo_uri"	=> asset("assets/img/og-logo.jpg"),
