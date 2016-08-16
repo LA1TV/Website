@@ -29,7 +29,7 @@ self.addEventListener('push', function(event) {
 		if (notificationData.tag) {
 			options.tag = notificationData.tag;
 		}
-		event.waitUntil(self.registration.showNotification(notificationData.title, options))
+		event.waitUntil(self.registration.showNotification(notificationData.title, options));
 	}
 	catch(e) {
 		console.error(e);
