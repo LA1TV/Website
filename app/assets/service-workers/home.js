@@ -14,7 +14,6 @@ self.addEventListener('message', function(event) {
 // If notifications aren't triggered Chrome will display one of its own
 self.addEventListener('push', function(event) {
 	try {
-		// todo endoding of data
 		var notificationData = event.data ? JSON.parse(event.data.text()) : null;
 		if (!notificationData) {
 			return showErrorNotification();
