@@ -131,18 +131,27 @@ require("./browser-notification-permission-request-bar.css");
 
 	function sendPushSubscriptionToServer(subscription) {
 		return new Promise(function(resolve, reject) {
-			var sessionId = PageData.get("sessionId");
 			var endpointUrl = subscription.endpoint;
+			var rawKey = subscription.getKey ? subscription.getKey('p256dh') : '';
+			var key = rawKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(rawKey))) : '';
+			var rawAuthSecret = subscription.getKey ? subscription.getKey('auth') : '';
+			var authSecret = rawAuthSecret ? btoa(String.fromCharCode.apply(null, new Uint8Array(rawAuthSecret))) : '';
 
-			// if the url and session id hasn't changed, don't make the request
+			// if nothing has changed, don't make the request
 			// again as the server will already have the information
 			if ("localStorage" in window) {
 				var updateNeeded = true;
 				try {
-					var oldSessionId = localStorage.getItem('pushSubscriptionSessionId');
 					var oldUrl = localStorage.getItem('pushSubscriptionEndpointUrl');
+					var oldKey = localStorage.getItem('pushSubscriptionKey');
+					var oldAuthSecret = localStorage.getItem('pushSubscriptionAuthSecret');
 					var urlUpdateTime = localStorage.getItem('pushSubscriptionEndpointUrlUpdateTime');
-					if (oldSessionId === sessionId && oldUrl === endpointUrl && urlUpdateTime && urlUpdateTime >= Date.now()-600000) {
+					if (
+						oldUrl === endpointUrl &&
+						oldKey === key &&
+						oldAuthSecret === authSecret &&
+						urlUpdateTime && urlUpdateTime >= Date.now()-600000
+					) {
 						// the server already has the url and it has been updated in the last 10 minutes
 						// it is important to update occasionally as this request is the only point point to find out if push notifications are disabled
 						// if push notifications are disabled the update request will return a 404
@@ -156,31 +165,34 @@ require("./browser-notification-permission-request-bar.css");
 				}
 			}
 
-			logger.debug("Sending push subscription endpoint URL to server.");
+			logger.debug("Sending push subscription data to server.");
 			$.ajax(PageData.get("registerPushNotificationEndpointUrl"), {
 				cache: false,
 				dataType: "json",
 				headers: AjaxHelpers.getHeaders(),
 				data: {
 					csrf_token: PageData.get("csrfToken"),
-					url: endpointUrl
+					url: endpointUrl,
+					key: key,
+					authSecret: authSecret
 				},
 				type: "POST"
 			}).always(function(data, textStatus, jqXHR) {
 				if (jqXHR.status === 200 && data.success) {
 					if ("localStorage" in window) {
 						try {
-							localStorage.setItem('pushSubscriptionSessionId', sessionId);
 							localStorage.setItem('pushSubscriptionEndpointUrl', endpointUrl);
+							localStorage.setItem('pushSubscriptionKey', key);
+							localStorage.setItem('pushSubscriptionAuthSecret', authSecret);
 							localStorage.setItem('pushSubscriptionEndpointUrlUpdateTime', Date.now());
 						}
 						catch(e) {}
 					}
-					logger.debug("Push subscription endpoint URL sent to server.");
+					logger.debug("Push subscription data sent to server.");
 					resolve();
 				}
 				else {
-					logger.debug("Sending push subscription endpoint URL to server failed, or it was rejected.");
+					logger.debug("Sending push subscription data to server failed, or it was rejected.");
 					reject();
 				}
 			});

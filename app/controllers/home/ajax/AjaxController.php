@@ -9,7 +9,6 @@ use Session;
 use Elasticsearch;
 use App;
 use DB;
-use Redis;
 use Exception;
 use Log;
 use uk\co\la1tv\website\models\PushNotificationRegistrationEndpoint;
@@ -185,7 +184,16 @@ class AjaxController extends BaseController {
 			App::abort(500); // server error
 			return;
 		}
-
+		$key = isset($_POST["key"]) ? $_POST["key"] : null;
+		$authSecret = isset($_POST["authSecret"]) ? $_POST["authSecret"] : null;
+		if (
+			strlen($key) !== 88 || strlen($authSecret) !== 24 ||
+			!$this->isValidBase64($key) || !$this->isValidBase64($authSecret)
+		) {
+			App::abort(500); // server error
+			return;
+		}
+		
 		$endpointWhiteList = Config::get("pushNotifications.endpointWhiteList");
 		$urlAllowed = false;
 		foreach($endpointWhiteList as $urlStart) {
@@ -202,15 +210,15 @@ class AjaxController extends BaseController {
 			));
 		}
 
-		$sessionId = Session::getId();
-		$success = DB::transaction(function() use (&$sessionId, &$url) {
-			$model = PushNotificationRegistrationEndpoint::where("session_id", $sessionId)->lockForUpdate()->first();
+		$success = DB::transaction(function() use (&$url, &$key, &$authSecret) {
+			$model = PushNotificationRegistrationEndpoint::where("url", $url)->lockForUpdate()->first();
 			if (is_null($model)) {
 				$model = new PushNotificationRegistrationEndpoint(array(
-					"session_id"	=> $sessionId
+					"url"	=> $url
 				));
 			}
-			$model->url = $url;
+			$model->key = $key;
+			$model->auth_secret = $authSecret;
 			return $model->save();
 		});
 		if (!$success) {
@@ -220,35 +228,6 @@ class AjaxController extends BaseController {
 		return Response::json(array(
 			"success"	=> true
 		));
-	}
-
-	public function getNotifications() {
-		if (!Config::get("pushNotifications.enabled")) {
-			App::abort(404);
-			return;
-		}
-		$payloads = array();
-		$redis = Redis::connection();
-		$key = "notificationPayloads.".Session::getId();
-		$tmpKey = $key.".tmp.".str_random(20);
-		try {
-			// rename for atomicity
-			if ($redis->rename($key, $tmpKey)) {
-				$data = $redis->get($tmpKey);
-				if (!is_null($data)) {
-					$redis->del($key);
-					$data = json_decode($data, true);
-					$now = time();
-					// ignore any notifications which have expired (older than 2 days)
-					foreach($data as $a) {
-						if ($a["time"] >= ($now-172800)*1000) {
-							$payloads[] = $a["payload"];
-						}
-					}
-				}
-			}
-		} catch(Exception $e) {}
-		return Response::json($payloads);
 	}
 	
 	private function formatLogDate($a, $milliseconds=false) {
@@ -273,5 +252,9 @@ class AjaxController extends BaseController {
 			$str = '"'.$a.'"';
 		}
 		return $str;
+	}
+
+	private function isValidBase64($a) {
+		return preg_match("/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/", $a) === true;
 	}
 }
