@@ -187,6 +187,7 @@ class AjaxController extends BaseController {
 		$key = isset($_POST["key"]) ? $_POST["key"] : null;
 		$authSecret = isset($_POST["authSecret"]) ? $_POST["authSecret"] : null;
 		if (
+			is_null($key) || is_null($authSecret) ||
 			strlen($key) !== 88 || strlen($authSecret) !== 24 ||
 			!$this->isValidBase64($key) || !$this->isValidBase64($authSecret)
 		) {
