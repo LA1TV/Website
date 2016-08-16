@@ -13,29 +13,29 @@ self.addEventListener('message', function(event) {
 // when push is subscribed in the ServiceWorker subscribeToPush()
 // If notifications aren't triggered Chrome will display one of its own
 self.addEventListener('push', function(event) {
-	event.waitUntil(makeRequest("/ajax/notifications").then(function(notificationsData) {
-		if (notificationsData.length === 0) {
+	try {
+		// todo endoding of data
+		var notificationData = event.data ? JSON.parse(event.data.text()) : null;
+		if (!notificationData) {
 			return showErrorNotification();
 		}
 
-		// show all pending notifications
-		return Promise.all(notificationsData.map(function(notificationData) {
-			var options = {  
-				body: notificationData.body,  
-				icon: notificationData.iconUrl,
-				data: {
-					url: notificationData.url
-				}
-			};
-			if (notificationData.tag) {
-				options.tag = notificationData.tag;
+		var options = {  
+			body: notificationData.body,  
+			icon: notificationData.iconUrl,
+			data: {
+				url: notificationData.url
 			}
-			return self.registration.showNotification(notificationData.title, options);
-		}));
-
-	}).catch(function(e) {
+		};
+		if (notificationData.tag) {
+			options.tag = notificationData.tag;
+		}
+		event.waitUntil(self.registration.showNotification(notificationData.title, options))
+	}
+	catch(e) {
+		console.error(e);
 		return showErrorNotification();
-	}));
+	}
 });
 
 self.addEventListener('notificationclick', function(event) {
