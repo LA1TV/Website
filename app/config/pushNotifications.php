@@ -10,6 +10,6 @@ return array(
 	// only endpoints which start with the following will be accepted
 	"endpointWhiteList" => array(
 		"https://android.googleapis.com/gcm/send/",
-		"https://updates.push.services.mozilla.com/push/"
+		"https://updates.push.services.mozilla.com/wpush/"
 	)
 );
