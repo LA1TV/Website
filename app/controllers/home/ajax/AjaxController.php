@@ -220,6 +220,7 @@ class AjaxController extends BaseController {
 			}
 			$model->key = $key;
 			$model->auth_secret = $authSecret;
+			$model->time_verified = time();
 			return $model->save();
 		});
 		if (!$success) {
@@ -256,6 +257,6 @@ class AjaxController extends BaseController {
 	}
 
 	private function isValidBase64($a) {
-		return preg_match("/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/", $a) === true;
+		return preg_match("/^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$/", $a) === 1;
 	}
 }
