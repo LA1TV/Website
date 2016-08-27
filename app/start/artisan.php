@@ -17,6 +17,8 @@ use uk\co\la1tv\website\commands\PromotedItemsCacheUpdateCommand;
 use uk\co\la1tv\website\commands\LiveItemsCacheUpdateCommand;
 use uk\co\la1tv\website\commands\ClearTempChunksCommand;
 use uk\co\la1tv\website\commands\ClearOldSessionsCommand;
+use uk\co\la1tv\website\commands\ClearOldPushNotificationEndpointsCommand;
+use uk\co\la1tv\website\commands\SendPushNotificationCommand;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,3 +49,5 @@ Artisan::add(new PromotedItemsCacheUpdateCommand());
 Artisan::add(new LiveItemsCacheUpdateCommand());
 Artisan::add(new ClearTempChunksCommand());
 Artisan::add(new ClearOldSessionsCommand());
+Artisan::add(new ClearOldPushNotificationEndpointsCommand());
+Artisan::add(new SendPushNotificationCommand());
