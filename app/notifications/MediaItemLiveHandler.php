@@ -85,7 +85,7 @@ class MediaItemLiveHandler {
 			"id"	=> intval($mediaItem->id),
 			"name"	=> $generatedName,
 			"url"	=> $uri,
-			"iconUrl"	=> asset("assets/img/notification-icon.png") 
+			"iconUrl"	=> asset("assets/img/notification-icon.png")
 		);
 	}
 

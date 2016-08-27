@@ -3,6 +3,6 @@
 class PushNotificationRegistrationEndpoint extends MyEloquent {
 
 	protected $table = 'push_notification_registration_endpoints';
-	protected $fillable = array('session_id', 'url');
+	protected $fillable = array('url', 'key', 'auth_secret', 'time_verified');
 
 }
