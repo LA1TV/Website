@@ -61,7 +61,7 @@ class ClearOldPushNotificationEndpointsCommand extends ScheduledCommand {
 		$this->info('Removing old push notification endpoints.');
 
 		$cutOffTime = time() - (Config::get("pushNotifications.lifetime")*60);
-		PushNotificationRegistrationEndpoint::where('updated_at', '<=', $cutOffTime)->delete();
+		PushNotificationRegistrationEndpoint::where('time_verified', '<=', $cutOffTime)->delete();
 		$this->info("Finished.");
 	}
 
