@@ -89,7 +89,11 @@ class UpdateLiveThumbnailsCommand extends ScheduledCommand {
 					$liveStreamUri->thumbnails_id = null;
 					$liveStreamUri->thumbnails_manifest_uri = null;
 					$liveStreamUri->save();
-					LiveThumbnails::stopGenerator($id);
+
+					// if something else is using the generator don't stop it
+					if (LiveStreamUri::where("thumbnails_id", $id)->count() === 0) {
+						LiveThumbnails::stopGenerator($id);
+					}
 				}
 			}
 			else {
@@ -98,13 +102,23 @@ class UpdateLiveThumbnailsCommand extends ScheduledCommand {
 					// it's stopped so start it again
 					$liveStreamUri->thumbnails_id = null;
 					$liveStreamUri->thumbnails_manifest_uri = null;	
-					// TODO prevent duplicates
-					$result = LiveThumbnails::startGenerator($liveStreamUri->thumbnails_source_uri);
-					if (!is_null($result)) {
-						$id = $result["id"];
-						$manifestUri = $result["manifestUri"];
-						$liveStreamUri->thumbnails_id = $id;
-						$liveStreamUri->thumbnails_manifest_uri = $manifestUri;
+					
+					// if there is already a generator running for the url then use that
+					$liveStreamUriToCopy = LiveStreamUri::where("thumbnails_source_uri", $liveStreamUri->thumbnails_source_uri)
+						->whereNotNull("thumbnails_id")->first();
+
+					if (!is_null($liveStreamUriToCopy)) {
+						$liveStreamUri->thumbnails_id = $liveStreamUriToCopy->thumbnails_id;
+						$liveStreamUri->thumbnails_manifest_uri = $liveStreamUriToCopy->thumbnails_manifest_uri;
+					}
+					else {
+						$result = LiveThumbnails::startGenerator($liveStreamUri->thumbnails_source_uri);
+						if (!is_null($result)) {
+							$id = $result["id"];
+							$manifestUri = $result["manifestUri"];
+							$liveStreamUri->thumbnails_id = $id;
+							$liveStreamUri->thumbnails_manifest_uri = $manifestUri;
+						}
 					}
 					$liveStreamUri->save();
 				}					
