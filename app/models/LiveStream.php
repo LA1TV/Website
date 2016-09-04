@@ -17,6 +17,9 @@ class LiveStream extends MyEloquent {
 	protected $fillable = array('name', 'description', 'enabled', 'shown_as_livestream');
 	protected $appends = array('urls_for_orderable_list', 'urls_for_input');
 	
+	// TODO hook into saving and if live is false cancel any dvr's that are attached to live streams that are LIVE
+	// necessary when (TODO check if urls have actually changed first) done in LiveStreamController
+
 	public function liveStreamItems() {
 		return $this->hasMany(self::$p.'MediaItemLiveStream', 'live_stream_id');
 	}
@@ -71,6 +74,7 @@ class LiveStream extends MyEloquent {
 			
 			$uri = array(
 				"uri"	=> $a->uri,
+				"thumbnailsUri"	=> $a->thumbnails_source_uri,
 				"uriForDvrBridgeService"	=> $uriForDvrBridgeService,
 				"hasDvr"	=> $uriForDvrBridgeService ? null : (boolean) $a->has_dvr,
 				"type"	=> $a->type,
@@ -197,6 +201,7 @@ class LiveStream extends MyEloquent {
 						"text"	=> $a['qualityDefinition']->name
 					),
 					"url"		=> $b['uri'],
+					"thumbnailsUrl"	=> $b['thumbnailsUri'],
 					"dvrBridgeServiceUrl"	=> $b['uriForDvrBridgeService'],
 					"nativeDvr"	=> $b['hasDvr'],
 					"type"		=> $b['type'],
