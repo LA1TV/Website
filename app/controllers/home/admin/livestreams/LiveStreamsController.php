@@ -203,12 +203,15 @@ class LiveStreamsController extends LiveStreamsBaseController {
 						throw(new Exception("Error saving LiveStream."));
 					}
 					
+					// TODO check if urls have actually changed first
+
 					$liveStream->liveStreamUris()->delete(); // detaches all. this causes any corresponding dvrBridgeServiceUrl's to be deleted as well which must happen on any change
 					$urlsData = json_decode($formData['urls'], true);
 					foreach($urlsData as $a) {
 						$qualityDefinition = QualityDefinition::find(intval($a['qualityState']['id']));
 						$url = $a['url'];
 						$dvrBridgeServiceUri = $a['dvrBridgeServiceUrl'];
+						$thumbnailsSourceUri = $a['thumbnailsUrl'];
 						$nativeDvr = $a['nativeDvr'];
 						$type = $a['type'];
 						$support = $a['support'];
@@ -223,6 +226,7 @@ class LiveStreamsController extends LiveStreamsBaseController {
 							"uri"						=> $url,
 							"dvr_bridge_service_uri"	=> $dvrBridgeServiceUri,
 							"has_dvr"					=> $nativeDvr,
+							"thumbnails_source_uri"		=> $thumbnailsSourceUri,
 							"type"						=> $type,
 							"supported_devices"			=> $supportedDevices,
 							"enabled"					=> $support !== "none"
