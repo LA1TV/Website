@@ -5,7 +5,7 @@ use Exception;
 class LiveStreamUri extends MyEloquent {
 	
 	protected $table = 'live_stream_uris';
-	protected $fillable = array('uri', 'dvr_bridge_service_uri', 'has_dvr', 'type', 'supported_devices', 'enabled');
+	protected $fillable = array('uri', 'dvr_bridge_service_uri', 'has_dvr', 'type', 'supported_devices', 'enabled', 'thumbnails_source_uri', 'thumbnails_id', 'thumbnails_manifest_uri');
 
 	protected static function boot() {
 		parent::boot();

@@ -83,6 +83,19 @@ class StreamUrlsReorderableList implements ReorderableList {
 				}
 				$currentItemOutput["type"] = $a['type'];
 			}
+			if (!array_key_exists('thumbnailsUrl', $a) || (!is_null($a['thumbnailsUrl']) && !is_string($a['thumbnailsUrl']))) {
+				$this->valid = false;
+				$currentItemOutput["thumbnailsUrl"] = null;
+			}
+			else {
+				if (!is_null($a['thumbnailsUrl'])) {
+					$a['thumbnailsUrl'] = trim($a['thumbnailsUrl']);
+					if (filter_var($a['thumbnailsUrl'], FILTER_VALIDATE_URL) === false) {
+						$this->valid = false;
+					}
+				}
+				$currentItemOutput["thumbnailsUrl"] = $a['thumbnailsUrl'];
+			}
 			
 			if (!isset($a['dvrBridgeServiceUrl']) || !is_bool($a['dvrBridgeServiceUrl'])) {
 				$this->valid = false;

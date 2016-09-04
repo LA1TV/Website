@@ -16,6 +16,7 @@ define([
 			return {
 				url: url,
 				dvrBridgeServiceUrl: dvrBridgeServiceUrl,
+				thumbnailsUrl: thumbnailsUrl,
 				nativeDvr: nativeDvr,
 				type: type,
 				support: support,
@@ -26,11 +27,13 @@ define([
 		this.setState = function(state) {
 			url = state.url;
 			dvrBridgeServiceUrl = state.dvrBridgeServiceUrl;
+			thumbnailsUrl = state.thumbnailsUrl;
 			nativeDvr = state.nativeDvr;
 			type = state.type;
 			support = state.support;
 			qualityState = state.qualityState;
 			$urlEl.val(url);
+			$thumbnailsUrlEl.val(thumbnailsUrl || "");
 			$dvrBridgeCheckbox.prop("checked", dvrBridgeServiceUrl);
 			$nativeDvrCheckbox.prop("checked", nativeDvr);
 			$typeEl.val(type);
@@ -57,6 +60,7 @@ define([
 		var qualityState = null;
 		var url = null;
 		var dvrBridgeServiceUrl = false;
+		var thumbnailsUrl = null;
 		var nativeDvr = false;
 		var type = null;
 		var support = null;
@@ -68,7 +72,9 @@ define([
 		$el.append($qualityCol);
 		var $urlCol = $("<div />").addClass("col-md-4");
 		var $urlEl = $("<input />").addClass("form-control").prop("type", "url").attr("placeholder", "Stream URL");
-		$urlCol.append($urlEl);
+		var $thumbnailsUrlEl = $("<input />").addClass("form-control").prop("type", "url").attr("placeholder", "Stream URL For Thumbnails (Optional)");
+		$urlCol.append($("<div />").append($urlEl));
+		$urlCol.append($("<div />").append($thumbnailsUrlEl));
 		$el.append($urlCol);
 		var $dvrBridgeCol = $("<div />").addClass("col-md-1");
 		var $dvrBridgeCheckbox = $("<input />").prop("type", "checkbox");
@@ -135,6 +141,17 @@ define([
 			var val = $(this).val();
 			if (url !== val) {
 				url = val;
+				$(self).triggerHandler("stateChanged");
+			}
+		});
+
+		$thumbnailsUrlEl.on("keyup change", function() {
+			var val = $(this).val();
+			if (val === "") {
+				val = null;
+			}
+			if (thumbnailsUrl !== val) {
+				thumbnailsUrl = val;
 				$(self).triggerHandler("stateChanged");
 			}
 		});
