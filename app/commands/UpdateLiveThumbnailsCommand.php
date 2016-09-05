@@ -103,9 +103,15 @@ class UpdateLiveThumbnailsCommand extends ScheduledCommand {
 					$liveStreamUri->thumbnails_id = null;
 					$liveStreamUri->thumbnails_manifest_uri = null;	
 					
-					// if there is already a generator running for the url then use that
-					$liveStreamUriToCopy = LiveStreamUri::where("thumbnails_source_uri", $liveStreamUri->thumbnails_source_uri)
-						->whereNotNull("thumbnails_id")->first();
+					$liveStreamUriToCopy = null;
+					if (is_null($liveStreamUri->thumbnails_id)) {
+						// if there is already a generator running for the url then use that
+						$liveStreamUriToCopy = LiveStreamUri::where("thumbnails_source_uri", $liveStreamUri->thumbnails_source_uri)
+							->whereNotNull("thumbnails_id")->first();
+						if (!is_null($liveStreamUriToCopy) && !LiveThumbnails::checkStillRunning($liveStreamUriToCopy->thumbnails_id)) {
+							$liveStreamUriToCopy = null;
+						}
+					}
 
 					if (!is_null($liveStreamUriToCopy)) {
 						$liveStreamUri->thumbnails_id = $liveStreamUriToCopy->thumbnails_id;
