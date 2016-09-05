@@ -134,6 +134,11 @@ class StreamUrlsReorderableList implements ReorderableList {
 			else {
 				$currentItemOutput["support"] = $a['support'];
 			}
+
+			if (!is_null($currentItemOutput["thumbnailsUrl"]) && !$currentItemOutput["dvrBridgeServiceUrl"] && !$currentItemOutput["nativeDvr"]) {
+				// thumbnails url only valid when the stream has native dvr or dvr bridge service
+				$this->valid = false;
+			}
 			
 			$output[] = $currentItemOutput;
 		}
