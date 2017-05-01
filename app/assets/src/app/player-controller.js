@@ -276,7 +276,7 @@ define([
 		var rememberedTimeTimerId = null;
 		var analyticsReportTimerId = null;
 		var registerWatchingTimerId = null;
-		var registerWatchingInterval = 10000;
+		var registerWatchingInterval = 25000;
 		
 		$(qualitiesHandler).on("chosenQualityChanged", function() {
 			// this can be fired as a result of the quality being changed in updatePlayer()
@@ -301,7 +301,7 @@ define([
 		}, 10000);
 		
 		// report whether or not the content is playing for view count etc
-		registerWatchingTimerId = setTimeout(registerWatchingAndSchedule, registerWatchingInterval);
+		registerWatchingTimerId = setTimeout(registerWatchingAndSchedule, 5000);
 
 		registerStateChangeNotifications();
 

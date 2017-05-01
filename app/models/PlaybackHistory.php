@@ -64,10 +64,10 @@ class PlaybackHistory extends MyEloquent {
 
 	public static function getNumWatchingNow($mediaItemId) {
 		$key = "numWatchingNow.".$mediaItemId;
-		// cache for 12 seconds (renew in background when 6 seconds old)
-		$seconds = 12;
+		// cache for 20 seconds (renew in background when 10 seconds old)
+		$seconds = 20;
 		$closure = function() use (&$mediaItemId) {
-			$cutOffTime = Carbon::now()->subSeconds(30);
+			$cutOffTime = Carbon::now()->subSeconds(60);
 			return PlaybackHistory::where("media_item_id", $mediaItemId)->where("playing", true)->where("created_at", ">", $cutOffTime)->distinct("session_id")->count("session_id");
 		};
 		return SmartCache::get($key, $seconds, $closure);
@@ -75,10 +75,10 @@ class PlaybackHistory extends MyEloquent {
 
 	public static function getNumWatchingNowByMediaItem() {
 		$key = "numWatchingByMediaItem";
-		// cache for 12 seconds (renew in background when 6 seconds old)
-		$seconds = 12;
+		// cache for 20 seconds (renew in background when 10 seconds old)
+		$seconds = 20;
 		$closure = function() {
-			$cutOffTime = Carbon::now()->subSeconds(30);
+			$cutOffTime = Carbon::now()->subSeconds(60);
 			$records = PlaybackHistory::select(DB::raw('media_item_id, COUNT(DISTINCT session_id) as count'))
 				->where("playing", true)
 				->where("created_at", ">", $cutOffTime)
