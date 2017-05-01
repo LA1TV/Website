@@ -27,6 +27,9 @@ class CreatingPlaybackHistoryTable extends Migration {
 			$table->timestamps();
 			
 			$table->index("original_session_id");
+			// when watching now count by media item is calcuulated, it is filtered by entries > created_at
+			// Without the index this query will look at all rows
+			$table->index("created_at");
 			$table->foreign("session_id")->references('id')->on('sessions')->onUpdate("restrict")->onDelete('set null');
 			$table->foreign("user_id")->references('id')->on('site_users')->onUpdate("restrict")->onDelete('set null');
 			$table->foreign("media_item_id")->references('id')->on('media_items')->onUpdate("restrict")->onDelete('cascade');
