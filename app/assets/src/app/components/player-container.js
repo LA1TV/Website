@@ -12,8 +12,8 @@ require("./player-container.css");
 	
 // registerWatchingUri and registerLikeUri may be null to disable these features
 // bottom bar mode can be "full", "compact" or "none"
-var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay) {
-
+var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, muted) {
+	muted = !!muted;
 	var self = this;
 
 	this.getEl = function() {
@@ -122,7 +122,7 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 	
 	
-	var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded);
+	var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded, muted);
 	$(playerController).on("playerComponentElAvailable", function() {
 		$playerComponent = playerController.getPlayerComponentEl();
 		$playerWrapper.append($playerComponent);
