@@ -122,7 +122,7 @@ var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeU
 	$qualitySelectionItemContainer.append(qualitySelectionComponent.getEl());
 	
 	
-	var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded, false, muted);
+	var playerController = new PlayerController(playerInfoUri, registerWatchingUri, registerLikeUri, qualitySelectionComponent, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, embedded, muted);
 	$(playerController).on("playerComponentElAvailable", function() {
 		$playerComponent = playerController.getPlayerComponentEl();
 		$playerWrapper.append($playerComponent);
