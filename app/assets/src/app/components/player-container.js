@@ -12,7 +12,7 @@ require("./player-container.css");
 	
 // registerWatchingUri and registerLikeUri may be null to disable these features
 // bottom bar mode can be "full", "compact" or "none"
-var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, muted) {
+var PlayerContainer = function(playerInfoUri, registerWatchingUri, registerLikeUri, recommendationsUri, enableAdminOverride, loginRequiredMsg, embedded, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, bottomBarMode, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, false, muted) {
 	muted = !!muted;
 	var self = this;
 
