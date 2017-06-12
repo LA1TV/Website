@@ -15,7 +15,7 @@ var logger = require("app/logger");
 require("imports?jQuery=lib/jquery!lib/jquery.dateFormat");
 require("./player.css");
 	
-var PlayerComponent = function(coverUri, qualitySelectionComponent) {
+var PlayerComponent = function(coverUri, qualitySelectionComponent, initialVolume) {
 	qualitySelectionComponent = qualitySelectionComponent || null;
 
 	var self = this;
@@ -300,7 +300,7 @@ var PlayerComponent = function(coverUri, qualitySelectionComponent) {
 	// id of timer that repeatedly calls updateAd() in order for countdown to work
 	var updateAdTimerId = null;
 	var wasFullScreen = null;
-	var previousVolume = null;
+	var previousVolume = typeof initialVolume !== 'undefined' ? initialVolume : null;
 	
 	var $container = $("<div />").addClass("player-component");
 	

@@ -100,6 +100,7 @@ class EmbedController extends EmbedBaseController {
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
 		$hideBottomBar = $flushMode;
 		$ignoreExternalStreamUrl = $kioskMode || (isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1");
+		$muted = isset($_GET['muted']) && $_GET['muted'] === "1";
 		$disableFullScreen = $kioskMode || (isset($_GET['disableFullScreen']) && $_GET['disableFullScreen'] === "1");
 		$showTitleInPlayer = !$kioskMode && $flushMode;
 		$enableSmartAutoPlay = !$kioskMode;
@@ -114,6 +115,7 @@ class EmbedController extends EmbedBaseController {
 		$view->autoPlayVod = $autoPlayVod;
 		$view->autoPlayStream = $autoPlayStream;
 		$view->vodPlayStartTime = is_null($vodPlayStartTime) ? "" : $vodPlayStartTime;
+		$view->muted = $muted;
 		$view->disableFullScreen = $disableFullScreen;
 		$view->showTitleInPlayer = $showTitleInPlayer;
 		$view->initialVodQualityId = $initialVodQualityId;
