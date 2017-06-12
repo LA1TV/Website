@@ -28,8 +28,7 @@ define([
 	// however whenever either of the 2 is paused by the user both autoPlay settings will be flipped to false
 	// unless enableSmartAutoPlay is false
 	// registerWatchingUri and registerLikeUri can be null to disable these features
-	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, qualitiesHandler, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, openLinksInNewWindow, 
-				     d) {
+	PlayerController = function(playerInfoUri, registerWatchingUri, registerLikeUri, qualitiesHandler, autoPlayVod, autoPlayStream, vodPlayStartTime, ignoreExternalStreamUrl, initialVodQualityId, initialStreamQualityId, disableFullScreen, placeQualitySelectionComponentInPlayer, showTitleInPlayer, disablePlayerControls, enableSmartAutoPlay, openLinksInNewWindow, muted) {
 		muted = !!muted;
 		var self = this;
 		
