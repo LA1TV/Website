@@ -46,7 +46,7 @@ class DebugHelpers {
 	
 	public static function generateMaintenanceModeResponse() {
 		$view = View::make("layouts.maintenance.body");
-		$view->title = "LA1:TV";
+		$view->title = "LA1TV";
 		$view->allowRobots = false;
 		$view->version = !is_null(self::getVersion()) ? self::getVersion() : "[Unknown]";
 		$view->cssFiles = array(

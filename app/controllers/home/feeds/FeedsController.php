@@ -18,9 +18,9 @@ class FeedsController extends BaseController {
 		
 		if (!$feed->isCached()) {
 			$items = MediaItem::getCachedRecentItems();
-			$feed->title = "LA1:TV's Latest Content";
+			$feed->title = "LA1TV's Latest Content";
 			$feed->description = 'This feed contains the latest content that is published to our website.';
-			$feed->logo = asset("/assets/img/logo.png");
+			$feed->logo = asset("/assets/img/logo.svg");
 			$feed->link = URL::route('home');
 			$feed->setDateFormat('datetime');
 			$feed->pubdate = Carbon::now();
@@ -30,7 +30,7 @@ class FeedsController extends BaseController {
 				$mediaItem = $item['mediaItem'];
 				$scheduledPublishTime = new Carbon($mediaItem->scheduled_publish_time);
 				// title, author, url, pubdate, description
-				$feed->add($item['generatedName']." [".$item['playlistName']."]", "LA1:TV", $item['uri'], $scheduledPublishTime, $mediaItem->description);
+				$feed->add($item['generatedName']." [".$item['playlistName']."]", "LA1TV", $item['uri'], $scheduledPublishTime, $mediaItem->description);
 			}
 		}
 		return $feed->render('rss');

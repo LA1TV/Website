@@ -121,7 +121,7 @@ class MediaItemEmailsSendVodAvailableCommand extends ScheduledCommand {
 				$title = "New content available!";
 				$message = "We now have new content available to watch on demand at our website.";
 			}
-			EmailHelpers::sendMediaItemEmail($a, '"{title}" Available Now From LA1:TV', $title, $message);
+			EmailHelpers::sendMediaItemEmail($a, '"{title}" Available Now From LA1TV', $title, $message);
 			$this->info("Sent email to users.");
 		}
 		$this->info("Finished.");

@@ -10,7 +10,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?=Config::get("custom.admin_base_url");?>">LA1:TV CMS</a>
+			<a class="navbar-brand" href="<?=Config::get("custom.admin_base_url");?>">LA1TV CMS</a>
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
@@ -23,7 +23,7 @@
 @yield('content')
 <div id="footer">
 	<div class="container">
-		<p class="text-muted footer-txt">The custom built content management system for LA1:TV.</p>
+		<p class="text-muted footer-txt">The custom built content management system for LA1TV.</p>
 	</div>
 </div>
 @stop

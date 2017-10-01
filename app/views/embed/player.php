@@ -1,7 +1,7 @@
 <div class="heading-container clearfix">
 <?php if ($hasVideo && $showHeading): ?>
 	<div class="logo-container">
-		<a href="<?=e($hyperlink);?>" target="_blank"><img class="img-responsive" src="<?=asset("assets/img/logo.png");?>"/></a>
+		<a href="<?=e($hyperlink);?>" target="_blank"><img class="img-responsive" src="<?=asset("assets/img/logo.svg");?>"/></a>
 	</div>
 	<div class="title-container">
 		<h1 class="episode-title"><a href="<?=e($hyperlink);?>" target="_blank"><?=e($episodeTitle);?></a></h1>
@@ -18,7 +18,7 @@
 			<?php if ($hasVideo): ?>
 			<div class="msg msg-loading delay-show">Loading<br /><img src="<?=asset("assets/img/loading.gif");?>"></div>
 			<?php else: ?>
-			<div class="msg msg-unavailable">Sorry this content is currently unavailable.<br /><a href="<?=e($hyperlink);?>" target="_blank">Click here to go to the LA1:TV website.</a></div>
+			<div class="msg msg-unavailable">Sorry this content is currently unavailable.<br /><a href="<?=e($hyperlink);?>" target="_blank">Click here to go to the LA1TV website.</a></div>
 			<?php endif; ?>
 		</div>
 	</div>

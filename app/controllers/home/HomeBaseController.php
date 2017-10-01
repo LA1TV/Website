@@ -33,7 +33,7 @@ class HomeBaseController extends BaseController {
 		$view->baseUrl = URL::to("/");
 		$view->currentNavPage = $navPage;
 		$view->cssPageId = $cssPageId;
-		$view->title = "LA1:TV";
+		$view->title = "LA1TV";
 		if (!is_null($title)) {
 			$view->title .= ": ".$title;
 		}
@@ -75,10 +75,10 @@ class HomeBaseController extends BaseController {
 		if (!is_null($facebookAppId)) {
 			$defaultOpenGraphProperties[] = array("name"=> "fb:app_id", "content"=> $facebookAppId);
 		}
-		$defaultOpenGraphProperties[] = array("name"=> "og:title", "content"=> "LA1:TV");
+		$defaultOpenGraphProperties[] = array("name"=> "og:title", "content"=> "LA1TV");
 		$defaultOpenGraphProperties[] = array("name"=> "og:url", "content"=> Request::url());
 		$defaultOpenGraphProperties[] = array("name"=> "og:locale", "content"=> "en_GB");
-		$defaultOpenGraphProperties[] = array("name"=> "og:site_name", "content"=> "LA1:TV");
+		$defaultOpenGraphProperties[] = array("name"=> "og:site_name", "content"=> "LA1TV");
 		$defaultOpenGraphProperties[] = array("name"=> "og:description", "content"=> $description);
 		$defaultOpenGraphProperties[] = array("name"=> "og:image", "content"=> Config::get("custom.open_graph_logo_uri"));
 		$finalOpenGraphProperties = $this->mergeProperties($defaultOpenGraphProperties, $openGraphProperties);

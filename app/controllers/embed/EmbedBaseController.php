@@ -22,7 +22,7 @@ class EmbedBaseController extends BaseController {
 		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
 		$view->baseUrl = URL::to("/");
 		$view->cssPageId = $cssPageId;
-		$view->title = !is_null($title) ? $title : "LA1:TV";
+		$view->title = !is_null($title) ? $title : "LA1TV";
 		$view->description = "";
 		$view->content = $content;
 		$view->allowRobots = false;

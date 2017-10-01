@@ -4,7 +4,7 @@
 <noscript>
 	<div class="container no-js-msg-container">
 		<div class="logo-container">
-			<img class="img-responsive logo" alt="LA1:TV Logo" src="<?=asset("/assets/img/logo.png");?>"/>
+			<img class="img-responsive logo" alt="LA1TV Logo" src="<?=asset("/assets/img/logo.svg");?>"/>
 		</div>
 		<div class="panel panel-danger no-js-panel">
 			<div class="panel-heading"><span class="glyphicon glyphicon-exclamation-sign"></span> Javascript Required</div>

@@ -22,9 +22,9 @@ class AdminBaseController extends BaseController {
 		$view->version = !is_null(DebugHelpers::getVersion()) ? DebugHelpers::getVersion() : "[Unknown]";
 		$view->currentNavPage = $navPage;
 		$view->cssPageId = $cssPageId;
-		$view->title = !is_null($title) ? $title : "LA1:TV CMS";
+		$view->title = !is_null($title) ? $title : "LA1TV CMS";
 		$view->content = $content;
-		$view->description = "The custom built content management system for LA1:TV's website.";
+		$view->description = "The custom built content management system for LA1TV's website.";
 		$view->allowRobots = false;
 		$view->manifestUri = URL::route('manifest');
 		$view->jsFiles = [
