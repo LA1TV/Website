@@ -791,7 +791,7 @@ body.outlook p {
                         <table class="twelve columns">
                           <tr>
                             <td>
-                              <center><img class="center" height="50" style="height: 50px !important;" src="<?=asset("assets/img/logo.png");?>"></center>
+                              <center><img class="center" height="50" style="height: 50px !important;" src="<?=asset("assets/img/logo.svg");?>"></center>
                             </td>
                             <td class="expander"></td>
 

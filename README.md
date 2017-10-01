@@ -1,7 +1,7 @@
 Website
 =======
 
-LA1:TV's website (https://www.la1tv.co.uk/).
+LA1TV's website (https://www.la1tv.co.uk/).
 
 Uses the java Website Upload Processor at "https://github.com/LA1TV/Website-Upload-Processor/"
 

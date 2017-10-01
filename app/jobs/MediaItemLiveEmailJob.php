@@ -51,7 +51,7 @@ class MediaItemLiveEmailsJob {
 		});
 		
 		if (!is_null($mediaItem)) {
-			EmailHelpers::sendMediaItemEmail($mediaItem, 'LA1:TV Live Now With "{title}"', "Live now!", "We are streaming live right now!");
+			EmailHelpers::sendMediaItemEmail($mediaItem, 'LA1TV Live Now With "{title}"', "Live now!", "We are streaming live right now!");
 		}
 		Log::info("Finished job to send email for media item with id ".$mediaItemId." which has gone live.");
 	}

@@ -132,7 +132,7 @@ class EmbedController extends EmbedBaseController {
 		$view->adminOverrideEnabled = $adminOverrideEnabled;
 		$view->hyperlink = $hyperlink;
 		$view->hasVideo = true;
-		$this->setContent($view, "player", 'LA1:TV- "' . $title . '"');
+		$this->setContent($view, "player", 'LA1TV- "' . $title . '"');
 	}
 	
 	private function do404Response() {
@@ -140,7 +140,7 @@ class EmbedController extends EmbedBaseController {
 		$view->hyperlink = URL::route('home');
 		$view->disableRedirect = $this->getDisableRedirect();
 		$view->hasVideo = false;
-		$this->setContent($view, "player", 'LA1:TV- [Content Unavailable]', 404);
+		$this->setContent($view, "player", 'LA1TV- [Content Unavailable]', 404);
 	}
 	
 	private function getVodStartTimeFromUrl() {
