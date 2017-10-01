@@ -72,7 +72,7 @@ class SendPushNotificationCommand extends Command {
 	{
 		return array(
 			array("title", "t", InputOption::VALUE_OPTIONAL, "Notification title.", "Test Notification"),
-			array("body", "b", InputOption::VALUE_OPTIONAL, "Notification body.", "This is a test from LA1:TV.")
+			array("body", "b", InputOption::VALUE_OPTIONAL, "Notification body.", "This is a test from LA1TV.")
 		);
 	}
 
