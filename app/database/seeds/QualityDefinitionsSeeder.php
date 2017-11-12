@@ -10,7 +10,7 @@ class QualityDefinitionsSeeder extends Seeder {
 	 * @return void
 	 */
 	public function run() {
-		$qualities = array("1080p", "720p", "480p", "360p", "240p", "160p", "Auto", "Native");
+		$qualities = array("4k", "1440p", "1080p", "720p", "480p", "360p", "240p", "160p", "Auto", "Native");
 		
 		foreach($qualities as $b=>$a) {
 			QualityDefinition::firstOrCreate(array("id"=>$b+1, "name"=>$a, "position"=>$b));
