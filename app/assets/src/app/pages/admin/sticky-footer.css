@@ -34,7 +34,7 @@ body {
 }
 
 @media (max-width: 767px) {
-	#footer .footer-txt .datadog
+	#footer .footer-txt .datadog {
 		display: none;
 	}
 }
