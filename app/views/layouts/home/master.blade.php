@@ -86,6 +86,7 @@
 		<li><a href="http://scan.lusu.co.uk/" target="_blank">SCAN</a></li>
 		<li><a href="http://bailriggfm.co.uk/" target="_blank">Bailrigg FM</a></li>
 		<li><a href="http://lusu.co.uk/" target="_blank">LUSU</a></li>
+		<li><a href="https://www.datadoghq.com/" target="_blank">Datadog</a></li>
 	</ul>
 </li>
 @stop
