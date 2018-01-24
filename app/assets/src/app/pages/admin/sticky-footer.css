@@ -17,6 +17,18 @@ body {
 }
 
 #footer .footer-txt {
+	position: relative;
 	margin: 20px 0;
 	text-align: center;
+}
+
+#footer .footer-txt .datadog {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+
+#footer .footer-txt .datadog img {
+	height: 100%;
 }
