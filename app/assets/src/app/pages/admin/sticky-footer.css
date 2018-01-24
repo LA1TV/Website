@@ -32,3 +32,9 @@ body {
 #footer .footer-txt .datadog img {
 	height: 100%;
 }
+
+@media (max-width: 767px) {
+	#footer .footer-txt .datadog
+		display: none;
+	}
+}
