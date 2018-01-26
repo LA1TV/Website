@@ -35,6 +35,7 @@
 <div id="footer" class="page-footer">
 	<div class="container">
 		<div class="footer-txt-container">
+			<div class="datadog" title="Monitoring provided by Datadog"><a href="https://www.datadoghq.com/" target="_blank"><img alt="Datadog" src="<?=asset("assets/img/datadog.svg");?>"/></a></div>
 			<div><a href="https://github.com/LA1TV/Website" target="_blank">Click here to view the source code on GitHub.</a></div>
 			<div class="admin-link"><a href="<?=e($adminUri);?>">Admin</a></div>
 		</div>
