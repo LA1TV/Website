@@ -21,9 +21,27 @@ body {
 }
 
 .page-footer .container .footer-txt-container {
+	position: relative;
 	margin: 11px 0;
 	text-align: center;
 	white-space: nowrap;
+}
+
+.page-footer .container .footer-txt-container .datadog {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.page-footer .container .footer-txt-container .datadog img {
+	height: 100%;
+}
+
+@media (max-width: 767px) {
+	.page-footer .container .footer-txt-container .datadog {
+		display: none;
+	}
 }
 
 .page-footer .container .footer-txt-container .admin-link  a {
