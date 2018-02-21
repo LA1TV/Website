@@ -32,7 +32,7 @@ return array(
 	"log_uri"			=> URL::to("/") . "/ajax/log", # where javascript log events should be posted to
 	"js_log_file_path"	=> storage_path() . DIRECTORY_SEPARATOR ."logs" . DIRECTORY_SEPARATOR . "js-log.log",
 	"wiki_url"			=> isset($_ENV['WIKI_URL']) ? $_ENV['WIKI_URL'] : null,
-	"default_cover_uri"		=> asset("assets/img/default-cover.jpg"),
+	"default_cover_uri"		=> asset("assets/img/default-cover.jpg") . "?v=2",
 	"open_graph_logo_uri"	=> asset("assets/img/og-logo.jpg"),
 	"twitter_card_logo_uri"	=> asset("assets/img/og-logo.jpg"),
 	"live_shows_uri"	=> URL::to("/") . "/player/live-shows",
@@ -43,7 +43,6 @@ return array(
 	"player_register_like_base_uri"	=> URL::to("/") . "/player/register-like",
 	"player_base_uri"	=> URL::to("/") . "/player",
 	"search_query_uri"	=> URL::to("/") . "/ajax/search",
-	"embed_default_cover_uri"	=> asset("assets/img/default-cover.png"),
 	"embed_player_info_base_uri"	=> URL::to("/") . "/mediaitem/player-info",
 	"embed_recommendations_base_uri"	=> URL::to("/") . "/mediaitem/recommendations",
 	"embed_player_register_watching_base_uri"	=> URL::to("/") . "/mediaitem/register-watching",
