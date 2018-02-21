@@ -7,9 +7,9 @@
 			<dt>Technical Support</dt>
 			<dd><a href="mailto:<?=e($developmentEmail);?>"><?=e($developmentEmail);?></a></dd>
 			<dt>Facebook</dt>
-			<dd><a href="<?=e($facebookPageUri);?>" target="_blank"><?=e($facebookPageUri);?></a></dd>
+			<dd><a href="<?=e($facebookPageUri);?>" target="_blank" rel="noopener"><?=e($facebookPageUri);?></a></dd>
 			<dt>Twitter</dt>
-			<dd><a href="<?=e($twitterPageUri);?>" target="_blank"><?=e($twitterPageUri);?></a></dd>
+			<dd><a href="<?=e($twitterPageUri);?>" target="_blank" rel="noopener"><?=e($twitterPageUri);?></a></dd>
 		</dl>
 		<?php if (!is_null($twitterWidgetId) || $showFacebookWidget): ?>
 		<div class="image-container">

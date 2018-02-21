@@ -948,7 +948,7 @@ var PlayerComponent = function(coverUri, qualitySelectionComponent, initialVolum
 				var url = titleLinkUriCallback();
 				self.pause(); // pause if something is playing
 				if (titleOpenInNewWindow) {
-					window.open(url, "_blank");
+					window.open(url, "_blank", "noopener");
 				}
 				else {
 					window.location = url;
