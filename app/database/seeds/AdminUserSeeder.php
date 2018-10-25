@@ -12,7 +12,7 @@ class AdminUserSeeder extends Seeder {
 	public function run() {
 		
 		if (App::environment() == "production") {
-			$this->command->error("You are about to create a user 'admin' with admin permissions?");
+			$this->command->error("You are about to create a user with admin permissions?");
 			if (!$this->command->confirm('Are you sure you want to continue? [y|n]:', false))
 			{
 				$this->command->comment("Aborting.");
@@ -20,10 +20,18 @@ class AdminUserSeeder extends Seeder {
 			}
 		}
 		
-		$user = User::where("username", "admin")->first();
+		$username = this->command->confirm('Enter a username [admin]:', "admin");
+		if (trim($username) === "") {
+			$this->command->error("Invalid username.");
+			return;
+		}
+		
+		$this->command->comment("Creating user: " . $username);
+		
+		$user = User::where("username", $username)->first();
 		if (!is_null($user)) {
 			
-			if (!$this->command->confirm("A user with username 'admin' already exists. This user will be removed. Are you sure you want to continue? [y|n]:", false)) {
+			if (!$this->command->confirm("A user with that username already exists. This user will be removed. Are you sure you want to continue? [y|n]:", false)) {
 				$this->command->comment("Aborting.");
 				return;
 			}
@@ -45,13 +53,13 @@ class AdminUserSeeder extends Seeder {
 		}
 		
 		User::create(array(
-			"username"		=> "admin",
+			"username"		=> $username,
 			"password_hash"	=>	Hash::make($password),
 			"disabled"		=> false,
 			"admin"			=> true
 		));
 	
-		$this->command->comment("Created user 'admin' with admin permissions.");
+		$this->command->comment("Created user '" . $username . "' with admin permissions.");
 	}
 
 }
