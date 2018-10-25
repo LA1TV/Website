@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder {
 			}
 		}
 		
-		$username = this->command->confirm('Enter a username [admin]:', "admin");
+		$username = $this->command->confirm('Enter a username [admin]:', "admin");
 		if (trim($username) === "") {
 			$this->command->error("Invalid username.");
 			return;
