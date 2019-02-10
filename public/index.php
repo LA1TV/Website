@@ -1,4 +1,9 @@
 <?php
+
+// do not treat deprecations as errors /0\
+error_reporting(E_ALL ^ E_DEPRECATED);
+
+
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
