@@ -20,15 +20,12 @@ class MediaItemTransformer extends Transformer {
 		
 		$scheduledPublishTime = $mediaItem->scheduled_publish_time->timestamp;
 		
-		$coverArtUris = null;
-		if (!is_null($playlist)) {
-			$coverArtResolutions = Config::get("imageResolutions.coverArt");
-			
-			$coverArtUris = [
-				"thumbnail"		=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
-				"full"			=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']),
-			];
-		}
+		$coverArtResolutions = Config::get("imageResolutions.coverArt");
+		
+		$coverArtUris = [
+			"thumbnail"		=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['thumbnail']['w'], $coverArtResolutions['thumbnail']['h']),
+			"full"			=> $playlist->getMediaItemCoverArtUri($mediaItem, $coverArtResolutions['full']['w'], $coverArtResolutions['full']['h']),
+		];
 			
 		$minNumberOfViews = Config::get("custom.min_number_of_views");
 		$viewCountTotal = 0;
