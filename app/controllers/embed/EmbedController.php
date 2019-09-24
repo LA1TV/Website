@@ -98,7 +98,7 @@ class EmbedController extends EmbedBaseController {
 		$vodPlayStartTime = $kioskMode ? 0 : $this->getVodStartTimeFromUrl();
 		$flushMode = $kioskMode || (!isset($_GET['flush']) || $_GET['flush'] === "1");
 		$showHeading = !$flushMode && (!isset($_GET['showHeading']) || $_GET['showHeading'] === "1");
-		$hideBottomBar = $flushMode;
+		$hideBottomBar = $flushMode || $_GET['hideBottomBar'] === "1";
 		$ignoreExternalStreamUrl = $kioskMode || (isset($_GET['ignoreExternalStreamUrl']) && $_GET['ignoreExternalStreamUrl'] === "1");
 		$muted = isset($_GET['muted']) && $_GET['muted'] === "1";
 		$disableFullScreen = $kioskMode || (isset($_GET['disableFullScreen']) && $_GET['disableFullScreen'] === "1");
